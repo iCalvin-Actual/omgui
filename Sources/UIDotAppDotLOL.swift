@@ -14,19 +14,17 @@ enum Context {
 }
 
 @available(iOS 16.1, *)
-public struct UIDotAppDotLOL: App {
+public struct UIDotAppDotLOL: View {
     @StateObject
-    var model: AppModel = .state
+    var state: AppModel
     
-    public init() {
+    public init(fetcher: AppModelDataFetcher) {
+        self._state = StateObject(wrappedValue: AppModel(fetcher: fetcher))
     }
     
-    public var body: some Scene {
-        WindowGroup { 
-            CoreNavigationView()
-                .environmentObject(SceneModel())
-                .environmentObject(model.addressDirectory)
-                .environmentObject(model.accountModel)
-        }
+    public var body: some View {
+        CoreNavigationView()
+            .environmentObject(SceneModel())
+            .environmentObject(state)
     }
 }

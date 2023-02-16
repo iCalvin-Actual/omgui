@@ -6,7 +6,7 @@ struct ProfileView: View {
     var sceneModel: SceneModel
     
     @ObservedObject
-    var model: AddressDetailModels
+    var model: AddressDetailsDataFetcher
     
     @State
     var sort: Sort = .alphabet
@@ -26,7 +26,7 @@ struct ProfileView: View {
     var body: some View {
         VStack {
             HStack(alignment: .bottom) {
-                Text(model.addressModel.addressName.addressDisplayString)
+                Text(model.addressName.addressDisplayString)
                     .font(.title)
                     .fontDesign(.serif)
                     .bold()
@@ -53,7 +53,7 @@ struct ProfileView: View {
     var brokenBody: some View {
         VStack {
             HStack(alignment: .bottom) {
-                Text(model.addressModel.addressName.addressDisplayString)
+                Text(model.addressName.addressDisplayString)
                     .font(.title)
                     .fontDesign(.serif)
                     .bold()
@@ -81,13 +81,13 @@ struct ProfileView: View {
     func sidebar() -> some View {
         VStack {
             HStack(alignment: .top) {
-                Text(model.addressModel.url?.absoluteString ?? "")
+                Text(model.url?.absoluteString ?? "")
                 
                 Spacer()
             }
             
             Grid {
-                ForEach(model.gridItems) { item in
+                ForEach(gridItems) { item in
                     ProfileGridView(model: item, destination: destination(_:))
                 }
             }
@@ -105,41 +105,68 @@ struct ProfileView: View {
     func innerDestination(_ item: ProfileGridItem) -> some View {
         switch item {
         case .profile:
-            HTMLStringView(htmlContent: model.profileHTML)
+            HTMLStringView(htmlContent: model.profileFetcher?.html ?? "")
         case .now:
-            MarkdownTextView(model.nowString)
+            MarkdownTextView(model.nowFetcher?.content ?? "")
         case .statuslog:
             StatusList(
                 model: .init(
                     sort: sort
                 ),
-                fetcher: .community,
+                fetcher: .init(),
                 selected: $sceneModel.selectedStatus,
                 sort: $sort,
                 context: .profile
             )
         case .pastebin:
-            PasteList(
-                model: .init(
-                    sort: sort
-                ),
-                fetcher: .init(
-                    addresses: [model.addressModel]),
-                selected: $sceneModel.selectedPaste,
-                sort: $sort,
-                context: .profile
-            )
+            if let pasteFetcher = model.pasteFetcher {
+                PasteList(
+                    model: .init(
+                        sort: sort
+                    ),
+                    fetcher: pasteFetcher,
+                    selected: $sceneModel.selectedPaste,
+                    sort: $sort,
+                    context: .profile
+                )
+            }
         case .purl:
-            PURLList(
-                model: .init(
-                    sort: sort
-                ),
-                fetcher: .init(
-                    addresses: [model.addressModel]),
-                selected: $sceneModel.selectedPURL,
-                sort: $sort,
-                context: .profile
-            )
+            if let purlFetcher = model.purlFetcher {
+                PURLList(
+                    model: .init(
+                        sort: sort
+                    ),
+                    fetcher: purlFetcher,
+                    selected: $sceneModel.selectedPURL,
+                    sort: $sort,
+                    context: .profile
+                )
+            }
         }
+    }
+    
+    var gridItems: [ProfileGridItemModel] {
+        [
+            .init(
+                item: .profile,
+                isLoaded: model.profileFetcher != nil
+            ),
+            .init(
+                item: .now,
+                isLoaded: model.nowFetcher != nil
+            ),
+            .init(
+                item: .statuslog,
+                isLoaded: true
+            ),
+            .init(
+                item: .purl,
+                isLoaded: model.purlFetcher != nil
+            ),
+            .init(
+                item: .pastebin,
+                isLoaded: model.pasteFetcher != nil
+            )
+        ]
     }
 }

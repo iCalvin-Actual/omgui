@@ -4,6 +4,8 @@ import SwiftUI
 public struct CoreNavigationView: View {
     
     @EnvironmentObject
+    var appModel: AppModel
+    @EnvironmentObject
     var model: SceneModel
     @EnvironmentObject
     var accountModel: AccountModel
@@ -100,7 +102,7 @@ public struct CoreNavigationView: View {
                     sort: addressSort,
                     filters: .everyone
                 ),
-                fetcher: .community,
+                fetcher: .init(),
                 selected: $model.selectedStatus,
                 sort: $addressSort
             )
@@ -119,7 +121,7 @@ public struct CoreNavigationView: View {
                     sort: addressSort,
                     filters: .followed
                 ),
-                fetcher: .community,
+                fetcher: .init(),
                 selected: $model.selectedStatus,
                 sort: $addressSort
             )
@@ -153,7 +155,7 @@ public struct CoreNavigationView: View {
             })
         case .pinned(let address):
             ProfileView(
-                model: AppModel.state.addressDetails(address),
+                model: appModel.addressDetails(address),
                 context: .column
             )
             .navigationBarTitleDisplayMode(.inline)
@@ -183,7 +185,7 @@ public struct CoreNavigationView: View {
             switch detail {
             case .profile(let address):
                 ProfileView(
-                    model: AppModel.state.addressDetails(address),
+                    model: appModel.addressDetails(address),
                     context: .profile
                 )
             default:

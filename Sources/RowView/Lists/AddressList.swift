@@ -4,7 +4,7 @@ import SwiftUI
 struct AddressListView: View {
     
     @EnvironmentObject
-    var directory: DirectoryModel
+    var appModel: AppModel
     
     let model: ListModel<AddressModel>
     
@@ -28,7 +28,7 @@ struct AddressListView: View {
     var body: some View {
         BlockList(
             model: model,
-            modelBuilder: { directory.addresses },
+            modelBuilder: { appModel.directory },
             rowBuilder: { _ in nil as ListItem<AddressModel>? },
             selected: $selected,
             context: .column,

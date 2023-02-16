@@ -11,20 +11,16 @@ public class AccountModel: ObservableObject {
 extension AccountModel {
     var blocked: [AddressName] {
         [
-            "merlinmann"
         ]
     }
     
     var following: [AddressName] {
         [
-            "app",
-            "hotdogsladies"
         ]
     }
     
     var pinned: [AddressName] {
         [
-            "calvin"
         ]
     }
 }

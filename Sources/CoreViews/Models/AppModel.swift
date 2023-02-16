@@ -1,17 +1,12 @@
 import SwiftUI
 
+
 @MainActor
 @available(iOS 16.1, *)
 public class AppModel: ObservableObject {
     
-    public static var state: AppModel = {
-        AppModel()
-    }()
-    
     @Published
-    public var accountAddresses: [AddressModel] = []
-    @Published
-    public var addressDirectory: DirectoryModel = .init()
+    public var modelFetcher: AppModelDataFetcher
     
     @Published
     public var accountModel: AccountModel = .init()
@@ -19,9 +14,10 @@ public class AppModel: ObservableObject {
     @AppStorage("app.lol.auth", store: .standard)
     private var authKey: String = ""
     
-    private var profileModels: [AddressName: AddressDetailModels] = [:]
+    private var profileModels: [AddressName: AddressDetailsDataFetcher] = [:]
     
-    private init() {
+    internal init(fetcher: AppModelDataFetcher) {
+        self.modelFetcher = fetcher
         Task {
             fetch()
         }
@@ -29,19 +25,7 @@ public class AppModel: ObservableObject {
     
     private func fetch() {
         
-        // Fetch Directory
-        addressDirectory.fetch()
-        
-        // Fetch Recent Status Log
-        //    TBD: Does that include X most recent, or the most recent from each address?
-        
-        // Fetch service info
-        
-        // Combile list of addresses to fetch
-        //     Self, pinned
-        // Create view models and insert into store
-        
-        // Fetch Nows
+        modelFetcher.update()
         
     }
     
@@ -52,23 +36,22 @@ public class AppModel: ObservableObject {
                 "calvin"
             ]
             for address in addresses {
-                guard !self.profileModels.keys.contains(address) else {
-                    continue
-                }
-                self.profileModels[address] = .init(address: .init(address))
+                let _ = addressDetails(address)
             }
-            
-            
         }
     }
     
-    public func addressDetails(_ address: AddressName) -> AddressDetailModels {
+    public func addressDetails(_ address: AddressName) -> AddressDetailsDataFetcher {
         if let model = profileModels[address] {
             return model
         } else {
-            let newModel = AddressDetailModels(address: address)
+            let newModel = AddressDetailsDataFetcher(name: address)
             profileModels[address] = newModel
             return newModel
         }
     }
+}
+
+internal extension AppModel {
+    var directory: [AddressModel] { modelFetcher.directory }
 }

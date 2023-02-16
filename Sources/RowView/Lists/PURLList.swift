@@ -13,7 +13,7 @@ struct PURLList: View {
     var model: ListModel<PURLModel>
     
     @ObservedObject
-    var fetcher: PURLListFetcher
+    var fetcher: AddressPURLsDataFetcher
     
     @Binding
     var selected: PURLModel?
@@ -33,47 +33,6 @@ struct PURLList: View {
             selected: $selected,
             context: context,
             sort: $sort
-        )
-    }
-}
-
-class PURLListFetcher: ObservableObject {
-    
-    var addresses: [AddressModel]
-    
-    @Published
-    var purls: [PURLModel]
-    
-    init(addresses: [AddressModel] = [], purls: [PURLModel] = []) {
-        self.addresses = addresses
-        self.purls = purls
-        fetch()
-    }
-        
-    func fetch() {
-        // If no addresses, fetch from public log
-        if addresses.isEmpty {
-            purls = [
-                .sample
-            ]
-        } else {
-            purls = [
-                .sample
-            ]
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-            self.purls.append(.sample)
-        }
-    }
-}
-
-extension PURLModel {
-    static var sample: PURLModel {
-        .init(
-            owner: "calvin",
-            destination: "https://daringfireball.net",
-            value: "url"
         )
     }
 }
