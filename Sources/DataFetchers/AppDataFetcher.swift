@@ -35,7 +35,7 @@ import Foundation
  */
 
 open class UIDataFetcher: ObservableObject {
-    init() {
+    public init() {
         update()
     }
     
@@ -53,7 +53,7 @@ open class AppModelDataFetcher: UIDataFetcher {
     @Published
     var directory: [AddressModel] = []
     
-    override init() {
+    public override init() {
         super.init()
     }
 }
@@ -64,7 +64,7 @@ open class StatusLogDataFetcher: UIDataFetcher {
     @Published
     var statuses: [StatusModel]
     
-    init(addresses: [AddressName] = [], statuses: [StatusModel] = []) {
+    public init(addresses: [AddressName] = [], statuses: [StatusModel] = []) {
         self.addresses = addresses
         self.statuses = statuses
         super.init()
@@ -91,7 +91,7 @@ open class AddressDetailsDataFetcher: UIDataFetcher {
     @Published
     var pasteFetcher: AddressPasteBinDataFetcher?
     
-    init(
+    public init(
         name: AddressName,
         profileFetcher: AddressProfileDataFetcher? = nil,
         nowFetcher: AddressNowDataFetcher? = nil,
@@ -124,7 +124,7 @@ open class AddressProfileDataFetcher: UIDataFetcher {
     @Published
     var html: String?
     
-    init(name: AddressName) {
+    public init(name: AddressName) {
         self.addressName = name
         super.init()
     }
@@ -142,7 +142,7 @@ open class AddressNowDataFetcher: UIDataFetcher {
     @Published
     var listed: Bool?
     
-    init(name: AddressName) {
+    public init(name: AddressName) {
         self.addressName = name
         super.init()
     }
@@ -155,7 +155,7 @@ open class AddressPasteBinDataFetcher: UIDataFetcher {
     @Published
     var pastes: [PasteModel] = []
     
-    init(name: AddressName) {
+    public init(name: AddressName) {
         self.addressName = name
         super.init()
     }
@@ -168,7 +168,7 @@ open class AddressPURLsDataFetcher: UIDataFetcher {
     @Published
     var purls: [PURLModel] = []
     
-    init(name: AddressName) {
+    public init(name: AddressName) {
         self.addressName = name
         super.init()
     }
