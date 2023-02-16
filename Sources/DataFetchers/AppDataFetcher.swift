@@ -18,24 +18,71 @@ import Foundation
  - Following Status Log
  - My Status Log
  
- 
- 
- 
- 
- Directory Fetcher
- 
- Profile Fetcher
- * Include PURL and Paste
- 
- Global Status Fetcher
- 
- Address Status Fetcher
- * Accepts array
- 
  */
 
-open class UIDataFetcher: ObservableObject {
-    public init() {
+
+public protocol OMGDataFetcher {
+    
+    func fetchServiceInfo() async -> ServiceInfoModel
+    
+    func fetchGlobalBlocklist() async -> [AddressName] 
+    
+    func fetchAddressDirectory() async -> [AddressName]
+    
+    func fetchAddressProfile() async -> String?
+    
+    func fetchAddressInfo(_ name: AddressName) async -> AddressModel
+    
+    func fetchAddressPURLs(_ name: AddressName) async -> [PURLModel]
+    
+    func fetchAddressPastes(_ name: AddressName) async -> [PURLModel]
+    
+    func fetchStatusLog() async -> [StatusModel]
+    
+    func fetchAddressStatuses(addresses: [AddressName]) async -> [StatusModel]
+    
+}
+
+open class SampleDataFetcher: OMGDataFetcher {
+    public func fetchGlobalBlocklist() async -> [AddressName] {
+        return []
+    }
+    
+    public func fetchServiceInfo() async -> ServiceInfoModel {
+        return .init(members: 0, addresses: 0, profiles: 0)
+    }
+
+    public func fetchAddressDirectory() async -> [AddressName] {
+        return []
+    }
+    
+    public func fetchAddressProfile() async -> String? {
+        return nil
+    }
+    
+    public func fetchAddressInfo(_ name: AddressName) async -> AddressModel {
+        return .init(name: name, url: URL(string: "https://\(name).omg.lol"), registered: Date())
+    }
+    
+    public func fetchAddressPURLs(_ name: AddressName) async -> [PURLModel] {
+        return []
+    } 
+    
+    public func fetchAddressPastes(_ name: AddressName) async -> [PURLModel] {
+        return []
+    }
+    
+    public func fetchStatusLog() async -> [StatusModel] {
+        return []
+    }
+    
+    public func fetchAddressStatuses(addresses: [AddressName]) async -> [StatusModel] {
+        return []
+    }
+}
+
+public class UIDataFetcher: ObservableObject {
+    init() {
         update()
     }
     

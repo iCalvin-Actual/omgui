@@ -1,5 +1,6 @@
 import SwiftUI
 
+@available(iOS 16.1, *)
 @available(macCatalyst 16.1, *)
 struct AccountView: View {
     @EnvironmentObject
