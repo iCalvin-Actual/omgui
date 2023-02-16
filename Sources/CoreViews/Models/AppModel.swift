@@ -52,6 +52,7 @@ public class AppModel: ObservableObject {
     }
 }
 
+@available(macCatalyst 16.1, *)
 internal extension AppModel {
     var directory: [AddressModel] { modelFetcher.directory }
 }

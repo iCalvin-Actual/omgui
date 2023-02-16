@@ -1,8 +1,9 @@
 import SwiftUI
 
+@available(macCatalyst 16.1, *)
 struct AccountView: View {
     @EnvironmentObject
-    var model: AccountModel
+    var model: AppModel
     
     let activeAddress: AddressModel?
     
@@ -12,7 +13,7 @@ struct AccountView: View {
     
     var body: some View {
         Button {
-            model.showingAccountModal.toggle()
+            model.accountModel.showingAccountModal.toggle()
         } label: {
             Image(systemName: "person.crop.square")
             
