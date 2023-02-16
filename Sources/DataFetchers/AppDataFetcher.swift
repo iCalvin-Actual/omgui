@@ -34,7 +34,7 @@ import Foundation
  
  */
 
-public class UIDataFetcher: ObservableObject {
+open class UIDataFetcher: ObservableObject {
     init() {
         update()
     }
@@ -44,7 +44,7 @@ public class UIDataFetcher: ObservableObject {
     }
 }
 
-public class AppModelDataFetcher: UIDataFetcher {
+open class AppModelDataFetcher: UIDataFetcher {
     
     @Published
     var serviceInfo: ServiceInfoModel?
@@ -58,7 +58,7 @@ public class AppModelDataFetcher: UIDataFetcher {
     }
 }
 
-public class StatusLogDataFetcher: UIDataFetcher {
+open class StatusLogDataFetcher: UIDataFetcher {
     let addresses: [AddressName]
     
     @Published
@@ -71,7 +71,7 @@ public class StatusLogDataFetcher: UIDataFetcher {
     }
 }
 
-public class AddressDetailsDataFetcher: UIDataFetcher {
+open class AddressDetailsDataFetcher: UIDataFetcher {
     
     var addressName: AddressName
     
@@ -117,7 +117,7 @@ public class AddressDetailsDataFetcher: UIDataFetcher {
     }
 }
 
-public class AddressProfileDataFetcher: UIDataFetcher {
+open class AddressProfileDataFetcher: UIDataFetcher {
     @Published
     var addressName: AddressName
     
@@ -130,7 +130,7 @@ public class AddressProfileDataFetcher: UIDataFetcher {
     }
 }
 
-public class AddressNowDataFetcher: UIDataFetcher {
+open class AddressNowDataFetcher: UIDataFetcher {
     @Published
     var addressName: AddressName
     
@@ -148,7 +148,7 @@ public class AddressNowDataFetcher: UIDataFetcher {
     }
 }
 
-public class AddressPasteBinDataFetcher: UIDataFetcher {
+open class AddressPasteBinDataFetcher: UIDataFetcher {
     @Published
     var addressName: AddressName
     
@@ -161,7 +161,7 @@ public class AddressPasteBinDataFetcher: UIDataFetcher {
     }
 }
 
-public class AddressPURLsDataFetcher: UIDataFetcher {
+open class AddressPURLsDataFetcher: UIDataFetcher {
     @Published
     var addressName: AddressName
     
