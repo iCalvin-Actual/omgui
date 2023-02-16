@@ -42,7 +42,7 @@ struct BlockList<T: Listable, V: View>: View {
     var queryString: String = ""
     
     @EnvironmentObject
-    var accountModel: AccountModel
+    var appModel: AppModel
     
     @Binding
     var sort: Sort
@@ -57,7 +57,7 @@ struct BlockList<T: Listable, V: View>: View {
     }
     
     var items: [T] {
-        model.apply(to: modelBuilder(), with: accountModel)
+        model.apply(to: modelBuilder(), with: appModel.accountModel)
             .filter { model in
                 guard !queryString.isEmpty else {
                     return true

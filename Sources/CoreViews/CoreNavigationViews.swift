@@ -7,8 +7,6 @@ public struct CoreNavigationView: View {
     var appModel: AppModel
     @EnvironmentObject
     var model: SceneModel
-    @EnvironmentObject
-    var accountModel: AccountModel
     
     @SceneStorage("scene.sort.address")
     var addressSort: Sort = .alphabet
@@ -41,7 +39,7 @@ public struct CoreNavigationView: View {
             }
         }
         .sheet(
-            isPresented: $accountModel.showingAccountModal,
+            isPresented: $appModel.accountModel.showingAccountModal,
             onDismiss: { },
             content: { ManageAccountView() }
         )
