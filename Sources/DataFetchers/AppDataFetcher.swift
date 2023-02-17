@@ -21,7 +21,7 @@ import Foundation
  */
 
 
-public protocol OMGDataFetcher {
+public protocol OMGDataInterface {
     
     func fetchServiceInfo() async -> ServiceInfoModel
     
@@ -43,46 +43,49 @@ public protocol OMGDataFetcher {
     
 }
 
-open class SampleDataFetcher: OMGDataFetcher {
-    public func fetchGlobalBlocklist() async -> [AddressName] {
-        return []
+class FetchConstructor: ObservableObject {
+    let interface: OMGDataInterface
+    init(interface: OMGDataInterface) {
+        self.interface = interface
     }
     
-    public func fetchServiceInfo() async -> ServiceInfoModel {
-        return .init(members: 0, addresses: 0, profiles: 0)
-    }
-
-    public func fetchAddressDirectory() async -> [AddressName] {
-        return []
+    func appModelDataFetcher() -> AppModelDataFetcher {
+        AppModelDataFetcher(interface: interface)
     }
     
-    public func fetchAddressProfile() async -> String? {
-        return nil
+    func statusLog(for addresses: [AddressName]) -> StatusLogDataFetcher {
+        StatusLogDataFetcher(addresses: addresses, interface: interface)
     }
     
-    public func fetchAddressInfo(_ name: AddressName) async -> AddressModel {
-        return .init(name: name, url: URL(string: "https://\(name).omg.lol"), registered: Date())
+    func generalStatusLog() -> StatusLogDataFetcher {
+        StatusLogDataFetcher(interface: interface)
     }
     
-    public func fetchAddressPURLs(_ name: AddressName) async -> [PURLModel] {
-        return []
-    } 
-    
-    public func fetchAddressPastes(_ name: AddressName) async -> [PURLModel] {
-        return []
+    func addressDetailsFetcher(_ address: AddressName) -> AddressDetailsDataFetcher {
+        AddressDetailsDataFetcher(name: address, interface: interface)
     }
     
-    public func fetchStatusLog() async -> [StatusModel] {
-        return []
+    func addressProfileFetcher(_ address: AddressName) -> AddressProfileDataFetcher {
+        AddressProfileDataFetcher(name: address, interface: interface)
     }
     
-    public func fetchAddressStatuses(addresses: [AddressName]) async -> [StatusModel] {
-        return []
+    func addresNowFetcher(_ address: AddressName) -> AddressNowDataFetcher {
+        AddressNowDataFetcher(name: address, interface: interface)
+    }
+    
+    func addressPastesFetcher(_ address: AddressName) -> AddressPasteBinDataFetcher {
+        AddressPasteBinDataFetcher(name: address, interface: interface)
+    }
+    
+    func addressPURLsFetcher(_ address: AddressName) -> AddressPURLsDataFetcher {
+        AddressPURLsDataFetcher(name: address, interface: interface)
     }
 }
 
-public class UIDataFetcher: ObservableObject {
-    init() {
+class DataFetcher: ObservableObject {
+    let interface: OMGDataInterface
+    init(interface: OMGDataInterface) {
+        self.interface = interface
         update()
     }
     
@@ -91,7 +94,7 @@ public class UIDataFetcher: ObservableObject {
     }
 }
 
-open class AppModelDataFetcher: UIDataFetcher {
+class AppModelDataFetcher: DataFetcher {
     
     @Published
     var serviceInfo: ServiceInfoModel?
@@ -100,25 +103,25 @@ open class AppModelDataFetcher: UIDataFetcher {
     @Published
     var directory: [AddressModel] = []
     
-    public override init() {
-        super.init()
+    public override init(interface: OMGDataInterface) {
+        super.init(interface: interface)
     }
 }
 
-open class StatusLogDataFetcher: UIDataFetcher {
+class StatusLogDataFetcher: DataFetcher {
     let addresses: [AddressName]
     
     @Published
     var statuses: [StatusModel]
     
-    public init(addresses: [AddressName] = [], statuses: [StatusModel] = []) {
+    public init(addresses: [AddressName] = [], statuses: [StatusModel] = [], interface: OMGDataInterface) {
         self.addresses = addresses
         self.statuses = statuses
-        super.init()
+        super.init(interface: interface)
     }
 }
 
-open class AddressDetailsDataFetcher: UIDataFetcher {
+class AddressDetailsDataFetcher: DataFetcher {
     
     var addressName: AddressName
     
@@ -143,14 +146,14 @@ open class AddressDetailsDataFetcher: UIDataFetcher {
         profileFetcher: AddressProfileDataFetcher? = nil,
         nowFetcher: AddressNowDataFetcher? = nil,
         purlFetcher: AddressPURLsDataFetcher? = nil,
-        pasteFetcher: AddressPasteBinDataFetcher? = nil
+        pasteFetcher: AddressPasteBinDataFetcher? = nil, interface: OMGDataInterface
     ) {
         self.addressName = name
-        self.profileFetcher = profileFetcher ?? .init(name: name)
-        self.nowFetcher = nowFetcher ?? .init(name: name)
-        self.purlFetcher = purlFetcher ?? .init(name: name)
-        self.pasteFetcher = pasteFetcher ?? .init(name: name)
-        super.init()
+        self.profileFetcher = profileFetcher ?? .init(name: name, interface: interface)
+        self.nowFetcher = nowFetcher ?? .init(name: name, interface: interface)
+        self.purlFetcher = purlFetcher ?? .init(name: name, interface: interface)
+        self.pasteFetcher = pasteFetcher ?? .init(name: name, interface: interface)
+        super.init(interface: interface)
     }
     
     override func update() {
@@ -164,20 +167,20 @@ open class AddressDetailsDataFetcher: UIDataFetcher {
     }
 }
 
-open class AddressProfileDataFetcher: UIDataFetcher {
+class AddressProfileDataFetcher: DataFetcher {
     @Published
     var addressName: AddressName
     
     @Published
     var html: String?
     
-    public init(name: AddressName) {
+    public init(name: AddressName, interface: OMGDataInterface) {
         self.addressName = name
-        super.init()
+        super.init(interface: interface)
     }
 }
 
-open class AddressNowDataFetcher: UIDataFetcher {
+class AddressNowDataFetcher: DataFetcher {
     @Published
     var addressName: AddressName
     
@@ -189,34 +192,34 @@ open class AddressNowDataFetcher: UIDataFetcher {
     @Published
     var listed: Bool?
     
-    public init(name: AddressName) {
+    public init(name: AddressName, interface: OMGDataInterface) {
         self.addressName = name
-        super.init()
+        super.init(interface: interface)
     }
 }
 
-open class AddressPasteBinDataFetcher: UIDataFetcher {
+class AddressPasteBinDataFetcher: DataFetcher {
     @Published
     var addressName: AddressName
     
     @Published
     var pastes: [PasteModel] = []
     
-    public init(name: AddressName) {
+    public init(name: AddressName, interface: OMGDataInterface) {
         self.addressName = name
-        super.init()
+        super.init(interface: interface)
     }
 }
 
-open class AddressPURLsDataFetcher: UIDataFetcher {
+class AddressPURLsDataFetcher: DataFetcher {
     @Published
     var addressName: AddressName
     
     @Published
     var purls: [PURLModel] = []
     
-    public init(name: AddressName) {
+    public init(name: AddressName, interface: OMGDataInterface) {
         self.addressName = name
-        super.init()
+        super.init(interface: interface)
     }
 }

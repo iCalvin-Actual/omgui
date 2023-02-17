@@ -18,8 +18,8 @@ public struct UIDotAppDotLOL: View {
     @StateObject
     var state: AppModel
     
-    public init(fetcher: AppModelDataFetcher) {
-        self._state = StateObject(wrappedValue: AppModel(fetcher: fetcher))
+    public init(interface: OMGDataInterface = SampleData()) {
+        self._state = StateObject(wrappedValue: AppModel(interface: interface))
     }
     
     public var body: some View {

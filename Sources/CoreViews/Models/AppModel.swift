@@ -3,10 +3,10 @@ import SwiftUI
 
 @MainActor
 @available(iOS 16.1, *)
-public class AppModel: ObservableObject {
+class AppModel: ObservableObject {
     
     @Published
-    public var modelFetcher: AppModelDataFetcher
+    internal var modelFetcher: AppModelDataFetcher
     
     @Published
     public var accountModel: AccountModel = .init()
@@ -16,20 +16,26 @@ public class AppModel: ObservableObject {
     
     private var profileModels: [AddressName: AddressDetailsDataFetcher] = [:]
     
-    internal init(fetcher: AppModelDataFetcher) {
-        self.modelFetcher = fetcher
+    internal var fetchConstructor: FetchConstructor
+    
+    internal init(interface: OMGDataInterface) {
+        self.fetchConstructor = FetchConstructor(interface: interface)
+        self.modelFetcher = fetchConstructor.appModelDataFetcher()
+
         Task {
             fetch()
         }
     }
     
     private func fetch() {
-        
         modelFetcher.update()
         
+        // Fetch pinned addresses
+        
+        // Fetch
     }
     
-    public func login(_ authKey: String) {
+    internal func login(_ authKey: String) {
         Task {
             let addresses = [
                 "app",
@@ -41,11 +47,11 @@ public class AppModel: ObservableObject {
         }
     }
     
-    public func addressDetails(_ address: AddressName) -> AddressDetailsDataFetcher {
+    internal func addressDetails(_ address: AddressName) -> AddressDetailsDataFetcher {
         if let model = profileModels[address] {
             return model
         } else {
-            let newModel = AddressDetailsDataFetcher(name: address)
+            let newModel = fetchConstructor.addressDetailsFetcher(address)
             profileModels[address] = newModel
             return newModel
         }

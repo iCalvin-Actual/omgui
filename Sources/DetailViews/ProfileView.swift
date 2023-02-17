@@ -4,6 +4,8 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject
     var sceneModel: SceneModel
+    @EnvironmentObject
+    var appModel: AppModel
     
     @ObservedObject
     var model: AddressDetailsDataFetcher
@@ -113,7 +115,7 @@ struct ProfileView: View {
                 model: .init(
                     sort: sort
                 ),
-                fetcher: .init(),
+                fetcher: appModel.fetchConstructor.statusLog(for: [model.addressName]),
                 selected: $sceneModel.selectedStatus,
                 sort: $sort,
                 context: .profile

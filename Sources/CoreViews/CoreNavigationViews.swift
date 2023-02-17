@@ -6,6 +6,8 @@ public struct CoreNavigationView: View {
     @EnvironmentObject
     var appModel: AppModel
     @EnvironmentObject
+    var accountModel: AccountModel
+    @EnvironmentObject
     var model: SceneModel
     
     @SceneStorage("scene.sort.address")
@@ -100,7 +102,7 @@ public struct CoreNavigationView: View {
                     sort: addressSort,
                     filters: .everyone
                 ),
-                fetcher: .init(),
+                fetcher: appModel.fetchConstructor.generalStatusLog(),
                 selected: $model.selectedStatus,
                 sort: $addressSort
             )
@@ -119,7 +121,7 @@ public struct CoreNavigationView: View {
                     sort: addressSort,
                     filters: .followed
                 ),
-                fetcher: .init(),
+                fetcher: appModel.fetchConstructor.statusLog(for: accountModel.following),
                 selected: $model.selectedStatus,
                 sort: $addressSort
             )

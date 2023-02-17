@@ -7,136 +7,70 @@
 
 import Foundation
 
-class SampleSettingsFetcher: AppModelDataFetcher {
-    override func update() {
-        blockList = ["appreview"]
-        serviceInfo = .sample
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            self.directory = ["app", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"].map { name in
-                    .init(
-                        name: name,
-                        url: nil,
-                        registered: Date()
-                    )
-            }
-        }
+public class SampleData: OMGDataInterface {
+    public init() { }
+    public func fetchGlobalBlocklist() async -> [AddressName] {
+        ["appreview"]
     }
-}
-
-class SampleStatusLogFetcher: StatusLogDataFetcher {
-    let directory = ["app", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
     
-    override func update() {
+    public func fetchServiceInfo() async -> ServiceInfoModel {
+        .sample
+    }
+
+    public func fetchAddressDirectory() async -> [AddressName] {
+        ["app", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
+    }
+    
+    public func fetchAddressInfo(_ name: AddressName) async -> AddressModel {
+        return .init(name: name, url: URL(string: "https://\(name).omg.lol"), registered: Date())
+    }
+    
+    public func fetchAddressPURLs(_ name: AddressName) async -> [PURLModel] {
+        [
+            .random(from: name),
+            .random(from: name),
+            .random(from: name)
+        ]
+        .compactMap({ $0 })
+    }
+    
+    public func fetchAddressPastes(_ name: AddressName) async -> [PURLModel] {
+        [
+            .random(from: name),
+            .random(from: name),
+            .random(from: name)
+        ]
+        .compactMap({ $0 })
+    }
+    
+    public func fetchStatusLog() async -> [StatusModel] {
         var statuses: [StatusModel?] = []
+        let directory = ["app", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
         for _ in 0...50 {
             statuses.append(.random(from: directory.randomElement()))
         }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-            self.statuses = statuses
-                .compactMap({ $0 })
-                .filter({ element in
-                    guard !self.addresses.isEmpty else {
-                        return true
-                    }
-                    return false
-                })
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-            self.fetchLatest()
-        }
+        return statuses
+            .compactMap({ $0 })
     }
     
-    func fetchLatest() {
-        var new: [StatusModel?] = []
+    public func fetchAddressStatuses(addresses: [AddressName]) async -> [StatusModel] {
+        var statuses: [StatusModel?] = []
+        let directory = ["app", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
         for _ in 0...50 {
-            new.append(.random(from: directory.randomElement()))
+            statuses.append(.random(from: directory.randomElement()))
         }
-        
-        self.statuses.append(contentsOf: new
+        return statuses
             .compactMap({ $0 })
             .filter({ element in
-                guard !self.addresses.isEmpty else {
+                guard !addresses.isEmpty else {
                     return true
                 }
-                return false
-            }))
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-            self.fetchLatest()
-        }
-    }
-}
-
-class SampleAddressDataFetcher: AddressDetailsDataFetcher {
-    
-    init(name: AddressName) {
-        super.init(
-            name: name,
-            profileFetcher: SampleProfileFetcher(name: name),
-            nowFetcher: SampleNowFetcher(name: name),
-            purlFetcher: SamplePURLsFetcher(name: name),
-            pasteFetcher: SamplePasteBinFetcher(name: name)
-        )
+                return addresses.contains(element.address)
+            })
     }
     
-    override func update() {
-        profileFetcher?.update()
-        nowFetcher?.update()
-    }
-}
-
-class SampleNowFetcher: AddressNowDataFetcher {
-    override func update() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-            self.content = """
-### Some Title
-
-Some Markdown content. **Formatting** *support* expected.
-
-- A
-- List
-"""
-            self.updated = Date()
-            self.listed = false
-        }
-    }
-}
-
-class SamplePURLsFetcher: AddressPURLsDataFetcher {
-    override func update() {
-        let new: [PURLModel] = [
-            .random(from: addressName),
-            .random(from: addressName),
-            .random(from: addressName)
-        ]
-        .compactMap({ $0 })
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.purls = new
-        }
-    }
-}
-
-class SamplePasteBinFetcher: AddressPasteBinDataFetcher {
-    override func update() {
-        let new: [PasteModel] = [
-            .random(from: addressName),
-            .random(from: addressName),
-            .random(from: addressName)
-        ]
-        .compactMap({ $0 })
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.pastes = new
-        }
-    }
-}
-
-class SampleProfileFetcher: AddressProfileDataFetcher {
-    override func update() {
-        self.html = """
+    public func fetchAddressProfile() async -> String? {
+        """
 <!DOCTYPE html>
 <html lang="en">
   <head>
