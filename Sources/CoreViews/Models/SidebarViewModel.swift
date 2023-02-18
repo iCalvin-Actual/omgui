@@ -39,7 +39,8 @@ class SidebarViewModel: ObservableObject {
             return [
                 .search,
                 .community,
-                .garden
+                .garden,
+                .pinned("app")
             ]
         default:
             return [

@@ -4,7 +4,7 @@ import SwiftUI
 public class SceneModel: ObservableObject {
     var selectedAddress: AddressModel?
     var selectedStatus: StatusModel?
-    var selectedNow: NowModel?
+    var selectedNow: NowListing?
     var selectedPURL: PURLModel?
     var selectedPaste: PasteModel?
     

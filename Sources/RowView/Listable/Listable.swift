@@ -45,7 +45,7 @@ extension PURLModel: Listable     {
     var listSubtitle: String  { destination ?? "" }
     var listCaption: String?  { owner.addressDisplayString }
 }
-extension NowModel: Listable     { 
+extension NowListing: Listable     { 
     var listTitle: String     { owner.addressDisplayString }
     var listSubtitle: String  { url }
     var displayDate: Date?    { updated }

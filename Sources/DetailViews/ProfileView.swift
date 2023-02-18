@@ -109,7 +109,7 @@ struct ProfileView: View {
         case .profile:
             HTMLStringView(htmlContent: model.profileFetcher?.html ?? "")
         case .now:
-            MarkdownTextView(model.nowFetcher?.content ?? "")
+            NowContentView(model: model.nowFetcher)
         case .statuslog:
             StatusList(
                 model: .init(

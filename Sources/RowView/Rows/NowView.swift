@@ -2,7 +2,7 @@ import SwiftUI
 
 @available(iOS 16.1, *)
 struct NowGardenView: View {
-    let model: NowModel
+    let model: NowListing
     
     @Environment(\.isSearching) var isSearching
     
@@ -45,22 +45,22 @@ struct NowGardenView: View {
     }
 }
 
-extension NowModel {
-    static var calvin: NowModel {
+extension NowListing {
+    static var calvin: NowListing {
         .init(
             owner: "calvin",
             url: "https://cbc.gay/now",
             updated: .init(timeIntervalSince1970: 0)
         )
     }
-    static var app: NowModel {
+    static var app: NowListing {
         .init(
             owner: "app",
             url: "https://app.omg.lol",
             updated: .init()
         )
     }
-    static var merlin: NowModel {
+    static var merlin: NowListing {
         .init(
             owner: "hotdogsladies",
             url: "https://hotdogsladies.omg.lol",

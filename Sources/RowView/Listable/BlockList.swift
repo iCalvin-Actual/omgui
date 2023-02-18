@@ -82,15 +82,27 @@ struct BlockList<T: Listable, V: View>: View {
     @ViewBuilder
     func rowView(_ item: T) -> some View {
         ZStack(alignment: .leading) {
-            if context != .profile {
-                NavigationLink(value: NavigationDetailView.profile(.init(item.addressName))) {
+            if let destination = destination(for: item) {
+                NavigationLink(value: destination) {
                     EmptyView()
                 }
-                .opacity(0)
+                .opacity(0)                
             }
             
             buildRow(item)
         }
+    }
+    
+    private func destination(for item: T) -> NavigationDetailView? {
+        switch item {
+        case let nowModel as NowListing:
+            return .now(nowModel.owner)
+        default:
+            if context != .profile {
+                return .profile(.init(item.addressName))
+            }
+        }
+        return nil
     }
     
     @ViewBuilder

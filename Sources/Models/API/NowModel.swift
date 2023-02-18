@@ -1,9 +1,9 @@
+import SwiftUI
 
-import Foundation
-
-public struct NowModel: Hashable, Identifiable {
-    public var id: String { owner+url }
+public struct NowModel {
     let owner: AddressName
-    let url: String
-    let updated: Date
+    
+    let content: String?
+    let updated: Date?
+    let listed: Bool?
 }

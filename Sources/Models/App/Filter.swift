@@ -143,7 +143,7 @@ extension PasteModel {
     }
 }
 
-extension NowModel {
+extension NowListing {
     var queryCheckStrings: [String] {
         [addressName]
     }

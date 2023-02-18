@@ -29,13 +29,17 @@ public protocol OMGDataInterface {
     
     func fetchAddressDirectory() async -> [AddressName]
     
-    func fetchAddressProfile() async -> String?
+    func fetchNowGarden() async -> [NowListing]
+    
+    func fetchAddressProfile(_ name: AddressName) async -> String?
     
     func fetchAddressInfo(_ name: AddressName) async -> AddressModel
     
+    func fetchAddressNow(_ name: AddressName) async -> NowModel
+    
     func fetchAddressPURLs(_ name: AddressName) async -> [PURLModel]
     
-    func fetchAddressPastes(_ name: AddressName) async -> [PURLModel]
+    func fetchAddressPastes(_ name: AddressName) async -> [PasteModel]
     
     func fetchStatusLog() async -> [StatusModel]
     
@@ -59,6 +63,10 @@ class FetchConstructor: ObservableObject {
     
     func generalStatusLog() -> StatusLogDataFetcher {
         StatusLogDataFetcher(interface: interface)
+    }
+    
+    func nowGardenFetcher() -> NowGardenDataFetcher {
+        NowGardenDataFetcher(interface: interface)
     }
     
     func addressDetailsFetcher(_ address: AddressName) -> AddressDetailsDataFetcher {
@@ -106,6 +114,13 @@ class AppModelDataFetcher: DataFetcher {
     public override init(interface: OMGDataInterface) {
         super.init(interface: interface)
     }
+    
+    override func update() {
+        Task {
+            let directory = await interface.fetchAddressDirectory().map { AddressModel(name: $0) }
+            self.directory = directory
+        }
+    }
 }
 
 class StatusLogDataFetcher: DataFetcher {
@@ -118,6 +133,34 @@ class StatusLogDataFetcher: DataFetcher {
         self.addresses = addresses
         self.statuses = statuses
         super.init(interface: interface)
+    }
+    
+    override func update() {
+        Task {
+            if addresses.isEmpty {
+                let statuses = await interface.fetchStatusLog()
+                self.statuses = statuses
+            } else {
+                let statuses = await interface.fetchAddressStatuses(addresses: addresses)
+                self.statuses = statuses
+            }
+        }
+    }
+}
+
+class NowGardenDataFetcher: DataFetcher {
+    
+    @Published
+    var gerden: [NowListing] = []
+    
+    public override init(interface: OMGDataInterface) {
+        super.init(interface: interface)
+    }
+    
+    override func update() {
+        Task {
+            self.gerden = await interface.fetchNowGarden()
+        }
     }
 }
 
@@ -157,9 +200,15 @@ class AddressDetailsDataFetcher: DataFetcher {
     }
     
     override func update() {
-        verified = false
-        registered = Date()
-        url = URL(string: "https://\(addressName).omg.lol")
+        Task {
+            verified = false
+            registered = Date()
+            url = URL(string: "https://\(addressName).omg.lol")
+            let info = await interface.fetchAddressInfo(addressName)
+            self.verified = false
+            self.registered = info.registered
+            self.url = info.url            
+        }
         profileFetcher?.update()
         nowFetcher?.update()
         purlFetcher?.update()
@@ -177,6 +226,13 @@ class AddressProfileDataFetcher: DataFetcher {
     public init(name: AddressName, interface: OMGDataInterface) {
         self.addressName = name
         super.init(interface: interface)
+    }
+    
+    override func update() {
+        Task {
+            let profile = await interface.fetchAddressProfile(addressName)
+            self.html = profile
+        }
     }
 }
 
@@ -196,6 +252,15 @@ class AddressNowDataFetcher: DataFetcher {
         self.addressName = name
         super.init(interface: interface)
     }
+    
+    override func update() {
+        Task {
+            let now = await interface.fetchAddressNow(addressName)
+            self.content = now.content
+            self.updated = now.updated
+            self.listed = true
+        }
+    }
 }
 
 class AddressPasteBinDataFetcher: DataFetcher {
@@ -209,6 +274,17 @@ class AddressPasteBinDataFetcher: DataFetcher {
         self.addressName = name
         super.init(interface: interface)
     }
+    
+    override func update() {
+        var pastes: [PasteModel] = []
+        for _ in 0..<10 {
+            guard let paste = PasteModel.random(from: addressName) else {
+                continue
+            }
+            pastes.append(paste)
+        }
+        self.pastes = pastes
+    }
 }
 
 class AddressPURLsDataFetcher: DataFetcher {
@@ -221,5 +297,16 @@ class AddressPURLsDataFetcher: DataFetcher {
     public init(name: AddressName, interface: OMGDataInterface) {
         self.addressName = name
         super.init(interface: interface)
+    }
+    
+    override func update() {
+        var purls: [PURLModel] = []
+        for _ in 0..<10 {
+            guard let purl = PURLModel.random(from: addressName) else {
+                continue
+            }
+            purls.append(purl)
+        }
+        self.purls = purls
     }
 }

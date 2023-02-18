@@ -15,6 +15,8 @@ enum NavigationDetailView: Codable, Hashable, Identifiable {
             return "none"
         case .profile(let address):
             return "profile.\(address)"
+        case .now(let address):
+            return "now.\(address)"
         }
     }
     var id: String { rawValue }
@@ -30,6 +32,14 @@ enum NavigationDetailView: Codable, Hashable, Identifiable {
             default:
                 return nil
             }
+        case "now":
+            let splitString = rawValue.components(separatedBy: ".")
+            switch splitString.count {
+            case 2:
+                self = .profile(splitString[1])
+            default:
+                return nil
+            }
         default:
             return nil
         }
@@ -37,4 +47,5 @@ enum NavigationDetailView: Codable, Hashable, Identifiable {
     
     case empty
     case profile(AddressName)
+    case now(AddressName)
 }

@@ -139,8 +139,8 @@ public struct CoreNavigationView: View {
                 model: .init(
                     sort: addressSort,
                     filters: .everyone
-                ),
-                fetcher: .init(),
+                ), 
+                fetcher: appModel.fetchConstructor.nowGardenFetcher(),
                 selected: $model.selectedNow,
                 sort: $addressSort
             )
@@ -188,6 +188,8 @@ public struct CoreNavigationView: View {
                     model: appModel.addressDetails(address),
                     context: .profile
                 )
+            case .now(let address):
+                NowContentView(model: appModel.fetchConstructor.addresNowFetcher(address))
             default:
                 Text("EMPTY")
             }

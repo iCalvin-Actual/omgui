@@ -119,7 +119,7 @@ extension PURLModel: Sortable {
     var primarySortValue: String { value }
 }
 
-extension NowModel: DateSortable {
+extension NowListing: DateSortable {
     var primarySortValue: String { owner }
     var dateValue: Date? { updated }
 }

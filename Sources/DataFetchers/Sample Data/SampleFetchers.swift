@@ -21,8 +21,19 @@ public class SampleData: OMGDataInterface {
         ["app", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
     }
     
+    public func fetchNowGarden() async -> [NowListing] {
+        let directory = await fetchAddressDirectory()
+        return directory.map { name in
+            return .init(owner: name, url: "https://\(name).omg.lol", updated: Date())
+        }
+    }
+    
     public func fetchAddressInfo(_ name: AddressName) async -> AddressModel {
-        return .init(name: name, url: URL(string: "https://\(name).omg.lol"), registered: Date())
+        .init(name: name, url: URL(string: "https://\(name).omg.lol"), registered: Date())
+    }
+    
+    public func fetchAddressNow(_ name: AddressName) async -> NowModel {
+        .random(from: name)
     }
     
     public func fetchAddressPURLs(_ name: AddressName) async -> [PURLModel] {
@@ -34,7 +45,7 @@ public class SampleData: OMGDataInterface {
         .compactMap({ $0 })
     }
     
-    public func fetchAddressPastes(_ name: AddressName) async -> [PURLModel] {
+    public func fetchAddressPastes(_ name: AddressName) async -> [PasteModel] {
         [
             .random(from: name),
             .random(from: name),
@@ -69,7 +80,7 @@ public class SampleData: OMGDataInterface {
             })
     }
     
-    public func fetchAddressProfile() async -> String? {
+    public func fetchAddressProfile(_ name: AddressName) async -> String? {
         """
 <!DOCTYPE html>
 <html lang="en">

@@ -10,23 +10,34 @@ import Foundation
 
 @available(iOS 16.1, *)
 struct NowList: View {
-    var model: ListModel<NowModel>
     
-    @ObservedObject
-    var fetcher: NowListFetcher
+    @EnvironmentObject
+    var appModel: AppModel
+    
+    var model: ListModel<NowListing>
     
     @Binding
-    var selected: NowModel?
+    var selected: NowListing?
     @Binding
     var sort: Sort
     
     var context: Context = .column
     
+    @ObservedObject
+    var fetcher: NowGardenDataFetcher
+    
+    init(model: ListModel<NowListing>, fetcher: NowGardenDataFetcher, selected: Binding<NowListing?>, sort: Binding<Sort>) {
+        self.model = model
+        self._selected = selected
+        self._sort = sort
+        self.fetcher = fetcher
+    }
+    
     var body: some View {
-        BlockList<NowModel, ListItem<NowModel>>(
+        BlockList<NowListing, ListItem<NowListing>>(
             model: model,
-            modelBuilder: { fetcher.statuses},
-            rowBuilder: { _ in nil as ListItem<NowModel>? },
+            modelBuilder: { fetcher.gerden },
+            rowBuilder: { _ in nil as ListItem<NowListing>? },
             selected: $selected,
             context: context,
             sort: $sort
@@ -34,35 +45,10 @@ struct NowList: View {
     }
 }
 
-class NowListFetcher: ObservableObject {
-    static let community: NowListFetcher = .init()
+struct NowContentView: View {
+    let model: AddressNowDataFetcher?
     
-    var addresses: [AddressModel]
-    
-    @Published
-    var statuses: [NowModel]
-    
-    init(addresses: [AddressModel] = [], statuses: [NowModel] = []) {
-        self.addresses = addresses
-        self.statuses = statuses
-        fetch()
+    var body: some View {
+        MarkdownTextView(model?.content ?? "")
     }
-        
-    func fetch() {
-        // If no addresses, fetch from public log
-        if addresses.isEmpty {
-            statuses = [
-                .calvin,
-                .app
-            ]
-        } else {
-            statuses = [
-                .app
-            ]
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-            self.statuses.append(.merlin)
-        }
-    }
-}
+} 
