@@ -8,10 +8,21 @@ struct ProfileView: View {
     var appModel: AppModel
     
     @ObservedObject
-    var model: AddressDetailsDataFetcher
+    var addressModel: AddressDetailsDataFetcher
+    
+    @ObservedObject
+    var profileModel: AddressProfileDataFetcher
+    @ObservedObject
+    var nowModel: AddressNowDataFetcher
+    @ObservedObject
+    var statusModel: StatusLogDataFetcher
+    @ObservedObject
+    var pastebinModel: AddressPasteBinDataFetcher
+    @ObservedObject
+    var purlModel: AddressPURLsDataFetcher
     
     @State
-    var sort: Sort = .alphabet
+    var sort: Sort = .dateDescending
     
     @State
     var selectedStatus: StatusModel?
@@ -25,10 +36,26 @@ struct ProfileView: View {
     @State
     var sidebarVisibility: NavigationSplitViewVisibility = .all
     
+    init(model: AddressDetailsDataFetcher, selectedStatus: StatusModel? = nil, selectedPaste: PasteModel? = nil, selectedPURL: PURLModel? = nil, context: Context = .profile) {
+        self.addressModel = model
+        self.profileModel = model.profileFetcher
+        self.nowModel = model.nowFetcher
+        self.purlModel = model.purlFetcher
+        self.pastebinModel = model.pasteFetcher
+        self.statusModel = model.statusFetcher
+        self.context = context
+        
+        self.sort = sort
+        self.selectedStatus = selectedStatus
+        self.selectedPaste = selectedPaste
+        self.selectedPURL = selectedPURL
+        
+    }
+    
     var body: some View {
         VStack {
             HStack(alignment: .bottom) {
-                Text(model.addressName.addressDisplayString)
+                Text(addressModel.addressName.addressDisplayString)
                     .font(.title)
                     .fontDesign(.serif)
                     .bold()
@@ -52,38 +79,11 @@ struct ProfileView: View {
         }
     }
     
-    var brokenBody: some View {
-        VStack {
-            HStack(alignment: .bottom) {
-                Text(model.addressName.addressDisplayString)
-                    .font(.title)
-                    .fontDesign(.serif)
-                    .bold()
-                Spacer()
-            }
-            .padding(8)
-            .background(Color.blue)
-            
-            if context == .profile {
-                NavigationSplitView(columnVisibility: $sidebarVisibility) {
-                    sidebar()
-                        .navigationSplitViewColumnWidth(ideal: 225, max: 420)
-                } detail: {
-                    destination()
-                }
-                .navigationSplitViewStyle(.balanced)
-                .toolbarBackground(.hidden, for: .navigationBar) 
-            } else {
-                sidebar()
-            }
-        }
-    }
-    
     @ViewBuilder
     func sidebar() -> some View {
         VStack {
             HStack(alignment: .top) {
-                Text(model.url?.absoluteString ?? "")
+                Text(addressModel.url?.absoluteString ?? "")
                 
                 Spacer()
             }
@@ -107,43 +107,39 @@ struct ProfileView: View {
     func innerDestination(_ item: ProfileGridItem) -> some View {
         switch item {
         case .profile:
-            HTMLStringView(htmlContent: model.profileFetcher?.html ?? "")
+            HTMLStringView(htmlContent: profileModel.html ?? "")
         case .now:
-            NowContentView(model: model.nowFetcher)
+            NowContentView(model: nowModel)
         case .statuslog:
             StatusList(
                 model: .init(
                     sort: sort
                 ),
-                fetcher: appModel.fetchConstructor.statusLog(for: [model.addressName]),
+                fetcher: statusModel,
                 selected: $sceneModel.selectedStatus,
                 sort: $sort,
                 context: .profile
             )
         case .pastebin:
-            if let pasteFetcher = model.pasteFetcher {
-                PasteList(
-                    model: .init(
-                        sort: sort
-                    ),
-                    fetcher: pasteFetcher,
-                    selected: $sceneModel.selectedPaste,
-                    sort: $sort,
-                    context: .profile
-                )
-            }
+            PasteList(
+                model: .init(
+                    sort: sort
+                ),
+                fetcher: pastebinModel,
+                selected: $sceneModel.selectedPaste,
+                sort: $sort,
+                context: .profile
+            )
         case .purl:
-            if let purlFetcher = model.purlFetcher {
-                PURLList(
-                    model: .init(
-                        sort: sort
-                    ),
-                    fetcher: purlFetcher,
-                    selected: $sceneModel.selectedPURL,
-                    sort: $sort,
-                    context: .profile
-                )
-            }
+            PURLList(
+                model: .init(
+                    sort: sort
+                ),
+                fetcher: purlModel,
+                selected: $sceneModel.selectedPURL,
+                sort: $sort,
+                context: .profile
+            )
         }
     }
     
@@ -151,11 +147,11 @@ struct ProfileView: View {
         [
             .init(
                 item: .profile,
-                isLoaded: model.profileFetcher != nil
+                isLoaded: true
             ),
             .init(
                 item: .now,
-                isLoaded: model.nowFetcher != nil
+                isLoaded: true
             ),
             .init(
                 item: .statuslog,
@@ -163,11 +159,11 @@ struct ProfileView: View {
             ),
             .init(
                 item: .purl,
-                isLoaded: model.purlFetcher != nil
+                isLoaded: true
             ),
             .init(
                 item: .pastebin,
-                isLoaded: model.pasteFetcher != nil
+                isLoaded: true
             )
         ]
     }

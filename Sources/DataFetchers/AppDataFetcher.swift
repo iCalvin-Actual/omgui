@@ -209,26 +209,30 @@ class AddressDetailsDataFetcher: DataFetcher {
     var registered: Date?
     
     @Published
-    var profileFetcher: AddressProfileDataFetcher?
+    var profileFetcher: AddressProfileDataFetcher
     @Published
-    var nowFetcher: AddressNowDataFetcher?
+    var nowFetcher: AddressNowDataFetcher
     @Published
-    var purlFetcher: AddressPURLsDataFetcher?
+    var purlFetcher: AddressPURLsDataFetcher
     @Published
-    var pasteFetcher: AddressPasteBinDataFetcher?
+    var pasteFetcher: AddressPasteBinDataFetcher
+    @Published
+    var statusFetcher: StatusLogDataFetcher
     
     public init(
         name: AddressName,
         profileFetcher: AddressProfileDataFetcher? = nil,
         nowFetcher: AddressNowDataFetcher? = nil,
         purlFetcher: AddressPURLsDataFetcher? = nil,
-        pasteFetcher: AddressPasteBinDataFetcher? = nil, interface: OMGDataInterface
+        pasteFetcher: AddressPasteBinDataFetcher? = nil,
+        interface: OMGDataInterface
     ) {
         self.addressName = name
         self.profileFetcher = profileFetcher ?? .init(name: name, interface: interface)
         self.nowFetcher = nowFetcher ?? .init(name: name, interface: interface)
         self.purlFetcher = purlFetcher ?? .init(name: name, interface: interface)
         self.pasteFetcher = pasteFetcher ?? .init(name: name, interface: interface)
+        self.statusFetcher = .init(addresses: [name], interface: interface)
         super.init(interface: interface)
     }
     
@@ -242,10 +246,10 @@ class AddressDetailsDataFetcher: DataFetcher {
             self.registered = info.registered
             self.url = info.url
             
-            await profileFetcher?.update()
-            await nowFetcher?.update()
-            await purlFetcher?.update()
-            await pasteFetcher?.update()
+            await profileFetcher.update()
+            await nowFetcher.update()
+            await purlFetcher.update()
+            await pasteFetcher.update()
         }
     }
 }
