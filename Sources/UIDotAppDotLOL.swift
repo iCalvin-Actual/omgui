@@ -24,7 +24,6 @@ public struct UIDotAppDotLOL: View {
     
     public var body: some View {
         CoreNavigationView()
-            .environmentObject(SceneModel())
             .environmentObject(state)
     }
 }

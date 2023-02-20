@@ -7,8 +7,8 @@ public struct CoreNavigationView: View {
     var appModel: AppModel
     @EnvironmentObject
     var accountModel: AccountModel
-    @EnvironmentObject
-    var model: SceneModel
+    @StateObject
+    var model: SceneModel = .init()
     
     @SceneStorage("scene.sort.address")
     var addressSort: Sort = .alphabet
@@ -50,6 +50,7 @@ public struct CoreNavigationView: View {
             onDismiss: { },
             content: { EmptyView() }
         )
+        .environmentObject(model)
     }
     
     func internalAccountView() -> AccountBar? {
