@@ -106,6 +106,7 @@ class AppModelDataFetcher: ObservableObject {
     
     var serviceInfo: ServiceInfoModel?
     var blockList: [AddressName] = []
+    @Published
     var directory: [AddressModel] = []
     let interface: OMGDataInterface
     
