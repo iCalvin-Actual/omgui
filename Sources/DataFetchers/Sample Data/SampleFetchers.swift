@@ -18,7 +18,12 @@ public class SampleData: OMGDataInterface {
     }
 
     public func fetchAddressDirectory() async -> [AddressName] {
-        ["app", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
+        do {
+            try await Task.sleep(nanoseconds: UInt64(2 * Double(NSEC_PER_SEC)))
+            return ["app", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
+        } catch {
+            return []
+        }
     }
     
     public func fetchNowGarden() async -> [NowListing] {
