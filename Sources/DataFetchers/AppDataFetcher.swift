@@ -102,7 +102,7 @@ class DataFetcher: ObservableObject {
     }
 }
 
-class AppModelDataFetcher {
+class AppModelDataFetcher: ObservableObject {
     
     var serviceInfo: ServiceInfoModel?
     var blockList: [AddressName] = []
