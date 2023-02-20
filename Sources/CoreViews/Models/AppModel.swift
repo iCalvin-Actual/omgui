@@ -28,7 +28,9 @@ class AppModel: ObservableObject {
     }
     
     private func fetch() {
-        modelFetcher.update()
+        Task {
+            await self.modelFetcher.update()
+        }
         
         // Fetch pinned addresses
         
