@@ -7,7 +7,7 @@ public struct NowListing: Hashable, Identifiable {
     let url: String
     let updated: Date
     
-    init(owner: AddressName, url: String, updated: Date) {
+    public init(owner: AddressName, url: String, updated: Date) {
         self.owner = owner
         self.url = url
         self.updated = updated
