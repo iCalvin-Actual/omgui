@@ -5,7 +5,7 @@ import SwiftUI
 @available(iOS 16.1, *)
 class AppModel: ObservableObject {
     
-    @Published
+    @ObservedObject
     internal var modelFetcher: AppModelDataFetcher
     
     @Published

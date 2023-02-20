@@ -3,10 +3,10 @@ import SwiftUI
 @available(iOS 16.1, *)
 struct AddressListView: View {
     
-    @EnvironmentObject
-    var appModel: AppModel
-    
     let model: ListModel<AddressModel>
+    
+    @ObservedObject
+    var fetcher: AddressDirectoryDataFetcher
     
     @Binding
     var selected: AddressModel?
@@ -19,16 +19,10 @@ struct AddressListView: View {
     @EnvironmentObject
     var sceneModel: SceneModel
     
-    init(model: ListModel<AddressModel>, selected: Binding<AddressModel?>, sort: Binding<Sort>) {
-        self.model = model
-        self._selected = selected
-        self._sort = sort
-    }
-    
     var body: some View {
         BlockList(
             model: model,
-            modelBuilder: { appModel.directory },
+            modelBuilder: { fetcher.directory },
             rowBuilder: { _ in nil as ListItem<AddressModel>? },
             selected: $selected,
             context: .column,

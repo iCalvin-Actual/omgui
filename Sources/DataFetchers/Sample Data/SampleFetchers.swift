@@ -61,12 +61,17 @@ public class SampleData: OMGDataInterface {
     
     public func fetchStatusLog() async -> [StatusModel] {
         var statuses: [StatusModel?] = []
-        let directory = ["app", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
-        for _ in 0...50 {
-            statuses.append(.random(from: directory.randomElement()))
+        do {
+            try await Task.sleep(nanoseconds: UInt64(2 * Double(NSEC_PER_SEC)))
+            let directory = ["app", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
+            for _ in 0...50 {
+                statuses.append(.random(from: directory.randomElement()))
+            }
+            return statuses
+                .compactMap({ $0 })
+        } catch {
+            return []
         }
-        return statuses
-            .compactMap({ $0 })
     }
     
     public func fetchAddressStatuses(addresses: [AddressName]) async -> [StatusModel] {

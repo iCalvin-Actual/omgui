@@ -15,11 +15,11 @@ enum Context {
 
 @available(iOS 16.1, *)
 public struct UIDotAppDotLOL: View {
-    @ObservedObject
+    @StateObject
     var state: AppModel
     
     public init(interface: OMGDataInterface = SampleData()) {
-        self.state = AppModel(interface: interface)
+        self._state = StateObject(wrappedValue: AppModel(interface: interface))
     }
     
     public var body: some View {

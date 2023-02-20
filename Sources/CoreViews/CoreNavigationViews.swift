@@ -5,8 +5,7 @@ public struct CoreNavigationView: View {
     
     @EnvironmentObject
     var appModel: AppModel
-    @EnvironmentObject
-    var accountModel: AccountModel
+    
     @StateObject
     var model: SceneModel = .init()
     
@@ -26,7 +25,7 @@ public struct CoreNavigationView: View {
     
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
-    public init() {
+    init() {
     }
     
     public var body: some View {
@@ -85,6 +84,7 @@ public struct CoreNavigationView: View {
                     sort: addressSort,
                     filters: .everyone
                 ),
+                fetcher: appModel.fetchConstructor.addressDirectoryDataFetcher(),
                 selected: $model.selectedAddress,
                 sort: $addressSort
             )
@@ -122,7 +122,7 @@ public struct CoreNavigationView: View {
                     sort: addressSort,
                     filters: .followed
                 ),
-                fetcher: appModel.fetchConstructor.statusLog(for: accountModel.following),
+                fetcher: appModel.fetchConstructor.statusLog(for: appModel.accountModel.following),
                 selected: $model.selectedStatus,
                 sort: $addressSort
             )
