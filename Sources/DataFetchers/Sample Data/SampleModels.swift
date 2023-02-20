@@ -74,8 +74,8 @@ extension PURLModel {
         }
         return PURLModel(
             owner: address,
-            destination: content,
-            value: String(UUID().uuidString.prefix(3))
+            value: String(UUID().uuidString.prefix(3)),
+            destination: content
         )
     }
 }

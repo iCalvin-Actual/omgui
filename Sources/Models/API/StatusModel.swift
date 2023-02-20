@@ -10,6 +10,16 @@ public struct StatusModel: Hashable, Identifiable {
     let emoji: String?
     let linkText: String?
     let link: URL?
+    
+    public init(id: String, address: AddressName, posted: Date, status: String, emoji: String? = nil, linkText: String? = nil, link: URL? = nil) {
+        self.id = id
+        self.address = address
+        self.posted = posted
+        self.status = status
+        self.emoji = emoji
+        self.linkText = linkText
+        self.link = link
+    }
 }
 
 struct GroupStatusLogModel {

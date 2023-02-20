@@ -6,7 +6,7 @@ public struct PasteModel: Hashable, Identifiable {
     let name: String
     var content: String?
     
-    init(owner: AddressName, name: String, content: String? = nil) {
+    public init(owner: AddressName, name: String, content: String? = nil) {
         self.owner = owner
         self.name = name
         self.content = content

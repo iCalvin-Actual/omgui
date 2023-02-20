@@ -12,7 +12,7 @@ public struct AddressModel: Hashable, Identifiable, RawRepresentable, Codable {
     var url: URL?
     var registered: Date?
     
-    init(name: AddressName, url: URL? = nil, registered: Date? = nil) {
+    public init(name: AddressName, url: URL? = nil, registered: Date? = nil) {
         self.name = name
         self.url = url
         self.registered = registered

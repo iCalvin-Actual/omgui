@@ -17,10 +17,10 @@ public struct PURLModel: Hashable, Identifiable, RawRepresentable, Codable {
     }
     
     let owner: AddressName
-    var destination: String?
     let value: String
+    var destination: String?
     
-    init(owner: AddressName, destination: String?, value: String) {
+    public init(owner: AddressName, value: String, destination: String? = nil) {
         self.owner = owner
         self.destination = destination
         self.value = value
