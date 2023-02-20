@@ -102,20 +102,19 @@ class DataFetcher: ObservableObject {
     }
 }
 
-class AppModelDataFetcher: DataFetcher {
+class AppModelDataFetcher {
     
-    @Published
     var serviceInfo: ServiceInfoModel?
-    @Published
     var blockList: [AddressName] = []
-    @Published
     var directory: [AddressModel] = []
+    let interface: OMGDataInterface
     
-    public override init(interface: OMGDataInterface) {
-        super.init(interface: interface)
+    init(interface: OMGDataInterface) {
+        self.interface = interface
+        update()
     }
     
-    override func update() {
+    func update() {
         Task {
             let directory = await interface.fetchAddressDirectory().map { AddressModel(name: $0) }
             self.directory = directory
