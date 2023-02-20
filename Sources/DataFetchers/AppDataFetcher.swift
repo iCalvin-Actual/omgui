@@ -40,6 +40,7 @@ public protocol OMGDataInterface {
     
 }
 
+@MainActor
 class FetchConstructor: ObservableObject {
     let interface: OMGDataInterface
     
@@ -95,6 +96,7 @@ class FetchConstructor: ObservableObject {
     }
 }
 
+@MainActor
 class DataFetcher: ObservableObject {
     let interface: OMGDataInterface
     init(interface: OMGDataInterface) {
