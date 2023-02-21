@@ -113,7 +113,7 @@ extension StatusModel: QueryFilterable {
     }
 }
 
-extension PURLModel {
+extension PURLModel: QueryFilterable {
     var queryCheckStrings: [String] {
         [addressName, destination, value]
             .compactMap({ $0 })
@@ -128,7 +128,7 @@ extension PURLModel {
     }
 }
 
-extension PasteModel {
+extension PasteModel: QueryFilterable {
     var queryCheckStrings: [String] {
         [addressName, name, content]
             .compactMap({ $0 })
@@ -143,7 +143,7 @@ extension PasteModel {
     }
 }
 
-extension NowListing {
+extension NowListing: QueryFilterable {
     var queryCheckStrings: [String] {
         [addressName]
     }

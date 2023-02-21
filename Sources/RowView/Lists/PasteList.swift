@@ -33,7 +33,7 @@ struct PasteList: View {
     var body: some View {
         BlockList<PasteModel, ListItem<PasteModel>>(
             model: model,
-            modelBuilder: { fetcher.pastes },
+            dataFetcher: fetcher,
             rowBuilder: { _ in nil as ListItem<PasteModel>? },
             selected: $selected,
             context: .column,

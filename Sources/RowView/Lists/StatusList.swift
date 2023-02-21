@@ -28,7 +28,7 @@ struct StatusList: View {
     var body: some View {
         BlockList<StatusModel, StatusView>(
             model: model,
-            modelBuilder: { fetcher.statuses },
+            dataFetcher: fetcher,
             rowBuilder: statusView(_:),
             selected: $selected,
             context: context,

@@ -111,6 +111,17 @@ class DataFetcher: ObservableObject {
     }
 }
 
+
+class ListDataFetcher<T: Listable>: DataFetcher {
+    @Published
+    var listItems: [T] = []
+    
+    public init(items: [T] = [], interface: OMGDataInterface) {
+        self.listItems = items
+        super.init(interface: interface)
+    }
+}
+
 class AppModelDataFetcher: ObservableObject {
     
     var serviceInfo: ServiceInfoModel?
@@ -137,61 +148,43 @@ class AppModelDataFetcher: ObservableObject {
     }
 }
 
-class AddressDirectoryDataFetcher: DataFetcher {
-    @Published
-    var directory: [AddressModel] = []
-    
-    override public init(interface: OMGDataInterface) {
-        super.init(interface: interface)
-    }
-    
+class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
     override func update() async {
         Task {
             let directory = await interface.fetchAddressDirectory()
-            self.directory = directory.map({ AddressModel(name: $0) })
+            self.listItems = directory.map({ AddressModel(name: $0) })
         }
     }
 }
 
-class StatusLogDataFetcher: DataFetcher {
+class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
     let addresses: [AddressName]
-    
-    @Published
-    var statuses: [StatusModel]
     
     public init(addresses: [AddressName] = [], statuses: [StatusModel] = [], interface: OMGDataInterface) {
         self.addresses = addresses
-        self.statuses = statuses
-        super.init(interface: interface)
+        super.init(items: statuses, interface: interface)
+        
     }
     
     override func update() async {
         Task {
             if addresses.isEmpty {
                 let statuses = await interface.fetchStatusLog()
-                self.statuses = statuses
+                self.listItems = statuses
             } else {
                 let statuses = await interface.fetchAddressStatuses(addresses: addresses)
-                self.statuses = statuses
+                self.listItems = statuses
             }
         }
     }
 }
 
-class NowGardenDataFetcher: DataFetcher {
-    
-    @Published
-    var gerden: [NowListing] = []
-    
-    public override init(interface: OMGDataInterface) {
-        super.init(interface: interface)
-    }
-    
+class NowGardenDataFetcher: ListDataFetcher<NowListing> {
     override func update() async {
         Task {
             let garden = await interface.fetchNowGarden()
             DispatchQueue.main.async {
-                self.gerden = garden
+                self.listItems = garden
             }
         }
     }
@@ -301,42 +294,34 @@ class AddressNowDataFetcher: DataFetcher {
     }
 }
 
-class AddressPasteBinDataFetcher: DataFetcher {
-    @Published
+class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
     var addressName: AddressName
     
-    @Published
-    var pastes: [PasteModel] = []
-    
-    public init(name: AddressName, interface: OMGDataInterface) {
+    public init(name: AddressName, pastes: [PasteModel] = [], interface: OMGDataInterface) {
         self.addressName = name
-        super.init(interface: interface)
+        super.init(items: pastes, interface: interface)
     }
     
     override func update() async {
         Task {
             let pastes = await interface.fetchAddressPastes(addressName)
-            self.pastes = pastes
+            self.listItems = pastes
         }
     }
 }
 
-class AddressPURLsDataFetcher: DataFetcher {
-    @Published
+class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
     var addressName: AddressName
     
-    @Published
-    var purls: [PURLModel] = []
-    
-    public init(name: AddressName, interface: OMGDataInterface) {
+    public init(name: AddressName, purls: [PURLModel] = [], interface: OMGDataInterface) {
         self.addressName = name
-        super.init(interface: interface)
+        super.init(items: purls, interface: interface)
     }
     
     override func update() async {
         Task {
             let purls = await interface.fetchAddressPURLs(addressName)
-            self.purls = purls
+            self.listItems = purls
         }
     }
 }

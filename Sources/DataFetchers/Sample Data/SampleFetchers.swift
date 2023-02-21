@@ -10,7 +10,7 @@ import Foundation
 public class SampleData: OMGDataInterface {
     public init() { }
     public func fetchGlobalBlocklist() async -> [AddressName] {
-        ["appreview"]
+        []
     }
     
     public func fetchServiceInfo() async -> ServiceInfoModel {

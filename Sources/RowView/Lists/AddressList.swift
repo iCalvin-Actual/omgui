@@ -22,7 +22,7 @@ struct AddressListView: View {
     var body: some View {
         BlockList(
             model: model,
-            modelBuilder: { fetcher.directory },
+            dataFetcher: fetcher,
             rowBuilder: { _ in nil as ListItem<AddressModel>? },
             selected: $selected,
             context: .column,

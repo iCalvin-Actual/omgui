@@ -28,7 +28,7 @@ struct PURLList: View {
     var body: some View {
         BlockList<PURLModel, ListItem<PURLModel>>(
             model: model,
-            modelBuilder: { fetcher.purls },
+            dataFetcher: fetcher,
             rowBuilder: { _ in nil as ListItem<PURLModel>? },
             selected: $selected,
             context: context,

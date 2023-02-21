@@ -36,7 +36,7 @@ struct NowList: View {
     var body: some View {
         BlockList<NowListing, ListItem<NowListing>>(
             model: model,
-            modelBuilder: { fetcher.gerden },
+            dataFetcher: fetcher,
             rowBuilder: { _ in nil as ListItem<NowListing>? },
             selected: $selected,
             context: context,

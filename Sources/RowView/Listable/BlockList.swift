@@ -30,7 +30,7 @@ struct ListModel<T: Listable> {
 struct BlockList<T: Listable, V: View>: View {
     
     let model: ListModel<T>
-    let modelBuilder: () -> [T]
+    let dataFetcher: ListDataFetcher<T>
     @ViewBuilder let rowBuilder: ((T) -> V?)
     
     @Binding
@@ -47,9 +47,9 @@ struct BlockList<T: Listable, V: View>: View {
     @Binding
     var sort: Sort
     
-    init(model: ListModel<T>, modelBuilder: @escaping () -> [T], rowBuilder: @escaping (T) -> V?, selected: Binding<T?>, context: Context, sort: Binding<Sort>) {
+    init(model: ListModel<T>, dataFetcher: ListDataFetcher<T>, rowBuilder: @escaping (T) -> V?, selected: Binding<T?>, context: Context, sort: Binding<Sort>) {
         self.model = model
-        self.modelBuilder = modelBuilder
+        self.dataFetcher = dataFetcher
         self.rowBuilder = rowBuilder
         self._selected = selected
         self.context = context
@@ -57,7 +57,7 @@ struct BlockList<T: Listable, V: View>: View {
     }
     
     var items: [T] {
-        model.apply(to: modelBuilder(), with: appModel.accountModel)
+        model.apply(to: dataFetcher.listItems, with: appModel.accountModel)
             .filter { model in
                 guard !queryString.isEmpty else {
                     return true
@@ -71,6 +71,9 @@ struct BlockList<T: Listable, V: View>: View {
     
     var body: some View {
         List(items, selection: $selected, rowContent: rowView(_:))
+            .refreshable(action: {
+                await dataFetcher.update()
+            })
             .searchable(text: $queryString, placement: .sidebar)
             .toolbar(content: {
                 ToolbarItem(placement: .navigationBarTrailing) {
