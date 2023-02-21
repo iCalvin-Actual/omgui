@@ -18,7 +18,7 @@ public protocol OMGDataInterface {
     
     func fetchServiceInfo() async throws -> ServiceInfoModel
     
-    func fetchGlobalBlocklist() async -> [AddressName] 
+    func fetchGlobalBlocklist() async -> [AddressName]
     
     func fetchAddressDirectory() async -> [AddressName]
     
@@ -141,9 +141,7 @@ class AppModelDataFetcher: ObservableObject {
     func update() async {
         Task {
             let directory = await interface.fetchAddressDirectory().map { AddressModel(name: $0) }
-            DispatchQueue.main.async {
-                self.directory = directory
-            }
+            self.directory = directory
         }
     }
 }
@@ -183,9 +181,7 @@ class NowGardenDataFetcher: ListDataFetcher<NowListing> {
     override func update() async {
         Task {
             let garden = await interface.fetchNowGarden()
-            DispatchQueue.main.async {
-                self.listItems = garden
-            }
+            self.listItems = garden
         }
     }
 }
