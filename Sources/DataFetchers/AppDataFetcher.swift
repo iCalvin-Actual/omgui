@@ -28,7 +28,7 @@ public protocol OMGDataInterface {
     
     func fetchAddressInfo(_ name: AddressName) async -> AddressModel
     
-    func fetchAddressNow(_ name: AddressName) async -> NowModel
+    func fetchAddressNow(_ name: AddressName) async -> NowModel?
     
     func fetchAddressPURLs(_ name: AddressName) async -> [PURLModel]
     
@@ -294,9 +294,9 @@ class AddressNowDataFetcher: DataFetcher {
     override func update() async {
         Task {
             let now = await interface.fetchAddressNow(addressName)
-            self.content = now.content
-            self.updated = now.updated
-            self.listed = true
+            self.content = now?.content
+            self.updated = now?.updated
+            self.listed = now?.listed
         }
     }
 }

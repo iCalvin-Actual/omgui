@@ -2,8 +2,8 @@ import SwiftUI
 
 enum Sort: String {
     case alphabet
-    case dateAscending
-    case dateDescending
+    case newestFirst
+    case oldestFirst
     case shuffle
 }
 
@@ -20,12 +20,12 @@ extension Sort {
         switch self {
         case .alphabet:
             return lhs.primarySortValue < rhs.primarySortValue
-        case .dateAscending:
+        case .newestFirst:
             guard let lhD = (lhs as? DateSortable)?.dateValue, let rhD = (rhs as? DateSortable)?.dateValue else {
                 return false
             }
             return lhD > rhD
-        case .dateDescending:
+        case .oldestFirst:
             guard let lhD = (lhs as? DateSortable)?.dateValue, let rhD = (rhs as? DateSortable)?.dateValue else {
                 return false
             }
@@ -64,7 +64,7 @@ struct SortOrderMenu: View {
             }
             Button {
                 withAnimation {
-                    sort = .dateAscending
+                    sort = .newestFirst
                 }
             } label: {
                 if sort == .shuffle {
@@ -75,7 +75,7 @@ struct SortOrderMenu: View {
             }
             Button {
                 withAnimation {
-                    sort = .dateDescending
+                    sort = .oldestFirst
                 }
             } label: {
                 if sort == .shuffle {

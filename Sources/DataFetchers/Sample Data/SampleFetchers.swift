@@ -37,7 +37,7 @@ public class SampleData: OMGDataInterface {
         .init(name: name, url: URL(string: "https://\(name).omg.lol"), registered: Date())
     }
     
-    public func fetchAddressNow(_ name: AddressName) async -> NowModel {
+    public func fetchAddressNow(_ name: AddressName) async -> NowModel? {
         .random(from: name)
     }
     

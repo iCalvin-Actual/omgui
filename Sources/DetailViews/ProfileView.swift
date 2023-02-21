@@ -22,7 +22,7 @@ struct ProfileView: View {
     var purlModel: AddressPURLsDataFetcher
     
     @State
-    var sort: Sort = .dateDescending
+    var sort: Sort = .newestFirst
     
     @State
     var selectedStatus: StatusModel?

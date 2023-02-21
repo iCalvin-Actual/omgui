@@ -8,10 +8,13 @@ struct MarkdownTextView: View {
     }
     
     var body: some View {
-        guard let attributed = try? AttributedString(styledMarkdown: markdownText) else {
-            return Text(markdownText) 
+        ScrollView {
+            if let attributed = try? AttributedString(styledMarkdown: markdownText) {
+                Text(attributed)
+            } else {
+                Text(markdownText)
+            }
         }
-        return Text(attributed)
     }
 }
 
