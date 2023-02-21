@@ -314,14 +314,9 @@ class AddressPasteBinDataFetcher: DataFetcher {
     }
     
     override func update() async {
-        var pastes: [PasteModel] = []
-        for _ in 0..<10 {
-            guard let paste = PasteModel.random(from: addressName) else {
-                continue
-            }
-            pastes.append(paste)
+        Task {
+            self.pastes = await interface.fetchAddressPastes(addressName)
         }
-        self.pastes = pastes
     }
 }
 
@@ -338,13 +333,8 @@ class AddressPURLsDataFetcher: DataFetcher {
     }
     
     override func update() async {
-        var purls: [PURLModel] = []
-        for _ in 0..<10 {
-            guard let purl = PURLModel.random(from: addressName) else {
-                continue
-            }
-            purls.append(purl)
+        Task {
+            self.purls = await interface.fetchAddressPURLs(addressName)
         }
-        self.purls = purls
     }
 }
