@@ -46,9 +46,11 @@ struct NowList: View {
 }
 
 struct NowContentView: View {
-    let model: AddressNowDataFetcher?
+    
+    @ObservedObject
+    var model: AddressNowDataFetcher
     
     var body: some View {
-        MarkdownTextView(model?.content ?? "")
+        MarkdownTextView(model.content ?? "")
     }
 } 
