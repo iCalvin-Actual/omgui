@@ -47,7 +47,7 @@ protocol QueryFilterable: Filterable {
 
 extension QueryFilterable {
     func matches(_ query: String) -> Bool {
-        queryCheckStrings.contains(where: { $0.contains(query) })
+        queryCheckStrings.contains(where: { $0.lowercased().contains(query.lowercased()) })
     }
 }
 
