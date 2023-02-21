@@ -315,7 +315,8 @@ class AddressPasteBinDataFetcher: DataFetcher {
     
     override func update() async {
         Task {
-            self.pastes = await interface.fetchAddressPastes(addressName)
+            let pastes = await interface.fetchAddressPastes(addressName)
+            self.pastes = pastes
         }
     }
 }
@@ -334,7 +335,8 @@ class AddressPURLsDataFetcher: DataFetcher {
     
     override func update() async {
         Task {
-            self.purls = await interface.fetchAddressPURLs(addressName)
+            let purls = await interface.fetchAddressPURLs(addressName)
+            self.purls = purls
         }
     }
 }
