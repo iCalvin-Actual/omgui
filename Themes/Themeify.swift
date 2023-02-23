@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ThemeifyView: ViewModifier {
-    let theme: Theme
+    let theme: LOLTheme
     
     func body(content: Content) -> some View {
         content
@@ -20,7 +20,7 @@ struct ThemeifyView: ViewModifier {
 }
 
 extension View {
-    func applyTheme(_ theme: Theme) -> some View {
+    func applyTheme(_ theme: LOLTheme) -> some View {
         self
             .modifier(ThemeifyView(theme: theme))
     }

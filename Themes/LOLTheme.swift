@@ -1,6 +1,6 @@
 import SwiftUI
 
-public enum Theme: String {
+public enum LOLTheme: String {
     case `default`
     case cherryBlossom
     case dark
@@ -109,7 +109,7 @@ public enum Theme: String {
     }    
 }
 
-extension Theme {
+extension LOLTheme {
     var backgroundStyle: any ShapeStyle {
         switch background {
         case .color(let color):

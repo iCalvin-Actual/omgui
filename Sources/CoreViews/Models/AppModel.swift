@@ -68,8 +68,8 @@ class AppModel: ObservableObject {
 internal extension AppModel {
     var directory: [AddressModel] { modelFetcher.directory }
     
-    var theme: Theme {
-        Theme(rawValue: selectedTheme) ?? .cherryBlossom
+    var theme: LOLTheme {
+        LOLTheme(rawValue: selectedTheme) ?? .cherryBlossom
     }
 }
 
