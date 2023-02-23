@@ -35,6 +35,7 @@ struct ProfileGridView<L: View>: View {
             model.label
             Spacer()
         }
-        .background(Color.lolBlue, in: Capsule())
+        .background(model.item.color)
+        .cornerRadius(12, antialiased: true)
     }
 }

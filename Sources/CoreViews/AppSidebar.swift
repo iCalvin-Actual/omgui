@@ -15,20 +15,40 @@ struct AppSidebar: View {
     
     var body: some View {
         VStack {
-            List(model.groups, selection: $selected) { group in  
-                Section(group.displayName) {
+            List(model.groups, selection: $selected) { group in
+                Section {
                     ForEach(model.content(in: group)) { item in 
                         NavigationLink(value: item) {
                             if let icon = item.iconName {
-                                Label(item.displayString, systemImage: icon)   
+                                HStack {
+                                    Image(systemName: icon)
+                                        .font(.title2)
+                                        .fontDesign(.serif)
+                                        .bold()
+                                    Text(item.displayString)
+                                        .font(.title2)
+                                        .fontDesign(.serif)
+                                    Spacer()
+                                }
                             } else {
                                 Text(item.displayString)
                             }
                         }
+//                        .foregroundColor(.black)
+                        .padding(16)
+                        .background(Color.lolRandom(item))
+                        .cornerRadius(12)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+                        .listRowSeparator(.hidden, edges: .all)
                     }
+                } header: {
+                    Text(group.displayName)
+                        .fontDesign(.monospaced)
+                        .font(.subheadline)
+                        .bold()
                 }
             }
-            .listRowSeparator(.hidden, edges: .all)
+            .listStyle(.plain)
 
             Spacer()
             
@@ -37,16 +57,14 @@ struct AppSidebar: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("")
         .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                HStack {
-                    Text("app.lol")
-                        .font(.title)
-                        .bold()
-                        .fontDesign(Font.Design.serif)
-                        .foregroundColor(.accentColor)
-                    Spacer()                    
-                }
+            ToolbarItem(placement: .navigationBarLeading) {
+                Text("app.lol")
+                    .font(.title)
+                    .bold()
+                    .fontDesign(Font.Design.serif)
+                    .foregroundColor(.accentColor)
             }
         })
     }

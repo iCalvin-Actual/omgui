@@ -16,11 +16,11 @@ class SidebarViewModel: ObservableObject {
         var displayName: String {
             switch self {
             case .directory:
-                return "Directory"
+                return "omg.lol"
             case .status:
-                return "StatusLog"
+                return "status.lol"
             case .saved:
-                return "Saved"
+                return "cache.app.lol"
             case .weblog:
                 return "Weblog"
             case .comingSoon:
@@ -30,7 +30,7 @@ class SidebarViewModel: ObservableObject {
     }
     
     var groups: [Group] { 
-        [.directory]
+        [.directory, .status, .saved]
     }
     
     func content(in group: Group) -> [NavigationColumn] {
@@ -38,8 +38,14 @@ class SidebarViewModel: ObservableObject {
         case .directory:
             return [
                 .search,
-                .community,
                 .garden,
+            ]
+        case .status:
+            return [
+                .community
+            ]
+        case .saved:
+            return [
                 .pinned("app"),
                 .pinned("calvin")
             ]

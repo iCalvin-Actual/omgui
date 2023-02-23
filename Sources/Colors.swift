@@ -7,6 +7,7 @@ extension Color {
     static let lolPink: Color = .init(hex: "f782ac")
     static let lolPurple: Color = .init(hex: "d0bfff")
     static let lolBlue: Color = .init(hex: "a5d8ff")
+    static let lolOrange: Color = .init(hex: "ffd8a8")
     static let lolAccent: Color = .init(hex: "e34199")
     
     static func lolRandom(_ input: any Hashable) -> Color {
@@ -17,7 +18,8 @@ extension Color {
             .lolTeal,
             .lolPink,
             .lolPurple,
-            .lolBlue
+            .lolBlue,
+            .lolOrange
         ]
         
         let modValue = abs(hash % colors.endIndex)

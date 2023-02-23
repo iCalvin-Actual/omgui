@@ -49,6 +49,7 @@ struct NowList: View {
     }
 }
 
+@available(iOS 16.1, *)
 struct NowContentView: View {
     
     @ObservedObject
@@ -56,5 +57,14 @@ struct NowContentView: View {
     
     var body: some View {
         MarkdownTextView(model.content ?? "")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Text(ProfileGridItem.now.externalUrlString(for: model.addressName))
+                        .bold()
+                        .font(.callout)
+                        .foregroundColor(.accentColor)
+                        .fontDesign(.monospaced)
+                }
+            }
     }
 } 

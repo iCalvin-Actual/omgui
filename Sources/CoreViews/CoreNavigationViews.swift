@@ -96,6 +96,7 @@ public struct CoreNavigationView: View {
                         .font(.title)
                         .fontDesign(.serif)
                         .bold()
+                        .foregroundColor(.accentColor)
                 }
             })
         case .community:
@@ -110,10 +111,11 @@ public struct CoreNavigationView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Text("Directory")
+                    Text("StatusLog")
                         .font(.title)
                         .fontDesign(.serif)
                         .bold()
+                        .foregroundColor(.accentColor)
                 }
             })
         case .following:
@@ -132,6 +134,7 @@ public struct CoreNavigationView: View {
                         .font(.title)
                         .fontDesign(.serif)
                         .bold()
+                        .foregroundColor(.accentColor)
                 }
             })
         case .garden:
@@ -151,6 +154,7 @@ public struct CoreNavigationView: View {
                         .font(.title)
                         .fontDesign(.serif)
                         .bold()
+                        .foregroundColor(.accentColor)
                 }
             })
         case .pinned(let address):

@@ -139,7 +139,7 @@ struct ListItem<T: Listable>: View {
             Text(model.listTitle)
                 .font(.title)
                 .bold()
-                .foregroundColor(.black)
+//                .foregroundColor(.black)
                 .padding(.vertical, !narrow ? 8 : 0)
                 .padding(.bottom, 4)
                 .padding(.trailing, 4)
@@ -152,11 +152,11 @@ struct ListItem<T: Listable>: View {
                 if !narrow, someExist {
                     Text(subtitle)
                         .font(.headline)
-                        .foregroundColor(.black.opacity(0.8))
+                        .foregroundColor(.accentColor.opacity(0.8))
                         .bold()
                     Spacer()
                     Text(caption)
-                        .foregroundColor(.black.opacity(0.6))
+                        .foregroundColor(.accentColor.opacity(0.6))
                         .font(.subheadline)
                 } else {
                     Spacer()
@@ -166,7 +166,7 @@ struct ListItem<T: Listable>: View {
         }
         .padding(.vertical)
         .padding(.leading, 32)
-        .background(Color.lolYellow)
+        .background(Color.lolRandom(model))
         .cornerRadius(24)
         .fontDesign(.serif)
     }

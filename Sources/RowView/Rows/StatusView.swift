@@ -35,11 +35,12 @@ struct StatusView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if context != .profile {
-                Text("@\(model.address)")
+                Text(model.address.addressDisplayString)
                     .font(.title3)
                     .bold()
                     .fontDesign(.serif)
                     .padding([.horizontal, .bottom], 4)
+                    .foregroundColor(.black)
             }
             
             VStack(alignment: .leading) {
@@ -66,7 +67,7 @@ struct StatusView: View {
                 }
                 .padding(.top, 4)
             }
-            .foregroundColor(.black)
+//            .foregroundColor(.black)
             .padding(12)
             .background(Color.lolRandom(model.displayEmoji))
             .cornerRadius(12, antialiased: true)

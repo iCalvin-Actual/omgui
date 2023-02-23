@@ -23,12 +23,15 @@ struct ProfileGridItemModel: Hashable, Identifiable {
     var label: some View {
         VStack {
             Image(systemName: item.icon)
+                .font(.subheadline)
+                .bold()
             
             Text(item.displayString)
                 .font(.headline)
                 .fontDesign(.serif)
                 .bold()
         }
+//        .foregroundColor(.black)
         .padding(8)
     }
 }
@@ -83,6 +86,21 @@ enum ProfileGridItem: String, Identifiable, Codable {
             return "\(name).paste.lol"
         case .statuslog:
             return "\(name).status.lol"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .profile:
+            return .lolYellow
+        case .now:
+            return .lolGreen
+        case .purl:
+            return .lolTeal
+        case .pastebin:
+            return .lolOrange
+        case .statuslog:
+            return .lolPurple
         }
     }
 }

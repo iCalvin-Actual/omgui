@@ -70,22 +70,19 @@ struct ProfileView: View {
                     } detail: {
                         destination()
                     }
-                    .ignoresSafeArea(.container, edges: .top)
                     .navigationSplitViewStyle(.balanced)
-                    .toolbarBackground(.hidden, for: .navigationBar)
                 default:
                     sidebar()                    
                 }
             }
         }
         .toolbar {
-            if !(horizontalSizeClass == .regular && context == .profile) {
-                ToolbarItem(placement: .navigationBarLeading) { 
-                    Text(addressModel.addressName.addressDisplayString)
-                        .font(.title)
-                        .fontDesign(.serif)
-                        .bold()
-                }                
+            ToolbarItem(placement: .navigationBarLeading) {
+                Text(addressModel.addressName.addressDisplayString)
+                    .font(.title)
+                    .fontDesign(.serif)
+                    .foregroundColor(.accentColor)
+                    .bold()
             }
         }
     }
@@ -93,7 +90,6 @@ struct ProfileView: View {
     @ViewBuilder
     func sidebar() -> some View {
         VStack(alignment: .leading) {
-            Spacer()
             Grid {
                 GridRow {
                     ForEach(upperGridItems) { item in
@@ -115,12 +111,17 @@ struct ProfileView: View {
                         .gridCellColumns(2)
                         
                     }
-
+                    
                 }
             }
             Spacer()
-            Spacer()
         }
+        .toolbar {
+            ToolbarItem(placement: .principal, content: {
+                Text("")                
+            })
+        }
+        .navigationTitle(self.addressModel.addressName.addressDisplayString)
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: ProfileGridItem.self, destination: destination(_:))
     }
@@ -132,14 +133,6 @@ struct ProfileView: View {
             .ignoresSafeArea(.container, edges: [.bottom, .leading, .trailing])
             .navigationSplitViewColumnWidth(min: 250, ideal: 600)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) { 
-                    Text(workingItem.externalUrlString(for: addressModel.addressName))
-                        .bold()
-                        .font(.title2)
-                        .fontDesign(.monospaced)
-                }                    
-            }
     }
     
     @ViewBuilder
@@ -147,6 +140,15 @@ struct ProfileView: View {
         switch item {
         case .profile:
             HTMLStringView(htmlContent: profileModel.html ?? "")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Text(ProfileGridItem.pastebin.externalUrlString(for: addressModel.addressName))
+                            .bold()
+                            .font(.callout)
+                            .foregroundColor(.accentColor)
+                            .fontDesign(.monospaced)
+                    }
+                }
         case .now:
             NowContentView(model: nowModel)
         case .statuslog:
@@ -158,6 +160,15 @@ struct ProfileView: View {
                 selected: $sceneModel.selectedStatus,
                 context: .profile
             )
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Text(ProfileGridItem.statuslog.externalUrlString(for: addressModel.addressName))
+                        .bold()
+                        .font(.callout)
+                        .foregroundColor(.accentColor)
+                        .fontDesign(.monospaced)
+                }
+            }
         case .pastebin:
             PasteList(
                 model: .init(
@@ -168,6 +179,15 @@ struct ProfileView: View {
                 sort: $sort,
                 context: .profile
             )
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Text(ProfileGridItem.pastebin.externalUrlString(for: addressModel.addressName))
+                        .bold()
+                        .font(.callout)
+                        .foregroundColor(.accentColor)
+                        .fontDesign(.monospaced)
+                }
+            }
         case .purl:
             PURLList(
                 model: .init(
@@ -178,6 +198,15 @@ struct ProfileView: View {
                 sort: $sort,
                 context: .profile
             )
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Text(ProfileGridItem.purl.externalUrlString(for: addressModel.addressName))
+                        .bold()
+                        .font(.callout)
+                        .foregroundColor(.accentColor)
+                        .fontDesign(.monospaced)
+                }
+            }
         }
     }
     

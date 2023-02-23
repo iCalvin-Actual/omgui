@@ -17,6 +17,10 @@ struct AccountBar: View {
     var showAlert: Bool = false
     
     var body: some View {
+        EmptyView()
+    }
+    
+    var someBody: some View {
         HStack {
             AccountView(activeAddress: nil)
                 .keyboardShortcut("t", modifiers: [.command, .shift])
