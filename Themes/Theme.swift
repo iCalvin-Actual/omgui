@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum Theme: String {
+public enum Theme: String {
     case `default`
     case cherryBlossom
     case dark
