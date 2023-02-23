@@ -24,44 +24,52 @@ struct StatusView: View {
         self.context = context
     }
     
+    var markdownText: Text {
+        if let attributed = try? AttributedString(styledMarkdown: model.status) {
+            return Text(attributed)
+        } else {
+            return Text(model.status)
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if context != .profile {
                 Text("@\(model.address)")
                     .font(.title3)
-                    .padding(2)
+                    .bold()
+                    .fontDesign(.serif)
+                    .padding([.horizontal, .bottom], 4)
             }
             
-            HStack(alignment: .top) {
-                Text(model.displayEmoji)
-                    .font(.largeTitle)
-                    .aspectRatio(1.0, contentMode: .fit)
-                    .padding()
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    MarkdownTextView(model.status)
+            VStack(alignment: .leading) {
+                Group {
+                    Text(model.displayEmoji)
+                        .font(.largeTitle) 
+                    + Text(" ").font(.largeTitle) +
+                    markdownText
                         .font(.body)
-                    
-                    HStack(alignment: .bottom) {
-                        if let text = model.linkText {
-                            Button(action: {
-                                print("Show Link")
-                            }, label: {
-                                Label(text, systemImage: "link")
-                            })
-                        }
-                        Spacer()
-                        Text(model.subtitle)
-                            .font(.caption)
-                            .foregroundColor(Color(uiColor: .lightGray))
-                    }
                 }
-                .padding([.vertical, .trailing])
+                .multilineTextAlignment(.leading)
+                
+                HStack(alignment: .bottom) {
+                    if let text = model.linkText {
+                        Button(action: {
+                            print("Show Link")
+                        }, label: {
+                            Label(text, systemImage: "link")
+                        })
+                    }
+                    Spacer()
+                    Text(model.subtitle)
+                        .font(.caption)
+                }
+                .padding(.top, 4)
             }
-            .multilineTextAlignment(.leading)
-            .accentColor(.primary)
-            .background(Color(uiColor: .secondarySystemBackground))
-            .cornerRadius(8, antialiased: true)
+            .foregroundColor(.black)
+            .padding(12)
+            .background(Color.lolRandom(model.displayEmoji))
+            .cornerRadius(12, antialiased: true)
         }
     }
 }

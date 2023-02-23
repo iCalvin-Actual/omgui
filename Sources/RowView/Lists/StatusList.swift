@@ -17,8 +17,9 @@ struct StatusList: View {
     
     @Binding
     var selected: StatusModel?
-    @Binding
-    var sort: Sort
+
+    @State
+    var sort: Sort = .newestFirst
     
     var context: Context = .column
     

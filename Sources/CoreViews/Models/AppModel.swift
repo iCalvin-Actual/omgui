@@ -14,6 +14,9 @@ class AppModel: ObservableObject {
     @AppStorage("app.lol.auth", store: .standard)
     private var authKey: String = ""
     
+    @AppStorage("app.lol.theme", store: .standard)
+    private var selectedTheme: String = "unsupported"
+    
     private var profileModels: [AddressName: AddressDetailsDataFetcher] = [:]
     
     internal var fetchConstructor: FetchConstructor
@@ -64,4 +67,9 @@ class AppModel: ObservableObject {
 @available(macCatalyst 16.1, *)
 internal extension AppModel {
     var directory: [AddressModel] { modelFetcher.directory }
+    
+    var theme: Theme {
+        Theme(rawValue: selectedTheme) ?? .cherryBlossom
+    }
 }
+

@@ -12,36 +12,35 @@ struct NowGardenView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            if !narrow {
-                Spacer()
+            NavigationLink(value: NavigationDetailView.profile(model.addressName)) { 
+                Text(model.listTitle)
+                    .font(.title3)
+                    .bold()
+                    .fontDesign(.serif)
+                    .padding([.horizontal, .bottom], 4)
             }
-            Text("")
-                .font(.title)
-                .padding(.vertical, !narrow ? 8 : 0)
-                .padding(.bottom, 4)
-                .padding(.trailing, 4)
             
-            
-            HStack(alignment: .bottom) {
-                if !narrow {
-                    Text("")
-                        .font(.headline)
+            VStack(alignment: .leading) {
+                Text(model.listSubtitle)
+                    .font(.body)
+                    .fontDesign(.monospaced)
+                    .padding(.vertical, !narrow ? 8 : 0)
+                    .padding(.bottom, 4)
+                    .padding(.trailing, 4)
+                
+                HStack(alignment: .bottom) {
                     Spacer()
-                    Text("Updated")
-                        .font(.subheadline)
-                        .bold(false)
-                } else {
-                    Spacer()
+                    if !narrow, let caption = model.listCaption {
+                        Text(caption)
+                            .font(.subheadline)
+                            .bold(false)
+                    }              
                 }
             }
-            .padding(.trailing)
+            .padding()
+            .background(Color.lolRandom(model))
+            .cornerRadius(12, antialiased: true)
         }
-        .padding(.vertical)
-        .padding(.leading, 32)
-        .background(Color.yellow)
-        .cornerRadius(24)
-        .fontDesign(.serif)
-        .bold()
     }
 }
 

@@ -47,7 +47,7 @@ struct AddressView: View {
         }
         .padding(.vertical)
         .padding(.leading, 32)
-        .background(Color.yellow)
+        .background(Color.lolYellow)
         .cornerRadius(24)
         .fontDesign(.serif)
     }

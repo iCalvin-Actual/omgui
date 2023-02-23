@@ -6,6 +6,7 @@ struct ProfileView: View {
     var sceneModel: SceneModel
     @EnvironmentObject
     var appModel: AppModel
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     @ObservedObject
     var addressModel: AddressDetailsDataFetcher
@@ -20,6 +21,9 @@ struct ProfileView: View {
     var pastebinModel: AddressPasteBinDataFetcher
     @ObservedObject
     var purlModel: AddressPURLsDataFetcher
+    
+    @State
+    var selectedItem: ProfileGridItem = .profile
     
     @State
     var sort: Sort = .newestFirst
@@ -54,53 +58,88 @@ struct ProfileView: View {
     
     var body: some View {
         VStack {
-            HStack(alignment: .bottom) {
-                Text(addressModel.addressName.addressDisplayString)
-                    .font(.title)
-                    .fontDesign(.serif)
-                    .bold()
-                Spacer()
-            }
-            .padding(8)
-            .background(Color.blue)
-            
-            if context == .profile {
-                NavigationSplitView(columnVisibility: $sidebarVisibility) {
-                    sidebar()
-                        .navigationSplitViewColumnWidth(ideal: 225, max: 420)
-                } detail: {
-                    destination()
-                }
-                .navigationSplitViewStyle(.balanced)
-                .toolbarBackground(.hidden, for: .navigationBar)
-            } else {
+            switch context {
+            case .column:
                 sidebar()
+            case .profile:
+                switch horizontalSizeClass {
+                case .regular:
+                    NavigationSplitView(columnVisibility: $sidebarVisibility) {
+                        sidebar()
+                            .navigationSplitViewColumnWidth(ideal: 225, max: 420)
+                    } detail: {
+                        destination()
+                    }
+                    .ignoresSafeArea(.container, edges: .top)
+                    .navigationSplitViewStyle(.balanced)
+                    .toolbarBackground(.hidden, for: .navigationBar)
+                default:
+                    sidebar()                    
+                }
+            }
+        }
+        .toolbar {
+            if !(horizontalSizeClass == .regular && context == .profile) {
+                ToolbarItem(placement: .navigationBarLeading) { 
+                    Text(addressModel.addressName.addressDisplayString)
+                        .font(.title)
+                        .fontDesign(.serif)
+                        .bold()
+                }                
             }
         }
     }
     
     @ViewBuilder
     func sidebar() -> some View {
-        VStack {
-            HStack(alignment: .top) {
-                Text(addressModel.url?.absoluteString ?? "")
-                
-                Spacer()
-            }
-            
+        VStack(alignment: .leading) {
+            Spacer()
             Grid {
-                ForEach(gridItems) { item in
-                    ProfileGridView(model: item, destination: destination(_:))
+                GridRow {
+                    ForEach(upperGridItems) { item in
+                        HStack {
+                            Spacer()
+                            ProfileGridView(model: item, destination: destination(_:))
+                            Spacer()
+                        }
+                    }
+                }
+                
+                ForEach(lowerGridItems) { item in
+                    GridRow {
+                        HStack {
+                            Spacer()
+                            ProfileGridView(model: item, destination: destination(_:))                            
+                            Spacer()
+                        }
+                        .gridCellColumns(2)
+                        
+                    }
+
                 }
             }
             Spacer()
+            Spacer()
         }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(for: ProfileGridItem.self, destination: destination(_:))
     }
     
     @ViewBuilder
-    func destination(_ item: ProfileGridItem = .statuslog) -> some View {
-        innerDestination(item)
+    func destination(_ item: ProfileGridItem? = nil) -> some View {
+        let workingItem = item ?? selectedItem
+        innerDestination(workingItem)
+            .ignoresSafeArea(.container, edges: [.bottom, .leading, .trailing])
             .navigationSplitViewColumnWidth(min: 250, ideal: 600)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) { 
+                    Text(workingItem.externalUrlString(for: addressModel.addressName))
+                        .bold()
+                        .font(.title2)
+                        .fontDesign(.monospaced)
+                }                    
+            }
     }
     
     @ViewBuilder
@@ -117,7 +156,6 @@ struct ProfileView: View {
                 ),
                 fetcher: statusModel,
                 selected: $sceneModel.selectedStatus,
-                sort: $sort,
                 context: .profile
             )
         case .pastebin:
@@ -143,28 +181,20 @@ struct ProfileView: View {
         }
     }
     
-    var gridItems: [ProfileGridItemModel] {
-        [
-            .init(
-                item: .profile,
-                isLoaded: true
-            ),
-            .init(
-                item: .now,
-                isLoaded: true
-            ),
-            .init(
-                item: .statuslog,
-                isLoaded: true
-            ),
-            .init(
-                item: .purl,
-                isLoaded: true
-            ),
-            .init(
-                item: .pastebin,
-                isLoaded: true
-            )
+    var upperGridItems: [ProfileGridItemModel] {
+        let items: [ProfileGridItemModel?] = [
+            profileModel.loaded ? ProfileGridItemModel(item: .profile, isLoaded: true) : nil,
+            nowModel.loaded ? ProfileGridItemModel(item: .now, isLoaded: true) : nil
         ]
+        return items.compactMap({ $0 })
+    }
+    
+    var lowerGridItems: [ProfileGridItemModel] {
+        let items: [ProfileGridItemModel?] = [
+            statusModel.loaded ? ProfileGridItemModel(item: .statuslog, isLoaded: true) : nil,
+            purlModel.loaded ? ProfileGridItemModel(item: .purl, isLoaded: true) : nil,
+            pastebinModel.loaded ? ProfileGridItemModel(item: .pastebin, isLoaded: true) : nil
+        ]
+        return items.compactMap({ $0 })
     }
 }

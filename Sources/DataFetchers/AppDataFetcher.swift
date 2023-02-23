@@ -99,6 +99,12 @@ class FetchConstructor: ObservableObject {
 @MainActor
 class DataFetcher: ObservableObject {
     let interface: OMGDataInterface
+    
+    @Published
+    var loaded: Bool = false
+    @Published
+    var loading: Bool = false
+    
     init(interface: OMGDataInterface) {
         self.interface = interface
         Task {
@@ -107,18 +113,19 @@ class DataFetcher: ObservableObject {
     }
     
     func update() async {
-        // Override in subclass
+        self.loading = true
     }
 }
 
-
 class ListDataFetcher<T: Listable>: DataFetcher {
+    
     @Published
     var listItems: [T] = []
     
     public init(items: [T] = [], interface: OMGDataInterface) {
         self.listItems = items
         super.init(interface: interface)
+        self.loaded = items.isEmpty
     }
 }
 
@@ -148,9 +155,12 @@ class AppModelDataFetcher: ObservableObject {
 
 class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
     override func update() async {
+        await super.update()
         Task {
             let directory = await interface.fetchAddressDirectory()
             self.listItems = directory.map({ AddressModel(name: $0) })
+            self.loaded = true
+            self.loading = false
         }
     }
 }
@@ -165,6 +175,7 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
     }
     
     override func update() async {
+        await super.update()
         Task {
             if addresses.isEmpty {
                 let statuses = await interface.fetchStatusLog()
@@ -172,6 +183,8 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
             } else {
                 let statuses = await interface.fetchAddressStatuses(addresses: addresses)
                 self.listItems = statuses
+                self.loaded = true
+                self.loading = false
             }
         }
     }
@@ -179,9 +192,15 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
 
 class NowGardenDataFetcher: ListDataFetcher<NowListing> {
     override func update() async {
+        await super.update()
         Task {
             let garden = await interface.fetchNowGarden()
             self.listItems = garden
+<<<<<<< HEAD
+=======
+            self.loaded = true
+            self.loading = false
+>>>>>>> 100e406 (update batch of style)
         }
     }
 }
@@ -226,6 +245,7 @@ class AddressDetailsDataFetcher: DataFetcher {
     }
     
     override func update() async {
+        await super.update()
         Task {
             verified = false
             registered = Date()
@@ -239,6 +259,8 @@ class AddressDetailsDataFetcher: DataFetcher {
             await nowFetcher.update()
             await purlFetcher.update()
             await pasteFetcher.update()
+            self.loaded = true
+            self.loading = false
         }
     }
 }
@@ -256,9 +278,12 @@ class AddressProfileDataFetcher: DataFetcher {
     }
     
     override func update() async {
+        await super.update()
         Task {
             let profile = await interface.fetchAddressProfile(addressName)
             self.html = profile
+            self.loaded = true
+            self.loading = false
         }
     }
 }
@@ -281,11 +306,14 @@ class AddressNowDataFetcher: DataFetcher {
     }
     
     override func update() async {
+        await super.update()
         Task {
             let now = await interface.fetchAddressNow(addressName)
             self.content = now?.content
             self.updated = now?.updated
             self.listed = now?.listed
+            self.loaded = true
+            self.loading = false
         }
     }
 }
@@ -299,9 +327,12 @@ class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
     }
     
     override func update() async {
+        await super.update()
         Task {
             let pastes = await interface.fetchAddressPastes(addressName)
             self.listItems = pastes
+            self.loaded = true
+            self.loading = false
         }
     }
 }
@@ -315,9 +346,12 @@ class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
     }
     
     override func update() async {
+        await super.update()
         Task {
             let purls = await interface.fetchAddressPURLs(addressName)
             self.listItems = purls
+            self.loaded = true
+            self.loading = false
         }
     }
 }

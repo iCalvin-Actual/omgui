@@ -37,5 +37,17 @@ struct AppSidebar: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(content: {
+            ToolbarItem(placement: .principal) {
+                HStack {
+                    Text("app.lol")
+                        .font(.title)
+                        .bold()
+                        .fontDesign(Font.Design.serif)
+                        .foregroundColor(.accentColor)
+                    Spacer()                    
+                }
+            }
+        })
     }
 }

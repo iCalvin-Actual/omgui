@@ -21,12 +21,12 @@ extension Listable {
         guard let date = displayDate else {
             return nil
         }
-        return DateFormatter.short.string(from: date)
+        return DateFormatter.monthYear.string(from: date)
     }
 }
 
 extension AddressModel: Listable    {
-    var listTitle: String { addressName }
+    var listTitle: String { addressName.addressDisplayString }
     var listSubtitle: String { url?.absoluteString ?? "" }
     var displayDate: Date? { registered }
 }
@@ -47,6 +47,6 @@ extension PURLModel: Listable     {
 }
 extension NowListing: Listable     { 
     var listTitle: String     { owner.addressDisplayString }
-    var listSubtitle: String  { url }
+    var listSubtitle: String  { url.replacingOccurrences(of: "https://", with: "") }
     var displayDate: Date?    { updated }
 }

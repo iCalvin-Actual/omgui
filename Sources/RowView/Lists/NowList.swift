@@ -34,14 +34,18 @@ struct NowList: View {
     }
     
     var body: some View {
-        BlockList<NowListing, ListItem<NowListing>>(
+        BlockList<NowListing, NowGardenView>(
             model: model,
             dataFetcher: fetcher,
-            rowBuilder: { _ in nil as ListItem<NowListing>? },
+            rowBuilder: rowView(_:),
             selected: $selected,
             context: context,
             sort: $sort
         )
+    }
+    
+    func rowView(_ item: NowListing) -> NowGardenView {
+        NowGardenView(model: item)
     }
 }
 

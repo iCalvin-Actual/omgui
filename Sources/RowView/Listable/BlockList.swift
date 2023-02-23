@@ -80,6 +80,7 @@ struct BlockList<T: Listable, V: View>: View {
                     SortOrderMenu(sort: $sort)
                 }
             })
+            .listStyle(.plain)
     }
     
     @ViewBuilder
@@ -94,6 +95,7 @@ struct BlockList<T: Listable, V: View>: View {
             
             buildRow(item)
         }
+        .listRowSeparator(.hidden, edges: .all)
     }
     
     private func destination(for item: T) -> NavigationDetailView? {
@@ -133,21 +135,28 @@ struct ListItem<T: Listable>: View {
             if !narrow {
                 Spacer()
             }
+            
             Text(model.listTitle)
                 .font(.title)
                 .bold()
+                .foregroundColor(.black)
                 .padding(.vertical, !narrow ? 8 : 0)
                 .padding(.bottom, 4)
                 .padding(.trailing, 4)
             
             
+            let subtitle = model.listSubtitle
+            let caption = model.listCaption ?? ""
+            let someExist: Bool = !subtitle.isEmpty || !caption.isEmpty
             HStack(alignment: .bottom) {
-                if !narrow {
-                    Text(model.listSubtitle)
+                if !narrow, someExist {
+                    Text(subtitle)
                         .font(.headline)
+                        .foregroundColor(.black.opacity(0.8))
                         .bold()
                     Spacer()
-                    Text(model.listCaption ?? "")
+                    Text(caption)
+                        .foregroundColor(.black.opacity(0.6))
                         .font(.subheadline)
                 } else {
                     Spacer()
@@ -157,7 +166,7 @@ struct ListItem<T: Listable>: View {
         }
         .padding(.vertical)
         .padding(.leading, 32)
-        .background(Color.yellow)
+        .background(Color.lolYellow)
         .cornerRadius(24)
         .fontDesign(.serif)
     }

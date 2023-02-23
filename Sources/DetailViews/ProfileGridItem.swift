@@ -21,12 +21,15 @@ struct ProfileGridItemModel: Hashable, Identifiable {
     
     @ViewBuilder
     var label: some View {
-        Label(item.displayString, systemImage: item.icon)
-            .font(.headline)
-            .fontDesign(.serif)
-            .bold()
-            .padding(32)
-            .background(Color.green)
+        VStack {
+            Image(systemName: item.icon)
+            
+            Text(item.displayString)
+                .font(.headline)
+                .fontDesign(.serif)
+                .bold()
+        }
+        .padding(8)
     }
 }
 
@@ -54,6 +57,32 @@ enum ProfileGridItem: String, Identifiable, Codable {
         }
     }
     var icon: String {
-        return "sparkles"
+        switch self {
+        case .profile:
+            return "person.circle"
+        case .now:
+            return "clock"
+        case .purl:
+            return "link"
+        case .pastebin:
+            return "list.clipboard"
+        case .statuslog:
+            return "bubble.left"
+        }
+    }
+    
+    func externalUrlString(for name: AddressName) -> String {
+        switch self {
+        case .profile:
+            return "\(name).omg.lol"
+        case .now:
+            return "\(name).omg.lol/now"
+        case .purl:
+            return "\(name).url.lol"
+        case .pastebin:
+            return "\(name).paste.lol"
+        case .statuslog:
+            return "\(name).status.lol"
+        }
     }
 }

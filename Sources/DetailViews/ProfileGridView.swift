@@ -22,7 +22,7 @@ struct ProfileGridView<L: View>: View {
     
     var body: some View {
         if model.isLoaded {
-            NavigationLink(destination: { destination(model.item) }, label: label)
+            NavigationLink(value: model.item, label: label)
         } else {
             self.label()
         }
@@ -31,8 +31,10 @@ struct ProfileGridView<L: View>: View {
     @ViewBuilder
     func label() -> some View {
         HStack {
+            Spacer()
             model.label
             Spacer()
         }
+        .background(Color.lolBlue, in: Capsule())
     }
 }

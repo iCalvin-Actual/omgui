@@ -50,6 +50,7 @@ public struct CoreNavigationView: View {
             content: { EmptyView() }
         )
         .environmentObject(model)
+        .accentColor(.lolAccent)
     }
     
     func internalAccountView() -> AccountBar? {
@@ -104,8 +105,7 @@ public struct CoreNavigationView: View {
                     filters: .everyone
                 ),
                 fetcher: appModel.fetchConstructor.generalStatusLog(),
-                selected: $model.selectedStatus,
-                sort: $addressSort
+                selected: $model.selectedStatus
             )
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
@@ -123,8 +123,7 @@ public struct CoreNavigationView: View {
                     filters: .followed
                 ),
                 fetcher: appModel.fetchConstructor.statusLog(for: appModel.accountModel.following),
-                selected: $model.selectedStatus,
-                sort: $addressSort
+                selected: $model.selectedStatus
             )
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
@@ -159,15 +158,6 @@ public struct CoreNavigationView: View {
                 model: appModel.addressDetails(address),
                 context: .column
             )
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar(content: {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Text(address.addressDisplayString)
-                        .font(.title)
-                        .fontDesign(.serif)
-                        .bold()
-                }
-            })
         default:
             Text("NONE")
         }
