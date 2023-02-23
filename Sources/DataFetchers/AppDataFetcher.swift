@@ -196,11 +196,8 @@ class NowGardenDataFetcher: ListDataFetcher<NowListing> {
         Task {
             let garden = await interface.fetchNowGarden()
             self.listItems = garden
-<<<<<<< HEAD
-=======
             self.loaded = true
             self.loading = false
->>>>>>> 100e406 (update batch of style)
         }
     }
 }
