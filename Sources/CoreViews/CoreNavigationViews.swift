@@ -103,6 +103,7 @@ public struct CoreNavigationView: View {
         case .community:
             StatusList(
                 model: .init(
+                    sort: .newestFirst,
                     filters: .everyone
                 ),
                 fetcher: appModel.fetchConstructor.generalStatusLog(),
