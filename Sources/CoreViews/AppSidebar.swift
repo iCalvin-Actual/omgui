@@ -28,17 +28,16 @@ struct AppSidebar: View {
                                     Text(item.displayString)
                                         .font(.title2)
                                         .fontDesign(.serif)
+                                        .shadow(color: .black.opacity(0.8), radius: 0)
                                     Spacer()
                                 }
                             } else {
                                 Text(item.displayString)
                             }
                         }
-//                        .foregroundColor(.black)
                         .padding(16)
                         .background(Color.lolRandom(item))
                         .cornerRadius(12)
-                        .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
                         .listRowSeparator(.hidden, edges: .all)
                     }
                 } header: {

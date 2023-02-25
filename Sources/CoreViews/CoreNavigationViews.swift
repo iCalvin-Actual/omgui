@@ -26,6 +26,7 @@ public struct CoreNavigationView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     init() {
+        UITableViewCell.appearance().selectionStyle = .none
     }
     
     public var body: some View {
@@ -92,7 +93,7 @@ public struct CoreNavigationView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Text("Directory")
+                    Text("omg.lol")
                         .font(.title)
                         .fontDesign(.serif)
                         .bold()
@@ -111,7 +112,7 @@ public struct CoreNavigationView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Text("StatusLog")
+                    Text("status.log")
                         .font(.title)
                         .fontDesign(.serif)
                         .bold()
@@ -130,7 +131,7 @@ public struct CoreNavigationView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Text("Following")
+                    Text("following.app.lol")
                         .font(.title)
                         .fontDesign(.serif)
                         .bold()
@@ -150,7 +151,7 @@ public struct CoreNavigationView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Text("Now Garden")
+                    Text("now.lol/garden")
                         .font(.title)
                         .fontDesign(.serif)
                         .bold()

@@ -54,9 +54,9 @@ enum ProfileGridItem: String, Identifiable, Codable {
         case .purl:
             return "PURLs"
         case .pastebin:
-            return "Pastebin"
+            return "PasteBin"
         case .statuslog:
-            return "Statuslog"
+            return "StatusLog"
         }
     }
     var icon: String {
