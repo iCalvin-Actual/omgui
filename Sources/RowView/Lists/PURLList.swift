@@ -20,19 +20,23 @@ struct PURLList: View {
     @Binding
     var sort: Sort
     
-    var context: Context = .column
+    var context: Context = .profile
     
     @EnvironmentObject
     var sceneModel: SceneModel
     
     var body: some View {
-        BlockList<PURLModel, ListItem<PURLModel>>(
+        BlockList<PURLModel, PURLView>(
             model: model,
             dataFetcher: fetcher,
-            rowBuilder: { _ in nil as ListItem<PURLModel>? },
+            rowBuilder: purlView(_:),
             selected: $selected,
             context: context,
             sort: $sort
         )
+    }
+    
+    func purlView(_ model: PURLModel) -> PURLView {
+        PURLView(model: model, context: context)
     }
 }

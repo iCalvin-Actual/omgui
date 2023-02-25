@@ -10,11 +10,6 @@ import Foundation
 
 @available(iOS 16.1, *)
 struct PasteList: View {
-    enum Context {
-        case column
-        case profile
-    }
-    
     var model: ListModel<PasteModel>
     
     @ObservedObject
@@ -25,16 +20,16 @@ struct PasteList: View {
     @Binding
     var sort: Sort
     
-    var context: Context = .column
+    var context: Context = .profile
     
     @EnvironmentObject
     var sceneModel: SceneModel
     
     var body: some View {
-        BlockList<PasteModel, ListItem<PasteModel>>(
+        BlockList<PasteModel, PasteView>(
             model: model,
             dataFetcher: fetcher,
-            rowBuilder: { _ in nil as ListItem<PasteModel>? },
+            rowBuilder: pasteView(_:),
             selected: $selected,
             context: .column,
             sort: $sort
@@ -43,6 +38,6 @@ struct PasteList: View {
     
     @ViewBuilder
     func pasteView(_ paste: PasteModel) -> PasteView {
-        PasteView(model: paste)
+        PasteView(model: paste, context: context)
     }
 }
