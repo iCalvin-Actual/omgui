@@ -23,7 +23,7 @@ struct ProfileView: View {
     var purlModel: AddressPURLsDataFetcher
     
     @State
-    var selectedItem: ProfileGridItem = .profile
+    var selectedItem: ProfileGridItem = .statuslog
     
     @State
     var sort: Sort = .newestFirst
