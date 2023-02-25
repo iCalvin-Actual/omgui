@@ -91,27 +91,42 @@ struct ProfileView: View {
     func sidebar() -> some View {
         VStack(alignment: .leading) {
             Grid {
-                GridRow {
-                    ForEach(upperGridItems) { item in
-                        HStack {
-                            Spacer()
-                            ProfileGridView(model: item, destination: destination(_:))
-                            Spacer()
+                Section {
+                    GridRow {
+                        ForEach(upperGridItems) { item in
+                            HStack {
+                                Spacer()
+                                ProfileGridView(model: item, destination: destination(_:))
+                                Spacer()
+                            }
+                            .gridCellColumns(3)
                         }
                     }
+                } header: {
+                    Text("pages")
+                        .fontDesign(.monospaced)
+                        .font(.subheadline)
+                        .bold()
                 }
                 
-                ForEach(lowerGridItems) { item in
-                    GridRow {
-                        HStack {
-                            Spacer()
-                            ProfileGridView(model: item, destination: destination(_:))                            
-                            Spacer()
+                Section {
+                    ForEach(lowerGridItems) { item in
+                        GridRow {
+                            HStack {
+                                Spacer()
+                                ProfileGridView(model: item, destination: destination(_:))
+                                Spacer()
+                            }
+                            .gridCellColumns(2)
+                            
                         }
-                        .gridCellColumns(2)
                         
                     }
-                    
+                } header: {
+                    Text("Content")
+                        .fontDesign(.monospaced)
+                        .font(.subheadline)
+                        .bold()
                 }
             }
             Spacer()

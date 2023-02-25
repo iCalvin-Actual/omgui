@@ -21,6 +21,7 @@ struct PasteView: View {
             
             VStack(alignment: .leading) {
                 Text(model.name)
+                    .foregroundColor(.accentColor)
                     .font(.largeTitle)
                     .aspectRatio(1.0, contentMode: .fit)
                     .padding(.vertical)
@@ -28,7 +29,7 @@ struct PasteView: View {
                 if let destination = model.content {
                     Text(destination)
                         .font(.body)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                         .padding(.bottom)
                 }
             }
