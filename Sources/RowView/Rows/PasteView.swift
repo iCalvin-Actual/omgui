@@ -26,16 +26,19 @@ struct PasteView: View {
                     .aspectRatio(1.0, contentMode: .fit)
                     .padding(.vertical)
                 
-                if let destination = model.content {
-                    Text(destination)
-                        .font(.body)
-                        .foregroundColor(.black)
-                        .padding(.bottom)
+                HStack(alignment: .bottom) {
+                    if let destination = model.content {
+                        Text(destination)
+                            .font(.body)
+                            .foregroundColor(.black)
+                            .padding(.bottom)
+                    }
+                    Spacer()
                 }
             }
             .multilineTextAlignment(.leading)
             .padding(12)
-            .accentColor(.primary)
+            .accentColor(.black)
             .background(Color.lolRandom(model.name))
             .cornerRadius(12, antialiased: true)
         }

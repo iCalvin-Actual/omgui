@@ -41,10 +41,13 @@ struct AppSidebar: View {
                         .listRowSeparator(.hidden, edges: .all)
                     }
                 } header: {
-                    Text(group.displayName)
-                        .fontDesign(.monospaced)
-                        .font(.subheadline)
-                        .bold()
+                    HStack {
+                        Text(group.displayName)
+                            .fontDesign(.monospaced)
+                            .font(.subheadline)
+                            .bold()
+                        Spacer()
+                    }
                 }
             }
             .listStyle(.plain)

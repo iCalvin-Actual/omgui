@@ -99,14 +99,16 @@ struct ProfileView: View {
                                 ProfileGridView(model: item, destination: destination(_:))
                                 Spacer()
                             }
-                            .gridCellColumns(3)
                         }
                     }
                 } header: {
-                    Text("pages")
-                        .fontDesign(.monospaced)
-                        .font(.subheadline)
-                        .bold()
+                    HStack {
+                        Text("pages")
+                            .fontDesign(.monospaced)
+                            .font(.subheadline)
+                            .bold()
+                        Spacer()
+                    }
                 }
                 
                 Section {
@@ -118,15 +120,17 @@ struct ProfileView: View {
                                 Spacer()
                             }
                             .gridCellColumns(2)
-                            
                         }
                         
                     }
                 } header: {
-                    Text("Content")
-                        .fontDesign(.monospaced)
-                        .font(.subheadline)
-                        .bold()
+                    HStack {
+                        Text("more")
+                            .fontDesign(.monospaced)
+                            .font(.subheadline)
+                            .bold()
+                        Spacer()
+                    }
                 }
             }
             Spacer()
