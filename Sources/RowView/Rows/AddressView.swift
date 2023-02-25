@@ -26,13 +26,11 @@ struct AddressView: View {
                 .padding(.vertical, !narrow ? 8 : 0)
                 .padding(.bottom, 4)
                 .padding(.trailing, 4)
+                .fontDesign(.serif)
             
             
             HStack(alignment: .bottom) {
                 if !narrow {
-                    Text("")
-                        .font(.headline)
-                        .bold()
                     Spacer()
                     if let registered = model.registered {
                         Text("Since \(DateFormatter.monthYear.string(from: registered))")
@@ -45,10 +43,10 @@ struct AddressView: View {
             }
             .padding(.trailing)
         }
+        .foregroundColor(.black)
         .padding(.vertical)
         .padding(.leading, 32)
         .background(Color.lolYellow)
         .cornerRadius(24)
-        .fontDesign(.serif)
     }
 }

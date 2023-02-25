@@ -40,7 +40,7 @@ struct StatusView: View {
                     .bold()
                     .fontDesign(.serif)
                     .padding([.horizontal, .bottom], 4)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
             }
             
             VStack(alignment: .leading) {

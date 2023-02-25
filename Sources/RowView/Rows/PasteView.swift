@@ -23,7 +23,6 @@ struct PasteView: View {
                 Text(model.name)
                     .foregroundColor(.accentColor)
                     .font(.largeTitle)
-                    .aspectRatio(1.0, contentMode: .fit)
                     .padding(.vertical)
                 
                 HStack(alignment: .bottom) {

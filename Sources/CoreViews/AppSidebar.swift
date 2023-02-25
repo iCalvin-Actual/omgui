@@ -39,6 +39,7 @@ struct AppSidebar: View {
                         .background(Color.lolRandom(item))
                         .cornerRadius(12)
                         .listRowSeparator(.hidden, edges: .all)
+                        .foregroundColor(.black)
                     }
                 } header: {
                     HStack {

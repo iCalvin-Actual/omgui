@@ -93,7 +93,7 @@ struct ProfileView: View {
             Grid {
                 Section {
                     GridRow {
-                        ForEach(upperGridItems) { item in
+                        ForEach(pageGridItems) { item in
                             HStack {
                                 Spacer()
                                 ProfileGridView(model: item, destination: destination(_:))
@@ -112,7 +112,7 @@ struct ProfileView: View {
                 }
                 
                 Section {
-                    ForEach(lowerGridItems) { item in
+                    ForEach(moreGridItems) { item in
                         GridRow {
                             HStack {
                                 Spacer()
@@ -229,19 +229,19 @@ struct ProfileView: View {
         }
     }
     
-    var upperGridItems: [ProfileGridItemModel] {
+    var pageGridItems: [ProfileGridItemModel] {
         let items: [ProfileGridItemModel?] = [
-            profileModel.loaded ? ProfileGridItemModel(item: .profile, isLoaded: true) : nil,
-            nowModel.loaded ? ProfileGridItemModel(item: .now, isLoaded: true) : nil
+            ProfileGridItemModel(item: .profile, isLoaded: true),
+            ProfileGridItemModel(item: .now, isLoaded: true)
         ]
         return items.compactMap({ $0 })
     }
     
-    var lowerGridItems: [ProfileGridItemModel] {
+    var moreGridItems: [ProfileGridItemModel] {
         let items: [ProfileGridItemModel?] = [
-            statusModel.loaded ? ProfileGridItemModel(item: .statuslog, isLoaded: true) : nil,
-            purlModel.loaded ? ProfileGridItemModel(item: .purl, isLoaded: true) : nil,
-            pastebinModel.loaded ? ProfileGridItemModel(item: .pastebin, isLoaded: true) : nil
+            ProfileGridItemModel(item: .statuslog, isLoaded: true),
+            ProfileGridItemModel(item: .purl, isLoaded: true),
+            ProfileGridItemModel(item: .pastebin, isLoaded: true)
         ]
         return items.compactMap({ $0 })
     }

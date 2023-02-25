@@ -22,7 +22,6 @@ struct PURLView: View {
             VStack(alignment: .leading) {
                 Text(model.value)
                     .font(.largeTitle)
-                    .aspectRatio(1.0, contentMode: .fit)
                     .padding(.vertical)
                 
                 HStack(alignment: .bottom) {
