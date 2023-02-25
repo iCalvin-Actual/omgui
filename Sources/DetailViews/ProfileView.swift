@@ -107,6 +107,7 @@ struct ProfileView: View {
                             .fontDesign(.monospaced)
                             .font(.subheadline)
                             .bold()
+                            .padding(8)
                         Spacer()
                     }
                 }
@@ -129,6 +130,7 @@ struct ProfileView: View {
                             .fontDesign(.monospaced)
                             .font(.subheadline)
                             .bold()
+                            .padding(8)
                         Spacer()
                     }
                 }
@@ -161,7 +163,7 @@ struct ProfileView: View {
             HTMLStringView(htmlContent: profileModel.html ?? "")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Text(ProfileGridItem.pastebin.externalUrlString(for: addressModel.addressName))
+                        Text(ProfileGridItem.profile.externalUrlString(for: addressModel.addressName))
                             .bold()
                             .font(.callout)
                             .foregroundColor(.accentColor)

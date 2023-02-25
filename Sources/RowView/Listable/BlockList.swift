@@ -139,7 +139,7 @@ struct ListItem<T: Listable>: View {
             Text(model.listTitle)
                 .font(.title)
                 .bold()
-//                .foregroundColor(.black)
+                .foregroundColor(.black)
                 .padding(.vertical, !narrow ? 8 : 0)
                 .padding(.bottom, 4)
                 .padding(.trailing, 4)
