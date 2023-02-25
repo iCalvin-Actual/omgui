@@ -103,7 +103,6 @@ public struct CoreNavigationView: View {
         case .community:
             StatusList(
                 model: .init(
-                    sort: addressSort,
                     filters: .everyone
                 ),
                 fetcher: appModel.fetchConstructor.generalStatusLog(),
@@ -187,7 +186,10 @@ public struct CoreNavigationView: View {
             case .now(let address):
                 NowContentView(model: appModel.fetchConstructor.addresNowFetcher(address))
             default:
-                Text("EMPTY")
+                ProfileView(
+                    model: appModel.addressDetails("app"),
+                    context: .profile
+                )
             }
         } else {
             Text("NIL")

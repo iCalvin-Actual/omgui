@@ -22,7 +22,7 @@ class SidebarViewModel: ObservableObject {
             case .saved:
                 return "cache.app.lol"
             case .weblog:
-                return "Weblog"
+                return "blog.app.lol"
             case .comingSoon:
                 return "Coming Soon"
             }
@@ -46,8 +46,7 @@ class SidebarViewModel: ObservableObject {
             ]
         case .saved:
             return [
-                .pinned("app"),
-                .pinned("calvin")
+                .pinned("app")
             ]
         default:
             return [
