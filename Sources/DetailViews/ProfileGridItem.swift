@@ -29,9 +29,7 @@ struct ProfileGridItemModel: Hashable, Identifiable {
             Text(item.displayString)
                 .font(.headline)
                 .fontDesign(.serif)
-                .bold()
         }
-//        .foregroundColor(.black)
         .padding(8)
     }
 }

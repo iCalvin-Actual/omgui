@@ -67,7 +67,7 @@ struct StatusView: View {
                 }
                 .padding(.top, 4)
             }
-//            .foregroundColor(.black)
+            .foregroundColor(.black)
             .padding(12)
             .background(Color.lolRandom(model.displayEmoji))
             .cornerRadius(12, antialiased: true)
