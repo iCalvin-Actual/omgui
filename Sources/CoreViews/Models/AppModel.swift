@@ -7,6 +7,7 @@ class AppModel: ObservableObject {
     
     nonisolated static let clientId: String = "5e171c460ba4b7a7ceaf86295ac169d2"
     nonisolated static let clientSecret: String = "6937ec29a6811d676615d783ab071bb8"
+    nonisolated static let clientRedirect: String = "app-omg-lol://oauth"
     
     @ObservedObject
     internal var modelFetcher: AppModelDataFetcher

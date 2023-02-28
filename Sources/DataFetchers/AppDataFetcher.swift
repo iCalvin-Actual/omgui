@@ -19,6 +19,8 @@ public protocol OMGDataInterface {
     
     func authURL() -> URL?
     
+    func fetchAccessToken(authCode: String, clientID: String, clientSecret: String, redirect: String) async throws -> String?
+    
     func fetchServiceInfo() async throws -> ServiceInfoModel
     
     func fetchGlobalBlocklist() async -> [AddressName]
@@ -44,6 +46,7 @@ public protocol OMGDataInterface {
 }
 
 @MainActor
+@available(iOS 16.1, *)
 class FetchConstructor: ObservableObject {
     let interface: OMGDataInterface
     
@@ -125,6 +128,7 @@ class DataFetcher: NSObject, ObservableObject {
     }
 }
 
+@available(iOS 16.1, *)
 class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContextProviding {
     private var webSeession: ASWebAuthenticationSession?
     
@@ -135,7 +139,6 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
         guard let url = interface.authURL() else {
             return
         }
-        print("URL \(url)")
         self.webSeession = ASWebAuthenticationSession(
             url: url,
             callbackURLScheme: "app-omg-lol"
@@ -151,12 +154,21 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
             print("Success! \(url)")
             let components = URLComponents(url: url, resolvingAgainstBaseURL: true)
             
-            guard let token = components?.queryItems?.filter ({ $0.name == "access_token" }).first?.value else {
+            guard let code = components?.queryItems?.filter ({ $0.name == "code" }).first?.value else {
                 // Bad url response?
+                print("url: \(url)")
                 return
             }
-            self.authCode = token
-            print("Got new auth code \(token)")
+            Task {
+                let token = try await interface.fetchAccessToken(
+                    authCode: code, 
+                    clientID: AppModel.clientId, 
+                    clientSecret: AppModel.clientSecret, 
+                    redirect: AppModel.clientRedirect
+                )
+                self.authCode = token
+                print("Got new auth code \(token)")
+            }
         }
         self.webSeession?.presentationContextProvider = self
     }

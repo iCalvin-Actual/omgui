@@ -1,10 +1,6 @@
 import SwiftUI
 
 public typealias AddressName = String
-struct APICredentials {
-    public let emailAddress: String
-    public let authKey: String
-}
 public extension AddressName {
     var addressDisplayString: String { "@\(self)"}
 }

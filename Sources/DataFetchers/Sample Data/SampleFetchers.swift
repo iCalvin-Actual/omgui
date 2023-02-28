@@ -12,6 +12,9 @@ public class SampleData: OMGDataInterface {
     public func authURL() -> URL? {
         URL(string: "https://home.omg.lol")
     }
+    public func fetchAccessToken(authCode: String, clientID: String, clientSecret: String, redirect: String) async throws -> String? {
+        return authCode
+    }
     public func fetchGlobalBlocklist() async -> [AddressName] {
         []
     }
