@@ -56,15 +56,18 @@ struct NowContentView: View {
     var model: AddressNowDataFetcher
     
     var body: some View {
-        MarkdownTextView(model.content ?? "")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Text(ProfileGridItem.now.externalUrlString(for: model.addressName))
-                        .bold()
-                        .font(.callout)
-                        .foregroundColor(.accentColor)
-                        .fontDesign(.monospaced)
-                }
+        ScrollView {
+            MarkdownTextView(model.content ?? "")
+                .padding()
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Text(ProfileGridItem.now.externalUrlString(for: model.addressName))
+                    .bold()
+                    .font(.callout)
+                    .foregroundColor(.accentColor)
+                    .fontDesign(.monospaced)
             }
+        }
     }
 } 
