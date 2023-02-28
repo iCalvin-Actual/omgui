@@ -31,7 +31,12 @@ extension Sort {
             }
             return lhD < rhD
         case .shuffle:
-            return true
+            switch arc4random_uniform(2) {
+            case 0:
+                return true
+            default:
+                return false
+            } 
         }
     }
 }

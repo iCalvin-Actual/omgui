@@ -11,6 +11,11 @@ public class SceneModel: ObservableObject {
     @Published
     var showingSettings: Bool = false
     
+    @Published
+    var showAccount: Bool = false
+    
+    var actingAddress: AddressName?
+    
     public init() {
     }
 }

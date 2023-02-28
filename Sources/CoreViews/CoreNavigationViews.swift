@@ -41,14 +41,14 @@ public struct CoreNavigationView: View {
             }
         }
         .sheet(
-            isPresented: $appModel.accountModel.showingAccountModal,
+            isPresented: $model.showAccount,
             onDismiss: { },
-            content: { ManageAccountView() }
+            content: { ManageAccountView(show: $model.showAccount).environmentObject(appModel) }
         )
         .sheet(
             isPresented: $model.showingSettings,
             onDismiss: { },
-            content: { EmptyView() }
+            content: { Text("Settings") }
         )
         .environmentObject(model)
         .accentColor(.lolAccent)

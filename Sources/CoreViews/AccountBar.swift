@@ -11,38 +11,27 @@ import Foundation
 @available(iOS 16.1, *)
 struct AccountBar: View {
     @EnvironmentObject
+    var appModel: AppModel
+    
+    @EnvironmentObject
     var model: SceneModel
     
-    @State
-    var showAlert: Bool = false
-    
     var body: some View {
-        EmptyView()
-    }
-    
-    var someBody: some View {
         HStack {
-            AccountView(activeAddress: nil)
+            AccountView(showAccount: $model.showAccount, activeAddress: model.actingAddress)
                 .keyboardShortcut("t", modifiers: [.command, .shift])
-                .disabled(true)
-                .onTapGesture {
-                    self.showAlert.toggle()
-                }
             
             Spacer()
             
-            Button(action: {
-                withAnimation {
-                    model.showingSettings.toggle()
-                }
-            }, label: {
-                Label("", systemImage: "gear")
-            })
-            .keyboardShortcut(",", modifiers: [.command])
+//            Button(action: {
+//                withAnimation {
+//                    model.showingSettings.toggle()
+//                }
+//            }, label: {
+//                Label("", systemImage: "gear")
+//            })
+//            .keyboardShortcut(",", modifiers: [.command])
         }
         .padding()
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("🤷 Coming Shortly"))
-        }
     }
 }

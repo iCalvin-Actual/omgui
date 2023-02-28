@@ -9,6 +9,9 @@ import Foundation
 
 public class SampleData: OMGDataInterface {
     public init() { }
+    public func authURL() -> URL? {
+        URL(string: "https://home.omg.lol")
+    }
     public func fetchGlobalBlocklist() async -> [AddressName] {
         []
     }

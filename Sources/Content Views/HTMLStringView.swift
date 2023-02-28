@@ -5,11 +5,8 @@ struct HTMLStringView: UIViewRepresentable {
     
     class NavigationDelegate: NSObject, WKNavigationDelegate {
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
-            guard navigationAction.navigationType != .linkActivated else {
-                return .cancel
-            }
             return .allow
-        }        
+        }
     }
     
     let htmlContent: String
@@ -19,8 +16,10 @@ struct HTMLStringView: UIViewRepresentable {
         let view = WKWebView()
         
         view.allowsLinkPreview = true
-        view.allowsBackForwardNavigationGestures = false
+        view.allowsBackForwardNavigationGestures = true
         view.navigationDelegate = navigationDelegate
+        
+        view.loadHTMLString(htmlContent, baseURL: nil)
         
         return view
     }

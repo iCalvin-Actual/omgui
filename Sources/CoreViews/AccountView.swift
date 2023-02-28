@@ -3,18 +3,19 @@ import SwiftUI
 @available(iOS 16.1, *)
 @available(macCatalyst 16.1, *)
 struct AccountView: View {
-    @EnvironmentObject
-    var model: AppModel
     
-    let activeAddress: AddressModel?
+    @Binding
+    var showAccount: Bool
+    
+    let activeAddress: AddressName?
     
     var displayString: String {
-        activeAddress?.name.addressDisplayString ?? "Sign in"
+        activeAddress?.addressDisplayString ?? "Sign in"
     }
     
     var body: some View {
         Button {
-            model.accountModel.showingAccountModal.toggle()
+            showAccount.toggle()
         } label: {
             Image(systemName: "person.crop.square")
             

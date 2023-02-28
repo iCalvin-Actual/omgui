@@ -6,6 +6,10 @@ public class AccountModel: ObservableObject {
     
     @Published
     var showingAccountModal: Bool = false
+    
+    var signedIn: Bool {
+        !addresses.isEmpty
+    }
 }
 
 extension AccountModel {

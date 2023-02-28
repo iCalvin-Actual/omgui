@@ -1,3 +1,4 @@
+import AuthenticationServices
 import Foundation
 
 /*
@@ -15,6 +16,8 @@ import Foundation
 
 
 public protocol OMGDataInterface {
+    
+    func authURL() -> URL?
     
     func fetchServiceInfo() async throws -> ServiceInfoModel
     
@@ -53,6 +56,10 @@ class FetchConstructor: ObservableObject {
         self.directoryFetcher = AddressDirectoryDataFetcher(interface: interface)
         self.globalStatusFetcher = StatusLogDataFetcher(interface: interface)
         self.gardenFetcher = NowGardenDataFetcher(interface: interface)
+    }
+    
+    func signInModel() -> AccountAuthDataFetcher {
+        AccountAuthDataFetcher(interface: interface)
     }
     
     func appModelDataFetcher() -> AppModelDataFetcher {
@@ -97,7 +104,7 @@ class FetchConstructor: ObservableObject {
 }
 
 @MainActor
-class DataFetcher: ObservableObject {
+class DataFetcher: NSObject, ObservableObject {
     let interface: OMGDataInterface
     
     @Published
@@ -107,6 +114,7 @@ class DataFetcher: ObservableObject {
     
     init(interface: OMGDataInterface) {
         self.interface = interface
+        super.init()
         Task {
             await update()
         }
@@ -115,6 +123,39 @@ class DataFetcher: ObservableObject {
     func update() async {
         self.loading = true
     }
+}
+
+class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContextProviding {
+    private var webSeession: ASWebAuthenticationSession?
+    
+    override init(interface: OMGDataInterface) {
+        super.init(interface: interface)
+        guard let url = interface.authURL() else {
+            return
+        }
+        print("URL \(url)")
+        self.webSeession = ASWebAuthenticationSession(
+            url: url,
+            callbackURLScheme: "app-omg-lol://oauth"
+        ) { (url, error) in
+            if let error = error {
+                print("Error \(error)")
+            } else if let url = url {
+                print("Success! \(url)")
+            }
+        }
+        self.webSeession?.presentationContextProvider = self
+    }
+    
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        return ASPresentationAnchor()
+    }
+    
+    override func update() async {
+        self.webSeession?.start()
+    }
+    
+    
 }
 
 class ListDataFetcher<T: Listable>: DataFetcher {

@@ -18,11 +18,15 @@ struct ListModel<T: Listable> {
         self.filters = filters
     }
     
-    func apply(to inputModels: [T], with account: AccountModel) -> [T] {
+    func applySorts(to inputModels: [T], with account: AccountModel) -> [T] {
         inputModels
-            .filter({ $0.include(with: filters, account: account) })
-            .shuffled()
             .sorted(with: sort)
+    }
+    
+    func applyFilters(to inputModels: [T], with account: AccountModel) -> [T] {
+        inputModels
+            .sorted(with: sort)
+            .filter({ $0.include(with: filters, account: account) })
     }
 }
 
@@ -57,7 +61,7 @@ struct BlockList<T: Listable, V: View>: View {
     }
     
     var items: [T] {
-        model.apply(to: dataFetcher.listItems, with: appModel.accountModel)
+        model.applyFilters(to: dataFetcher.listItems, with: appModel.accountModel)
             .filter { model in
                 guard !queryString.isEmpty else {
                     return true

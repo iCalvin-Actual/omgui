@@ -1,8 +1,41 @@
+import AuthenticationServices
 import SwiftUI
 
+@available(iOS 16.1, *)
 struct ManageAccountView: View {
+    @Binding
+    var show: Bool
+    
+    @EnvironmentObject
+    var appModel: AppModel
+    
     var body: some View {
-        Text("Manage Account")
+        VStack(alignment: .center) {
+            HStack(alignment: .top) {
+                Spacer()
+                Button(action: { 
+                    self.show.toggle()
+                }, label: {
+                    Text("Close")
+                })
+            }
+            if appModel.accountModel.signedIn {
+                Text("Logged in")
+            } else {
+                Button(action: {
+                    Task {
+                        await appModel.fetchConstructor.signInModel()
+                            .update()
+                    }
+                }, label: {
+                    Label("Login on omg.lol", systemImage: "key")
+                        .padding()
+                        .background(in: Capsule(), fillStyle: .init(eoFill: true, antialiased: true))
+                })
+            }
+            Spacer()
+        }
+        .padding()
     }
 }
 
