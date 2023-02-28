@@ -128,6 +128,8 @@ class DataFetcher: NSObject, ObservableObject {
 class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContextProviding {
     private var webSeession: ASWebAuthenticationSession?
     
+    var authCode: String?
+    
     override init(interface: OMGDataInterface) {
         super.init(interface: interface)
         guard let url = interface.authURL() else {
@@ -136,13 +138,25 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
         print("URL \(url)")
         self.webSeession = ASWebAuthenticationSession(
             url: url,
-            callbackURLScheme: "app-omg-lol://oauth"
+            callbackURLScheme: "app-omg-lol"
         ) { (url, error) in
-            if let error = error {
-                print("Error \(error)")
-            } else if let url = url {
-                print("Success! \(url)")
+            guard let url = url else {
+                if let error = error {
+                    print("Error \(error)")
+                } else {
+                    print("Unknown error")
+                }
+                return
             }
+            print("Success! \(url)")
+            let components = URLComponents(url: url, resolvingAgainstBaseURL: true)
+            
+            guard let token = components?.queryItems?.filter ({ $0.name == "access_token" }).first?.value else {
+                // Bad url response?
+                return
+            }
+            self.authCode = token
+            print("Got new auth code \(token)")
         }
         self.webSeession?.presentationContextProvider = self
     }
