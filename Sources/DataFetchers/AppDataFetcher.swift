@@ -134,7 +134,8 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
     
     var model: AppModel
     
-    override init(interface: OMGDataInterface, appModel: AppModel) {
+    init(interface: OMGDataInterface, appModel: AppModel) {
+        self.model = appModel
         super.init(interface: interface)
         guard let url = interface.authURL() else {
             return
@@ -151,7 +152,6 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
                 }
                 return
             }
-            print("Success! \(url)")
             let components = URLComponents(url: url, resolvingAgainstBaseURL: true)
             
             guard let code = components?.queryItems?.filter ({ $0.name == "code" }).first?.value else {
@@ -166,7 +166,9 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
                     clientSecret: AppModel.clientSecret, 
                     redirect: AppModel.clientRedirect
                 )
-                self.appModel.login(token)
+                if let token = token {
+                    self.model.login(token)
+                }
             }
         }
         self.webSeession?.presentationContextProvider = self
