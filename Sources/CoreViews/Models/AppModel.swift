@@ -41,10 +41,11 @@ class AppModel: ObservableObject {
         
         // Fetch pinned addresses
         
-        // Fetch
+        // Fetch self addresses
     }
     
     internal func login(_ authKey: String) {
+        self.authKey = authKey
         Task {
             let addresses = [
                 "app",

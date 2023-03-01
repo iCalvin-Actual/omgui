@@ -132,9 +132,9 @@ class DataFetcher: NSObject, ObservableObject {
 class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContextProviding {
     private var webSeession: ASWebAuthenticationSession?
     
-    var authCode: String?
+    var model: AppModel
     
-    override init(interface: OMGDataInterface) {
+    override init(interface: OMGDataInterface, appModel: AppModel) {
         super.init(interface: interface)
         guard let url = interface.authURL() else {
             return
@@ -166,8 +166,7 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
                     clientSecret: AppModel.clientSecret, 
                     redirect: AppModel.clientRedirect
                 )
-                self.authCode = token
-                print("Got new auth code \(token)")
+                self.appModel.login(token)
             }
         }
         self.webSeession?.presentationContextProvider = self
