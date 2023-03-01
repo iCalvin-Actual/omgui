@@ -46,15 +46,9 @@ class AppModel: ObservableObject {
     
     internal func login(_ authKey: String) {
         self.authKey = authKey
-        Task {
-            let addresses = [
-                "app",
-                "calvin"
-            ]
-            for address in addresses {
-                let _ = addressDetails(address)
-            }
-        }
+        // Fetch addresses for account
+        // Add addresses to pinned list
+        // Fetch app.lol settings for addresses
     }
     
     internal func addressDetails(_ address: AddressName) -> AddressDetailsDataFetcher {

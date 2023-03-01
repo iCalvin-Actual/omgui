@@ -24,7 +24,7 @@ struct ManageAccountView: View {
             } else {
                 Button(action: {
                     Task {
-                        await appModel.fetchConstructor.signInModel()
+                        await appModel.fetchConstructor.credentialFetcher(appModel)
                             .update()
                     }
                 }, label: {

@@ -61,8 +61,8 @@ class FetchConstructor: ObservableObject {
         self.gardenFetcher = NowGardenDataFetcher(interface: interface)
     }
     
-    func signInModel() -> AccountAuthDataFetcher {
-        AccountAuthDataFetcher(interface: interface)
+    func credentialFetcher(_ model: AppModel) -> AccountAuthDataFetcher {
+        AccountAuthDataFetcher(interface: interface, appModel: model)
     }
     
     func appModelDataFetcher() -> AppModelDataFetcher {
