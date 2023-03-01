@@ -61,8 +61,8 @@ class FetchConstructor: ObservableObject {
         self.gardenFetcher = NowGardenDataFetcher(interface: interface)
     }
     
-    func credentialFetcher(_ model: AppModel) -> AccountAuthDataFetcher {
-        AccountAuthDataFetcher(interface: interface, appModel: model)
+    func credentialFetcher() -> AccountAuthDataFetcher {
+        AccountAuthDataFetcher(interface: interface)
     }
     
     func appModelDataFetcher() -> AppModelDataFetcher {
@@ -132,10 +132,10 @@ class DataFetcher: NSObject, ObservableObject {
 class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContextProviding {
     private var webSeession: ASWebAuthenticationSession?
     
-    var model: AppModel
+    @Published
+    var authToken: String?
     
-    init(interface: OMGDataInterface, appModel: AppModel) {
-        self.model = appModel
+    override init(interface: OMGDataInterface) {
         super.init(interface: interface)
         guard let url = interface.authURL() else {
             return
@@ -155,8 +155,6 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
             let components = URLComponents(url: url, resolvingAgainstBaseURL: true)
             
             guard let code = components?.queryItems?.filter ({ $0.name == "code" }).first?.value else {
-                // Bad url response?
-                print("url: \(url)")
                 return
             }
             Task {
@@ -166,9 +164,7 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
                     clientSecret: AppModel.clientSecret, 
                     redirect: AppModel.clientRedirect
                 )
-                if let token = token {
-                    self.model.login(token)
-                }
+                self.authToken = token
             }
         }
         self.webSeession?.presentationContextProvider = self
