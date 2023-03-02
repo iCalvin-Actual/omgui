@@ -37,35 +37,35 @@ public struct CoreNavigationView: View {
                 )
             default:
                 TabView {
-                    NavigationView {
+                    NavigationStack {
                         contentView(for: .search)
                     }
                     .tabItem { 
                         Label(NavigationColumn.search.displayString, systemImage: NavigationColumn.search.iconName)
                     }
                     
-                    NavigationView {
+                    NavigationStack {
                         contentView(for: .community)
                     }
                     .tabItem { 
                         Label(NavigationColumn.community.displayString, systemImage: NavigationColumn.community.iconName)
                     }
                     
-                    NavigationView {
+                    NavigationStack {
                         contentView(for: .garden)
                     }
                     .tabItem { 
                         Label(NavigationColumn.garden.displayString, systemImage: NavigationColumn.garden.iconName)
                     }
                     
-                    NavigationView {
+                    NavigationStack {
                         contentView(for: .following)
                     }
                     .tabItem { 
                         Label(NavigationColumn.following.displayString, systemImage: NavigationColumn.following.iconName)
                     }
                     
-                    NavigationView {
+                    NavigationStack {
                         contentView(for: .search)
                     }
                     .tabItem { 
