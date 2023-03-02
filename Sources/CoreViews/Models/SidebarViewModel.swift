@@ -4,6 +4,12 @@ import SwiftUI
 @available(iOS 16.1, *)
 class SidebarViewModel: ObservableObject {
     
+    var appModel: AppModel
+    
+    init(appModel: AppModel) {
+        self.appModel = appModel
+    }
+    
     enum Group: Int, CaseIterable, Hashable, Identifiable {
         var id: Int { rawValue }
         
@@ -45,9 +51,7 @@ class SidebarViewModel: ObservableObject {
                 .community
             ]
         case .saved:
-            return [
-                .pinned("app")
-            ]
+            return appModel.accountModel.pinned.map({ .pinned($0) })
         default:
             return [
             ]

@@ -16,9 +16,6 @@ public struct CoreNavigationView: View {
     var activeAddress: AddressModel?
     
     @State
-    var sidebarModel: SidebarViewModel = .init()
-    
-    @State
     var selectedRowView: NavigationColumn? = .search
     @State
     var selectedDetail: NavigationDetailView? = .empty
@@ -64,7 +61,7 @@ public struct CoreNavigationView: View {
     @ViewBuilder
     func sidebar() -> some View {
         AppSidebar(
-            model: sidebarModel,
+            appModel: appModel,
             selected: $selectedRowView,
             accountViewBuilder: internalAccountView
         )

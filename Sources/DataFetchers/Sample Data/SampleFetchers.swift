@@ -32,6 +32,13 @@ public class SampleData: OMGDataInterface {
         }
     }
     
+    public func fetchAccountAddresses(_ credential: String) async -> [AddressName] {
+        guard !credential.isEmpty else {
+            return []
+        }
+        return ["app", "calvin"]
+    }
+    
     public func fetchNowGarden() async -> [NowListing] {
         let directory = await fetchAddressDirectory()
         return directory.map { name in

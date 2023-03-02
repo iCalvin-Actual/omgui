@@ -2,7 +2,9 @@ import SwiftUI
 
 @available(iOS 16.1, *)
 struct AppSidebar: View {
-    @State 
+
+    var appModel: AppModel
+    
     var model: SidebarViewModel
     
     @EnvironmentObject
@@ -12,6 +14,13 @@ struct AppSidebar: View {
     var selected: NavigationColumn?
     
     var accountViewBuilder: (() -> AccountBar?)
+    
+    init(appModel: AppModel, selected: Binding<NavigationColumn?>, accountViewBuilder: @escaping () -> AccountBar?) {
+        self.appModel = appModel
+        self._selected = selected
+        self.accountViewBuilder = accountViewBuilder
+        self.model = .init(appModel: appModel)
+    }
     
     var body: some View {
         VStack {

@@ -22,6 +22,10 @@ class AppModel: ObservableObject {
     @AppStorage("app.lol.theme", store: .standard)
     private var selectedTheme: String = "unsupported"
     
+    private var pinnedAddresses: [AddressName] = []
+    
+    private var pinnedAddressesHistory: [AddressName] = []
+    
     private var profileModels: [AddressName: AddressDetailsDataFetcher] = [:]
     
     internal var fetchConstructor: FetchConstructor
@@ -34,12 +38,14 @@ class AppModel: ObservableObject {
         self.modelFetcher = fetchConstructor.appModelDataFetcher()
         self.authFetcher = fetchConstructor.credentialFetcher()
         
-        authFetcher.$authToken.sink(receiveValue: { newValue in
-            print("Got new value: \(newValue)")
-            guard let auth = newValue, !auth.isEmpty else {
+        authFetcher.$authToken.sink(receiveValue: { [self] newValue in
+            let auth = newValue ?? authKey
+            guard !auth.isEmpty else {
                 return
             }
-            self.login(auth)
+            Task {
+                await self.login(auth)                
+            }
         })
         .store(in: &requests)
 
@@ -51,6 +57,10 @@ class AppModel: ObservableObject {
     private func fetch() {
         Task {
             await self.modelFetcher.update()
+            
+            for address in (pinnedAddresses + accountModel.addresses.map({ $0.addressName })) {
+                let _ = addressDetails(address)
+            }
         }
         
         // Fetch pinned addresses
@@ -64,17 +74,27 @@ class AppModel: ObservableObject {
         }
         
         Task {
-            print("Fetching....")
             await authFetcher.update()
         }
     }
     
-    internal func login(_ authKey: String) {
-        print("Got new key: \(authKey)")
+    internal func login(_ authKey: String) async {
         self.authKey = authKey
+        let fetcher = fetchConstructor.accountAddressesDataFetcher(authKey)
+        
+        fetcher.$listItems.sink { addresses in
+            print("Some")
+        }
+        .store(in: &requests)
+        
+        await fetcher.update()
         // Fetch addresses for account
         // Add addresses to pinned list
         // Fetch app.lol settings for addresses
+    }
+    
+    internal func logout() async {
+        self.authKey = ""
     }
     
     internal func addressDetails(_ address: AddressName) -> AddressDetailsDataFetcher {

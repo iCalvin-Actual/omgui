@@ -27,6 +27,8 @@ public protocol OMGDataInterface {
     
     func fetchAddressDirectory() async -> [AddressName]
     
+    func fetchAccountAddresses(_ credential: String) async -> [AddressName]
+    
     func fetchNowGarden() async -> [NowListing]
     
     func fetchAddressProfile(_ name: AddressName) async -> String?
@@ -71,6 +73,10 @@ class FetchConstructor: ObservableObject {
     
     func addressDirectoryDataFetcher() -> AddressDirectoryDataFetcher {
         directoryFetcher
+    }
+    
+    func accountAddressesDataFetcher(_ credential: String) -> AccountAddressDataFetcher {
+        AccountAddressDataFetcher(interface: interface, credential: credential)
     }
     
     func statusLog(for addresses: [AddressName]) -> StatusLogDataFetcher {
@@ -159,16 +165,13 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
             guard let code = components?.queryItems?.filter ({ $0.name == "code" }).first?.value else {
                 return
             }
-            print("Got an auth code! \(code)")
             Task {
-                print("Fetching token!")
                 let token = try await interface.fetchAccessToken(
                     authCode: code, 
                     clientID: AppModel.clientId, 
                     clientSecret: AppModel.clientSecret, 
                     redirect: AppModel.clientRedirect
                 )
-                print("Got a token! \(token)")
                 self.authToken = token
             }
         }
@@ -228,6 +231,24 @@ class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
         Task {
             let directory = await interface.fetchAddressDirectory()
             self.listItems = directory.map({ AddressModel(name: $0) })
+            self.loaded = true
+            self.loading = false
+        }
+    }
+}
+
+class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
+    private let credential: String
+    
+    init(interface: OMGDataInterface, credential: String) {
+        self.credential = credential
+        super.init(items: [], interface: interface)
+    }
+    
+    override func update() async {
+        await super.update()
+        Task {
+            self.listItems = await interface.fetchAccountAddresses(credential).map({ AddressModel(name: $0) })
             self.loaded = true
             self.loading = false
         }
