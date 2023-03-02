@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 
 
@@ -25,9 +26,22 @@ class AppModel: ObservableObject {
     
     internal var fetchConstructor: FetchConstructor
     
+    private var authFetcher: AccountAuthDataFetcher
+    private var requests: [AnyCancellable] = []
+    
     internal init(interface: OMGDataInterface) {
         self.fetchConstructor = FetchConstructor(interface: interface)
         self.modelFetcher = fetchConstructor.appModelDataFetcher()
+        self.authFetcher = fetchConstructor.credentialFetcher()
+        
+        authFetcher.$authToken.sink(receiveValue: { newValue in
+            print("Got new value: \(newValue)")
+            guard let auth = newValue, !auth.isEmpty else {
+                return
+            }
+            self.login(auth)
+        })
+        .store(in: &requests)
 
         Task {
             fetch()
@@ -44,7 +58,19 @@ class AppModel: ObservableObject {
         // Fetch self addresses
     }
     
+    internal func authenticate() {
+        if !self.authKey.isEmpty {
+            self.authKey = ""
+        }
+        
+        Task {
+            print("Fetching....")
+            await authFetcher.update()
+        }
+    }
+    
     internal func login(_ authKey: String) {
+        print("Got new key: \(authKey)")
         self.authKey = authKey
         // Fetch addresses for account
         // Add addresses to pinned list

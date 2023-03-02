@@ -115,11 +115,13 @@ class DataFetcher: NSObject, ObservableObject {
     @Published
     var loading: Bool = false
     
-    init(interface: OMGDataInterface) {
+    init(interface: OMGDataInterface, autoLoad: Bool = true) {
         self.interface = interface
         super.init()
-        Task {
-            await update()
+        if autoLoad {
+            Task {
+                await update()
+            }
         }
     }
     
@@ -135,8 +137,8 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
     @Published
     var authToken: String?
     
-    override init(interface: OMGDataInterface) {
-        super.init(interface: interface)
+    init(interface: OMGDataInterface) {
+        super.init(interface: interface, autoLoad: false)
         guard let url = interface.authURL() else {
             return
         }
@@ -157,13 +159,16 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
             guard let code = components?.queryItems?.filter ({ $0.name == "code" }).first?.value else {
                 return
             }
+            print("Got an auth code! \(code)")
             Task {
+                print("Fetching token!")
                 let token = try await interface.fetchAccessToken(
                     authCode: code, 
                     clientID: AppModel.clientId, 
                     clientSecret: AppModel.clientSecret, 
                     redirect: AppModel.clientRedirect
                 )
+                print("Got a token! \(token)")
                 self.authToken = token
             }
         }
