@@ -197,6 +197,8 @@ public struct CoreNavigationView: View {
                 model: appModel.addressDetails(address),
                 context: .column
             )
+        case .account:
+            ManageAccountView(show: .constant(true))
         default:
             Text("NONE")
         }
