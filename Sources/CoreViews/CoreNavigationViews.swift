@@ -36,10 +36,11 @@ public struct CoreNavigationView: View {
                     detail: { detailView(for: NavigationDetailView.empty) }
                 )
             default:
-                TabView {
+                TabView(selection: $selectedRowView) {
                     NavigationStack {
                         innerRowView(for: .search)
                     }
+                    .tag(NavigationColumn.search)
                     .tabItem { 
                         Label(NavigationColumn.search.displayString, systemImage: NavigationColumn.search.iconName)
                     }
@@ -47,6 +48,7 @@ public struct CoreNavigationView: View {
                     NavigationStack {
                         innerRowView(for: .community)
                     }
+                    .tag(NavigationColumn.community)
                     .tabItem { 
                         Label(NavigationColumn.community.displayString, systemImage: NavigationColumn.community.iconName)
                     }
@@ -54,6 +56,7 @@ public struct CoreNavigationView: View {
                     NavigationStack {
                         innerRowView(for: .garden)
                     }
+                    .tag(NavigationColumn.garden)
                     .tabItem { 
                         Label(NavigationColumn.garden.displayString, systemImage: NavigationColumn.garden.iconName)
                     }
@@ -61,6 +64,7 @@ public struct CoreNavigationView: View {
                     NavigationStack {
                         innerRowView(for: .following)
                     }
+                    .tag(NavigationColumn.following)
                     .tabItem { 
                         Label(NavigationColumn.following.displayString, systemImage: NavigationColumn.following.iconName)
                     }
@@ -68,6 +72,7 @@ public struct CoreNavigationView: View {
                     NavigationStack {
                         innerRowView(for: .account)
                     }
+                    .tag(NavigationColumn.account)
                     .tabItem { 
                         Label(NavigationColumn.account.displayString, systemImage: NavigationColumn.account.iconName)
                     }
