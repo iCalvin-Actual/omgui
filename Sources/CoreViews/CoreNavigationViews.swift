@@ -66,10 +66,10 @@ public struct CoreNavigationView: View {
                     }
                     
                     NavigationStack {
-                        contentView(for: .search)
+                        contentView(for: .account)
                     }
                     .tabItem { 
-                        Label(NavigationColumn.search.displayString, systemImage: NavigationColumn.search.iconName)
+                        Label(NavigationColumn.account.displayString, systemImage: NavigationColumn.account.iconName)
                     }
                 }
             }
