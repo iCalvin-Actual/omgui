@@ -38,35 +38,35 @@ public struct CoreNavigationView: View {
             default:
                 TabView {
                     NavigationStack {
-                        contentView(for: .search)
+                        innerRowView(for: .search)
                     }
                     .tabItem { 
                         Label(NavigationColumn.search.displayString, systemImage: NavigationColumn.search.iconName)
                     }
                     
                     NavigationStack {
-                        contentView(for: .community)
+                        innerRowView(for: .community)
                     }
                     .tabItem { 
                         Label(NavigationColumn.community.displayString, systemImage: NavigationColumn.community.iconName)
                     }
                     
                     NavigationStack {
-                        contentView(for: .garden)
+                        innerRowView(for: .garden)
                     }
                     .tabItem { 
                         Label(NavigationColumn.garden.displayString, systemImage: NavigationColumn.garden.iconName)
                     }
                     
                     NavigationStack {
-                        contentView(for: .following)
+                        innerRowView(for: .following)
                     }
                     .tabItem { 
                         Label(NavigationColumn.following.displayString, systemImage: NavigationColumn.following.iconName)
                     }
                     
                     NavigationStack {
-                        contentView(for: .account)
+                        innerRowView(for: .account)
                     }
                     .tabItem { 
                         Label(NavigationColumn.account.displayString, systemImage: NavigationColumn.account.iconName)
