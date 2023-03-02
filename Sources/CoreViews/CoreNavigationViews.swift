@@ -28,13 +28,35 @@ public struct CoreNavigationView: View {
     
     public var body: some View {
         VStack {
-            NavigationSplitView(
-                sidebar: sidebar,
-                content: { contentView(for: selectedRowView) },
-                detail: { detailView(for: NavigationDetailView.empty) }
-            )
-            if horizontalSizeClass == .compact {
-                AccountBar()
+            switch horizontalSizeClass {
+            case .regular:
+                NavigationSplitView(
+                    sidebar: sidebar,
+                    content: { contentView(for: selectedRowView) },
+                    detail: { detailView(for: NavigationDetailView.empty) }
+                )
+            default:
+                TabView {
+                    contentView(for: .search)
+                        .tabItem { 
+                            Label(NavigationColumn.search.displayString, systemImage: NavigationColumn.search.iconName)
+                        }
+                    
+                    contentView(for: .community)
+                        .tabItem { 
+                            Label(NavigationColumn.community.displayString, systemImage: NavigationColumn.community.iconName)
+                        }
+                    
+                    contentView(for: .garden)
+                        .tabItem { 
+                            Label(NavigationColumn.garden.displayString, systemImage: NavigationColumn.garden.iconName)
+                        }
+                    
+                    contentView(for: .following)
+                        .tabItem { 
+                            Label(NavigationColumn.following.displayString, systemImage: NavigationColumn.following.iconName)
+                        }
+                }
             }
         }
         .sheet(
