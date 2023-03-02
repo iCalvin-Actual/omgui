@@ -37,25 +37,40 @@ public struct CoreNavigationView: View {
                 )
             default:
                 TabView {
-                    contentView(for: .search)
-                        .tabItem { 
-                            Label(NavigationColumn.search.displayString, systemImage: NavigationColumn.search.iconName)
-                        }
+                    NavigationView {
+                        contentView(for: .search)
+                    }
+                    .tabItem { 
+                        Label(NavigationColumn.search.displayString, systemImage: NavigationColumn.search.iconName)
+                    }
                     
-                    contentView(for: .community)
-                        .tabItem { 
-                            Label(NavigationColumn.community.displayString, systemImage: NavigationColumn.community.iconName)
-                        }
+                    NavigationView {
+                        contentView(for: .community)
+                    }
+                    .tabItem { 
+                        Label(NavigationColumn.community.displayString, systemImage: NavigationColumn.community.iconName)
+                    }
                     
-                    contentView(for: .garden)
-                        .tabItem { 
-                            Label(NavigationColumn.garden.displayString, systemImage: NavigationColumn.garden.iconName)
-                        }
+                    NavigationView {
+                        contentView(for: .garden)
+                    }
+                    .tabItem { 
+                        Label(NavigationColumn.garden.displayString, systemImage: NavigationColumn.garden.iconName)
+                    }
                     
-                    contentView(for: .following)
-                        .tabItem { 
-                            Label(NavigationColumn.following.displayString, systemImage: NavigationColumn.following.iconName)
-                        }
+                    NavigationView {
+                        contentView(for: .following)
+                    }
+                    .tabItem { 
+                        Label(NavigationColumn.following.displayString, systemImage: NavigationColumn.following.iconName)
+                    }
+                    
+                    NavigationView {
+                        contentView(for: .search)
+                    }
+                    .tabItem { 
+                        Label(NavigationColumn.search.displayString, systemImage: NavigationColumn.search.iconName)
+                    }
                 }
             }
         }

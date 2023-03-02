@@ -18,6 +18,7 @@ enum NavigationColumn: Codable, Hashable, Identifiable, RawRepresentable {
     case following
     case saved(UIDotAppDotLOL.Feature)
     case comingSoon(UIDotAppDotLOL.Feature)
+    case account
     
     var rawValue: String {
         switch self {
@@ -28,6 +29,7 @@ enum NavigationColumn: Codable, Hashable, Identifiable, RawRepresentable {
         case .following:                return "following"
         case .saved(let feature):       return "saved.\(feature.rawValue)"
         case .comingSoon(let feature):  return "coming.\(feature.rawValue)"
+        case .account:                  return "account"
         }
     }
     
@@ -53,6 +55,8 @@ enum NavigationColumn: Codable, Hashable, Identifiable, RawRepresentable {
                 return nil
             }
             self = .comingSoon(feature)
+        case "account":
+            self = .account
         default:
             return nil
         }
@@ -93,6 +97,8 @@ extension NavigationColumn {
             }
         case .search:
             return "Search"
+        case .account:
+            return "Account"
         }
     }
     
@@ -119,6 +125,8 @@ extension NavigationColumn {
             }
         case .pinned:
             return "pin"
+        case .account:
+            return "person"
             
         default:
             return "sparkles"
