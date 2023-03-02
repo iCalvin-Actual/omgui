@@ -83,7 +83,7 @@ class AppModel: ObservableObject {
         let fetcher = fetchConstructor.accountAddressesDataFetcher(authKey)
         
         fetcher.$listItems.sink { addresses in
-            print("Some")
+            self.accountModel.addresses = addresses
         }
         .store(in: &requests)
         
