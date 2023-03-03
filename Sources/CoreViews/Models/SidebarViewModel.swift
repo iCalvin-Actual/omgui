@@ -52,7 +52,7 @@ class SidebarViewModel: ObservableObject {
                 .community
             ]
         case .saved:
-            return appModel.accountModel.pinned.map({ .pinned($0) })
+            return appModel.accountModel.pinned.sorted().map({ .pinned($0) })
         default:
             return [
             ]

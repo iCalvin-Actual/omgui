@@ -3,6 +3,9 @@ import SwiftUI
 @available(iOS 16.1, *)
 struct AddressView: View {
     
+    @EnvironmentObject
+    var appModel: AppModel
+    
     let model: AddressModel
     
     @Environment(\.isSearching) var isSearching
@@ -48,5 +51,20 @@ struct AddressView: View {
         .padding(.leading, 32)
         .background(Color.lolYellow)
         .cornerRadius(24)
+        .contextMenu {
+            if appModel.isPinned(model.addressName) {
+                Button(action: {
+                    appModel.pin(model.addressName)
+                }, label: {
+                    Label("Pin \(model.addressName.addressDisplayString)", systemImage: "pin")
+                })
+            } else {
+                Button(action: {
+                    appModel.removePin(model.addressName)
+                }, label: {
+                    Label("Un-Pin \(model.addressName.addressDisplayString)", systemImage: "pin.slash")
+                })
+            }
+        }
     }
 }

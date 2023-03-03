@@ -106,6 +106,18 @@ class AppModel: ObservableObject {
             return newModel
         }
     }
+    
+    internal func isPinned(_ address: AddressName) -> Bool {
+        pinnedAddresses.contains(address)
+    }
+    
+    internal func pin(_ address: AddressName) {
+        self.pinnedAddresses.append(address)
+    }
+    
+    internal func removePin(_ address: AddressName) {
+        self.pinnedAddresses.removeAll(where: { $0 == address })
+    }
 }
 
 @available(iOS 16.1, *)
