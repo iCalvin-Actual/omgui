@@ -28,14 +28,13 @@ public struct CoreNavigationView: View {
     
     public var body: some View {
         VStack {
-            switch horizontalSizeClass {
-            case .regular:
+            if horizontalSizeClass == .regular || true {
                 NavigationSplitView(
                     sidebar: sidebar,
                     content: { contentView(for: selectedRowView) },
                     detail: { detailView(for: NavigationDetailView.empty) }
                 )
-            default:
+            } else {
                 TabView(selection: $selectedRowView) {
                     NavigationStack {
                         innerRowView(for: .search)
