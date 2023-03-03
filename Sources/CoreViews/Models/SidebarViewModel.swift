@@ -4,6 +4,7 @@ import SwiftUI
 @available(iOS 16.1, *)
 class SidebarViewModel: ObservableObject {
     
+    @ObservedObject
     var appModel: AppModel
     
     init(appModel: AppModel) {
