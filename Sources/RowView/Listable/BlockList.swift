@@ -51,6 +51,8 @@ struct BlockList<T: Listable, V: View>: View {
     @Binding
     var sort: Sort
     
+    let menuBuilder: ContextMenuBuilder<T>
+    
     init(model: ListModel<T>, dataFetcher: ListDataFetcher<T>, rowBuilder: @escaping (T) -> V?, selected: Binding<T?>, context: Context, sort: Binding<Sort>) {
         self.model = model
         self.dataFetcher = dataFetcher
@@ -58,6 +60,7 @@ struct BlockList<T: Listable, V: View>: View {
         self._selected = selected
         self.context = context
         self._sort = sort
+        self.menuBuilder = ContextMenuBuilder(selected: selected)
     }
     
     var items: [T] {
@@ -100,6 +103,9 @@ struct BlockList<T: Listable, V: View>: View {
             buildRow(item)
         }
         .listRowSeparator(.hidden, edges: .all)
+        .contextMenu(menuItems: {
+            self.menuBuilder.contextMenu(for: item, with: appModel)
+        })
     }
     
     private func destination(for item: T) -> NavigationDetailView? {

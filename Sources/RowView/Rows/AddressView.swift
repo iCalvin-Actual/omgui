@@ -47,21 +47,6 @@ struct AddressView: View {
             .padding(.trailing)
         }
         .foregroundColor(.black)
-        .contextMenu {
-            if appModel.isPinned(model.addressName) {
-                Button(action: {
-                    appModel.pin(model.addressName)
-                }, label: {
-                    Label("Pin \(model.addressName.addressDisplayString)", systemImage: "pin")
-                })
-            } else {
-                Button(action: {
-                    appModel.removePin(model.addressName)
-                }, label: {
-                    Label("Un-Pin \(model.addressName.addressDisplayString)", systemImage: "pin.slash")
-                })
-            }
-        }
         .padding(.vertical)
         .padding(.leading, 32)
         .background(Color.lolYellow)

@@ -189,6 +189,7 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
     
 }
 
+@available(iOS 16.1, *)
 class ListDataFetcher<T: Listable>: DataFetcher {
     
     @Published
@@ -225,6 +226,7 @@ class AppModelDataFetcher: ObservableObject {
     }
 }
 
+@available(iOS 16.1, *)
 class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
     override func update() async {
         await super.update()
@@ -237,6 +239,7 @@ class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
+@available(iOS 16.1, *)
 class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
     private let credential: String
     
@@ -255,6 +258,7 @@ class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
+@available(iOS 16.1, *)
 class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
     let addresses: [AddressName]
     
@@ -280,6 +284,7 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
     }
 }
 
+@available(iOS 16.1, *)
 class NowGardenDataFetcher: ListDataFetcher<NowListing> {
     override func update() async {
         await super.update()
@@ -292,6 +297,7 @@ class NowGardenDataFetcher: ListDataFetcher<NowListing> {
     }
 }
 
+@available(iOS 16.1, *)
 class AddressDetailsDataFetcher: DataFetcher {
     
     var addressName: AddressName
@@ -405,6 +411,7 @@ class AddressNowDataFetcher: DataFetcher {
     }
 }
 
+@available(iOS 16.1, *)
 class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
     var addressName: AddressName
     
@@ -424,6 +431,7 @@ class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
     }
 }
 
+@available(iOS 16.1, *)
 class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
     var addressName: AddressName
     
