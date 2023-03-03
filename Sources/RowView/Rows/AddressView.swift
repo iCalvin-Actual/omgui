@@ -47,10 +47,6 @@ struct AddressView: View {
             .padding(.trailing)
         }
         .foregroundColor(.black)
-        .padding(.vertical)
-        .padding(.leading, 32)
-        .background(Color.lolYellow)
-        .cornerRadius(24)
         .contextMenu {
             if appModel.isPinned(model.addressName) {
                 Button(action: {
@@ -66,5 +62,9 @@ struct AddressView: View {
                 })
             }
         }
+        .padding(.vertical)
+        .padding(.leading, 32)
+        .background(Color.lolYellow)
+        .cornerRadius(24)
     }
 }
