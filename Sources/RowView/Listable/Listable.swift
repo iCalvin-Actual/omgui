@@ -9,12 +9,6 @@ import SwiftUI
 import Foundation
 
 @available(iOS 16.1, *)
-protocol ContextProviding {
-    associatedtype M: View
-    func contextMenu(with appModel: AppModel) -> M
-}
-
-@available(iOS 16.1, *)
 protocol Listable: Filterable, Sortable, Hashable, Identifiable, ContextProviding {
     var listTitle: String    { get }
     var listSubtitle: String { get }
@@ -63,45 +57,4 @@ extension NowListing: Listable     {
     var listTitle: String     { owner.addressDisplayString }
     var listSubtitle: String  { url.replacingOccurrences(of: "https://", with: "") }
     var displayDate: Date?    { updated }
-}
-
-//@available(iOS 16.1, *)
-//protocol ContextMenuProviding {
-//    associatedtype T: View
-//    func contextMenu(with appModel: AppModel) -> T
-//}
-
-@available(iOS 16.1, *)
-struct ContextMenuBuilder<T: Listable> {
-    @Binding
-    var selected: T?
-    
-    @ViewBuilder
-    func contextMenu(for item: T, with appModel: AppModel) -> some View {
-        Group {
-            Button(action: {
-                self.selected = item
-            }, label: {
-                Label("Select", systemImage: "binoculars") })
-            Divider()
-            item.contextMenu(with: appModel)
-        }
-    }
-}
-
-@available(macCatalyst 16.1, *)
-extension Listable { 
-    func contextMenu(with appModel: AppModel) -> some View {
-        EmptyView()
-    }
-}
-
-@available(iOS 16.1, *)
-extension AddressModel: ContextProviding {
-    @ViewBuilder
-    func contextMenu(with appModel: AppModel) -> some View {
-        Group {
-            Button(action: { }, label: { Label("Another One", systemImage: "pin") })
-        }
-    }
 }
