@@ -17,7 +17,7 @@ struct AddressPasteView: View {
     let context: ViewContext
     
     var body: some View {
-        ListView(
+        ListView<PasteModel, PasteView, EmptyView>(
             context: context,
             filters: .everyone,
             dataFetcher: fetcher,

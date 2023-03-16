@@ -10,6 +10,8 @@ import SwiftUI
 struct Sidebar: View {
     @EnvironmentObject
     var appModel: AppModel
+    @EnvironmentObject
+    var sceneModel: SceneModel
     
     @Binding
     var selected: NavigationItem?
@@ -31,7 +33,7 @@ struct Sidebar: View {
                             ForEach(items) { item in
                                 item.sidebarView
                                     .contextMenu(menuItems: {
-                                        item.contextMenu(with: appModel)
+                                        item.contextMenu(with: sceneModel)
                                     })
                             }
                         } header: {

@@ -10,6 +10,7 @@ import Foundation
 enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     var id: String { rawValue }
     
+    case lists
     case directory
     case nowGarden
     case address(_ name: AddressName)
@@ -19,6 +20,7 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     case comingSoon(_ feature: AppFeature)
     case account
     case blocked
+    case addressFollowing(_ name: AddressName)
     case webpage(_ name: AddressName)
     case now(_ name: AddressName)
     case purls(_ name: AddressName)
@@ -27,7 +29,8 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     
     var rawValue: String {
         switch self {
-        case .directory:                   return "directory"
+        case .lists:                    return "lists"
+        case .directory:                return "directory"
         case .nowGarden:                return "garden"
         case .address(let address):     return "address.\(address)"
         case .community:                return "community"
@@ -36,6 +39,7 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         case .comingSoon(let feature):  return "coming.\(feature.rawValue)"
         case .account:    return "account"
         case .blocked:                  return "blocked"
+        case .addressFollowing(let address): return "following.\(address)"
         case .webpage(let address):     return "webpage.\(address)"
         case .now(let address):         return "now.\(address)"
         case .purls(let address):       return "purls.\(address)"
@@ -47,7 +51,8 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     init?(rawValue: String) {
         let splitString = rawValue.components(separatedBy: ".")
         switch splitString.first {
-        case "directory":      self = .directory
+        case "lists":       self = .lists
+        case "directory":   self = .directory
         case "garden":      self = .nowGarden
         case "community":   self = .community
         case "following":   self = .following

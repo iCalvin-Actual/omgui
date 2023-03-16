@@ -9,7 +9,7 @@ import Combine
 import Foundation
 import SwiftUI
 
-class AppModel: ObservableObject {
+public class AppModel: ObservableObject {
     
     // MARK: - Definitions
     
@@ -22,26 +22,7 @@ class AppModel: ObservableObject {
     @AppStorage("app.lol.auth", store: .standard)
     private var authKey: String = ""
     
-    var destinationConstructor: DestinationConstructor {
-        .init(appModel: self)
-    }
-    
     // MARK: No-Account Blocklist
-    @AppStorage("app.lol.cache.blocked.global", store: .standard)
-    private var cachedGlobalBlocklist: String = ""
-    var globalBlocklist: [AddressName] {
-        get {
-            let split = cachedGlobalBlocklist.split(separator: "&&&")
-            return split.map({ String($0) })
-        }
-        set {
-            cachedGlobalBlocklist = Array(Set(newValue)).joined(separator: "&&&")
-            DispatchQueue.main.async {
-                self.objectWillChange.send()
-            }
-        }
-    }
-    
     @AppStorage("app.lol.cache.blocked", store: .standard)
     private var cachedBlockList: String = ""
     var blockedAddresses: [AddressName] {
@@ -55,9 +36,6 @@ class AppModel: ObservableObject {
                 self.objectWillChange.send()
             }
         }
-    }
-    var blockList: [AddressName] {
-        blockedAddresses + accountModel.blocked + globalBlocklist
     }
     
     // MARK: Pinning
@@ -93,17 +71,17 @@ class AppModel: ObservableObject {
     
     internal var fetchConstructor: FetchConstructor
     private var authFetcher: AccountAuthDataFetcher
-    private var blockedFetcher: AddressBlockListDataFetcher
     private var profileModels: [AddressName: AddressSummaryDataFetcher] = [:]
     
     private var requests: [AnyCancellable] = []
     
-    init(client: ClientInfo, dataInterface: DataInterface) {
+    public init(client: ClientInfo, dataInterface: DataInterface) {
         self.client = client
         self.interface = dataInterface
         self.fetchConstructor = FetchConstructor(client: client, interface: dataInterface)
         self.authFetcher = fetchConstructor.credentialFetcher()
-        self.blockedFetcher = fetchConstructor.blockListFetcher(for: "app")
+        
+        
         
         // MARK: Subscribers
         
@@ -119,11 +97,6 @@ class AppModel: ObservableObject {
             Task {
                 await self.login(newValue)
             }
-        }
-        .store(in: &requests)
-        
-        blockedFetcher.$listItems.sink { newValue in
-            self.globalBlocklist = newValue.map { $0.name }
         }
         .store(in: &requests)
     }
@@ -187,18 +160,6 @@ class AppModel: ObservableObject {
     }
     
     // MARK: Local List Managment
-    
-    func isBlocked(_ address: AddressName) -> Bool {
-        blockedAddresses.contains(address)
-    }
-    
-    func block(_ address: AddressName) {
-        self.blockedAddresses.append(address)
-    }
-    
-    func unBlock(_ address: AddressName) {
-        self.blockedAddresses.removeAll(where: { $0 == address })
-    }
     
     func isPinned(_ address: AddressName) -> Bool {
         pinnedAddresses.contains(address)

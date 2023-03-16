@@ -22,9 +22,6 @@ public protocol DataInterface {
     func fetchServiceInfo()
     async throws -> ServiceInfoModel
     
-    func fetchGlobalBlocklist()
-    async throws -> [AddressName]
-    
     func fetchAddressDirectory()
     async throws -> [AddressName]
     

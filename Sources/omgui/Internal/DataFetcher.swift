@@ -6,6 +6,7 @@
 //
 
 import AuthenticationServices
+import Combine
 import Foundation
 
 class DataFetcher: NSObject, ObservableObject {
@@ -113,6 +114,8 @@ class ListDataFetcher<T: Listable>: DataFetcher {
     @Published
     var listItems: [T] = []
     
+    var title: String { "" }
+    
     init(items: [T] = [], interface: DataInterface) {
         self.listItems = items
         super.init(interface: interface)
@@ -121,6 +124,10 @@ class ListDataFetcher<T: Listable>: DataFetcher {
 }
 
 class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
+    override var title: String {
+        "app.lol"
+    }
+    
     override func throwingUpdate() async throws {
         try await super.throwingUpdate()
         Task {
@@ -138,6 +145,9 @@ class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
 }
 
 class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
+    override var title: String {
+        "my addresses"
+    }
     private let credential: String
     
     init(interface: DataInterface, credential: APICredential) {
@@ -184,6 +194,10 @@ class AddressBioDataFetcher: DataFetcher {
 class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     let address: AddressName
     
+    override var title: String {
+        "following"
+    }
+    
     init(address: AddressName, interface: DataInterface) {
         self.address = address
         super.init(interface: interface)
@@ -205,8 +219,162 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
+class AddressBookDataFetcher: DataFetcher {
+    let appModel: AppModel
+    let address: AddressName
+    
+    let pinnedModel: PinnedListDataFetcher
+    let followModel: AddressFollowingDataFetcher
+    var localBlocklistFetcher: LocalBlockListDataFetcher
+    var globalBlocklistFetcher: AddressBlockListDataFetcher
+    var blockedModel: BlockListDataFetcher
+    let directoryModel: AddressDirectoryDataFetcher
+    
+    var requests: [AnyCancellable] = []
+    
+    init(_ address: AddressName, appModel: AppModel) {
+        self.address = address
+        self.appModel = appModel
+        let fetchConstructor = appModel.fetchConstructor
+        
+        self.directoryModel = fetchConstructor.addressDirectoryDataFetcher()
+        self.pinnedModel = PinnedListDataFetcher(appModel: appModel)
+        self.localBlocklistFetcher = LocalBlockListDataFetcher(appModel: appModel)
+        self.followModel = fetchConstructor.followingFetcher(for: address)
+        self.globalBlocklistFetcher = fetchConstructor.blockListFetcher(for: "app")
+        
+        self.blockedModel = .init(
+            globalFetcher: globalBlocklistFetcher,
+            localFetcher: localBlocklistFetcher,
+            addressFetcher: appModel.fetchConstructor.blockListFetcher(for: address),
+            interface: appModel.interface)
+        
+        super.init(interface: appModel.interface)
+        
+        self.updateBlockedFetcher()
+    }
+    
+    private func updateBlockedFetcher() {
+        self.blockedModel = .init(
+            globalFetcher: globalBlocklistFetcher,
+            localFetcher: localBlocklistFetcher,
+            addressFetcher: appModel.fetchConstructor.blockListFetcher(for: address),
+            interface: interface
+        )
+        blockedModel.$listItems.sink(receiveValue: { _ in
+            self.objectWillChange.send()
+        }).store(in: &requests)
+    }
+}
+
+class BlockListDataFetcher: ListDataFetcher<AddressModel> {
+    override var title: String {
+        "blocked"
+    }
+    
+    let addressBlocklistFetcher: AddressBlockListDataFetcher?
+    let globalBlocklistFetcher: AddressBlockListDataFetcher
+    let localBloclistFetcher: LocalBlockListDataFetcher?
+    
+    var requests: [AnyCancellable] = []
+    
+    override var listItems: [AddressModel] {
+        get {
+            (addressBlocklistFetcher?.listItems ?? []) + globalBlocklistFetcher.listItems + (localBloclistFetcher?.listItems ?? [])
+        }
+        set {
+        }
+    }
+    
+    init(
+        globalFetcher: AddressBlockListDataFetcher,
+        localFetcher: LocalBlockListDataFetcher? = nil,
+        addressFetcher: AddressBlockListDataFetcher? = nil,
+        interface: DataInterface
+    ) {
+        self.addressBlocklistFetcher = addressFetcher
+        self.globalBlocklistFetcher = globalFetcher
+        self.localBloclistFetcher = localFetcher
+        
+        super.init(interface: interface)
+        
+        globalBlocklistFetcher.$listItems.sink { globalItems in
+            self.objectWillChange.send()
+        }.store(in: &requests)
+        
+        localBloclistFetcher?.$listItems.sink { localItems in
+            self.objectWillChange.send()
+        }.store(in: &requests)
+        
+        addressBlocklistFetcher?.$listItems.sink { addressItems in
+            self.objectWillChange.send()
+        }.store(in: &requests)
+    }
+    
+    func insertItems(_ newItems: [AddressModel]) {
+        let toAdd = newItems.filter { !listItems.contains($0) }
+        print("Appending \(toAdd.map({ $0.addressName })) to \(listItems.map({ $0.addressName })) in \(self)")
+        DispatchQueue.main.async {
+            self.listItems.append(contentsOf: toAdd)
+            self.fetchFinished()
+        }
+    }
+    
+    override func throwingUpdate() async throws {
+        try await globalBlocklistFetcher.throwingUpdate()
+        try await localBloclistFetcher?.throwingUpdate()
+        try await addressBlocklistFetcher?.throwingUpdate()
+    }
+}
+
+class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
+    var appModel: AppModel
+    
+    init(appModel: AppModel) {
+        self.appModel = appModel
+        super.init(interface: appModel.interface)
+        self.listItems = appModel.pinnedAddresses.map({ AddressModel.init(name: $0) })
+        
+    }
+    override var title: String {
+        "pinned"
+    }
+    
+    override func throwingUpdate() async throws {
+        DispatchQueue.main.async {
+            self.listItems = self.appModel.pinnedAddresses.map({ AddressModel.init(name: $0) })
+            self.fetchFinished()
+        }
+    }
+}
+
+class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
+    var appModel: AppModel
+    
+    init(appModel: AppModel) {
+        self.appModel = appModel
+        super.init(interface: appModel.interface)
+        self.listItems = appModel.blockedAddresses.map({ AddressModel.init(name: $0) })
+        
+    }
+    override var title: String {
+        "blocked"
+    }
+    
+    override func throwingUpdate() async throws {
+        DispatchQueue.main.async {
+            self.listItems = self.appModel.blockedAddresses.map({ AddressModel.init(name: $0) })
+            self.fetchFinished()
+        }
+    }
+}
+
 class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     let address: AddressName
+    
+    override var title: String {
+        "blocked from \(address)"
+    }
     
     init(address: AddressName, interface: DataInterface) {
         self.address = address
@@ -216,13 +384,10 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     override func throwingUpdate() async throws {
         try await super.throwingUpdate()
         Task {
-            guard let content = try await interface.fetchPaste("app.lol.blockList", from: address)?.content else {
-                self.fetchFinished()
-                return
-            }
-            let list = content.split(separator: "\n").map({ String($0) })
+            let paste = try await interface.fetchPaste("app.lol.blocked", from: address)
+            let blocked = paste?.content?.split(separator: "\n").map({ AddressModel(name: String($0)) }) ?? []
             DispatchQueue.main.async {
-                self.listItems = list.map({ AddressModel(name: $0) })
+                self.listItems = blocked
                 self.fetchFinished()
             }
         }
@@ -231,6 +396,10 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
 
 class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
     let addresses: [AddressName]
+    
+    override var title: String {
+        "status.lol"
+    }
     
     init(addresses: [AddressName] = [], statuses: [StatusModel] = [], interface: DataInterface) {
         self.addresses = addresses
@@ -260,6 +429,9 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
 }
 
 class NowGardenDataFetcher: ListDataFetcher<NowListing> {
+    override var title: String {
+        "garden.lol"
+    }
     override func throwingUpdate() async throws {
         try await super.throwingUpdate()
         Task {
@@ -323,6 +495,10 @@ class AddressNowDataFetcher: DataFetcher {
 class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
     let addressName: AddressName
     
+    override var title: String {
+        "\(addressName).paste.lol"
+    }
+    
     init(name: AddressName, pastes: [PasteModel] = [], interface: DataInterface) {
         self.addressName = name
         super.init(items: pastes, interface: interface)
@@ -342,6 +518,10 @@ class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
 
 class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
     let addressName: AddressName
+    
+    override var title: String {
+        "\(addressName).url.lol"
+    }
     
     init(name: AddressName, purls: [PURLModel] = [], interface: DataInterface) {
         self.addressName = name

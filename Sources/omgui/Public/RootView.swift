@@ -21,12 +21,11 @@ struct RootView: View {
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
     
-    @EnvironmentObject
-    var appModel: AppModel
+    let appModel: AppModel
     
     var body: some View {
         appropriateNavigation
-            .environmentObject(SceneModel())
+            .environmentObject(SceneModel(appModel: appModel))
     }
     
     @ViewBuilder
@@ -41,7 +40,8 @@ struct RootView: View {
 }
 
 struct ContentView_Previews: PreviewProvider {
+    static var appModel: AppModel = .init(client: .sample, dataInterface: SampleData())
     static var previews: some View {
-        RootView()
+        RootView(appModel: appModel)
     }
 }

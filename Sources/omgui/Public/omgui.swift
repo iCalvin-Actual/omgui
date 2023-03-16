@@ -1,15 +1,14 @@
 import SwiftUI
 
 public struct omgui: View {
-    @StateObject
+    @ObservedObject
     var state: AppModel
     
-    public init(client: ClientInfo, interface: DataInterface = SampleData()) {
-        self._state = StateObject(wrappedValue: AppModel(client: client, dataInterface: interface))
+    public init(state: AppModel) {
+        self.state = state
     }
     
     public var body: some View {
-        RootView()
-            .environmentObject(state)
+        RootView(appModel: state)
     }
 }

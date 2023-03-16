@@ -12,8 +12,6 @@ struct AddressSummaryView: View {
     var horizontalSizeClass
     
     @EnvironmentObject
-    var appModel: AppModel
-    @EnvironmentObject
     var sceneModel: SceneModel
     
     @ObservedObject
@@ -40,11 +38,17 @@ struct AddressSummaryView: View {
     }
     
     var body: some View {
+        sizeAppropriateBody
+            .navigationTitle("")
+    }
+    
+    @ViewBuilder
+    var sizeAppropriateBody: some View {
         if horizontalSizeClass == .regular && context != .column {
             NavigationSplitView(columnVisibility: $sidebarVisibility) {
                 sidebar
                     .navigationSplitViewColumnWidth(ideal: 225, max: 420)
-                    .navigationDestination(for: NavigationDestination.self, destination: appModel.destinationConstructor.destination(_:))
+                    .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
             } detail: {
                 destination()
             }
@@ -112,7 +116,7 @@ struct AddressSummaryView: View {
     @ViewBuilder
     func destination(_ item: AddressContent? = nil) -> some View {
         let workingItem = item ?? .profile
-        appModel.destinationConstructor.destination(workingItem.destination(addressSummaryFetcher.addressName))
+        sceneModel.destinationConstructor.destination(workingItem.destination(addressSummaryFetcher.addressName))
             .ignoresSafeArea(.container, edges: [.bottom, .leading, .trailing])
             .navigationSplitViewColumnWidth(min: 250, ideal: 600)
             .navigationBarTitleDisplayMode(.inline)

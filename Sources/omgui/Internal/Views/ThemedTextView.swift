@@ -11,6 +11,11 @@ struct ThemedTextView: View {
     let text: String
     let font: Font
     
+    init(text: String, font: Font = .title) {
+        self.text = text
+        self.font = font
+    }
+    
     var body: some View {
         Text(text)
             .font(font)

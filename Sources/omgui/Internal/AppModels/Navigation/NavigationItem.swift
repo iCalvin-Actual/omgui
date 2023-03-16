@@ -12,6 +12,7 @@ import Foundation
 enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     var id: String { rawValue }
     
+    case addressBook
     case search
     case nowGarden
     case community
@@ -23,6 +24,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     
     var rawValue: String {
         switch self {
+        case .addressBook:              return "addressBook"
         case .search:                   return "search"
         case .nowGarden:                return "garden"
         case .pinnedAddress(let address):     return "pinned.\(address)"
@@ -36,6 +38,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     init?(rawValue: String) {
         let splitString = rawValue.components(separatedBy: ".")
         switch splitString.first {
+        case "addressBook": self = .addressBook
         case "search":      self = .search
         case "garden":      self = .nowGarden
         case "community":   self = .community
@@ -59,6 +62,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     
     var displayString: String {
         switch self {
+        case .addressBook:
+            return "Addresses"
         case .community:
             return "Community"
         case .following:
@@ -82,6 +87,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     
     var iconName: String {
         switch self {
+        case .addressBook:
+            return "book.closed.fill"
         case .search:
             return "magnifyingglass"
         case .nowGarden:
@@ -101,7 +108,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     
     @ViewBuilder
     var sidebarView: some View {
-        NavigationLink(value: self) {
+        NavigationLink(value: self.destination) {
             label
         }
     }
@@ -116,6 +123,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     
     var destination: NavigationDestination {
         switch self {
+        case .addressBook:
+            return .lists
         case .search:
             return .directory
         case .nowGarden:

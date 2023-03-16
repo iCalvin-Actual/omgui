@@ -22,3 +22,14 @@ public struct ClientInfo {
     
     var redirectUrl: String { urlScheme + callback}
 }
+
+extension ClientInfo {
+    static var sample: ClientInfo {
+        .init(
+            id: "some",
+            secret: "some",
+            scheme: "http",
+            callback: "callback"
+        )
+    }
+}

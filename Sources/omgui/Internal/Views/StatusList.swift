@@ -14,7 +14,7 @@ struct StatusList: View {
     let context: ViewContext
     
     var body: some View {
-        ListView(
+        ListView<StatusModel, StatusView, EmptyView>(
             context: context,
             filters: .everyone,
             dataFetcher: fetcher,

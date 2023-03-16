@@ -10,10 +10,8 @@ import Foundation
 struct TabBarModel {
     var tabs: [NavigationItem] {
         [
-            .search,
+            .addressBook,
             .community,
-            .blocked,
-            .following,
             .nowGarden,
             .account(false)
         ]

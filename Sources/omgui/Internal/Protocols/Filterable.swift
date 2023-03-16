@@ -8,7 +8,7 @@
 import Foundation
 
 enum FilterOption {
-    case following
+//    case following
     case recent(TimeInterval)
     case notBlocked
     case query(String)
@@ -19,21 +19,21 @@ extension Array<FilterOption> {
     static let everyone: Self           = [.notBlocked]
     static let today: Self              = [.recent(86400), .notBlocked]
     static let thisWeek: Self           = [.recent(604800), .notBlocked]
-    static let followed: Self           = [.following, .notBlocked]
-    static let followedToday: Self      = .followed + .today
-    static let followedThisWeek: Self   = .followed + .thisWeek
+//    static let followed: Self           = [.following, .notBlocked]
+//    static let followedToday: Self      = .followed + .today
+//    static let followedThisWeek: Self   = .followed + .thisWeek
 }
 
 protocol Filterable {
     var addressName: AddressName { get }
     var filterDate: Date? { get }
-    func include(with filter: FilterOption, appModel: AppModel) -> Bool
+    func include(with filter: FilterOption, sceneModel: SceneModel) -> Bool
 }
 
 extension Filterable {
-    func include(with filters: [FilterOption], appModel: AppModel) -> Bool {
+    func include(with filters: [FilterOption], sceneModel: SceneModel) -> Bool {
         for filter in filters {
-            if !include(with: filter, appModel: appModel) {
+            if !include(with: filter, sceneModel: sceneModel) {
                 return false
             }
         }
@@ -59,17 +59,17 @@ extension QueryFilterable {
 }
 
 extension Filterable {
-    func include(with filter: FilterOption, appModel: AppModel) -> Bool {
+    func include(with filter: FilterOption, sceneModel: SceneModel) -> Bool {
         switch filter {
-        case .following:
-            let accountFollowed = appModel.accountModel.following.contains(where: { $0 == addressName })
-            if !accountFollowed {
-                return false
-            }
+//        case .following:
+//            let accountFollowed = appModel.fo.contains(where: { $0 == addressName })
+//            if !accountFollowed {
+//                return false
+//            }
         case .notBlocked:
-            // Check if accoutn is blocked
-            let joinedBlocklist = appModel.blockList
-            let accountBlocked = joinedBlocklist.contains(where: { $0.lowercased() == addressName.lowercased() })
+            // Check if address is blocked
+            let joinedBlocklist = sceneModel.allBlocked
+            let accountBlocked = joinedBlocklist.map { $0.addressName }.contains(where: { $0.lowercased() == addressName.lowercased() })
             if accountBlocked {
                 return false
             }

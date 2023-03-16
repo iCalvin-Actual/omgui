@@ -14,7 +14,7 @@ struct AddressPURLView: View {
     let context: ViewContext
     
     var body: some View {
-        ListView(
+        ListView<PURLModel, PURLView, EmptyView>(
             context: context,
             filters: .everyone,
             dataFetcher: fetcher,

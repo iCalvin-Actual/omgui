@@ -5,7 +5,7 @@
 //  Created by Calvin Chestnut on 3/7/23.
 //
 
-//import MarkdownUI
+import MarkdownUI
 import SwiftUI
 
 struct MarkdownContentView: View {
@@ -19,7 +19,7 @@ struct MarkdownContentView: View {
     var body: some View {
         if let content = strippingComments {
             ScrollView {
-                Text(content)
+                Markdown(content)
                     .padding()
             }
         }

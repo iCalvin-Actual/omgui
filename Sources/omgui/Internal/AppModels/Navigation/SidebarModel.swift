@@ -37,13 +37,16 @@ class SidebarModel: ObservableObject {
         }
     }
     
-    let appModel: AppModel
+    let sceneModel: SceneModel
+    var appModel: AppModel {
+        sceneModel.appModel
+    }
     
     var requests: [AnyCancellable] = []
     
-    init(appModel: AppModel) {
-        self.appModel = appModel
-        appModel.objectWillChange.sink { _ in
+    init(sceneModel: SceneModel) {
+        self.sceneModel = sceneModel
+        sceneModel.appModel.objectWillChange.sink { _ in
             DispatchQueue.main.async {
                 self.objectWillChange.send()
             }
@@ -64,7 +67,7 @@ class SidebarModel: ObservableObject {
             ]
         case .account:
             var destinations = [
-                NavigationItem.account(appModel.accountModel.signedIn)
+                NavigationItem.account(!sceneModel.actingAddress.isEmpty)
             ]
             if !appModel.blockedAddresses.isEmpty {
                 destinations.append(.blocked)

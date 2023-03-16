@@ -35,8 +35,8 @@ class FetchConstructor: ObservableObject {
         AddressBlockListDataFetcher(address: address, interface: interface)
     }
     
-    func followingFetcher(for address: AddressName) -> AddressBlockListDataFetcher {
-        AddressBlockListDataFetcher(address: address, interface: interface)
+    func followingFetcher(for address: AddressName) -> AddressFollowingDataFetcher {
+        AddressFollowingDataFetcher(address: address, interface: interface)
     }
     
     func addressDirectoryDataFetcher() -> AddressDirectoryDataFetcher {

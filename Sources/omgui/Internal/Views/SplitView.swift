@@ -9,19 +9,19 @@ import SwiftUI
 
 struct SplitView: View {
     @EnvironmentObject
-    var appModel: AppModel
+    var sceneModel: SceneModel
     
     @State
     var selected: NavigationItem? = .pinnedAddress("app")
     
     var body: some View {
         NavigationSplitView {
-            Sidebar(selected: $selected, model: .init(appModel: appModel))
+            Sidebar(selected: $selected, model: .init(sceneModel: sceneModel))
         } content: {
-            appModel.destinationConstructor.destination(selected?.destination)
-                .navigationDestination(for: NavigationDestination.self, destination: appModel.destinationConstructor.destination(_:))
+            sceneModel.destinationConstructor.destination(selected?.destination)
+                .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
         } detail: {
-            appModel.destinationConstructor.destination(.address("app"))
+            sceneModel.destinationConstructor.destination(.address("app"))
         }
 
     }

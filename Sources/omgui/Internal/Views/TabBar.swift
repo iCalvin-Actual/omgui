@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TabBar: View {
     @EnvironmentObject
-    var appModel: AppModel
+    var sceneModel: SceneModel
     
     @State
     var selected: NavigationItem?
@@ -20,8 +20,8 @@ struct TabBar: View {
         TabView(selection: $selected) {
             ForEach(tabModel.tabs) { item in
                 NavigationStack {
-                    appModel.destinationConstructor.destination(item.destination)
-                        .navigationDestination(for: NavigationDestination.self, destination: appModel.destinationConstructor.destination(_:))
+                    sceneModel.destinationConstructor.destination(item.destination)
+                        .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
                 }
                 .tag(item)
                 .tabItem {

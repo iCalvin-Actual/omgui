@@ -11,8 +11,10 @@ class AccountModel: ObservableObject {
     var name: String = ""
     var addresses: [AddressModel] = []
     
+    var actingAddress: AddressName = ""
+    
     var signedIn: Bool {
-        !addresses.isEmpty
+        !actingAddress.isEmpty
     }
 }
 

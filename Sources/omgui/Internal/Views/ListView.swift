@@ -7,19 +7,24 @@
 
 import SwiftUI
 
-struct ListView<T: Listable, V: View>: View {
+struct ListView<T: Listable, V: View, H: View>: View {
     
     @EnvironmentObject
-    var appModel: AppModel
+    var sceneModel: SceneModel
     
     let context: ViewContext
     let filters: [FilterOption]
+    
+    let allowSearch: Bool
     
     @ObservedObject
     var dataFetcher: ListDataFetcher<T>
     
     @ViewBuilder
     let rowBuilder: ((T) -> V?)
+    
+    @ViewBuilder
+    let headerBuilder: (() -> H)?
     
     @State
     var selected: T?
@@ -33,13 +38,17 @@ struct ListView<T: Listable, V: View>: View {
     init(
         context: ViewContext = .column,
         filters: [FilterOption] = .everyone,
+        allowSearch: Bool = true,
         dataFetcher: ListDataFetcher<T>,
-        rowBuilder: @escaping (T) -> V?
+        rowBuilder: @escaping (T) -> V?,
+        headerBuilder: (() -> H)? = nil
     ) {
         self.filters = filters
+        self.allowSearch = allowSearch
         self.dataFetcher = dataFetcher
         self.rowBuilder = rowBuilder
         self.context = context
+        self.headerBuilder = headerBuilder
     }
     
     var items: [T] {
@@ -48,25 +57,59 @@ struct ListView<T: Listable, V: View>: View {
             filters.append(.query(queryString))
         }
         return filters
-            .applyFilters(to: dataFetcher.listItems, appModel: appModel)
+            .applyFilters(to: dataFetcher.listItems, sceneModel: sceneModel)
             .sorted(with: sort)
     }
     
     var body: some View {
-        List(items, selection: $selected, rowContent: rowView(_:))
-            .refreshable(action: {
-                await dataFetcher.update()
-            })
-            .searchable(text: $queryString, placement: .automatic)
-            .toolbar(content: {
+        searchableIfNeeded
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("")
+            .toolbar {
                 let sortOptions = T.sortOptions
-                if sortOptions.count > 1 {
+                if sortOptions.count > 1, dataFetcher.listItems.count > 1 {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         SortOrderMenu(sort: $sort, options: T.sortOptions)
                     }
                 }
-            })
-            .listStyle(.plain)
+                
+                if headerBuilder == nil {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        ThemedTextView(text: dataFetcher.title)
+                    }
+                }
+            }
+    }
+    
+    @ViewBuilder
+    var list: some View {
+        List(selection: $selected) {
+            if let headerBuilder = headerBuilder {
+                Section {
+                    headerBuilder()
+                        .listRowSeparator(.hidden)
+                }
+                Section(dataFetcher.title) {
+                    ForEach(items, content: rowView(_:) )
+                }
+            } else {
+                ForEach(items, content: rowView(_:) )
+            }
+        }
+        .refreshable(action: {
+            await dataFetcher.update()
+        })
+        .listStyle(.plain)
+    }
+    
+    @ViewBuilder
+    var searchableIfNeeded: some View {
+        if self.allowSearch {
+            list
+                .searchable(text: $queryString, placement: .automatic)
+        } else {
+            list
+        }
     }
     
     @ViewBuilder
@@ -83,7 +126,7 @@ struct ListView<T: Listable, V: View>: View {
         }
         .listRowSeparator(.hidden, edges: .all)
         .contextMenu(menuItems: {
-            self.menuBuilder.contextMenu(for: item, with: appModel)
+            self.menuBuilder.contextMenu(for: item, with: sceneModel)
         })
     }
     
