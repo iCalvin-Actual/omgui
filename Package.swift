@@ -23,7 +23,9 @@ let package = Package(
     targets: [
         .target(
             name: "omgui",
-            dependencies: []),
+            dependencies: [
+                .product(name: "MarkdownUI", package: "swift-markdown-ui")
+            ]),
         .testTarget(
             name: "omguiTests",
             dependencies: ["omgui"]),
