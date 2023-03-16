@@ -25,7 +25,7 @@ struct DestinationConstructor {
                     localFetcher: LocalBlockListDataFetcher(appModel: appModel),
                     interface: appModel.interface
                 ),
-                followedFetcher: appModel.fetchConstructor.followingFetcher(for: sceneModel.actingAddress),
+                followedFetcher: appModel.fetchConstructor.followingFetcher(for: appModel.accountModel.actingAddress),
                 directoryFetcher: appModel.fetchConstructor.addressDirectoryDataFetcher()
             )
         case .directory:
@@ -46,6 +46,8 @@ struct DestinationConstructor {
             ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: appModel.fetchConstructor.followingFetcher(for: name), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .nowGarden:
             GardenView(fetcher: appModel.fetchConstructor.nowGardenFetcher())
+        case .account:
+            AccountView(accountModel: appModel.accountModel)
         default:
             EmptyView()
         }

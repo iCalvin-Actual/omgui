@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/8/23.
 //
 
+import MarkdownUI
 import SwiftUI
 
 struct StatusView: View {

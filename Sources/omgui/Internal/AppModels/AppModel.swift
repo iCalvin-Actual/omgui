@@ -17,10 +17,7 @@ public class AppModel: ObservableObject {
     let interface: DataInterface
     
     // MARK: Authentication
-    let accountModel: AccountModel = .init()
-    
-    @AppStorage("app.lol.auth", store: .standard)
-    private var authKey: String = ""
+    var accountModel: AccountModel
     
     // MARK: No-Account Blocklist
     @AppStorage("app.lol.cache.blocked", store: .standard)
@@ -70,7 +67,6 @@ public class AppModel: ObservableObject {
     // MARK: Fetching
     
     internal var fetchConstructor: FetchConstructor
-    private var authFetcher: AccountAuthDataFetcher
     private var profileModels: [AddressName: AddressSummaryDataFetcher] = [:]
     
     private var requests: [AnyCancellable] = []
@@ -79,26 +75,7 @@ public class AppModel: ObservableObject {
         self.client = client
         self.interface = dataInterface
         self.fetchConstructor = FetchConstructor(client: client, interface: dataInterface)
-        self.authFetcher = fetchConstructor.credentialFetcher()
-        
-        
-        
-        // MARK: Subscribers
-        
-        authFetcher.$authToken.sink { [self] newValue in
-            let newValue = newValue ?? ""
-            if !authKey.isEmpty && newValue.isEmpty {
-                self.logout()
-            }
-            guard !newValue.isEmpty else {
-                // Clear anything?
-                return
-            }
-            Task {
-                await self.login(newValue)
-            }
-        }
-        .store(in: &requests)
+        self.accountModel = .init(fetchConstructor: fetchConstructor)
     }
     
     private func fetch() {
@@ -123,41 +100,6 @@ public class AppModel: ObservableObject {
     }
     
     // MARK: - Functions
-    
-    // MARK: Authentication
-    
-    func authenticate() {
-        if !self.authKey.isEmpty {
-            self.authKey = ""
-        }
-        
-        Task {
-            await authFetcher.update()
-        }
-    }
-    
-    func login(_ authKey: String) async {
-        self.authKey = authKey
-        let fetcher = fetchConstructor.accountAddressesDataFetcher(authKey)
-        
-        fetcher.$listItems.sink { addresses in
-            addresses.forEach { model in
-                let _ = self.addressDetails(model.name)
-            }
-            
-            let notPreviouslyPinned = addresses.map({ $0.name }).filter({ !self.previouslyPinnedAddresses.contains($0) })
-            self.pinnedAddresses.append(contentsOf: notPreviouslyPinned)
-        }
-        .store(in: &requests)
-        
-        await fetcher.update()
-        // Add addresses to pinned list
-        // Fetch app.lol settings for addresses
-    }
-    
-    func logout() {
-        self.authKey = ""
-    }
     
     // MARK: Local List Managment
     

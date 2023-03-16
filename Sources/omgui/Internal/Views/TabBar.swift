@@ -17,7 +17,7 @@ struct TabBar: View {
     let tabModel: TabBarModel = .init()
     
     var body: some View {
-        TabView(selection: $selected) {
+        TabView {
             ForEach(tabModel.tabs) { item in
                 NavigationStack {
                     sceneModel.destinationConstructor.destination(item.destination)
