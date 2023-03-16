@@ -105,7 +105,9 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
     }
     
     override func throwingUpdate() async throws {
-        self.webSession?.start()
+        DispatchQueue.main.async {
+            self.webSession?.start()
+        }
     }
 }
 
