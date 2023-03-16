@@ -16,6 +16,7 @@ class AccountModel: ObservableObject {
     
     private var authenticationFetcher: AccountAuthDataFetcher
     private var myAddressesFetcher: AccountAddressDataFetcher?
+    private var accountInfoFetcher: AccountInfoDataFetcher?
     
     private var requests: [AnyCancellable] = []
     
@@ -47,11 +48,28 @@ class AccountModel: ObservableObject {
         .store(in: &requests)
     }
     
+    var displayName: String {
+        accountInfoFetcher?.accountName ?? actingAddress.addressDisplayString
+    }
     
     var name: String = ""
     var addresses: [AddressModel] = []
     
-    var actingAddress: AddressName = ""
+    var actingAddress: AddressName = "" {
+        didSet {
+            if actingAddress.isEmpty {
+                accountInfoFetcher = nil
+            } else if accountInfoFetcher == nil {
+                accountInfoFetcher = fetchConstructor.accountInfoFetcher(for: actingAddress, credential: authKey)
+                accountInfoFetcher?.$accountName.sink { newInfo in
+                    DispatchQueue.main.async {
+                        self.objectWillChange.send()
+                    }
+                }
+                .store(in: &requests)
+            }
+        }
+    }
     
     var signedIn: Bool {
         !authKey.isEmpty

@@ -27,6 +27,13 @@ class FetchConstructor: ObservableObject {
         directoryFetcher.listItems
     }
     
+    func accountInfoFetcher(for address: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {
+        guard !address.isEmpty else {
+            return nil
+        }
+        return AccountInfoDataFetcher(address: address, interface: interface, credential: credential)
+    }
+    
     func credentialFetcher() -> AccountAuthDataFetcher {
         AccountAuthDataFetcher(client: client, interface: interface)
     }

@@ -49,7 +49,7 @@ struct AccountView: View {
     @ViewBuilder
     var loggedInView: some View {
         VStack {
-            Text("Welcome \(accountModel.actingAddress)")
+            Text("Welcome \(accountModel.displayName)")
             Button {
                 // Show Login
                 accountModel.logout()

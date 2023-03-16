@@ -30,6 +30,12 @@ public protocol DataInterface {
     )
     async throws -> [AddressName]
     
+    func fetchAccountInfo(
+        _ address: AddressName,
+        credential: APICredential
+    )
+    async throws -> AccountInfoModel?
+    
     func fetchNowGarden()
     async throws -> [NowListing]
     

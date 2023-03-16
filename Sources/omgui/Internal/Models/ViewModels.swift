@@ -19,6 +19,16 @@ public struct ServiceInfoModel {
     }
 }
 
+public struct AccountInfoModel {
+    let name: String
+    let created: Date
+    
+    public init(name: String, created: Date) {
+        self.name = name
+        self.created = created
+    }
+}
+
 public struct AddressProfile {
     let owner: AddressName
     let content: String

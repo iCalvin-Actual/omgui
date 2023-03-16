@@ -144,6 +144,27 @@ class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
+class AccountInfoDataFetcher: DataFetcher {
+    private let name: String
+    private let credential: String
+    
+    @Published
+    var accountName: String?
+    
+    init(address: AddressName, interface: DataInterface, credential: APICredential) {
+        self.name = address
+        self.credential = credential
+        super.init(interface: interface)
+    }
+    
+    override func throwingUpdate() async throws {
+        let info = try await interface.fetchAccountInfo(name, credential: credential)
+        DispatchQueue.main.async {
+            self.accountName = info?.name
+        }
+    }
+}
+
 class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
     override var title: String {
         "my addresses"

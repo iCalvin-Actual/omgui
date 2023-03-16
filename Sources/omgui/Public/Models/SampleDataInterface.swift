@@ -32,6 +32,14 @@ public class SampleData: DataInterface {
         return ["app", "appleAppStoreReview", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
     }
     
+    public func fetchAccountInfo(_ address: AddressName, credential: APICredential) async throws -> AccountInfoModel? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        guard !credential.isEmpty else {
+            return nil
+        }
+        return .init(name: "Firstname", created: Date.init(timeIntervalSinceNow: -1000000))
+    }
+    
     public func fetchAccountAddresses(_ credential: String) async throws -> [AddressName] {
         try await Task.sleep(nanoseconds: artificalDelay)
         guard !credential.isEmpty else {
