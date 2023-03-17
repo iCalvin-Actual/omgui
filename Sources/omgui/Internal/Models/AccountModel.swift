@@ -8,14 +8,13 @@
 import Combine
 import SwiftUI
 
-class AccountModel: ObservableObject {
+class AccountModel: DataFetcher {
     @AppStorage("app.lol.auth", store: .standard)
-    private var authKey: String = ""
+    var authKey: String = ""
     
     private let fetchConstructor: FetchConstructor
     
     private var authenticationFetcher: AccountAuthDataFetcher
-    private var myAddressesFetcher: AccountAddressDataFetcher?
     private var accountInfoFetcher: AccountInfoDataFetcher?
     
     private var requests: [AnyCancellable] = []
@@ -23,6 +22,7 @@ class AccountModel: ObservableObject {
     init(fetchConstructor: FetchConstructor) {
         self.fetchConstructor = fetchConstructor
         self.authenticationFetcher = fetchConstructor.credentialFetcher()
+        super.init(interface: fetchConstructor.interface)
         
         authenticationFetcher.$authToken.sink { [self] newValue in
             let newValue = newValue ?? ""
@@ -38,38 +38,24 @@ class AccountModel: ObservableObject {
     }
     
     func resetFetchers() {
-        myAddressesFetcher = fetchConstructor.accountAddressesDataFetcher(authKey)
-        myAddressesFetcher?.$listItems.sink { [self] newValue in
-            print("Got new addresses")
-            if actingAddress.isEmpty || !newValue.map({ $0.name }).contains(actingAddress) {
-                actingAddress = newValue.first?.name ?? ""
+        if !authKey.isEmpty, let first = addresses.first {
+            self.accountInfoFetcher = fetchConstructor.accountInfoFetcher(for: first.name, credential: authKey)
+            accountInfoFetcher?.$accountName.sink { [self] newValue in
+                DispatchQueue.main.async {
+                    self.objectWillChange.send()
+                }
             }
+            .store(in: &requests)
+        } else {
+            accountInfoFetcher = nil
         }
-        .store(in: &requests)
     }
     
     var displayName: String {
-        accountInfoFetcher?.accountName ?? actingAddress.addressDisplayString
+        accountInfoFetcher?.accountName ?? "anonymous"
     }
     
-    var name: String = ""
     var addresses: [AddressModel] = []
-    
-    var actingAddress: AddressName = "" {
-        didSet {
-            if actingAddress.isEmpty {
-                accountInfoFetcher = nil
-            } else if accountInfoFetcher == nil {
-                accountInfoFetcher = fetchConstructor.accountInfoFetcher(for: actingAddress, credential: authKey)
-                accountInfoFetcher?.$accountName.sink { newInfo in
-                    DispatchQueue.main.async {
-                        self.objectWillChange.send()
-                    }
-                }
-                .store(in: &requests)
-            }
-        }
-    }
     
     var signedIn: Bool {
         !authKey.isEmpty
@@ -78,21 +64,32 @@ class AccountModel: ObservableObject {
     func authenticate() async {
         logout()
         Task {
+            DispatchQueue.main.async {
+                self.loading = true
+            }
             await authenticationFetcher.update()
         }
     }
     
     func login(_ authKey: APICredential) async {
-        self.authKey = authKey
-        self.objectWillChange.send()
+        DispatchQueue.main.async {
+            self.authKey = authKey
+            self.resetFetchers()
+            self.fetchFinished()
+            self.objectWillChange.send()
+        }
     }
     
     func logout() {
         DispatchQueue.main.async {
             self.authKey = ""
+            self.resetFetchers()
             self.objectWillChange.send()
         }
-        // Do logout things
+    }
+    
+    override func throwingUpdate() async throws {
+        await accountInfoFetcher?.update()
     }
 }
 

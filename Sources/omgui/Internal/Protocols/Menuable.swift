@@ -23,7 +23,7 @@ struct ContextMenuBuilder<T: Menuable> {
 extension Sharable where Self: Menuable {
     @ViewBuilder
     func shareSection() -> some View {
-        if shareItems > 1 {
+        if shareURLs.count > 1 {
             Menu {
                 ForEach(shareURLs) { option in
                     shareLink(option)
@@ -33,16 +33,12 @@ extension Sharable where Self: Menuable {
             }
         } else if let option = shareURLs.first {
             shareLink(option)
-        } else if let option = shareText.first {
-            shareLink(option)
-        } else if let option = shareData.first {
-            shareLink(option)
         }
     }
     
     @ViewBuilder
-    private func shareLink<T: Transferable>(_ option: SharePacket<T>) -> some View {
-        ShareLink(item: option.content, preview: SharePreview(option.content.previewText)) {
+    private func shareLink(_ option: SharePacket) -> some View {
+        ShareLink(item: option.content) {
             Label("Share \(option.name)", systemImage: "square.and.arrow.up")
         }
     }
@@ -60,7 +56,7 @@ extension NavigationItem: Menuable {
         switch self {
         case .pinnedAddress(let name):
             Button(action: {
-                sceneModel.appModel.removePin(name)
+                sceneModel.addressBook.removePin(name)
             }, label: {
                 Label("Un-Pin", systemImage: "pin.slash")
             })
@@ -73,15 +69,14 @@ extension NavigationItem: Menuable {
 extension AddressModel: Menuable {
     @ViewBuilder
     func contextMenu(with sceneModel: SceneModel) -> some View {
-        let isBlocked = sceneModel.isBlocked(name)
-        let appModel = sceneModel.appModel
-        let isPinned = appModel.isPinned(name)
+        let isBlocked = sceneModel.addressBook.isBlocked(name)
+        let isPinned = sceneModel.addressBook.isPinned(name)
         Group {
             if !isBlocked {
                 if isPinned {
                     Button(action: {
                         withAnimation {
-                            appModel.removePin(name)
+                            sceneModel.addressBook.removePin(name)
                         }
                     }, label: {
                         Label("Un-Pin", systemImage: "pin.slash")
@@ -89,7 +84,7 @@ extension AddressModel: Menuable {
                 } else {
                     Button(action: {
                         withAnimation {
-                            appModel.pin(name)
+                            sceneModel.addressBook.pin(name)
                         }
                     }, label: {
                         Label("Pin", systemImage: "pin")
@@ -106,7 +101,7 @@ extension AddressModel: Menuable {
                 Menu {
                     Button(action: {
                         withAnimation {
-                            sceneModel.block(name)
+                            sceneModel.addressBook.block(name)
                         }
                     }, label: {
                         Label("Block", systemImage: "eye.slash.circle")
@@ -117,10 +112,10 @@ extension AddressModel: Menuable {
                     Label("Safety", systemImage: "hand.raised")
                 }
             } else {
-                if sceneModel.canUnblock(name) {
+                if sceneModel.addressBook.canUnblock(name) {
                     Button(action: {
                         withAnimation {
-                            sceneModel.unBlock(name)
+                            sceneModel.addressBook.unBlock(name)
                         }
                     }, label: {
                         Label("Un-block", systemImage: "eye.circle")

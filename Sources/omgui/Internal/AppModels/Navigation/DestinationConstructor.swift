@@ -19,17 +19,11 @@ struct DestinationConstructor {
         switch destination {
         case .lists:
             AddressBookView(
-                pinnedFetcher: PinnedListDataFetcher(appModel: appModel),
-                blockedFetcher: BlockListDataFetcher(
-                    globalFetcher: .init(address: "app", interface: appModel.interface),
-                    localFetcher: LocalBlockListDataFetcher(appModel: appModel),
-                    interface: appModel.interface
-                ),
-                followedFetcher: appModel.fetchConstructor.followingFetcher(for: appModel.accountModel.actingAddress),
-                directoryFetcher: appModel.fetchConstructor.addressDirectoryDataFetcher()
+                addressBookModel: sceneModel.addressBook,
+                accountModel: appModel.accountModel
             )
         case .directory:
-            DirectoryView(dataFetcher: appModel.fetchConstructor.addressDirectoryDataFetcher())
+            DirectoryView(dataFetcher: sceneModel.addressBook.directoryFetcher)
         case .community:
             StatusList(fetcher: fetchConstructor.generalStatusLog(), context: .column)
         case .address(let name):
@@ -39,7 +33,7 @@ struct DestinationConstructor {
         case .now(let name):
             AddressNowView(fetcher: appModel.fetchConstructor.addressDetailsFetcher(name).nowFetcher)
         case .blocked:
-            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: sceneModel.addressBookFetcher.blockedModel, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: sceneModel.addressBook.blockFetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .following:
             FollowingView(appModel.fetchConstructor.followingFetcher(for: sceneModel.actingAddress))
         case .addressFollowing(let name):
@@ -48,6 +42,12 @@ struct DestinationConstructor {
             GardenView(fetcher: appModel.fetchConstructor.nowGardenFetcher())
         case .account:
             AccountView(accountModel: appModel.accountModel)
+        case .pastebin(let address):
+            ListView<PasteModel, ListRow<PasteModel>, EmptyView>(filters: .none, dataFetcher: appModel.addressDetails(address).pasteFetcher, rowBuilder: { _ in return nil as ListRow<PasteModel>? })
+        case .purls(let address):
+            ListView<PURLModel, ListRow<PURLModel>, EmptyView>(filters: .none, dataFetcher: appModel.addressDetails(address).purlFetcher, rowBuilder: { _ in return nil as ListRow<PURLModel>? })
+        case .statusLog(let address):
+            StatusList(fetcher: appModel.addressDetails(address).statusFetcher, context: .profile)
         default:
             EmptyView()
         }

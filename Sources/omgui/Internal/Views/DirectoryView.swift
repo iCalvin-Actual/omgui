@@ -39,11 +39,12 @@ struct DirectoryView: View {
     }
     
     var pinned: [AddressModel] {
-        unfilteredItems.filter { appModel.isPinned($0.addressName) }
+        unfilteredItems.filter { sceneModel.addressBook.isPinned($0.addressName) }
     }
     
     var remainder: [AddressModel] {
-        unfilteredItems.filter { !appModel.isPinned($0.addressName) }
+        unfilteredItems.filter { !sceneModel.addressBook.isPinned($0.addressName)
+        }
     }
     
     func filtered(_ listItems: [AddressModel]) -> [AddressModel] {

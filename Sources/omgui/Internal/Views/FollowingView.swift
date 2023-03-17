@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct FollowingView: View {
-    @EnvironmentObject
-    var appModel: AppModel
     
     @EnvironmentObject
     var sceneModel: SceneModel
@@ -27,7 +25,7 @@ struct FollowingView: View {
     
     @ViewBuilder
     var followingView: some View {
-        if !sceneModel.actingAddress.isEmpty {
+        if sceneModel.appModel.accountModel.signedIn {
             listView
         } else {
             signedOutView

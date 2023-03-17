@@ -8,12 +8,20 @@
 import CoreTransferable
 import Foundation
 
-struct SharePacket<T: Transferable>: Identifiable {
+struct SharePacket: Identifiable {
     
-    var id: String { [name, content.previewText].joined() }
+    var id: String { [name, content.absoluteString].joined() }
     
     let name: String
-    let content: T
+    let content: URL
+}
+
+struct CopyPacket: Identifiable {
+    
+    var id: String { [name, content].joined() }
+    
+    let name: String
+    let content: String
 }
 
 extension Transferable {
@@ -29,38 +37,27 @@ extension Transferable {
 }
 
 protocol Sharable {
-    var copyText: [SharePacket<String>] { get }
-    var shareURLs: [SharePacket<URL>] { get }
-    var shareText: [SharePacket<String>] { get }
-    var shareData: [SharePacket<Data>] { get }
+    var copyText: [CopyPacket] { get }
+    var shareURLs: [SharePacket] { get }
 }
 
 extension Sharable {
-    var copyText: [SharePacket<String>] {
+    var copyText: [CopyPacket] {
         []
     }
-    var shareURLs: [SharePacket<URL>] {
+    var shareURLs: [SharePacket] {
         []
-    }
-    var shareText: [SharePacket<String>] {
-        []
-    }
-    var shareData: [SharePacket<Data>] {
-        []
-    }
-    var shareItems: Int {
-        shareURLs.count + shareText.count + shareData.count
     }
 }
 
 extension AddressModel: Sharable {
-    var copyText: [SharePacket<String>] {
+    var copyText: [CopyPacket] {
         [
             .init(name: "Name", content: addressName)
         ]
     }
     
-    var shareURLs: [SharePacket<URL>] {
+    var shareURLs: [SharePacket] {
         [
             .init(name: "Webpage", content: URL(string: "https://\(addressName).omg.lol")!)
         ]

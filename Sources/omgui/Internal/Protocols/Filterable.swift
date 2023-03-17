@@ -68,7 +68,7 @@ extension Filterable {
 //            }
         case .notBlocked:
             // Check if address is blocked
-            let joinedBlocklist = sceneModel.allBlocked
+            let joinedBlocklist = sceneModel.addressBook.blockedItems
             let accountBlocked = joinedBlocklist.map { $0.addressName }.contains(where: { $0.lowercased() == addressName.lowercased() })
             if accountBlocked {
                 return false

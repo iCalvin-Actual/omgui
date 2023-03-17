@@ -11,7 +11,8 @@ class FetchConstructor: ObservableObject {
     let client: ClientInfo
     let interface: DataInterface
     
-    private let directoryFetcher: AddressDirectoryDataFetcher
+    let directoryFetcher: AddressDirectoryDataFetcher
+    let globalBlocklistFetcher: AddressBlockListDataFetcher
     private let globalStatusFetcher: StatusLogDataFetcher
     private let gardenFetcher: NowGardenDataFetcher
     
@@ -19,12 +20,9 @@ class FetchConstructor: ObservableObject {
         self.client = client
         self.interface = interface
         self.directoryFetcher = AddressDirectoryDataFetcher(interface: interface)
+        self.globalBlocklistFetcher = AddressBlockListDataFetcher(address: "app", interface: interface)
         self.globalStatusFetcher = StatusLogDataFetcher(interface: interface)
         self.gardenFetcher = NowGardenDataFetcher(interface: interface)
-    }
-    
-    var directory: [AddressModel] {
-        directoryFetcher.listItems
     }
     
     func accountInfoFetcher(for address: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {

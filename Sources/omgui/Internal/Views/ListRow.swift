@@ -9,6 +9,7 @@ import SwiftUI
 import Foundation
 
 struct ListRow<T: Listable>: View {
+    
     let model: T
     
     @Environment(\.isSearching) var isSearching
@@ -22,7 +23,7 @@ struct ListRow<T: Listable>: View {
                 .bold()
                 .foregroundColor(.black)
                 .padding(.vertical, 8)
-                .padding(.bottom, 4)
+                .padding(.bottom, 16)
                 .padding(.trailing, 4)
             
             

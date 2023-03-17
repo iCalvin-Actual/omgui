@@ -69,7 +69,7 @@ class SidebarModel: ObservableObject {
             var destinations = [
                 NavigationItem.account(!sceneModel.actingAddress.isEmpty)
             ]
-            if !appModel.blockedAddresses.isEmpty {
+            if !sceneModel.addressBook.nonGlobalBlocklist.isEmpty {
                 destinations.append(.blocked)
             }
             return destinations
@@ -82,7 +82,7 @@ class SidebarModel: ObservableObject {
             }
             return destinations
         case .saved:
-            return appModel.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
+            return sceneModel.addressBook.pinnedItems.map({ $0.name }).sorted().map({ .pinnedAddress($0) })
         default:
             return []
         }
