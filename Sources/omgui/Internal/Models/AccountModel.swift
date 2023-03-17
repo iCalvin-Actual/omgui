@@ -72,6 +72,13 @@ class AccountModel: DataFetcher {
         .store(in: &requests)
     }
     
+    var welcomeText: String {
+        guard let accountName = accountInfoFetcher?.accountName else {
+            return "app.lol"
+        }
+        return "Hello, \(accountName)"
+    }
+    
     var displayName: String {
         accountInfoFetcher?.accountName ?? "anonymous"
     }

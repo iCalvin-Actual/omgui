@@ -16,6 +16,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
     let filters: [FilterOption]
     
     let allowSearch: Bool
+    let allowFilter: Bool
     
     @ObservedObject
     var dataFetcher: ListDataFetcher<T>
@@ -39,12 +40,14 @@ struct ListView<T: Listable, V: View, H: View>: View {
         context: ViewContext = .column,
         filters: [FilterOption] = .everyone,
         allowSearch: Bool = true,
+        allowFilter: Bool = true,
         dataFetcher: ListDataFetcher<T>,
         rowBuilder: @escaping (T) -> V?,
         headerBuilder: (() -> H)? = nil
     ) {
         self.filters = filters
         self.allowSearch = allowSearch
+        self.allowFilter = allowFilter
         self.dataFetcher = dataFetcher
         self.rowBuilder = rowBuilder
         self.context = context
@@ -67,7 +70,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
             .navigationTitle("")
             .toolbar {
                 let sortOptions = T.sortOptions
-                if sortOptions.count > 1, dataFetcher.listItems.count > 1 {
+                if sortOptions.count > 1, dataFetcher.listItems.count > 1, allowFilter {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         SortOrderMenu(sort: $sort, options: T.sortOptions)
                     }

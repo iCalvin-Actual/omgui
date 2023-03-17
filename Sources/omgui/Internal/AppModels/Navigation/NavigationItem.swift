@@ -63,7 +63,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     var displayString: String {
         switch self {
         case .addressBook:
-            return "Addresses"
+            return "Address Book"
         case .community:
             return "Community"
         case .following:
@@ -94,9 +94,9 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         case .nowGarden:
             return "camera.macro"
         case .community:
-            return "person.2"
+            return "globe"
         case .following:
-            return "star"
+            return "person.2"
         case .pinnedAddress:
             return "pin"
         case .account:

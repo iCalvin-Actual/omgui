@@ -106,7 +106,7 @@ class AddressBookModel: DataFetcher {
         .store(in: &requests)
     }
     
-    private func updateAddress(_ newValue: AddressName) {
+    func updateAddress(_ newValue: AddressName) {
         print("IN UPDATE ADDRESS \(newValue)")
         guard !newValue.isEmpty else {
             actingAddress = ""
@@ -239,22 +239,62 @@ struct AddressBookView: View {
     var accountModel: AccountModel
     
     var showSearch: Bool {
-        !showFollowing && !showBlocklist && addressBookModel.pinnedItems.isEmpty
+        !accountModel.signedIn && !showBlocklist && addressBookModel.pinnedItems.isEmpty
     }
     var showFollowing: Bool {
-        accountModel.signedIn
+        accountModel.signedIn && addressBookModel.primaryFetcher != addressBookModel.followingFetcher
     }
     var showBlocklist: Bool {
         !addressBookModel.nonGlobalBlocklist.isEmpty
     }
     
+    @ViewBuilder
+    var accountHeader: some View {
+        VStack(alignment: .leading) {
+            ListRow<AddressModel>(model: .init(name: addressBookModel.actingAddress), preferredStyle: .minimal)
+        }
+    }
+    
+    @ViewBuilder
+    var logoutButton: some View {
+        Button {
+            // Show Login
+            accountModel.logout()
+        } label: {
+            HStack {
+                Spacer()
+                Label("Logout", systemImage: "lock")
+                    .padding()
+                Spacer()
+            }
+            .padding(.horizontal)
+        }
+    }
+    
+    @ViewBuilder
+    var loggedOutHeader: some View {
+        Button {
+            // Show Login
+            DispatchQueue.main.async {
+                Task {
+                    await accountModel.authenticate()
+                }
+            }
+        } label: {
+            Label("Login", systemImage: "lock.open")
+        }
+    }
+    
     var body: some View {
         ListView(
             allowSearch: showSearch,
+            allowFilter: false,
             dataFetcher: addressBookModel.primaryFetcher,
             rowBuilder: { _ in return nil as ListRow<AddressModel>? },
             headerBuilder: {
                 Group {
+                    accountHeader
+                    
                     if !showSearch {
                         NavigationItem.search.sidebarView
                     }
@@ -269,8 +309,38 @@ struct AddressBookView: View {
         )
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                ThemedTextView(text: "app.lol")
+                ThemedTextView(text: accountModel.welcomeText)
             }
+        }
+        .toolbar {
+            Menu {
+                if accountModel.signedIn, accountModel.addresses.count > 1 {
+                    Section {
+                        ForEach(accountModel.addresses) { address in
+                            Button {
+                                addressBookModel.updateAddress(address.name)
+                            } label: {
+                                if addressBookModel.actingAddress == address.name {
+                                    Label(address.name, systemImage: "checkmark")
+                                } else {
+                                    Label(title: { Text(address.name)}, icon: { EmptyView() })
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("Select active address")
+                    }
+                }
+                
+                Button(role: .destructive) {
+                    print("Logout")
+                } label: {
+                    Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
+                }
+            } label: {
+                Label("More", systemImage: "ellipsis.circle")
+            }
+
         }
     }
 }
