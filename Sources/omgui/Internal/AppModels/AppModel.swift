@@ -17,6 +17,7 @@ public class AppModel: ObservableObject {
     let interface: DataInterface
     
     // MARK: Authentication
+    @Published
     var accountModel: AccountModel
     
     // MARK: Fetching
@@ -29,11 +30,12 @@ public class AppModel: ObservableObject {
     public init(client: ClientInfo, dataInterface: DataInterface) {
         self.client = client
         self.interface = dataInterface
-        self.fetchConstructor = FetchConstructor(client: client, interface: dataInterface)
-        self.accountModel = .init(fetchConstructor: fetchConstructor)
+        let accountModel = AccountModel(client: client, interface: interface)
+        self.accountModel = accountModel
+        self.fetchConstructor = FetchConstructor(client: client, accountModel: accountModel, interface: dataInterface)
     }
     
-    func addressDetails(_ address: AddressName) -> AddressSummaryDataFetcher {
+    func addressDetails(_ address: AddressName, credential: APICredential? = nil) -> AddressSummaryDataFetcher {
         if let model = profileModels[address] {
             Task {
                 await model.update()

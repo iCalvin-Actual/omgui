@@ -58,7 +58,10 @@ extension AddressModel: Sharable {
     }
     
     var shareURLs: [SharePacket] {
-        [
+        guard !addressName.isEmpty else {
+            return []
+        }
+        return [
             .init(name: "Webpage", content: URL(string: "https://\(addressName).omg.lol")!)
         ]
     }

@@ -67,7 +67,7 @@ class SidebarModel: ObservableObject {
             ]
         case .account:
             var destinations = [
-                NavigationItem.account(!sceneModel.actingAddress.isEmpty)
+                NavigationItem.account(!appModel.accountModel.actingAddress.isEmpty)
             ]
             if !sceneModel.addressBook.nonGlobalBlocklist.isEmpty {
                 destinations.append(.blocked)

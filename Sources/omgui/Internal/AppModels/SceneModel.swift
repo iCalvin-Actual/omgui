@@ -12,13 +12,6 @@ class SceneModel: ObservableObject {
     @ObservedObject
     var appModel: AppModel
     
-    @SceneStorage("app.lol.address")
-    var actingAddress: AddressName = "" {
-        didSet {
-            print("SET UPDATE SOMEWHERE")
-        }
-    }
-    
     var addressBookFetcher: AddressBookDataFetcher
     
     var requests: [AnyCancellable] = []
@@ -33,6 +26,11 @@ class SceneModel: ObservableObject {
     init(appModel: AppModel) {
         self.appModel = appModel
         self.addressBook = .init(appModel: appModel)
-        self.addressBookFetcher = .init("", appModel: appModel)
+        self.addressBookFetcher = .init("", credential: appModel.accountModel.authKey, appModel: appModel)
+        
+        appModel.$accountModel.sink { model in
+            print("model \(model.signedIn)")
+        }
+        .store(in: &requests)
     }
 }

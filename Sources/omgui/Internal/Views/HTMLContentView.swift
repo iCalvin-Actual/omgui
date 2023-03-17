@@ -68,7 +68,7 @@ struct HTMLContentView_Previews: PreviewProvider {
         HTMLContentView(htmlContent: content)
             .onAppear {
                 Task {
-                    let new = try await SampleData().fetchAddressProfile("some")
+                    let new = try await SampleData().fetchAddressProfile("some", credential: nil)
                     Self.content = new?.content ?? "Failed"
                 }
             }

@@ -40,7 +40,8 @@ public protocol DataInterface {
     async throws -> [NowListing]
     
     func fetchAddressProfile(
-        _ name: AddressName
+        _ name: AddressName,
+        credential: APICredential?
     )
     async throws -> AddressProfile?
     
@@ -66,7 +67,14 @@ public protocol DataInterface {
     
     func fetchPaste(
         _ id: String,
-        from address: AddressName
+        from address: AddressName,
+        credential: APICredential?
+    )
+    async throws -> PasteModel?
+    
+    func savePaste(
+        _ draft: PasteModel,
+        credential: APICredential
     )
     async throws -> PasteModel?
     

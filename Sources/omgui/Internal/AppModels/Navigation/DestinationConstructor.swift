@@ -35,9 +35,9 @@ struct DestinationConstructor {
         case .blocked:
             ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: sceneModel.addressBook.blockFetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .following:
-            FollowingView(appModel.fetchConstructor.followingFetcher(for: sceneModel.actingAddress))
+            FollowingView(sceneModel.addressBook.followingFetcher ?? AddressFollowingDataFetcher(address: "", credential: nil, accountModel: appModel.accountModel, interface: appModel.interface))
         case .addressFollowing(let name):
-            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: appModel.fetchConstructor.followingFetcher(for: name), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: appModel.fetchConstructor.followingFetcher(for: name, credential: appModel.accountModel.credential(for: name)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .nowGarden:
             GardenView(fetcher: appModel.fetchConstructor.nowGardenFetcher())
         case .account:

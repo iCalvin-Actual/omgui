@@ -225,28 +225,65 @@ class AddressBioDataFetcher: DataFetcher {
 
 class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     let address: AddressName
+    let credential: APICredential?
+    let accountModel: AccountModel
     
     override var title: String {
         "following"
     }
     
-    init(address: AddressName, interface: DataInterface) {
+    init(address: AddressName, credential: APICredential?, accountModel: AccountModel, interface: DataInterface) {
         self.address = address
+        self.credential = credential
+        self.accountModel = accountModel
         super.init(interface: interface)
     }
     
     override func throwingUpdate() async throws {
         try await super.throwingUpdate()
         Task {
-            guard let content = try await interface.fetchPaste("app.lol.following", from: address)?.content else {
+            guard let content = try await interface.fetchPaste("app.lol.following", from: address, credential: credential)?.content else {
                 self.fetchFinished()
                 return
             }
-            let list = content.split(separator: "\n").map({ String($0) })
-            DispatchQueue.main.async {
-                self.listItems = list.map({ AddressModel(name: $0) })
-                self.fetchFinished()
-            }
+            let list = content.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty })
+            self.handleItems(list)
+        }
+    }
+    
+    private func handleItems(_ addresses: [AddressName]) {
+        DispatchQueue.main.async {
+            self.listItems = addresses.map({ AddressModel(name: $0) })
+            self.fetchFinished()
+            self.threadSafeSendUpdate()
+        }
+    }
+    
+    func follow(_ toFollow: AddressName, credential: APICredential) {
+        let newValue = Array(Set(self.listItems.map({ $0.name }) + [toFollow]))
+        let newContent = newValue.joined(separator: "\n")
+        let newPaste = PasteModel(
+            owner: address,
+            name: "app.lol.following",
+            content: newContent
+        )
+        Task {
+            let _ = try await self.interface.savePaste(newPaste, credential: credential)
+            self.handleItems(newValue)
+        }
+    }
+    
+    func unFollow(_ toRemove: AddressName, credential: APICredential) {
+        let newValue = listItems.map({ $0.name }).filter({ $0 != toRemove })
+        let newContent = newValue.joined(separator: "\n")
+        let newPaste = PasteModel(
+            owner: address,
+            name: "app.lol.following",
+            content: newContent
+        )
+        Task {
+            let _ = try await self.interface.savePaste(newPaste, credential: credential)
+            self.handleItems(newValue)
         }
     }
 }
@@ -264,7 +301,7 @@ class AddressBookDataFetcher: DataFetcher {
     
     var requests: [AnyCancellable] = []
     
-    init(_ address: AddressName, appModel: AppModel) {
+    init(_ address: AddressName, credential: APICredential?, appModel: AppModel) {
         self.address = address
         self.appModel = appModel
         let fetchConstructor = appModel.fetchConstructor
@@ -272,13 +309,13 @@ class AddressBookDataFetcher: DataFetcher {
         self.directoryModel = fetchConstructor.addressDirectoryDataFetcher()
         self.pinnedModel = PinnedListDataFetcher(interface: appModel.interface)
         self.localBlocklistFetcher = LocalBlockListDataFetcher(interface: appModel.interface)
-        self.followModel = fetchConstructor.followingFetcher(for: address)
-        self.globalBlocklistFetcher = fetchConstructor.blockListFetcher(for: "app")
+        self.followModel = fetchConstructor.followingFetcher(for: address, credential: credential)
+        self.globalBlocklistFetcher = fetchConstructor.blockListFetcher(for: "app", credential: nil)
         
         self.blockedModel = .init(
             globalFetcher: globalBlocklistFetcher,
             localFetcher: localBlocklistFetcher,
-            addressFetcher: appModel.fetchConstructor.blockListFetcher(for: address),
+            addressFetcher: fetchConstructor.blockListFetcher(for: address, credential: credential),
             interface: appModel.interface)
         
         super.init(interface: appModel.interface)
@@ -287,10 +324,16 @@ class AddressBookDataFetcher: DataFetcher {
     }
     
     private func updateBlockedFetcher() {
+        let credential: APICredential? = {
+            guard appModel.accountModel.myAddressesFetcher?.listItems.map({ $0.name }).contains(address) ?? false else {
+                return nil
+            }
+            return appModel.accountModel.authKey
+        }()
         self.blockedModel = .init(
             globalFetcher: globalBlocklistFetcher,
             localFetcher: localBlocklistFetcher,
-            addressFetcher: appModel.fetchConstructor.blockListFetcher(for: address),
+            addressFetcher: appModel.fetchConstructor.blockListFetcher(for: address, credential: credential),
             interface: interface
         )
         blockedModel.$listItems.sink(receiveValue: { _ in
@@ -312,10 +355,14 @@ class BlockListDataFetcher: ListDataFetcher<AddressModel> {
     
     override var listItems: [AddressModel] {
         get {
-            (addressBlocklistFetcher?.listItems ?? []) + globalBlocklistFetcher.listItems + (localBloclistFetcher?.listItems ?? [])
+            Array(Set((addressBlocklistFetcher?.listItems ?? []) + (localBloclistFetcher?.listItems ?? [])))
         }
         set {
         }
+    }
+    
+    var allItems: [AddressModel] {
+        listItems + globalBlocklistFetcher.listItems
     }
     
     init(
@@ -346,10 +393,16 @@ class BlockListDataFetcher: ListDataFetcher<AddressModel> {
     func updateList() {
         let local = localBloclistFetcher?.listItems ?? []
         let address = addressBlocklistFetcher?.listItems ?? []
-        
-        self.listItems = globalBlocklistFetcher.listItems + local + address
+        self.listItems = local + address
         self.fetchFinished()
         self.threadSafeSendUpdate()
+    }
+    
+    func block(_ address: AddressName, credential: APICredential?) {
+        if addressBlocklistFetcher != nil, let credential = credential {
+            addressBlocklistFetcher?.block(address, credential: credential)
+        }
+        localBloclistFetcher?.insert(address)
     }
     
     func insertItems(_ newItems: [AddressModel]) {
@@ -466,36 +519,67 @@ class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
 
 class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     let address: AddressName
+    let credential: APICredential?
+    
+    @ObservedObject
+    var accountModel: AccountModel
     
     override var title: String {
         "blocked from \(address)"
     }
     
-    init(address: AddressName, interface: DataInterface) {
+    init(address: AddressName, credential: APICredential?,  accountModel: AccountModel, interface: DataInterface) {
         self.address = address
+        self.accountModel = accountModel
+        self.credential = credential
         super.init(interface: interface)
     }
     
     override func throwingUpdate() async throws {
         try await super.throwingUpdate()
-        Task {
-            let paste = try await interface.fetchPaste("app.lol.blocked", from: address)
-            let blocked = paste?.content?.split(separator: "\n").map({ AddressModel(name: String($0)) }) ?? []
-            DispatchQueue.main.async {
-                self.listItems = blocked
-                self.fetchFinished()
-            }
+        let paste = try await interface.fetchPaste("app.lol.blocked", from: address, credential: accountModel.credential(for: address))
+        let list = paste?.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }) ?? []
+        DispatchQueue.main.async {
+            self.listItems = list.map({ AddressModel(name: $0) })
+            self.fetchFinished()
         }
     }
     
-    func block(_ address: AddressName) {
-        let existingItems = listItems.map({ $0.name })
-        let newItems = existingItems + [address]
+    func block(_ toBlock: AddressName, credential: APICredential) {
+        let newValue = Array(Set(self.listItems.map({ $0.name }) + [toBlock]))
+        let newContent = newValue.joined(separator: "\n")
+        let newPaste = PasteModel(
+            owner: address,
+            name: "app.lol.blocked",
+            content: newContent
+        )
+        Task {
+            let _ = try await self.interface.savePaste(newPaste, credential: credential)
+            self.handleItems(newValue)
+        }
         
     }
     
-    func unBlock(_ address: AddressName) {
-        
+    func unBlock(_ toUnblock: AddressName, credential: APICredential) {
+        let newValue = listItems.map({ $0.name }).filter({ $0 != toUnblock })
+        let newContent = newValue.joined(separator: "\n")
+        let newPaste = PasteModel(
+            owner: address,
+            name: "app.lol.blocked",
+            content: newContent
+        )
+        Task {
+            let _ = try await self.interface.savePaste(newPaste, credential: credential)
+            self.handleItems(newValue)
+        }
+    }
+    
+    private func handleItems(_ addresses: [AddressName]) {
+        DispatchQueue.main.async {
+            self.listItems = addresses.map({ AddressModel(name: $0) })
+            self.fetchFinished()
+            self.threadSafeSendUpdate()
+        }
     }
 }
 
@@ -552,18 +636,20 @@ class NowGardenDataFetcher: ListDataFetcher<NowListing> {
 class AddressProfileDataFetcher: DataFetcher {
     
     let addressName: AddressName
+    let credential: APICredential?
     
     var html: String?
     
-    init(name: AddressName, interface: DataInterface) {
+    init(name: AddressName, credential: APICredential? = nil, interface: DataInterface) {
         self.addressName = name
+        self.credential = credential
         super.init(interface: interface)
     }
     
     override func throwingUpdate() async throws {
         try await super.throwingUpdate()
         Task {
-            let profile = try await interface.fetchAddressProfile(addressName)
+            let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
             self.html = profile?.content
             self.fetchFinished()
         }
@@ -651,6 +737,8 @@ class AddressSummaryDataFetcher: DataFetcher {
     
     let addressName: AddressName
     
+    let accountModel: AccountModel
+    
     var verified: Bool?
     var url: URL?
     var registered: Date?
@@ -673,18 +761,21 @@ class AddressSummaryDataFetcher: DataFetcher {
         pasteFetcher: AddressPasteBinDataFetcher? = nil,
         blockedFetcher: AddressBlockListDataFetcher? = nil,
         followingFetcher: AddressFollowingDataFetcher? = nil,
+        accountModel: AccountModel,
         interface: DataInterface
     ) {
         self.addressName = name
-        self.profileFetcher = profileFetcher ?? .init(name: name, interface: interface)
+        let credential = accountModel.credential(for: name)
+        self.profileFetcher = profileFetcher ?? .init(name: name, credential: credential, interface: interface)
         self.nowFetcher = nowFetcher ?? .init(name: name, interface: interface)
         self.purlFetcher = purlFetcher ?? .init(name: name, interface: interface)
         self.pasteFetcher = pasteFetcher ?? .init(name: name, interface: interface)
         self.statusFetcher = .init(addresses: [name], interface: interface)
         self.bioFetcher = .init(address: name, interface: interface)
         
-        self.blockedFetcher = blockedFetcher ?? .init(address: name, interface: interface)
-        self.followingFetcher = followingFetcher ?? .init(address: name, interface: interface)
+        self.blockedFetcher = blockedFetcher ?? .init(address: name, credential: credential, accountModel: accountModel, interface: interface)
+        self.followingFetcher = followingFetcher ?? .init(address: name, credential: credential, accountModel: accountModel, interface: interface)
+        self.accountModel = accountModel
         
         super.init(interface: interface)
     }

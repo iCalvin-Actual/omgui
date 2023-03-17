@@ -12,17 +12,24 @@ class AccountModel: DataFetcher {
     @AppStorage("app.lol.auth", store: .standard)
     var authKey: String = ""
     
-    private let fetchConstructor: FetchConstructor
+    @SceneStorage("app.lol.address")
+    var actingAddress: AddressName = "" {
+        didSet {
+            print("SET UPDATE SOMEWHERE")
+        }
+    }
+    
+    private var fetchConstructor: FetchConstructor?
     
     private var authenticationFetcher: AccountAuthDataFetcher
+    public var myAddressesFetcher: AccountAddressDataFetcher?
     private var accountInfoFetcher: AccountInfoDataFetcher?
     
     private var requests: [AnyCancellable] = []
     
-    init(fetchConstructor: FetchConstructor) {
-        self.fetchConstructor = fetchConstructor
-        self.authenticationFetcher = fetchConstructor.credentialFetcher()
-        super.init(interface: fetchConstructor.interface)
+    init(client: ClientInfo, interface: DataInterface) {
+        self.authenticationFetcher = AccountAuthDataFetcher(client: client, interface: interface)
+        super.init(interface: interface)
         
         authenticationFetcher.$authToken.sink { [self] newValue in
             let newValue = newValue ?? ""
@@ -37,18 +44,37 @@ class AccountModel: DataFetcher {
         self.resetFetchers()
     }
     
+    func constructAccountAddressesFetcher(_ credential: APICredential) -> AccountAddressDataFetcher? {
+        return AccountAddressDataFetcher(interface: interface, credential: credential)
+    }
+    
+    func constructAccountInfoFetcher(_ name: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {
+        return AccountInfoDataFetcher(address: name, interface: interface, credential: credential)
+    }
+    
     func resetFetchers() {
-        if !authKey.isEmpty, let first = addresses.first {
-            self.accountInfoFetcher = fetchConstructor.accountInfoFetcher(for: first.name, credential: authKey)
-            accountInfoFetcher?.$accountName.sink { [self] newValue in
-                DispatchQueue.main.async {
-                    self.objectWillChange.send()
-                }
-            }
-            .store(in: &requests)
-        } else {
+        guard !authKey.isEmpty else {
             accountInfoFetcher = nil
+            myAddressesFetcher = nil
+            return
         }
+        myAddressesFetcher = constructAccountAddressesFetcher(authKey)
+        myAddressesFetcher?.$listItems.sink { addresses in
+            self.addresses = addresses
+            
+            if let first = addresses.first {
+                self.accountInfoFetcher = self.constructAccountInfoFetcher(first.name, credential: self.authKey)
+                print("New fetcher")
+                self.accountInfoFetcher?.$accountName.sink { [self] newValue in
+                    DispatchQueue.main.async {
+                        self.objectWillChange.send()
+                    }
+                }
+                .store(in: &self.requests)
+                
+            }
+        }
+        .store(in: &requests)
     }
     
     var displayName: String {
@@ -91,21 +117,11 @@ class AccountModel: DataFetcher {
     override func throwingUpdate() async throws {
         await accountInfoFetcher?.update()
     }
-}
-
-extension AccountModel {
-    var blocked: [AddressName] {
-        [
-        ]
-    }
     
-    var following: [AddressName] {
-        [
-        ]
-    }
-    
-    var pinned: [AddressName] {
-        [
-        ]
+    public func credential(for address: AddressName) -> APICredential? {
+        guard !authKey.isEmpty, addresses.map({ $0.name }).contains(address) else {
+            return nil
+        }
+        return authKey
     }
 }

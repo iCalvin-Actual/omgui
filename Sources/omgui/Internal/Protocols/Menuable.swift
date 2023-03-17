@@ -71,8 +71,28 @@ extension AddressModel: Menuable {
     func contextMenu(with sceneModel: SceneModel) -> some View {
         let isBlocked = sceneModel.addressBook.isBlocked(name)
         let isPinned = sceneModel.addressBook.isPinned(name)
+        let canFollow = sceneModel.addressBook.canFollow(name)
+        let canUnfollow = sceneModel.addressBook.canUnfollow(name)
         Group {
             if !isBlocked {
+                if canFollow {
+                    Button(action: {
+                        withAnimation {
+                            sceneModel.addressBook.follow(name)
+                        }
+                    }, label: {
+                        Label("Follow", systemImage: "plus.circle")
+                    })
+                } else if canUnfollow {
+                    Button(action: {
+                        withAnimation {
+                            sceneModel.addressBook.removeFollow(name)
+                        }
+                    }, label: {
+                        Label("Un-follow", systemImage: "minus.circle")
+                    })
+                }
+                
                 if isPinned {
                     Button(action: {
                         withAnimation {
@@ -92,7 +112,6 @@ extension AddressModel: Menuable {
                 }
                 
                 Divider()
-                
                 
                 self.shareSection()
                 

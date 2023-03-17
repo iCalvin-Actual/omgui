@@ -71,9 +71,9 @@ public struct PasteModel: Hashable, Identifiable, RawRepresentable, Codable {
     public var rawValue: String {
         owner+Self.separator+name+Self.separator+(content ?? "")
     }
-    let owner: AddressName
-    let name: String
-    var content: String?
+    public let owner: AddressName
+    public let name: String
+    public var content: String?
     
     public init(owner: AddressName, name: String, content: String? = nil) {
         self.owner = owner

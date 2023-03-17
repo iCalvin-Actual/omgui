@@ -84,7 +84,7 @@ public class SampleData: DataInterface {
         ]
     }
     
-    public func fetchPaste(_ id: String, from address: AddressName) async throws -> PasteModel? {
+    public func fetchPaste(_ id: String, from address: AddressName, credential: APICredential? = nil) async throws -> PasteModel? {
         try await Task.sleep(nanoseconds: artificalDelay)
         if id == "app.lol.following" {
             return .followed(with: address)
@@ -92,6 +92,13 @@ public class SampleData: DataInterface {
             return .blocked(with: address)
         }
         return .sample(with: address)
+    }
+    
+    public func savePaste(
+        _ draft: PasteModel,
+        credential: APICredential
+    ) async throws -> PasteModel? {
+        try await fetchPaste(draft.id, from: draft.owner, credential: credential)
     }
     
     public func fetchStatusLog() async throws -> [StatusModel] {
@@ -120,7 +127,7 @@ public class SampleData: DataInterface {
         return .init(address: name, bio: content)
     }
     
-    public func fetchAddressProfile(_ name: AddressName) async throws -> AddressProfile? {
+    public func fetchAddressProfile(_ name: AddressName, credential: APICredential?) async throws -> AddressProfile? {
         try await Task.sleep(nanoseconds: artificalDelay)
         let content = String.htmlContent
         return .init(owner: name, content: content)
