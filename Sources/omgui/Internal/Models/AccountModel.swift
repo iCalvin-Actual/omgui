@@ -13,11 +13,7 @@ class AccountModel: DataFetcher {
     var authKey: String = ""
     
     @SceneStorage("app.lol.address")
-    var actingAddress: AddressName = "" {
-        didSet {
-            print("SET UPDATE SOMEWHERE")
-        }
-    }
+    var actingAddress: AddressName = ""
     
     private var fetchConstructor: FetchConstructor?
     
@@ -64,7 +60,6 @@ class AccountModel: DataFetcher {
             
             if let first = addresses.first {
                 self.accountInfoFetcher = self.constructAccountInfoFetcher(first.name, credential: self.authKey)
-                print("New fetcher")
                 self.accountInfoFetcher?.$accountName.sink { [self] newValue in
                     DispatchQueue.main.async {
                         self.objectWillChange.send()

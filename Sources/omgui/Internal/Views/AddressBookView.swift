@@ -11,11 +11,7 @@ import SwiftUI
 
 class AddressBookModel: DataFetcher {
     @Published
-    var address: AddressName? {
-        didSet {
-            print("Did Set Address")
-        }
-    }
+    var address: AddressName?
     
     @ObservedObject
     var appModel: AppModel
@@ -101,7 +97,6 @@ class AddressBookModel: DataFetcher {
         }
         .store(in: &requests)
         blockFetcher.$listItems.sink { newBlocked in
-            print("NewBlocked \(newBlocked.count)")
             self.threadSafeSendUpdate()
         }
         .store(in: &requests)

@@ -102,7 +102,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         case .account:
             return "person"
         case .blocked:
-            return "hand.raised.circle"
+            return "hand.raised"
         }
     }
     

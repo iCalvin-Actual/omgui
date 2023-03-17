@@ -16,11 +16,7 @@ struct AccountView: View {
     var accountModel: AccountModel
     
     @State
-    var selected: AddressModel? = nil {
-        didSet {
-            print("Change Selected?")
-        }
-    }
+    var selected: AddressModel? = nil
     
     var requests: [AnyCancellable] = []
     
