@@ -25,8 +25,8 @@ struct FollowingView: View {
     
     @ViewBuilder
     var followingView: some View {
-        if sceneModel.appModel.accountModel.signedIn {
-            listView
+        if sceneModel.addressBook.followingFetcher != nil {
+            StatusList(fetcher: sceneModel.appModel.fetchConstructor.statusLog(for: sceneModel.addressBook.followingItems.map { $0.name }), context: .column)
         } else {
             signedOutView
                 .toolbar {
@@ -40,9 +40,5 @@ struct FollowingView: View {
     @ViewBuilder
     var signedOutView: some View {
         Text("Signed Out")
-    }
-    
-    var listView: some View {
-        ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .everyone, dataFetcher: fetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
     }
 }

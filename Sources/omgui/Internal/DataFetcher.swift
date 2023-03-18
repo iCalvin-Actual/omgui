@@ -603,7 +603,11 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
     let addresses: [AddressName]
     
     override var title: String {
-        "status.lol"
+        if addresses.count > 0 {
+            return "statuses"
+        } else {
+            return "status.lol"
+        }
     }
     
     init(addresses: [AddressName] = [], statuses: [StatusModel] = [], interface: DataInterface) {
