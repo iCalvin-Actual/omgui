@@ -27,11 +27,11 @@ struct DestinationConstructor {
         case .community:
             StatusList(fetcher: fetchConstructor.generalStatusLog(), context: .column)
         case .address(let name):
-            AddressSummaryView(addressSummaryFetcher: fetchConstructor.addressDetailsFetcher(name), context: .profile)
+            AddressSummaryView(addressSummaryFetcher: appModel.addressDetails(name), context: .profile)
         case .webpage(let name):
-            AddressProfileView(fetcher: fetchConstructor.addressDetailsFetcher(name).profileFetcher)
+            AddressProfileView(fetcher: appModel.addressDetails(name).profileFetcher)
         case .now(let name):
-            AddressNowView(fetcher: appModel.fetchConstructor.addressDetailsFetcher(name).nowFetcher)
+            AddressNowView(fetcher: appModel.addressDetails(name).nowFetcher)
         case .blocked:
             ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: sceneModel.addressBook.blockFetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .following:

@@ -17,11 +17,13 @@ struct SplitView: View {
     var body: some View {
         NavigationSplitView {
             Sidebar(selected: $selected, model: .init(sceneModel: sceneModel))
+                .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
         } content: {
-            sceneModel.destinationConstructor.destination(selected?.destination)
+            let destination = selected?.destination ?? .lists
+            sceneModel.destinationConstructor.destination(destination)
                 .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
         } detail: {
-            sceneModel.destinationConstructor.destination(.address("app"))
+            sceneModel.destinationConstructor.destination(.webpage("app"))
         }
 
     }
