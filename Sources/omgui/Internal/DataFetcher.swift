@@ -71,19 +71,21 @@ class DataFetcher: NSObject, ObservableObject {
 class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContextProviding {
     private var webSession: ASWebAuthenticationSession?
     
+    private var url: URL?
+    private var client: ClientInfo
+    
     @Published
     var authToken: String?
     
-    init(client: ClientInfo, interface: DataInterface) {
-        super.init(interface: interface, autoLoad: false)
-        guard let url = interface.authURL() else {
+    func recreateWebSession() {
+        guard let url = url else {
             return
         }
         self.webSession = ASWebAuthenticationSession(
             url: url,
             callbackURLScheme: client.urlScheme
-        ) { (url, error) in
-            guard let url = url else {
+        ) { (callbackUrl, error) in
+            guard let callbackUrl = callbackUrl else {
                 if let error = error {
                     print("Error \(error)")
                 } else {
@@ -91,13 +93,14 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
                 }
                 return
             }
-            let components = URLComponents(url: url, resolvingAgainstBaseURL: true)
+            let components = URLComponents(url: callbackUrl, resolvingAgainstBaseURL: true)
             
             guard let code = components?.queryItems?.filter ({ $0.name == "code" }).first?.value else {
                 return
             }
+            let client = self.client
             Task {
-                let token = try await interface.fetchAccessToken(
+                let token = try await self.interface.fetchAccessToken(
                     authCode: code,
                     clientID: client.id,
                     clientSecret: client.secret,
@@ -109,14 +112,27 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
         self.webSession?.presentationContextProvider = self
     }
     
+    init(client: ClientInfo, interface: DataInterface) {
+        self.client = client
+        super.init(interface: interface, autoLoad: false)
+        self.url = interface.authURL()
+        self.recreateWebSession()
+    }
+    
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         return ASPresentationAnchor()
     }
     
     override func throwingUpdate() async throws {
+        recreateWebSession()
         DispatchQueue.main.async {
             self.webSession?.start()
         }
+    }
+    
+    override func fetchFinished() {
+        super.fetchFinished()
+        recreateWebSession()
     }
 }
 

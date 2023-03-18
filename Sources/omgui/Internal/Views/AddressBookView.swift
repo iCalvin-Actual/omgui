@@ -16,6 +16,9 @@ class AddressBookModel: DataFetcher {
     @ObservedObject
     var appModel: AppModel
     
+    @ObservedObject
+    var accountModel: AccountModel
+    
     let fetchConstructor: FetchConstructor
     
     @ObservedObject
@@ -49,6 +52,7 @@ class AddressBookModel: DataFetcher {
     init(address: AddressName? = nil, appModel: AppModel) {
         self.address = address
         self.appModel = appModel
+        self.accountModel = appModel.accountModel
         self.fetchConstructor = appModel.fetchConstructor
         
         self.directoryFetcher = fetchConstructor.directoryFetcher
@@ -248,10 +252,26 @@ struct AddressBookView: View {
         !addressBookModel.nonGlobalBlocklist.isEmpty
     }
     
+    @State var showConfirmLogout: Bool = false
+    
     @ViewBuilder
     var accountHeader: some View {
-        VStack(alignment: .leading) {
+        if accountModel.signedIn {
             ListRow<AddressModel>(model: .init(name: addressBookModel.actingAddress), preferredStyle: .minimal)
+        } else {
+            HStack {
+                Button("omg.lol sign in") {
+                    DispatchQueue.main.async {
+                        Task {
+                            await accountModel.authenticate()
+                        }
+                    }
+                }
+                .padding()
+                .background(Color.lolRandom(Int.random(in: 0...10)))
+                .cornerRadius(16)
+                .frame(maxWidth: .infinity)
+            }
         }
     }
     
@@ -288,7 +308,7 @@ struct AddressBookView: View {
     var body: some View {
         ListView(
             allowSearch: showSearch,
-            allowFilter: false,
+            allowFilter: showSearch,
             dataFetcher: addressBookModel.primaryFetcher,
             rowBuilder: { _ in return nil as ListRow<AddressModel>? },
             headerBuilder: {
@@ -307,40 +327,54 @@ struct AddressBookView: View {
                 }
             }
         )
+        .onReceive(accountModel.objectWillChange) { newValue in
+            if addressBookModel.actingAddress.isEmpty, let first = accountModel.addresses.first {
+                addressBookModel.updateAddress(first.name)
+            } else if !addressBookModel.actingAddress.isEmpty, accountModel.addresses.isEmpty {
+                addressBookModel.updateAddress("")
+            }
+        }
+        .alert("Logout", isPresented: $showConfirmLogout) {
+            Button("Cancel", role: .cancel) { }
+            Button("Yes", role: .destructive) {
+                accountModel.logout()
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 ThemedTextView(text: accountModel.welcomeText)
             }
         }
         .toolbar {
-            Menu {
-                if accountModel.signedIn, accountModel.addresses.count > 1 {
-                    Section {
-                        ForEach(accountModel.addresses) { address in
-                            Button {
-                                addressBookModel.updateAddress(address.name)
-                            } label: {
-                                if addressBookModel.actingAddress == address.name {
-                                    Label(address.name, systemImage: "checkmark")
-                                } else {
-                                    Label(title: { Text(address.name)}, icon: { EmptyView() })
+            if accountModel.signedIn {
+                Menu {
+                    if accountModel.addresses.count > 1 {
+                        Section {
+                            ForEach(accountModel.addresses) { address in
+                                Button {
+                                    addressBookModel.updateAddress(address.name)
+                                } label: {
+                                    if addressBookModel.actingAddress == address.name {
+                                        Label(address.name, systemImage: "checkmark")
+                                    } else {
+                                        Label(title: { Text(address.name)}, icon: { EmptyView() })
+                                    }
                                 }
                             }
+                        } header: {
+                            Text("Select active address")
                         }
-                    } header: {
-                        Text("Select active address")
                     }
-                }
-                
-                Button(role: .destructive) {
-                    print("Logout")
+                    
+                    Button(role: .destructive) {
+                        self.showConfirmLogout.toggle()
+                    } label: {
+                        Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
+                    }
                 } label: {
-                    Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
+                    Label("More", systemImage: "ellipsis.circle")
                 }
-            } label: {
-                Label("More", systemImage: "ellipsis.circle")
             }
-
         }
     }
 }
