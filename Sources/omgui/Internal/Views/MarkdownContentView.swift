@@ -12,7 +12,7 @@ struct MarkdownContentView: View {
     let content: String?
     
     var strippingComments: String? {
-        let markdownComment = try! Regex(#"(?s)\/\*.*?\*\/|\/\/.*?\n"#)
+        let markdownComment = try! Regex(#"(?s)\/\*.*?\*\/|\/\/.*?\r\n"#)
         return content?.replacing(markdownComment, with: "")
     }
     

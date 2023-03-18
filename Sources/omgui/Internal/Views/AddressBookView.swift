@@ -24,9 +24,8 @@ class AddressBookModel: DataFetcher {
     @ObservedObject
     var directoryFetcher: AddressDirectoryDataFetcher
     @ObservedObject
-    var blockFetcher: BlockListDataFetcher
-    @ObservedObject
     var pinnedFetcher: PinnedListDataFetcher
+    var blockFetcher: BlockListDataFetcher
     var followingFetcher: AddressFollowingDataFetcher?
     
     var myAddressesFetcher: AccountAddressDataFetcher?
