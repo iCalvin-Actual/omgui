@@ -107,7 +107,7 @@ struct AddressSummaryView: View {
             Spacer()
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .automatic) {
                 AddressNameView(addressSummaryFetcher.addressName)
             }
         }
@@ -119,6 +119,8 @@ struct AddressSummaryView: View {
         sceneModel.destinationConstructor.destination(workingItem.destination(addressSummaryFetcher.addressName))
             .ignoresSafeArea(.container, edges: [.bottom, .leading, .trailing])
             .navigationSplitViewColumnWidth(min: 250, ideal: 600)
+        #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }

@@ -66,18 +66,20 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     var body: some View {
         searchableIfNeeded
+#if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+#endif
             .navigationTitle("")
             .toolbar {
                 let sortOptions = T.sortOptions
                 if sortOptions.count > 1, dataFetcher.listItems.count > 1, allowFilter {
-                    ToolbarItem(placement: .navigationBarTrailing) {
+                    ToolbarItem(placement: .automatic) {
                         SortOrderMenu(sort: $sort, options: T.sortOptions)
                     }
                 }
                 
                 if headerBuilder == nil {
-                    ToolbarItem(placement: .navigationBarLeading) {
+                    ToolbarItem(placement: .automatic) {
                         ThemedTextView(text: dataFetcher.title)
                     }
                 }

@@ -71,10 +71,12 @@ struct DirectoryView: View {
             SortOrderMenu(sort: $sort, options: AddressModel.sortOptions)
         })
         .listStyle(.plain)
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
         .navigationTitle("")
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .automatic) {
                 ThemedTextView(text: "directory")
             }
         }

@@ -30,7 +30,7 @@ struct FollowingView: View {
         } else {
             signedOutView
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
+                    ToolbarItem(placement: .automatic) {
                         ThemedTextView(text: "following")
                     }
                 }

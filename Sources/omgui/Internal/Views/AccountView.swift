@@ -25,7 +25,7 @@ struct AccountView: View {
     var body: some View {
         appropriateBody
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .automatic) {
                     ThemedTextView(text: "Hello \(accountModel.displayName)")
                 }
             }
@@ -114,7 +114,9 @@ struct AccountView: View {
                     await fetcher.update()
                 })
                 .listStyle(.plain)
+#if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
+#endif
             }
             Button {
                 // Show Login

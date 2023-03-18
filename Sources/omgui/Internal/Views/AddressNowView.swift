@@ -14,7 +14,7 @@ struct AddressNowView: View {
     var body: some View {
         MarkdownContentView(content: fetcher.content)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .automatic) {
                     ThemedTextView(text: AddressContent.now.externalUrlString(for: fetcher.addressName), font: .callout)
                         .fontDesign(.monospaced)
                 }

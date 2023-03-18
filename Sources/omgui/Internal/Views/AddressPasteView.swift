@@ -24,7 +24,7 @@ struct AddressPasteView: View {
             rowBuilder: pasteView(_:)
         )
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .automatic) {
                 ThemedTextView(text: AddressContent.pastebin.externalUrlString(for: fetcher.addressName), font: .callout)
                     .fontDesign(.monospaced)
             }

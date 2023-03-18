@@ -9,6 +9,28 @@ import SwiftUI
 import Foundation
 import WebKit
 
+#if os(macOS)
+struct HTMLContentView: NSViewRepresentable {
+    
+    class Coordinator: NSObject {
+    }
+    
+    let htmlContent: String?
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
+    func makeNSView(context: Context) -> NSView {
+        NSView()
+    }
+    
+    func updateNSView(_ nsView: NSView, context: Context) {
+    }
+}
+#endif
+
+#if os(iOS)
 struct HTMLContentView: UIViewRepresentable {
     
     class Coordinator: NSObject, WKNavigationDelegate {
@@ -59,6 +81,7 @@ struct HTMLContentView: UIViewRepresentable {
         context.coordinator.showContent(htmlContent, in: uiView)
     }
 }
+#endif
 
 struct HTMLContentView_Previews: PreviewProvider {
     @State

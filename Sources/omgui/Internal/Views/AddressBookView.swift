@@ -341,7 +341,7 @@ struct AddressBookView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .automatic) {
                 ThemedTextView(text: accountModel.welcomeText)
             }
         }

@@ -14,7 +14,7 @@ struct AddressProfileView: View {
     var body: some View {
         HTMLContentView(htmlContent: fetcher.html)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .automatic) {
                     ThemedTextView(text: AddressContent.profile.externalUrlString(for: fetcher.addressName), font: .callout)
                         .fontDesign(.monospaced)
                 }

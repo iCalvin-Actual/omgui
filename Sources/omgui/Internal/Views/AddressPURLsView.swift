@@ -21,7 +21,7 @@ struct AddressPURLView: View {
             rowBuilder: purlView(_:)
         )
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .automatic) {
                 ThemedTextView(text: AddressContent.purl.externalUrlString(for: fetcher.addressName), font: .callout)
                     .fontDesign(.monospaced)
             }

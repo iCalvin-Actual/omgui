@@ -22,7 +22,7 @@ struct AddressStatusesView: View {
             StatusList(fetcher: fetcher, context: .profile)
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .automatic) {
                 ThemedTextView(text: AddressContent.statuslog.externalUrlString(for: fetcher.addresses.first!), font: .callout)
                     .fontDesign(.monospaced)
             }
