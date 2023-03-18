@@ -166,6 +166,10 @@ public struct StatusModel: Hashable, Identifiable {
     var displayEmoji: String {
         emoji ?? "✨"
     }
+    
+    var urlString: String {
+        "https://\(address).status.lol/\(id)"
+    }
 }
 
 public struct GroupStatusLogModel {
