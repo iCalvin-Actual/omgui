@@ -111,6 +111,7 @@ class AccountModel: DataFetcher {
     func logout() {
         DispatchQueue.main.async {
             self.authKey = ""
+            self.addresses = []
             self.resetFetchers()
             self.objectWillChange.send()
         }
@@ -118,6 +119,7 @@ class AccountModel: DataFetcher {
     
     override func throwingUpdate() async throws {
         await accountInfoFetcher?.update()
+        await myAddressesFetcher?.update()
     }
     
     public func credential(for address: AddressName) -> APICredential? {

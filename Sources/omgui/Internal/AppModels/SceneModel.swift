@@ -27,5 +27,10 @@ class SceneModel: ObservableObject {
         self.appModel = appModel
         self.addressBook = .init(appModel: appModel)
         self.addressBookFetcher = .init("", credential: appModel.accountModel.authKey, appModel: appModel)
+        
+        appModel.accountModel.objectWillChange.sink { newModel in
+            self.addressBook.receive(accountModel: appModel.accountModel)
+        }
+        .store(in: &requests)
     }
 }

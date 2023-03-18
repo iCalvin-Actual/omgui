@@ -17,9 +17,10 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     case nowGarden
     case community
     case following
+    case followingStatuses
+    case followingAddresses
     
     case pinnedAddress(_ address: AddressName)
-    case account(_ signedIn: Bool)
     case blocked
     
     var rawValue: String {
@@ -30,7 +31,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         case .pinnedAddress(let address):     return "pinned.\(address)"
         case .community:                return "community"
         case .following:                return "following"
-        case .account(let signedIn):    return "account.\(signedIn)"
+        case .followingStatuses:        return "following.statuses"
+        case .followingAddresses:       return "following.addresses"
         case .blocked:                  return "blocked"
         }
     }
@@ -42,17 +44,24 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         case "search":      self = .search
         case "garden":      self = .nowGarden
         case "community":   self = .community
-        case "following":   self = .following
+        case "following":
+            guard splitString.count > 1 else {
+                self = .following
+                return
+            }
+            switch splitString[1] {
+            case "addresses":
+                self = .followingAddresses
+            case "statuses":
+                self = .followingStatuses
+            default:
+                self = .following
+            }
         case "pinned":
             guard splitString.count > 1 else {
                 return nil
             }
             self = .pinnedAddress(splitString[1])
-        case "account":
-            guard splitString.count > 1 else {
-                return nil
-            }
-            self = .account(splitString[1].boolValue)
         case "blocked":
             self = .blocked
         default:
@@ -66,7 +75,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return "Address Book"
         case .community:
             return "Community"
-        case .following:
+        case .following, .followingStatuses, .followingAddresses:
             return "Following"
         case .nowGarden:
             return "Now Garden"
@@ -74,12 +83,6 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return address.addressDisplayString
         case .search:
             return "Search"
-        case .account(let signedIn):
-            if !signedIn {
-                return "Sign In"
-            } else {
-                return "Account"
-            }
         case .blocked:
             return "Blocked"
         }
@@ -95,12 +98,10 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return "camera.macro"
         case .community:
             return "globe"
-        case .following:
+        case .following, .followingStatuses, .followingAddresses:
             return "person.2"
         case .pinnedAddress:
             return "pin"
-        case .account:
-            return "person"
         case .blocked:
             return "hand.raised"
         }
@@ -133,10 +134,12 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return .community
         case .following:
             return .following
+        case .followingStatuses:
+            return .followingStatuses
+        case .followingAddresses:
+            return .followingAddresses
         case .pinnedAddress(let name):
             return .address(name)
-        case .account:
-            return .account
         case .blocked:
             return .blocked
         }

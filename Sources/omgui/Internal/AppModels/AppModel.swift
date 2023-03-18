@@ -37,9 +37,6 @@ public class AppModel: ObservableObject {
     
     func addressDetails(_ address: AddressName, credential: APICredential? = nil) -> AddressSummaryDataFetcher {
         if let model = profileModels[address] {
-            Task {
-                await model.update()
-            }
             return model
         } else {
             let newModel = fetchConstructor.addressDetailsFetcher(address)

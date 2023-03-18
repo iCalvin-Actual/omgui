@@ -16,6 +16,8 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     case address(_ name: AddressName)
     case community
     case following
+    case followingStatuses
+    case followingAddresses
     case saved(_ feature: AppFeature)
     case comingSoon(_ feature: AppFeature)
     case account
@@ -35,6 +37,8 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         case .address(let address):     return "address.\(address)"
         case .community:                return "community"
         case .following:                return "following"
+        case .followingStatuses:        return "following.statuses"
+        case .followingAddresses:       return "following.addresses"
         case .saved(let feature):       return "saved.\(feature.rawValue)"
         case .comingSoon(let feature):  return "coming.\(feature.rawValue)"
         case .account:    return "account"
@@ -55,9 +59,20 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         case "directory":   self = .directory
         case "garden":      self = .nowGarden
         case "community":   self = .community
-        case "following":   self = .following
-        case "account":
-            self = .account
+        case "account":     self = .account
+        case "following":
+            guard splitString.count > 1 else {
+                self = .following
+                return
+            }
+            switch splitString[1] {
+            case "statuses":
+                self = .followingStatuses
+            case "addresses":
+                self = .followingAddresses
+            default:
+                self = .following
+            }
         case "address":
             guard splitString.count > 1 else {
                 return nil

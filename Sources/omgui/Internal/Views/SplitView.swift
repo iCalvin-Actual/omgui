@@ -14,17 +14,26 @@ struct SplitView: View {
     @State
     var selected: NavigationItem? = .pinnedAddress("app")
     
+    @State
+    var visibility: NavigationSplitViewVisibility = .all
+    
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $visibility) {
             Sidebar(selected: $selected, model: .init(sceneModel: sceneModel))
                 .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
         } content: {
             let destination = selected?.destination ?? .lists
-            sceneModel.destinationConstructor.destination(destination)
+            destinationView(destination)
                 .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
         } detail: {
-            sceneModel.destinationConstructor.destination(.webpage("app"))
+            NavigationStack {
+                sceneModel.destinationConstructor.destination(.webpage("calvin"))
+            }
         }
-
+    }
+    
+    @ViewBuilder
+    func destinationView(_ destination: NavigationDestination? = .webpage("app")) -> some View {
+        sceneModel.destinationConstructor.destination(destination)
     }
 }

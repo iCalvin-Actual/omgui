@@ -31,6 +31,7 @@ class AddressBookModel: DataFetcher {
     
     var myAddressesFetcher: AccountAddressDataFetcher?
     
+    @Published
     var actingAddress: AddressName = ""
     
     var requests: [AnyCancellable] = []
@@ -110,6 +111,14 @@ class AddressBookModel: DataFetcher {
         .store(in: &requests)
     }
     
+    func receive(accountModel: AccountModel) {
+        if actingAddress.isEmpty, let first = accountModel.addresses.first?.name {
+            self.actingAddress = first
+        } else if !actingAddress.isEmpty, accountModel.addresses.isEmpty {
+            self.actingAddress = ""
+        }
+    }
+    
     func updateAddress(_ newValue: AddressName) {
         print("IN UPDATE ADDRESS \(newValue)")
         guard !newValue.isEmpty else {
@@ -129,7 +138,9 @@ class AddressBookModel: DataFetcher {
             .store(in: &requests)
             return
         }
-        self.actingAddress = newValue
+        DispatchQueue.main.async {
+            self.actingAddress = newValue
+        }
         self.followingFetcher = fetchConstructor.followingFetcher(for: newValue, credential: appModel.accountModel.credential(for: newValue))
         self.blockFetcher = BlockListDataFetcher(
             globalFetcher: fetchConstructor.globalBlocklistFetcher,
@@ -170,7 +181,10 @@ class AddressBookModel: DataFetcher {
     
     override func throwingUpdate() async throws {
         try await super.throwingUpdate()
-        
+        await blockFetcher.update()
+        await followingFetcher?.update()
+        await pinnedFetcher.update()
+        await directoryFetcher.update()
     }
     
     func isFollowed(_ address: AddressName) -> Bool {

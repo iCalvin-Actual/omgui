@@ -24,7 +24,7 @@ class SidebarModel: ObservableObject {
             case .account:
                 return "my account"
             case .directory:
-                return "omg.lol"
+                return "address book"
             case .status:
                 return "status.lol"
             case .saved:
@@ -37,7 +37,8 @@ class SidebarModel: ObservableObject {
         }
     }
     
-    let sceneModel: SceneModel
+    var sceneModel: SceneModel
+    
     var appModel: AppModel {
         sceneModel.appModel
     }
@@ -46,7 +47,15 @@ class SidebarModel: ObservableObject {
     
     init(sceneModel: SceneModel) {
         self.sceneModel = sceneModel
-        sceneModel.appModel.objectWillChange.sink { _ in
+        sceneModel.appModel.accountModel.objectWillChange.sink { _ in
+            DispatchQueue.main.async {
+                Task {
+                    await self.sceneModel.addressBook.update()
+                }
+            }
+        }
+        .store(in: &requests)
+        sceneModel.addressBook.objectWillChange.sink { _ in
             DispatchQueue.main.async {
                 self.objectWillChange.send()
             }
@@ -61,13 +70,19 @@ class SidebarModel: ObservableObject {
     func items(for section: Section) -> [NavigationItem] {
         switch section {
         case .directory:
-            return [
-                .search,
-                .nowGarden,
-            ]
-        case .account:
             var destinations = [
-                NavigationItem.account(!appModel.accountModel.actingAddress.isEmpty)
+                NavigationItem.search,
+                NavigationItem.nowGarden
+            ]
+            if !sceneModel.addressBook.actingAddress.isEmpty {
+                destinations.append(.followingAddresses)
+            }
+            if !sceneModel.addressBook.nonGlobalBlocklist.isEmpty {
+                destinations.append(.blocked)
+            }
+            return destinations
+        case .account:
+            var destinations: [NavigationItem] = [
             ]
             if !sceneModel.addressBook.nonGlobalBlocklist.isEmpty {
                 destinations.append(.blocked)
