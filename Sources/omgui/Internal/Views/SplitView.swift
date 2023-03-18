@@ -20,11 +20,15 @@ struct SplitView: View {
                 .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
         } content: {
             let destination = selected?.destination ?? .lists
-            sceneModel.destinationConstructor.destination(destination)
+            destinationView(destination)
                 .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
         } detail: {
-            sceneModel.destinationConstructor.destination(.webpage("app"))
+            sceneModel.destinationConstructor.destination(.webpage("calvin"))
         }
-
+    }
+    
+    @ViewBuilder
+    func destinationView(_ destination: NavigationDestination? = .webpage("app")) -> some View {
+        sceneModel.destinationConstructor.destination(destination)
     }
 }
