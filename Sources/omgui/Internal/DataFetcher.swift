@@ -604,7 +604,7 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
     
     override var title: String {
         if addresses.count > 0 {
-            return "statuses"
+            return "following"
         } else {
             return "status.lol"
         }

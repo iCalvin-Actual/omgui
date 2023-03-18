@@ -64,7 +64,7 @@ class SidebarModel: ObservableObject {
     }
     
     var sections: [Section] {
-        [.directory, .status, .saved, .account]
+        [.directory, .status]
     }
     
     func items(for section: Section) -> [NavigationItem] {
@@ -80,6 +80,7 @@ class SidebarModel: ObservableObject {
             if !sceneModel.addressBook.nonGlobalBlocklist.isEmpty {
                 destinations.append(.blocked)
             }
+            destinations.append(contentsOf: sceneModel.addressBook.pinnedItems.map({ $0.name }).sorted().map({ .pinnedAddress($0) }))
             return destinations
         case .account:
             var destinations: [NavigationItem] = [
@@ -96,8 +97,6 @@ class SidebarModel: ObservableObject {
                 destinations.append(.following)
             }
             return destinations
-        case .saved:
-            return sceneModel.addressBook.pinnedItems.map({ $0.name }).sorted().map({ .pinnedAddress($0) })
         default:
             return []
         }
