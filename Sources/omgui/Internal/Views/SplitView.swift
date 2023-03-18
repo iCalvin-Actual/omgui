@@ -27,7 +27,7 @@ struct SplitView: View {
                 .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
         } detail: {
             NavigationStack {
-                sceneModel.destinationConstructor.destination(.webpage("calvin"))
+                sceneModel.destinationConstructor.destination(.now("app"))
             }
         }
     }
