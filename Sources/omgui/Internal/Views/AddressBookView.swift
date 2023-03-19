@@ -8,261 +8,31 @@
 import Combine
 import SwiftUI
 
-
-class AddressBookModel: DataFetcher {
-    @Published
-    var address: AddressName?
-    
-    @ObservedObject
-    var appModel: AppModel
-    
-    @ObservedObject
-    var accountModel: AccountModel
-    
-    let fetchConstructor: FetchConstructor
-    
-    @ObservedObject
-    var directoryFetcher: AddressDirectoryDataFetcher
-    @ObservedObject
-    var pinnedFetcher: PinnedListDataFetcher
-    var blockFetcher: BlockListDataFetcher
-    var followingFetcher: AddressFollowingDataFetcher?
-    
-    var myAddressesFetcher: AccountAddressDataFetcher?
-    
-    @Published
-    var actingAddress: AddressName = ""
-    
-    var requests: [AnyCancellable] = []
-    
-    var primaryFetcher: ListDataFetcher<AddressModel> {
-        let fetcher: ListDataFetcher<AddressModel> = {
-            if pinnedItems.count > 0 {
-                return pinnedFetcher
-            }
-            if followingItems.count > 0, let following = followingFetcher {
-                return following
-            }
-            return directoryFetcher
-        }()
-        
-        return fetcher
-    }
-    
-    init(address: AddressName? = nil, appModel: AppModel) {
-        self.address = address
-        self.appModel = appModel
-        self.accountModel = appModel.accountModel
-        self.fetchConstructor = appModel.fetchConstructor
-        
-        self.directoryFetcher = fetchConstructor.directoryFetcher
-        var addressFetcher: AddressBlockListDataFetcher?
-        if let address = address {
-            addressFetcher = appModel.addressDetails(address).blockedFetcher
-        }
-        
-        self.blockFetcher = BlockListDataFetcher(
-            globalFetcher: fetchConstructor.globalBlocklistFetcher,
-            localFetcher: LocalBlockListDataFetcher(interface: fetchConstructor.interface),
-            addressFetcher: addressFetcher,
-            interface: fetchConstructor.interface
-        )
-        self.pinnedFetcher = PinnedListDataFetcher(interface: appModel.interface)
-        if let address = address, !address.isEmpty {
-            self.followingFetcher = fetchConstructor.followingFetcher(for: address, credential: appModel.accountModel.credential(for: address))
-            self.myAddressesFetcher = fetchConstructor.accountAddressesDataFetcher(appModel.accountModel.authKey)
-        } else { self.followingFetcher = nil }
-        
-        super.init(interface: fetchConstructor.interface)
-        
-        appModel.$accountModel.sink { model in
-            self.myAddressesFetcher = self.fetchConstructor.accountAddressesDataFetcher(model.authKey)
-            self.myAddressesFetcher?.$listItems.sink { myItems in
-                if self.actingAddress.isEmpty && !myItems.isEmpty {
-                    self.updateAddress(myItems.first?.name ?? "")
-                }
-                self.threadSafeSendUpdate()
-            }
-            .store(in: &self.requests)
-        }
-        .store(in: &requests)
-        
-        pinnedFetcher.$listItems.sink { newPinned in
-            DispatchQueue.main.async {
-                self.objectWillChange.send()
-            }
-        }
-        .store(in: &requests)
-        followingFetcher?.$listItems.sink { newFollowing in
-            print("NewFollowing \(newFollowing.count)")
-            DispatchQueue.main.async {
-                self.objectWillChange.send()
-            }
-        }
-        .store(in: &requests)
-        blockFetcher.$listItems.sink { newBlocked in
-            self.threadSafeSendUpdate()
-        }
-        .store(in: &requests)
-        myAddressesFetcher?.$listItems.sink { myAddresses in
-            self.threadSafeSendUpdate()
-        }
-        .store(in: &requests)
-    }
-    
-    func receive(accountModel: AccountModel) {
-        if actingAddress.isEmpty, let first = accountModel.addresses.first?.name {
-            self.actingAddress = first
-        } else if !actingAddress.isEmpty, accountModel.addresses.isEmpty {
-            self.actingAddress = ""
-        }
-    }
-    
-    func updateAddress(_ newValue: AddressName) {
-        print("IN UPDATE ADDRESS \(newValue)")
-        guard !newValue.isEmpty else {
-            actingAddress = ""
-            followingFetcher = nil
-            
-            self.blockFetcher = BlockListDataFetcher(
-                globalFetcher: fetchConstructor.globalBlocklistFetcher,
-                localFetcher: LocalBlockListDataFetcher(interface: fetchConstructor.interface),
-                addressFetcher: nil,
-                interface: fetchConstructor.interface
-            )
-            blockFetcher.$listItems.sink { newBlocked in
-                print("NewBlocked \(newBlocked.count)")
-                self.threadSafeSendUpdate()
-            }
-            .store(in: &requests)
-            return
-        }
-        DispatchQueue.main.async {
-            self.actingAddress = newValue
-        }
-        self.followingFetcher = fetchConstructor.followingFetcher(for: newValue, credential: appModel.accountModel.credential(for: newValue))
-        self.blockFetcher = BlockListDataFetcher(
-            globalFetcher: fetchConstructor.globalBlocklistFetcher,
-            localFetcher: LocalBlockListDataFetcher(interface: fetchConstructor.interface),
-            addressFetcher: appModel.addressDetails(newValue).blockedFetcher,
-            interface: fetchConstructor.interface
-        )
-        followingFetcher?.$listItems.sink { newFollowing in
-            print("NewFollowing \(newFollowing.map({ $0.name }))")
-            DispatchQueue.main.async {
-                self.objectWillChange.send()
-            }
-        }
-        .store(in: &requests)
-        blockFetcher.$listItems.sink { newBlocked in
-            print("NewBlocked \(newBlocked)")
-            self.threadSafeSendUpdate()
-        }
-        .store(in: &requests)
-        
-    }
-    
-    var directoryItems: [AddressModel] {
-        fetchConstructor.directoryFetcher.listItems
-    }
-    var pinnedItems: [AddressModel] {
-        pinnedFetcher.listItems
-    }
-    var followingItems: [AddressModel] {
-        followingFetcher?.listItems ?? []
-    }
-    var blockedItems: [AddressModel] {
-        blockFetcher.allItems
-    }
-    var nonGlobalBlocklist: [AddressModel] {
-        blockFetcher.listItems
-    }
-    
-    override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
-        await blockFetcher.update()
-        await followingFetcher?.update()
-        await pinnedFetcher.update()
-        await directoryFetcher.update()
-    }
-    
-    func isFollowed(_ address: AddressName) -> Bool {
-        followingItems.map({ $0.name }).contains(address)
-    }
-    
-    func follow(_ address: AddressName) {
-        guard canFollow(address) else {
-            return
-        }
-        followingFetcher?.follow(address, credential: appModel.accountModel.authKey)
-    }
-    
-    func canFollow(_ address: AddressName) -> Bool {
-        followingFetcher != nil && !followingItems.map({ $0.name }).contains(address)
-    }
-    
-    func canUnfollow(_ address: AddressName) -> Bool {
-        followingFetcher != nil && followingItems.map({ $0.name }).contains(address)
-    }
-    
-    func removeFollow(_ address: AddressName) {
-        guard canUnfollow(address) else {
-            return
-        }
-        followingFetcher?.unFollow(address, credential: appModel.accountModel.authKey)
-    }
-    
-    func isPinned(_ address: AddressName) -> Bool {
-        pinnedFetcher.isPinned(address)
-    }
-    
-    func pin(_ address: AddressName) {
-        pinnedFetcher.pin(address)
-    }
-    
-    func removePin(_ address: AddressName) {
-        pinnedFetcher.removePin(address)
-    }
-    
-    func isBlocked(_ address: AddressName) -> Bool {
-        blockFetcher.allItems.map({ $0.name }).contains(address)
-    }
-    
-    func canUnblock(_ address: AddressName) -> Bool {
-        !blockFetcher.globalBlocklistFetcher.listItems.map({ $0.name }).contains(address)
-    }
-    
-    func block(_ address: AddressName) {
-        blockFetcher.block(address, credential: appModel.accountModel.credential(for: actingAddress))
-    }
-    
-    func unBlock(_ address: AddressName) {
-        if !actingAddress.isEmpty, let credential = appModel.accountModel.credential(for: actingAddress) {
-            blockFetcher.addressBlocklistFetcher?.unBlock(address, credential: credential)
-        }
-        blockFetcher.localBloclistFetcher?.remove(address)
-        Task {
-            await blockFetcher.update()
-        }
-    }
-}
-
 struct AddressBookView: View {
     
     @ObservedObject
-    var addressBookModel: AddressBookModel
+    var addressBook: AddressBook
     
-    @ObservedObject
     var accountModel: AccountModel
     
     var showSearch: Bool {
-        !accountModel.signedIn && !showBlocklist && addressBookModel.pinnedItems.isEmpty
+        !accountModel.signedIn && !showBlocklist && addressBook.pinned.isEmpty
     }
     var showFollowing: Bool {
-        accountModel.signedIn && addressBookModel.primaryFetcher != addressBookModel.followingFetcher
+        accountModel.signedIn && primaryFetcher != addressBook.followingFetcher
     }
     var showBlocklist: Bool {
-        !addressBookModel.nonGlobalBlocklist.isEmpty
+        !addressBook.viewableBlocklist.isEmpty
+    }
+    
+    var primaryFetcher: ListDataFetcher<AddressModel> {
+        if addressBook.pinned.count > 0 {
+            return addressBook.pinnedAddressFetcher
+        }
+        if addressBook.following.count > 0, let following = addressBook.followingFetcher {
+            return following
+        }
+        return addressBook.directoryFetcher
     }
     
     @State var showConfirmLogout: Bool = false
@@ -270,7 +40,7 @@ struct AddressBookView: View {
     @ViewBuilder
     var accountHeader: some View {
         if accountModel.signedIn {
-            ListRow<AddressModel>(model: .init(name: addressBookModel.actingAddress), preferredStyle: .minimal)
+            ListRow<AddressModel>(model: .init(name: addressBook.actingAddress), preferredStyle: .minimal)
         } else {
             HStack {
                 Button("omg.lol sign in") {
@@ -322,7 +92,7 @@ struct AddressBookView: View {
         ListView(
             allowSearch: showSearch,
             allowFilter: showSearch,
-            dataFetcher: addressBookModel.primaryFetcher,
+            dataFetcher: primaryFetcher,
             rowBuilder: { _ in return nil as ListRow<AddressModel>? },
             headerBuilder: {
                 Group {
@@ -340,13 +110,6 @@ struct AddressBookView: View {
                 }
             }
         )
-        .onReceive(accountModel.objectWillChange) { newValue in
-            if addressBookModel.actingAddress.isEmpty, let first = accountModel.addresses.first {
-                addressBookModel.updateAddress(first.name)
-            } else if !addressBookModel.actingAddress.isEmpty, accountModel.addresses.isEmpty {
-                addressBookModel.updateAddress("")
-            }
-        }
         .alert("Logout", isPresented: $showConfirmLogout) {
             Button("Cancel", role: .cancel) { }
             Button("Yes", role: .destructive) {
@@ -359,35 +122,50 @@ struct AddressBookView: View {
             }
         }
         .toolbar {
-            if accountModel.signedIn {
-                Menu {
-                    if accountModel.addresses.count > 1 {
-                        Section {
-                            ForEach(accountModel.addresses) { address in
-                                Button {
-                                    addressBookModel.updateAddress(address.name)
-                                } label: {
-                                    if addressBookModel.actingAddress == address.name {
-                                        Label(address.name, systemImage: "checkmark")
-                                    } else {
-                                        Label(title: { Text(address.name)}, icon: { EmptyView() })
-                                    }
-                                }
-                            }
-                        } header: {
-                            Text("Select active address")
+            if addressBook.accountModel.signedIn {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        addressPickerSection
+                        
+                        Button(role: .destructive) {
+                            self.showConfirmLogout.toggle()
+                        } label: {
+                            Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
                         }
-                    }
-                    
-                    Button(role: .destructive) {
-                        self.showConfirmLogout.toggle()
                     } label: {
-                        Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
+                        Label("More", systemImage: "ellipsis.circle")
                     }
-                } label: {
-                    Label("More", systemImage: "ellipsis.circle")
+
                 }
             }
         }
+    }
+    
+    @ViewBuilder
+    private var addressPickerSection: some View {
+        Section {
+            ForEach(addressBook.myAddresses) { address in
+                Button {
+                    addressBook.setActiveAddress(address)
+                } label: {
+                    addressOption(address)
+                }
+            }
+        } header: {
+            Text("Select active address")
+        }
+    }
+    
+    @ViewBuilder
+    private func addressOption(_ address: AddressName) -> some View {
+        if isActingAddress(address) {
+            Label(address, systemImage: "checkmark")
+        } else {
+            Label(title: { Text(address) }, icon: { EmptyView() })
+        }
+    }
+    
+    func isActingAddress(_ addressName: AddressName) -> Bool {
+        addressBook.actingAddress == addressName
     }
 }

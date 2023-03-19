@@ -9,28 +9,25 @@ import Combine
 import SwiftUI
 
 class SceneModel: ObservableObject {
-    @ObservedObject
-    var appModel: AppModel
     
-    var addressBookFetcher: AddressBookDataFetcher
+    let fetchConstructor: FetchConstructor
+    
+    let accountModel: AccountModel
+    let addressBook: AddressBook
     
     var requests: [AnyCancellable] = []
     
     var destinationConstructor: DestinationConstructor {
-        .init(sceneModel: self)
+        .init(
+            addressBook: addressBook,
+            accountModel: accountModel,
+            fetchConstructor: fetchConstructor
+        )
     }
     
-    @ObservedObject
-    var addressBook: AddressBookModel
-    
-    init(appModel: AppModel) {
-        self.appModel = appModel
-        self.addressBook = .init(appModel: appModel)
-        self.addressBookFetcher = .init("", credential: appModel.accountModel.authKey, appModel: appModel)
-        
-        appModel.accountModel.objectWillChange.sink { newModel in
-            self.addressBook.receive(accountModel: appModel.accountModel)
-        }
-        .store(in: &requests)
+    init(fetchConstructor: FetchConstructor) {
+        self.fetchConstructor = fetchConstructor
+        self.accountModel = fetchConstructor.constructAccountModel()
+        self.addressBook = AddressBook(accountModel: accountModel, fetchConstructor: fetchConstructor)
     }
 }

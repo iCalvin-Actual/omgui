@@ -13,14 +13,14 @@ import Foundation
 class DataFetcher: NSObject, ObservableObject {
     let interface: DataInterface
     
-    @Published
     var loaded: Bool = false
-    @Published
     var loading: Bool = false
     
     var error: Error?
     
-    init(interface: DataInterface, autoLoad: Bool = true) {
+    var requests: [AnyCancellable] = []
+    
+    init(interface: DataInterface, autoLoad: Bool = true, autoReloadDuration: TimeInterval? = nil) {
         self.interface = interface
         super.init()
         if autoLoad {
@@ -31,6 +31,8 @@ class DataFetcher: NSObject, ObservableObject {
     }
     
     func update() async {
+        loading = true
+        threadSafeSendUpdate()
         do {
             try await throwingUpdate()
         } catch {
@@ -39,26 +41,19 @@ class DataFetcher: NSObject, ObservableObject {
     }
     
     func throwingUpdate() async throws {
-        DispatchQueue.main.async {
-            self.loading = true
-        }
     }
     
     func fetchFinished() {
-        DispatchQueue.main.async {
-            self.loaded = true
-            self.loading = false
-            self.objectWillChange.send()
-        }
+        loaded = true
+        loading = false
+        threadSafeSendUpdate()
     }
     
-    func handle(_ error: Error) {
-        DispatchQueue.main.async {
-            self.loaded = false
-            self.loading = false
-            self.error = error
-            self.objectWillChange.send()
-        }
+    func handle(_ incomingError: Error) {
+        loaded = false
+        loading = false
+        error = incomingError
+        threadSafeSendUpdate()
     }
     
     func threadSafeSendUpdate() {
@@ -138,7 +133,6 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
 
 class ListDataFetcher<T: Listable>: DataFetcher {
     
-    @Published
     var listItems: [T] = []
     
     var title: String { "" }
@@ -156,7 +150,6 @@ class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
     }
     
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
         Task {
             do {
                 let directory = try await interface.fetchAddressDirectory()
@@ -204,7 +197,6 @@ class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
     }
     
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
         Task {
             do {
                 self.listItems = try await interface.fetchAccountAddresses(credential).map({ AddressModel(name: $0) })
@@ -228,7 +220,6 @@ class AddressBioDataFetcher: DataFetcher {
     }
     
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
         Task {
             let bio = try await interface.fetchAddressBio(address)
             DispatchQueue.main.async {
@@ -242,21 +233,18 @@ class AddressBioDataFetcher: DataFetcher {
 class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     let address: AddressName
     let credential: APICredential?
-    let accountModel: AccountModel
     
     override var title: String {
         "following"
     }
     
-    init(address: AddressName, credential: APICredential?, accountModel: AccountModel, interface: DataInterface) {
+    init(address: AddressName, credential: APICredential?, interface: DataInterface) {
         self.address = address
         self.credential = credential
-        self.accountModel = accountModel
         super.init(interface: interface)
     }
     
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
         Task {
             guard let content = try await interface.fetchPaste("app.lol.following", from: address, credential: credential)?.content else {
                 self.fetchFinished()
@@ -304,60 +292,6 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
-class AddressBookDataFetcher: DataFetcher {
-    let appModel: AppModel
-    let address: AddressName
-    
-    let pinnedModel: PinnedListDataFetcher
-    let followModel: AddressFollowingDataFetcher
-    var localBlocklistFetcher: LocalBlockListDataFetcher
-    var globalBlocklistFetcher: AddressBlockListDataFetcher
-    var blockedModel: BlockListDataFetcher
-    let directoryModel: AddressDirectoryDataFetcher
-    
-    var requests: [AnyCancellable] = []
-    
-    init(_ address: AddressName, credential: APICredential?, appModel: AppModel) {
-        self.address = address
-        self.appModel = appModel
-        let fetchConstructor = appModel.fetchConstructor
-        
-        self.directoryModel = fetchConstructor.addressDirectoryDataFetcher()
-        self.pinnedModel = PinnedListDataFetcher(interface: appModel.interface)
-        self.localBlocklistFetcher = LocalBlockListDataFetcher(interface: appModel.interface)
-        self.followModel = fetchConstructor.followingFetcher(for: address, credential: credential)
-        self.globalBlocklistFetcher = fetchConstructor.blockListFetcher(for: "app", credential: nil)
-        
-        self.blockedModel = .init(
-            globalFetcher: globalBlocklistFetcher,
-            localFetcher: localBlocklistFetcher,
-            addressFetcher: fetchConstructor.blockListFetcher(for: address, credential: credential),
-            interface: appModel.interface)
-        
-        super.init(interface: appModel.interface)
-        
-        self.updateBlockedFetcher()
-    }
-    
-    private func updateBlockedFetcher() {
-        let credential: APICredential? = {
-            guard appModel.accountModel.myAddressesFetcher?.listItems.map({ $0.name }).contains(address) ?? false else {
-                return nil
-            }
-            return appModel.accountModel.authKey
-        }()
-        self.blockedModel = .init(
-            globalFetcher: globalBlocklistFetcher,
-            localFetcher: localBlocklistFetcher,
-            addressFetcher: appModel.fetchConstructor.blockListFetcher(for: address, credential: credential),
-            interface: interface
-        )
-        blockedModel.$listItems.sink(receiveValue: { _ in
-            self.objectWillChange.send()
-        }).store(in: &requests)
-    }
-}
-
 class BlockListDataFetcher: ListDataFetcher<AddressModel> {
     override var title: String {
         "blocked"
@@ -365,25 +299,33 @@ class BlockListDataFetcher: ListDataFetcher<AddressModel> {
     
     let addressBlocklistFetcher: AddressBlockListDataFetcher?
     let globalBlocklistFetcher: AddressBlockListDataFetcher
-    let localBloclistFetcher: LocalBlockListDataFetcher?
+    let localBloclistFetcher: LocalBlockListDataFetcher
     
-    var requests: [AnyCancellable] = []
+    override var loading: Bool {
+        get {
+            globalBlocklistFetcher.loading || localBloclistFetcher.loading || addressBlocklistFetcher?.loading ?? false
+        }
+        set { }
+    }
+    override var loaded: Bool {
+        get {
+            let stableLoaded = globalBlocklistFetcher.loaded && localBloclistFetcher.loaded
+            let localLoaded = addressBlocklistFetcher?.loaded ?? true
+            return stableLoaded && localLoaded
+        }
+        set { }
+    }
     
     override var listItems: [AddressModel] {
         get {
-            Array(Set((addressBlocklistFetcher?.listItems ?? []) + (localBloclistFetcher?.listItems ?? [])))
+            Array(Set((addressBlocklistFetcher?.listItems ?? []) + localBloclistFetcher.listItems))
         }
-        set {
-        }
-    }
-    
-    var allItems: [AddressModel] {
-        listItems + globalBlocklistFetcher.listItems
+        set { }
     }
     
     init(
         globalFetcher: AddressBlockListDataFetcher,
-        localFetcher: LocalBlockListDataFetcher? = nil,
+        localFetcher: LocalBlockListDataFetcher,
         addressFetcher: AddressBlockListDataFetcher? = nil,
         interface: DataInterface
     ) {
@@ -393,24 +335,19 @@ class BlockListDataFetcher: ListDataFetcher<AddressModel> {
         
         super.init(interface: interface)
         
-        globalBlocklistFetcher.$listItems.sink { globalItems in
+        globalBlocklistFetcher.objectWillChange.sink { globalItems in
             self.updateList()
         }.store(in: &requests)
         
-        localBloclistFetcher?.$listItems.sink { localItems in
-            self.updateList()
-        }.store(in: &requests)
-        
-        addressBlocklistFetcher?.$listItems.sink { addressItems in
+        localBloclistFetcher.objectWillChange.sink { localItems in
             self.updateList()
         }.store(in: &requests)
     }
     
     func updateList() {
-        let local = localBloclistFetcher?.listItems ?? []
+        let local = localBloclistFetcher.listItems
         let address = addressBlocklistFetcher?.listItems ?? []
-        self.listItems = local + address
-        self.fetchFinished()
+        self.listItems = Array(Set(local + address))
         self.threadSafeSendUpdate()
     }
     
@@ -418,22 +355,22 @@ class BlockListDataFetcher: ListDataFetcher<AddressModel> {
         if addressBlocklistFetcher != nil, let credential = credential {
             addressBlocklistFetcher?.block(address, credential: credential)
         }
-        localBloclistFetcher?.insert(address)
+        localBloclistFetcher.insert(address)
     }
     
     func insertItems(_ newItems: [AddressModel]) {
         let toAdd = newItems.filter { !listItems.contains($0) }
-        print("Appending \(toAdd.map({ $0.addressName })) to \(listItems.map({ $0.addressName })) in \(self)")
-        DispatchQueue.main.async {
-            self.listItems.append(contentsOf: toAdd)
-            self.fetchFinished()
-        }
+        self.listItems.append(contentsOf: toAdd)
+        self.fetchFinished()
     }
     
     override func throwingUpdate() async throws {
         try await globalBlocklistFetcher.throwingUpdate()
-        try await localBloclistFetcher?.throwingUpdate()
+        try await localBloclistFetcher.throwingUpdate()
         try await addressBlocklistFetcher?.throwingUpdate()
+        addressBlocklistFetcher?.objectWillChange.sink { addressItems in
+            self.updateList()
+        }.store(in: &requests)
     }
 }
 
@@ -517,11 +454,8 @@ class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
     }
     
     override func throwingUpdate() async throws {
-        DispatchQueue.main.async {
-            self.listItems = self.blockedAddresses.map({ AddressModel.init(name: $0) })
-            self.fetchFinished()
-            self.threadSafeSendUpdate()
-        }
+        self.listItems = blockedAddresses.map({ AddressModel.init(name: $0) })
+        self.fetchFinished()
     }
     
     func remove(_ address: AddressName) {
@@ -537,28 +471,25 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     let address: AddressName
     let credential: APICredential?
     
-    @ObservedObject
-    var accountModel: AccountModel
-    
     override var title: String {
         "blocked from \(address)"
     }
     
-    init(address: AddressName, credential: APICredential?,  accountModel: AccountModel, interface: DataInterface) {
+    init(address: AddressName, credential: APICredential?, interface: DataInterface) {
         self.address = address
-        self.accountModel = accountModel
         self.credential = credential
         super.init(interface: interface)
     }
     
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
-        let paste = try await interface.fetchPaste("app.lol.blocked", from: address, credential: accountModel.credential(for: address))
-        let list = paste?.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }) ?? []
-        DispatchQueue.main.async {
-            self.listItems = list.map({ AddressModel(name: $0) })
-            self.fetchFinished()
+        guard !address.isEmpty else {
+            threadSafeSendUpdate()
+            return
         }
+        let paste = try await interface.fetchPaste("app.lol.blocked", from: address, credential: credential)
+        let list = paste?.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }) ?? []
+        self.listItems = list.map({ AddressModel(name: $0) })
+        self.fetchFinished()
     }
     
     func block(_ toBlock: AddressName, credential: APICredential) {
@@ -591,10 +522,9 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     }
     
     private func handleItems(_ addresses: [AddressName]) {
-        DispatchQueue.main.async {
-            self.listItems = addresses.map({ AddressModel(name: $0) })
-            self.fetchFinished()
-            self.threadSafeSendUpdate()
+        self.listItems = addresses.map({ AddressModel(name: $0) })
+        Task {
+            await self.update()
         }
     }
 }
@@ -616,7 +546,6 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
     }
     
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
         if addresses.isEmpty {
             Task {
                 let statuses = try await interface.fetchStatusLog()
@@ -642,7 +571,6 @@ class NowGardenDataFetcher: ListDataFetcher<NowListing> {
         "garden.lol"
     }
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
         Task {
             let garden = try await interface.fetchNowGarden()
             DispatchQueue.main.async {
@@ -667,7 +595,6 @@ class AddressProfileDataFetcher: DataFetcher {
     }
     
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
         Task {
             let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
             self.html = profile?.content
@@ -694,7 +621,6 @@ class AddressNowDataFetcher: DataFetcher {
     }
     
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
         Task {
             let now = try await interface.fetchAddressNow(addressName)
             self.content = now?.content
@@ -718,7 +644,6 @@ class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
     }
     
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
         Task {
             let pastes = try await interface.fetchAddressPastes(addressName)
             DispatchQueue.main.async {
@@ -742,7 +667,6 @@ class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
     }
     
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
         Task {
             let purls = try await interface.fetchAddressPURLs(addressName)
             DispatchQueue.main.async {
@@ -756,8 +680,6 @@ class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
 class AddressSummaryDataFetcher: DataFetcher {
     
     let addressName: AddressName
-    
-    let accountModel: AccountModel
     
     var verified: Bool?
     var url: URL?
@@ -781,11 +703,10 @@ class AddressSummaryDataFetcher: DataFetcher {
         pasteFetcher: AddressPasteBinDataFetcher? = nil,
         blockedFetcher: AddressBlockListDataFetcher? = nil,
         followingFetcher: AddressFollowingDataFetcher? = nil,
-        accountModel: AccountModel,
+        credential: APICredential? = nil,
         interface: DataInterface
     ) {
         self.addressName = name
-        let credential = accountModel.credential(for: name)
         self.profileFetcher = profileFetcher ?? .init(name: name, credential: credential, interface: interface)
         self.nowFetcher = nowFetcher ?? .init(name: name, interface: interface)
         self.purlFetcher = purlFetcher ?? .init(name: name, interface: interface)
@@ -793,15 +714,13 @@ class AddressSummaryDataFetcher: DataFetcher {
         self.statusFetcher = .init(addresses: [name], interface: interface)
         self.bioFetcher = .init(address: name, interface: interface)
         
-        self.blockedFetcher = blockedFetcher ?? .init(address: name, credential: credential, accountModel: accountModel, interface: interface)
-        self.followingFetcher = followingFetcher ?? .init(address: name, credential: credential, accountModel: accountModel, interface: interface)
-        self.accountModel = accountModel
+        self.blockedFetcher = blockedFetcher ?? .init(address: name, credential: credential, interface: interface)
+        self.followingFetcher = followingFetcher ?? .init(address: name, credential: credential, interface: interface)
         
         super.init(interface: interface)
     }
     
     override func throwingUpdate() async throws {
-        try await super.throwingUpdate()
         Task {
             verified = false
             registered = Date()

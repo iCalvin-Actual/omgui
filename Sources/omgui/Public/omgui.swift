@@ -1,14 +1,15 @@
 import SwiftUI
 
 public struct omgui: View {
-    @ObservedObject
-    var state: AppModel
+    let clientInfo: ClientInfo
+    let dataInterface: DataInterface
     
-    public init(state: AppModel) {
-        self.state = state
+    public init(client: ClientInfo, interface: DataInterface) {
+        self.clientInfo = client
+        self.dataInterface = interface
     }
     
     public var body: some View {
-        RootView(appModel: state)
+        RootView(fetchConstructor: .init(client: clientInfo, interface: dataInterface))
     }
 }

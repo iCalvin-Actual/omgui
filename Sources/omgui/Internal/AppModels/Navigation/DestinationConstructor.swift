@@ -8,50 +8,51 @@
 import SwiftUI
 
 struct DestinationConstructor {
-    let sceneModel: SceneModel
-    
-    var appModel: AppModel { sceneModel.appModel }
+    let addressBook: AddressBook
+    let accountModel: AccountModel
+    let fetchConstructor: FetchConstructor
     
     @ViewBuilder
     func destination(_ destination: NavigationDestination? = nil) -> some View {
         let destination = destination ?? .community
-        let fetchConstructor = sceneModel.appModel.fetchConstructor
         switch destination {
+        case .directory:
+            DirectoryView(dataFetcher: addressBook.directoryFetcher)
         case .lists:
             AddressBookView(
-                addressBookModel: sceneModel.addressBook,
-                accountModel: appModel.accountModel
+                addressBook: addressBook,
+                accountModel: accountModel
             )
-        case .directory:
-            DirectoryView(dataFetcher: sceneModel.addressBook.directoryFetcher)
         case .community:
-            StatusList(fetcher: fetchConstructor.generalStatusLog(), context: .column)
+            StatusList(fetcher: addressBook.statusLogFetcher, context: .column)
         case .address(let name):
-            AddressSummaryView(addressSummaryFetcher: appModel.addressDetails(name), context: .profile)
+            AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), context: .profile)
         case .webpage(let name):
-            AddressProfileView(fetcher: appModel.addressDetails(name).profileFetcher)
+            AddressProfileView(fetcher: addressBook.addressSummary(name).profileFetcher)
         case .now(let name):
-            AddressNowView(fetcher: appModel.addressDetails(name).nowFetcher)
+            AddressNowView(fetcher: addressBook.addressSummary(name).nowFetcher)
         case .blocked:
-            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: sceneModel.addressBook.blockFetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: addressBook.constructBlocklist(), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .following:
-            FollowingView(sceneModel.addressBook.followingFetcher ?? AddressFollowingDataFetcher(address: "", credential: nil, accountModel: appModel.accountModel, interface: appModel.interface))
+            FollowingView(addressBook)
         case .followingAddresses:
-            if let fetcher = sceneModel.addressBook.followingFetcher {
+            if let fetcher = addressBook.followingFetcher {
                 ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
             }
+        case .followingStatuses:
+            if let fetcher = addressBook.followingStatusLogFetcher {
+                StatusList(fetcher: fetcher, context: .column)
+            }
         case .addressFollowing(let name):
-            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: appModel.fetchConstructor.followingFetcher(for: name, credential: appModel.accountModel.credential(for: name)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetchConstructor.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .nowGarden:
-            GardenView(fetcher: appModel.fetchConstructor.nowGardenFetcher())
-        case .account:
-            AccountView(accountModel: appModel.accountModel)
+            GardenView(fetcher: addressBook.gardenFetcher)
         case .pastebin(let address):
-            ListView<PasteModel, ListRow<PasteModel>, EmptyView>(filters: .none, dataFetcher: appModel.addressDetails(address).pasteFetcher, rowBuilder: { _ in return nil as ListRow<PasteModel>? })
+            ListView<PasteModel, ListRow<PasteModel>, EmptyView>(filters: .none, dataFetcher: addressBook.addressSummary(address).pasteFetcher, rowBuilder: { _ in return nil as ListRow<PasteModel>? })
         case .purls(let address):
-            ListView<PURLModel, ListRow<PURLModel>, EmptyView>(filters: .none, dataFetcher: appModel.addressDetails(address).purlFetcher, rowBuilder: { _ in return nil as ListRow<PURLModel>? })
+            ListView<PURLModel, ListRow<PURLModel>, EmptyView>(filters: .none, dataFetcher: addressBook.addressSummary(address).purlFetcher, rowBuilder: { _ in return nil as ListRow<PURLModel>? })
         case .statusLog(let address):
-            StatusList(fetcher: appModel.addressDetails(address).statusFetcher, context: .profile)
+            StatusList(fetcher: addressBook.addressSummary(address).statusFetcher, context: .profile)
         default:
             EmptyView()
         }

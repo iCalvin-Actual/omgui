@@ -8,8 +8,8 @@
 import Foundation
 
 extension Array<FilterOption> {
-    func applyFilters<T: Filterable>(to inputModels: [T], sceneModel: SceneModel) -> [T] {
+    func applyFilters<T: Filterable>(to inputModels: [T], addressBook: AddressBook) -> [T] {
         inputModels
-            .filter({ $0.include(with: self, sceneModel: sceneModel) })
+            .filter({ $0.include(with: self, addressBook: addressBook) })
     }
 }

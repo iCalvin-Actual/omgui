@@ -27,13 +27,13 @@ extension Array<FilterOption> {
 protocol Filterable {
     var addressName: AddressName { get }
     var filterDate: Date? { get }
-    func include(with filter: FilterOption, sceneModel: SceneModel) -> Bool
+    func include(with filter: FilterOption, addressBook: AddressBook) -> Bool
 }
 
 extension Filterable {
-    func include(with filters: [FilterOption], sceneModel: SceneModel) -> Bool {
+    func include(with filters: [FilterOption], addressBook: AddressBook) -> Bool {
         for filter in filters {
-            if !include(with: filter, sceneModel: sceneModel) {
+            if !include(with: filter, addressBook: addressBook) {
                 return false
             }
         }
@@ -59,18 +59,15 @@ extension QueryFilterable {
 }
 
 extension Filterable {
-    func include(with filter: FilterOption, sceneModel: SceneModel) -> Bool {
+    func include(with filter: FilterOption, addressBook: AddressBook) -> Bool {
         switch filter {
 //        case .following:
-//            let accountFollowed = appModel.fo.contains(where: { $0 == addressName })
-//            if !accountFollowed {
+//            guard !addressBook.following.contains(addressName) else {
 //                return false
 //            }
         case .notBlocked:
             // Check if address is blocked
-            let joinedBlocklist = sceneModel.addressBook.blockedItems
-            let accountBlocked = joinedBlocklist.map { $0.addressName }.contains(where: { $0.lowercased() == addressName.lowercased() })
-            if accountBlocked {
+            if addressBook.isBlocked(addressName) {
                 return false
             }
         case .query(let query):

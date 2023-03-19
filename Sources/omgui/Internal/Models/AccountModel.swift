@@ -12,22 +12,18 @@ class AccountModel: DataFetcher {
     @AppStorage("app.lol.auth", store: .standard)
     var authKey: String = ""
     
-    @SceneStorage("app.lol.address")
-    var actingAddress: AddressName = ""
-    
-    private var fetchConstructor: FetchConstructor?
-    
     private var authenticationFetcher: AccountAuthDataFetcher
-    public var myAddressesFetcher: AccountAddressDataFetcher?
     private var accountInfoFetcher: AccountInfoDataFetcher?
     
-    private var requests: [AnyCancellable] = []
-    
     init(client: ClientInfo, interface: DataInterface) {
-        self.authenticationFetcher = AccountAuthDataFetcher(client: client, interface: interface)
+        self.authenticationFetcher = AccountAuthDataFetcher(
+            client: client,
+            interface: interface
+        )
+        
         super.init(interface: interface)
         
-        authenticationFetcher.$authToken.sink { [self] newValue in
+        authenticationFetcher.$authToken.sink { newValue in
             let newValue = newValue ?? ""
             guard !newValue.isEmpty else {
                 return
@@ -37,7 +33,20 @@ class AccountModel: DataFetcher {
             }
         }
         .store(in: &requests)
-        self.resetFetchers()
+    }
+    
+    func login(_ incomingAuthKey: APICredential) async {
+        authKey = incomingAuthKey
+        Task {
+            await update()
+        }
+    }
+    
+    func logout() {
+        authKey = ""
+        Task {
+            await update()
+        }
     }
     
     func constructAccountAddressesFetcher(_ credential: APICredential) -> AccountAddressDataFetcher? {
@@ -48,28 +57,17 @@ class AccountModel: DataFetcher {
         return AccountInfoDataFetcher(address: name, interface: interface, credential: credential)
     }
     
-    func resetFetchers() {
+    override func throwingUpdate() async throws {
         guard !authKey.isEmpty else {
             accountInfoFetcher = nil
-            myAddressesFetcher = nil
+            threadSafeSendUpdate()
             return
         }
-        myAddressesFetcher = constructAccountAddressesFetcher(authKey)
-        myAddressesFetcher?.$listItems.sink { addresses in
-            self.addresses = addresses
-            
-            if let first = addresses.first {
-                self.accountInfoFetcher = self.constructAccountInfoFetcher(first.name, credential: self.authKey)
-                self.accountInfoFetcher?.$accountName.sink { [self] newValue in
-                    DispatchQueue.main.async {
-                        self.objectWillChange.send()
-                    }
-                }
-                .store(in: &self.requests)
-                
-            }
+        self.accountInfoFetcher = self.constructAccountInfoFetcher("application", credential: self.authKey)
+        self.accountInfoFetcher?.objectWillChange.sink { [self] _ in
+            self.threadSafeSendUpdate()
         }
-        .store(in: &requests)
+        .store(in: &self.requests)
     }
     
     var welcomeText: String {
@@ -80,10 +78,8 @@ class AccountModel: DataFetcher {
     }
     
     var displayName: String {
-        accountInfoFetcher?.accountName ?? "anonymous"
+        accountInfoFetcher?.accountName ?? ""
     }
-    
-    var addresses: [AddressModel] = []
     
     var signedIn: Bool {
         !authKey.isEmpty
@@ -92,38 +88,12 @@ class AccountModel: DataFetcher {
     func authenticate() async {
         logout()
         Task {
-            DispatchQueue.main.async {
-                self.loading = true
-            }
             await authenticationFetcher.update()
         }
     }
     
-    func login(_ authKey: APICredential) async {
-        DispatchQueue.main.async {
-            self.authKey = authKey
-            self.resetFetchers()
-            self.fetchFinished()
-            self.objectWillChange.send()
-        }
-    }
-    
-    func logout() {
-        DispatchQueue.main.async {
-            self.authKey = ""
-            self.addresses = []
-            self.resetFetchers()
-            self.objectWillChange.send()
-        }
-    }
-    
-    override func throwingUpdate() async throws {
-        await accountInfoFetcher?.update()
-        await myAddressesFetcher?.update()
-    }
-    
-    public func credential(for address: AddressName) -> APICredential? {
-        guard !authKey.isEmpty, addresses.map({ $0.name }).contains(address) else {
+    public func credential(for address: AddressName, in addressBook: AddressBook) -> APICredential? {
+        guard !authKey.isEmpty, addressBook.myAddresses.contains(address) else {
             return nil
         }
         return authKey

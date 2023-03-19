@@ -7,24 +7,17 @@
 
 import Foundation
 
-class FetchConstructor: ObservableObject {
+class FetchConstructor {
     let client: ClientInfo
     let interface: DataInterface
-    let accountModel: AccountModel
     
-    let directoryFetcher: AddressDirectoryDataFetcher
-    let globalBlocklistFetcher: AddressBlockListDataFetcher
-    private let globalStatusFetcher: StatusLogDataFetcher
-    private let gardenFetcher: NowGardenDataFetcher
-    
-    init(client: ClientInfo, accountModel: AccountModel, interface: DataInterface) {
+    init(client: ClientInfo, interface: DataInterface) {
         self.client = client
         self.interface = interface
-        self.accountModel = accountModel
-        self.directoryFetcher = AddressDirectoryDataFetcher(interface: interface)
-        self.globalBlocklistFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, accountModel: accountModel, interface: interface)
-        self.globalStatusFetcher = StatusLogDataFetcher(interface: interface)
-        self.gardenFetcher = NowGardenDataFetcher(interface: interface)
+    }
+    
+    func constructAccountModel() -> AccountModel {
+        AccountModel(client: client, interface: interface)
     }
     
     func accountInfoFetcher(for address: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {
@@ -39,15 +32,15 @@ class FetchConstructor: ObservableObject {
     }
     
     func blockListFetcher(for address: AddressName, credential: APICredential?) -> AddressBlockListDataFetcher {
-        AddressBlockListDataFetcher(address: address, credential: credential, accountModel: accountModel, interface: interface)
+        AddressBlockListDataFetcher(address: address, credential: credential, interface: interface)
     }
     
     func followingFetcher(for address: AddressName, credential: APICredential?) -> AddressFollowingDataFetcher {
-        AddressFollowingDataFetcher(address: address, credential: credential, accountModel: accountModel, interface: interface)
+        AddressFollowingDataFetcher(address: address, credential: credential, interface: interface)
     }
     
     func addressDirectoryDataFetcher() -> AddressDirectoryDataFetcher {
-        directoryFetcher
+        AddressDirectoryDataFetcher(interface: interface)
     }
     
     func accountAddressesDataFetcher(_ credential: String) -> AccountAddressDataFetcher {
@@ -59,15 +52,15 @@ class FetchConstructor: ObservableObject {
     }
     
     func generalStatusLog() -> StatusLogDataFetcher {
-        globalStatusFetcher
+        StatusLogDataFetcher(interface: interface)
     }
     
     func nowGardenFetcher() -> NowGardenDataFetcher {
-        gardenFetcher
+        NowGardenDataFetcher(interface: interface)
     }
     
-    func addressDetailsFetcher(_ address: AddressName) -> AddressSummaryDataFetcher {
-        AddressSummaryDataFetcher(name: address, accountModel: accountModel, interface: interface)
+    func addressDetailsFetcher(_ address: AddressName, credential: APICredential?) -> AddressSummaryDataFetcher {
+        AddressSummaryDataFetcher(name: address, credential: credential, interface: interface)
     }
     
     func addressProfileFetcher(_ address: AddressName) -> AddressProfileDataFetcher {

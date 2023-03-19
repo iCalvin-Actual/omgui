@@ -35,3 +35,7 @@ extension String: RawRepresentable {
         self = rawValue
     }
 }
+
+extension String: Identifiable {
+    public var id: String { rawValue }
+}

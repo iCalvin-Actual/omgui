@@ -37,25 +37,18 @@ class SidebarModel: ObservableObject {
         }
     }
     
-    var sceneModel: SceneModel
-    
-    var appModel: AppModel {
-        sceneModel.appModel
-    }
+    let addressBook: AddressBook
     
     var requests: [AnyCancellable] = []
     
-    init(sceneModel: SceneModel) {
-        self.sceneModel = sceneModel
-        sceneModel.appModel.accountModel.objectWillChange.sink { _ in
-            DispatchQueue.main.async {
-                Task {
-                    await self.sceneModel.addressBook.update()
-                }
-            }
-        }
-        .store(in: &requests)
-        sceneModel.addressBook.objectWillChange.sink { _ in
+    var actingAddress: AddressName {
+        addressBook.actingAddress
+    }
+    
+    init(_ addressBook: AddressBook) {
+        self.addressBook = addressBook
+        
+        addressBook.objectWillChange.sink { _ in
             DispatchQueue.main.async {
                 self.objectWillChange.send()
             }
@@ -74,26 +67,22 @@ class SidebarModel: ObservableObject {
                 NavigationItem.search,
                 NavigationItem.nowGarden
             ]
-            if !sceneModel.addressBook.actingAddress.isEmpty {
+            if addressBook.accountModel.signedIn {
                 destinations.append(.followingAddresses)
             }
-            if !sceneModel.addressBook.nonGlobalBlocklist.isEmpty {
+            if !addressBook.viewableBlocklist.isEmpty {
                 destinations.append(.blocked)
             }
-            destinations.append(contentsOf: sceneModel.addressBook.pinnedItems.map({ $0.name }).sorted().map({ .pinnedAddress($0) }))
+            destinations.append(contentsOf: addressBook.pinned.sorted().map({ .pinnedAddress($0) }))
             return destinations
         case .account:
-            var destinations: [NavigationItem] = [
+            return [
             ]
-            if !sceneModel.addressBook.nonGlobalBlocklist.isEmpty {
-                destinations.append(.blocked)
-            }
-            return destinations
         case .status:
             var destinations = [
                 NavigationItem.community
             ]
-            if appModel.accountModel.signedIn {
+            if addressBook.accountModel.signedIn {
                 destinations.append(.following)
             }
             return destinations

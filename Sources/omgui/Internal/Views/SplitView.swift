@@ -19,7 +19,7 @@ struct SplitView: View {
     
     var body: some View {
         NavigationSplitView(columnVisibility: $visibility) {
-            Sidebar(selected: $selected, model: .init(sceneModel: sceneModel))
+            Sidebar(selected: $selected, model: .init(sceneModel.addressBook))
                 .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
         } content: {
             let destination = selected?.destination ?? .lists

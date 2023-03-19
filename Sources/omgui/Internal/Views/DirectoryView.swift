@@ -8,15 +8,14 @@
 import SwiftUI
 
 struct DirectoryView: View {
-    @EnvironmentObject
-    var sceneModel: SceneModel
-    var appModel: AppModel { sceneModel.appModel }
-    
     @ObservedObject
     var dataFetcher: AddressDirectoryDataFetcher
     
     @AppStorage("app.lol.directory.showPinned", store: .standard)
     var showPinned: Bool = true
+    
+    @EnvironmentObject
+    var sceneModel: SceneModel
     
     @State
     var queryString: String = ""
@@ -38,22 +37,13 @@ struct DirectoryView: View {
         dataFetcher.listItems
     }
     
-    var pinned: [AddressModel] {
-        unfilteredItems.filter { sceneModel.addressBook.isPinned($0.addressName) }
-    }
-    
-    var remainder: [AddressModel] {
-        unfilteredItems.filter { !sceneModel.addressBook.isPinned($0.addressName)
-        }
-    }
-    
     func filtered(_ listItems: [AddressModel]) -> [AddressModel] {
         var filters = filters
         if !queryString.isEmpty {
             filters.append(.query(queryString))
         }
         return filters
-            .applyFilters(to: listItems, sceneModel: sceneModel)
+            .applyFilters(to: listItems, addressBook: sceneModel.addressBook)
             .sorted(with: sort)
     }
     
@@ -92,7 +82,7 @@ struct DirectoryView: View {
         }
         .listRowSeparator(.hidden, edges: .all)
         .contextMenu(menuItems: {
-            self.menuBuilder?.contextMenu(for: item, with: sceneModel)
+            self.menuBuilder?.contextMenu(for: item, with: sceneModel.addressBook)
         })
     }
 }

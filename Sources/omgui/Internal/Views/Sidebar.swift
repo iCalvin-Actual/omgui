@@ -8,9 +8,6 @@
 import SwiftUI
 
 struct Sidebar: View {
-    @EnvironmentObject
-    var sceneModel: SceneModel
-    
     @Binding
     var selected: NavigationItem?
     
@@ -24,14 +21,14 @@ struct Sidebar: View {
     
     @ViewBuilder
     var accountHeader: some View {
-        if sceneModel.appModel.accountModel.signedIn {
-            ListRow<AddressModel>(model: .init(name: sceneModel.addressBook.actingAddress), preferredStyle: .minimal)
+        if sidebarModel.addressBook.accountModel.signedIn {
+            ListRow<AddressModel>(model: .init(name: sidebarModel.actingAddress), preferredStyle: .minimal)
         } else {
             HStack {
                 Button("omg.lol sign in") {
                     DispatchQueue.main.async {
                         Task {
-                            await sceneModel.appModel.accountModel.authenticate()
+                            await sidebarModel.addressBook.accountModel.authenticate()
                         }
                     }
                 }
@@ -57,7 +54,7 @@ struct Sidebar: View {
                             ForEach(items) { item in
                                 item.sidebarView
                                     .contextMenu(menuItems: {
-                                        item.contextMenu(with: sceneModel)
+                                        item.contextMenu(with: sidebarModel.addressBook)
                                     })
                             }
                         } header: {
@@ -77,39 +74,54 @@ struct Sidebar: View {
         .alert("Logout", isPresented: $showConfirmLogout) {
             Button("Cancel", role: .cancel) { }
             Button("Yes", role: .destructive) {
-                sceneModel.appModel.accountModel.logout()
+                sidebarModel.addressBook.accountModel.logout()
             }
         }
         .toolbar {
-            if sceneModel.appModel.accountModel.signedIn {
-                Menu {
-                    if sceneModel.appModel.accountModel.addresses.count > 1 {
-                        Section {
-                            ForEach(sceneModel.appModel.accountModel.addresses) { address in
-                                Button {
-                                    sceneModel.addressBook.updateAddress(address.name)
-                                } label: {
-                                    if sceneModel.addressBook.actingAddress == address.name {
-                                        Label(address.name, systemImage: "checkmark")
-                                    } else {
-                                        Label(title: { Text(address.name)}, icon: { EmptyView() })
-                                    }
-                                }
-                            }
-                        } header: {
-                            Text("Select active address")
+            if sidebarModel.addressBook.accountModel.signedIn {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        addressPickerSection
+                        
+                        Button(role: .destructive) {
+                            self.showConfirmLogout.toggle()
+                        } label: {
+                            Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
                         }
-                    }
-                    
-                    Button(role: .destructive) {
-                        self.showConfirmLogout.toggle()
                     } label: {
-                        Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
+                        Label("More", systemImage: "ellipsis.circle")
                     }
-                } label: {
-                    Label("More", systemImage: "ellipsis.circle")
+
                 }
             }
+        }
+    }
+    
+    private func isActingAddress(_ address: AddressName) -> Bool {
+        sidebarModel.addressBook.actingAddress == address
+    }
+    
+    @ViewBuilder
+    private var addressPickerSection: some View {
+        Section {
+            ForEach(sidebarModel.addressBook.myAddresses) { address in
+                Button {
+                    sidebarModel.addressBook.setActiveAddress(address)
+                } label: {
+                    addressOption(address)
+                }
+            }
+        } header: {
+            Text("Select active address")
+        }
+    }
+    
+    @ViewBuilder
+    private func addressOption(_ address: AddressName) -> some View {
+        if isActingAddress(address) {
+            Label(address, systemImage: "checkmark")
+        } else {
+            Label(title: { Text(address) }, icon: { EmptyView() })
         }
     }
 }

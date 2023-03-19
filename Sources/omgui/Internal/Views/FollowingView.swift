@@ -5,28 +5,32 @@
 //  Created by Calvin Chestnut on 3/13/23.
 //
 
+import Combine
 import SwiftUI
 
 struct FollowingView: View {
     
-    @EnvironmentObject
-    var sceneModel: SceneModel
-    
     @ObservedObject
-    var fetcher: AddressFollowingDataFetcher
+    var addressBook: AddressBook
     
-    init(_ fetcher: AddressFollowingDataFetcher) {
-        self.fetcher = fetcher
+    var requests: [AnyCancellable] = []
+    
+    @State
+    var needsRefresh: Bool = false
+    
+    init(_ addressBook: AddressBook) {
+        self.addressBook = addressBook
     }
     
     var body: some View {
         followingView
+            .onAppear(perform: { needsRefresh = false })
     }
     
     @ViewBuilder
     var followingView: some View {
-        if sceneModel.addressBook.followingFetcher != nil {
-            StatusList(fetcher: sceneModel.appModel.fetchConstructor.statusLog(for: sceneModel.addressBook.followingItems.map { $0.name }), context: .column)
+        if let followingFetcher = addressBook.followingStatusLogFetcher {
+            StatusList(fetcher: followingFetcher, context: .column)
         } else {
             signedOutView
                 .toolbar {

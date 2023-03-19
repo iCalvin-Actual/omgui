@@ -60,7 +60,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
             filters.append(.query(queryString))
         }
         return filters
-            .applyFilters(to: dataFetcher.listItems, sceneModel: sceneModel)
+            .applyFilters(to: dataFetcher.listItems, addressBook: sceneModel.addressBook)
             .sorted(with: sort)
     }
     
@@ -129,7 +129,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
         }
         .listRowSeparator(.hidden, edges: .all)
         .contextMenu(menuItems: {
-            self.menuBuilder.contextMenu(for: item, with: sceneModel)
+            self.menuBuilder.contextMenu(for: item, with: sceneModel.addressBook)
         })
     }
     
