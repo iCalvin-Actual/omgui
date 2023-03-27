@@ -595,8 +595,11 @@ class AddressProfileDataFetcher: DataFetcher {
     }
     
     override func throwingUpdate() async throws {
+        guard !addressName.isEmpty else {
+            return
+        }
         Task {
-            let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
+            let profile = try await interface.fetchAddressProfile(addressName, credential: nil)
             self.html = profile?.content
             self.fetchFinished()
         }
@@ -621,6 +624,9 @@ class AddressNowDataFetcher: DataFetcher {
     }
     
     override func throwingUpdate() async throws {
+        guard !addressName.isEmpty else {
+            return
+        }
         Task {
             let now = try await interface.fetchAddressNow(addressName)
             self.content = now?.content
@@ -644,6 +650,9 @@ class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
     }
     
     override func throwingUpdate() async throws {
+        guard !addressName.isEmpty else {
+            return
+        }
         Task {
             let pastes = try await interface.fetchAddressPastes(addressName)
             DispatchQueue.main.async {
@@ -721,6 +730,9 @@ class AddressSummaryDataFetcher: DataFetcher {
     }
     
     override func throwingUpdate() async throws {
+        guard !addressName.isEmpty else {
+            return
+        }
         Task {
             verified = false
             registered = Date()

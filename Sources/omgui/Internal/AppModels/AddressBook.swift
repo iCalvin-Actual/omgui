@@ -99,8 +99,10 @@ class AddressBook: DataFetcher {
             return
         }
         let firstAddress = incomingAddresses.first!
-        let preference = self.myAddresses.contains(self.preferredAddress) ? self.preferredAddress : firstAddress
-        self.setActiveAddress(preference)
+        Task {
+            let preference = self.myAddresses.contains(self.preferredAddress) ? self.preferredAddress : firstAddress
+            self.setActiveAddress(preference)
+        }
     }
     
     public func setActiveAddress(_ address: AddressName) {
