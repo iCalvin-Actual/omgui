@@ -485,11 +485,6 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
         super.init(interface: interface)
     }
     
-    override func update() async {
-        await super.update()
-        print("Updating for \(address)")
-    }
-    
     override func throwingUpdate() async throws {
         guard !address.isEmpty else {
             threadSafeSendUpdate()
