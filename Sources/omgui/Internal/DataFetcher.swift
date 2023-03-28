@@ -30,6 +30,13 @@ class DataFetcher: NSObject, ObservableObject {
         }
     }
     
+    func updateIfNeeded() async {
+        guard !loading else {
+            return
+        }
+        await update()
+    }
+    
     func update() async {
         loading = true
         threadSafeSendUpdate()
@@ -168,7 +175,6 @@ class AccountInfoDataFetcher: DataFetcher {
     private let name: String
     private let credential: String
     
-    @Published
     var accountName: String?
     
     init(address: AddressName, interface: DataInterface, credential: APICredential) {
@@ -179,9 +185,8 @@ class AccountInfoDataFetcher: DataFetcher {
     
     override func throwingUpdate() async throws {
         let info = try await interface.fetchAccountInfo(name, credential: credential)
-        DispatchQueue.main.async {
-            self.accountName = info?.name
-        }
+        self.accountName = info?.name
+        self.threadSafeSendUpdate()
     }
 }
 
@@ -211,7 +216,6 @@ class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
 class AddressBioDataFetcher: DataFetcher {
     let address: AddressName
     
-    @Published
     var bio: AddressBioModel?
     
     init(address: AddressName, interface: DataInterface) {
@@ -222,10 +226,8 @@ class AddressBioDataFetcher: DataFetcher {
     override func throwingUpdate() async throws {
         Task {
             let bio = try await interface.fetchAddressBio(address)
-            DispatchQueue.main.async {
-                self.bio = bio
-                self.fetchFinished()
-            }
+            self.bio = bio
+            self.threadSafeSendUpdate()
         }
     }
 }
@@ -335,11 +337,15 @@ class BlockListDataFetcher: ListDataFetcher<AddressModel> {
         
         super.init(interface: interface)
         
-        globalBlocklistFetcher.objectWillChange.sink { globalItems in
+        globalBlocklistFetcher.objectWillChange.sink { _ in
             self.updateList()
         }.store(in: &requests)
         
-        localBloclistFetcher.objectWillChange.sink { localItems in
+        localBloclistFetcher.objectWillChange.sink { _ in
+            self.updateList()
+        }.store(in: &requests)
+        
+        addressBlocklistFetcher?.objectWillChange.sink { _ in
             self.updateList()
         }.store(in: &requests)
     }
@@ -364,13 +370,11 @@ class BlockListDataFetcher: ListDataFetcher<AddressModel> {
         self.fetchFinished()
     }
     
-    override func throwingUpdate() async throws {
-        try await globalBlocklistFetcher.throwingUpdate()
-        try await localBloclistFetcher.throwingUpdate()
-        try await addressBlocklistFetcher?.throwingUpdate()
-        addressBlocklistFetcher?.objectWillChange.sink { addressItems in
-            self.updateList()
-        }.store(in: &requests)
+    override func update() async {
+        await super.update()
+        await globalBlocklistFetcher.updateIfNeeded()
+        await localBloclistFetcher.updateIfNeeded()
+        await addressBlocklistFetcher?.updateIfNeeded()
     }
 }
 
@@ -481,6 +485,11 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
         super.init(interface: interface)
     }
     
+    override func update() async {
+        await super.update()
+        print("Updating for \(address)")
+    }
+    
     override func throwingUpdate() async throws {
         guard !address.isEmpty else {
             threadSafeSendUpdate()
@@ -546,21 +555,15 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
     }
     
     override func throwingUpdate() async throws {
-        if addresses.isEmpty {
-            Task {
+        Task {
+            if addresses.isEmpty {
                 let statuses = try await interface.fetchStatusLog()
-                DispatchQueue.main.async {
-                    self.listItems = statuses
-                    self.fetchFinished()
-                }
-            }
-        } else {
-            Task {
+                self.listItems = statuses
+                self.threadSafeSendUpdate()
+            } else {
                 let statuses = try await interface.fetchAddressStatuses(addresses: addresses)
-                DispatchQueue.main.async {
-                    self.listItems = statuses
-                    self.fetchFinished()
-                }
+                self.listItems = statuses
+                self.threadSafeSendUpdate()
             }
         }
     }
@@ -729,27 +732,33 @@ class AddressSummaryDataFetcher: DataFetcher {
         super.init(interface: interface)
     }
     
+    override func update() async {
+        guard !addressName.isEmpty else {
+            return
+        }
+        await super.update()
+        
+        await profileFetcher.updateIfNeeded()
+        await nowFetcher.updateIfNeeded()
+        await purlFetcher.updateIfNeeded()
+        await pasteFetcher.updateIfNeeded()
+        await statusFetcher.updateIfNeeded()
+        await bioFetcher.updateIfNeeded()
+        await followingFetcher.updateIfNeeded()
+        await blockedFetcher.updateIfNeeded()
+    }
+    
     override func throwingUpdate() async throws {
         guard !addressName.isEmpty else {
             return
         }
         Task {
-            verified = false
-            registered = Date()
             url = URL(string: "https://\(addressName).omg.lol")
             let info = try await interface.fetchAddressInfo(addressName)
             self.verified = false
             self.registered = info.registered
             self.url = info.url
             
-            try await profileFetcher.throwingUpdate()
-            try await nowFetcher.throwingUpdate()
-            try await purlFetcher.throwingUpdate()
-            try await pasteFetcher.throwingUpdate()
-            try await statusFetcher.throwingUpdate()
-            try await bioFetcher.throwingUpdate()
-            try await followingFetcher.throwingUpdate()
-            try await blockedFetcher.throwingUpdate()
             self.fetchFinished()
         }
     }

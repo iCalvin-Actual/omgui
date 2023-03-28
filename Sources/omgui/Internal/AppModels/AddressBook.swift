@@ -10,7 +10,7 @@ import SwiftUI
 
 
 class AddressBook: DataFetcher {
-    @SceneStorage("app.lol.active")
+//    @SceneStorage("app.lol.active")
     var preferredAddress: AddressName = ""
     
     var actingAddress: AddressName = "" {
@@ -75,11 +75,10 @@ class AddressBook: DataFetcher {
         followingStatusLogFetcher = nil
         let followingFetcher = addressSummary(actingAddress).followingFetcher
         followingFetcher.objectWillChange.sink { _ in
-            self.followingStatusLogFetcher = self.fetchConstructor.statusLog(for: self.following)
-            Task {
-                await self.followingStatusLogFetcher?.update()
+            if self.following.sorted() != self.followingStatusLogFetcher?.addresses.sorted() ?? [] {
+                self.followingStatusLogFetcher = self.fetchConstructor.statusLog(for: self.following)
+                self.threadSafeSendUpdate()
             }
-            self.threadSafeSendUpdate()
         }
         .store(in: &requests)
         self.followingFetcher = followingFetcher
