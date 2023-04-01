@@ -26,7 +26,7 @@ struct DestinationConstructor {
         case .community:
             StatusList(fetcher: addressBook.statusLogFetcher, context: .column)
         case .address(let name):
-            AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), context: .profile)
+            AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), context: .profile, allowEditing: addressBook.actingAddress == name)
         case .webpage(let name):
             AddressProfileView(fetcher: addressBook.addressSummary(name).profileFetcher)
         case .now(let name):
@@ -53,6 +53,8 @@ struct DestinationConstructor {
             ListView<PURLModel, ListRow<PURLModel>, EmptyView>(filters: .none, dataFetcher: addressBook.addressSummary(address).purlFetcher, rowBuilder: { _ in return nil as ListRow<PURLModel>? })
         case .statusLog(let address):
             StatusList(fetcher: addressBook.addressSummary(address).statusFetcher, context: .profile)
+        case .editWebpage(let name):
+            EditPageView(addressBook.addressSummary(name).profileFetcher.html ?? "EMPTY")
         default:
             EmptyView()
         }

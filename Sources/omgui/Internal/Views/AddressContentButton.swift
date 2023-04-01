@@ -10,9 +10,18 @@ import SwiftUI
 struct AddressContentButton: View {
     let contentType: AddressContent
     let name: AddressName
+    let preferEditing: Bool
+    
+    var preferredDestination: NavigationDestination {
+        if preferEditing {
+            return contentType.editingDestination(name)
+        } else {
+            return contentType.destination(name)
+        }
+    }
     
     var body: some View {
-        NavigationLink(value: contentType.destination(name)) {
+        NavigationLink(value: preferredDestination) {
             HStack {
                 Spacer()
                 VStack {

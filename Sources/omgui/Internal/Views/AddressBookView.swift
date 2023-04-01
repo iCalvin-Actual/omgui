@@ -40,7 +40,14 @@ struct AddressBookView: View {
     @ViewBuilder
     var accountHeader: some View {
         if accountModel.signedIn {
-            ListRow<AddressModel>(model: .init(name: addressBook.actingAddress), preferredStyle: .minimal)
+            ZStack {
+                NavigationLink(value: NavigationDestination.address(addressBook.actingAddress)) {
+                    EmptyView()
+                }
+                .opacity(0)
+                
+                ListRow<AddressModel>(model: .init(name: addressBook.actingAddress), preferredStyle: .minimal)
+            }
         } else {
             HStack {
                 Button("omg.lol sign in") {

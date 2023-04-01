@@ -19,12 +19,16 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/gonzalezreal/swift-markdown-ui", exact: "2.0.1"),
+        .package(url: "https://github.com/stevengharris/MarkupEditor", exact: "0.5.1"),
+        .package(url: "https://github.com/JohnSundell/Ink", exact: "0.5.1"),
     ],
     targets: [
         .target(
             name: "omgui",
             dependencies: [
-                .product(name: "MarkdownUI", package: "swift-markdown-ui")
+                .product(name: "MarkdownUI", package: "swift-markdown-ui"),
+                "MarkupEditor",
+                "Ink"
             ]),
         .testTarget(
             name: "omguiTests",

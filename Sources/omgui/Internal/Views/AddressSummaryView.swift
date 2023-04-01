@@ -18,6 +18,7 @@ struct AddressSummaryView: View {
     var addressSummaryFetcher: AddressSummaryDataFetcher
     
     var context: ViewContext
+    var allowEditing: Bool
     
     @State
     var sidebarVisibility: NavigationSplitViewVisibility = .all
@@ -66,7 +67,7 @@ struct AddressSummaryView: View {
                         ForEach(pages) { item in
                             HStack {
                                 Spacer()
-                                AddressContentButton(contentType: item, name: addressSummaryFetcher.addressName)
+                                AddressContentButton(contentType: item, name: addressSummaryFetcher.addressName, preferEditing: allowEditing)
                                 Spacer()
                             }
                         }
@@ -87,7 +88,7 @@ struct AddressSummaryView: View {
                         GridRow {
                             HStack {
                                 Spacer()
-                                AddressContentButton(contentType: item, name: addressSummaryFetcher.addressName)
+                                AddressContentButton(contentType: item, name: addressSummaryFetcher.addressName, preferEditing: allowEditing)
                                 Spacer()
                             }
                             .gridCellColumns(2)

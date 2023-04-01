@@ -597,7 +597,7 @@ class AddressProfileDataFetcher: DataFetcher {
             return
         }
         Task {
-            let profile = try await interface.fetchAddressProfile(addressName, credential: nil)
+            let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
             self.html = profile?.content
             self.fetchFinished()
         }

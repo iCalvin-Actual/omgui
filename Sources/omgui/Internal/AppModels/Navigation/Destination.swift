@@ -24,6 +24,7 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     case blocked
     case addressFollowing(_ name: AddressName)
     case webpage(_ name: AddressName)
+    case editWebpage(_ name: AddressName)
     case now(_ name: AddressName)
     case purls(_ name: AddressName)
     case pastebin(_ name: AddressName)
@@ -45,6 +46,7 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         case .blocked:                  return "blocked"
         case .addressFollowing(let address): return "following.\(address)"
         case .webpage(let address):     return "webpage.\(address)"
+        case .editWebpage(let address): return "webpage.\(address).edit"
         case .now(let address):         return "now.\(address)"
         case .purls(let address):       return "purls.\(address)"
         case .pastebin(let address):    return "pastes.\(address)"
@@ -94,7 +96,11 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
             guard splitString.count > 1 else {
                 return nil
             }
-            self = .webpage(splitString[1])
+            if splitString.last == "edit" {
+                self = .editWebpage(splitString[1])
+            } else {
+                self = .webpage(splitString[1])
+            }
         case "now":
             guard splitString.count > 1 else {
                 return nil

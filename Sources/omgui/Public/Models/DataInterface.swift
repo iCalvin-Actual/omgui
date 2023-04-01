@@ -45,6 +45,13 @@ public protocol DataInterface {
     )
     async throws -> AddressProfile?
     
+    func saveAddressProfile(
+        _ name: AddressName,
+        content: String,
+        credential: APICredential
+    )
+    async throws -> AddressProfile?
+    
     func fetchAddressInfo(
         _ name: AddressName
     )

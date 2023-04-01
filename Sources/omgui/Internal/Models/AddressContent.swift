@@ -89,4 +89,13 @@ enum AddressContent: String, Identifiable, Codable {
             return .statusLog(name)
         }
     }
+    
+    func editingDestination(_ name: AddressName) -> NavigationDestination {
+        switch self {
+        case .profile:
+            return .editWebpage(name)
+        default:
+            return destination(name)
+        }
+    }
 }

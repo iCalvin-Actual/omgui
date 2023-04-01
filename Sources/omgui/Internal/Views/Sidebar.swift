@@ -22,7 +22,14 @@ struct Sidebar: View {
     @ViewBuilder
     var accountHeader: some View {
         if sidebarModel.addressBook.accountModel.signedIn {
-            ListRow<AddressModel>(model: .init(name: sidebarModel.actingAddress), preferredStyle: .minimal)
+            ZStack {
+                NavigationLink(value: NavigationDestination.address(sidebarModel.actingAddress)) {
+                    EmptyView()
+                }
+                .opacity(0)
+                
+                ListRow<AddressModel>(model: .init(name: sidebarModel.actingAddress), preferredStyle: .minimal)
+            }
         } else {
             HStack {
                 Button("omg.lol sign in") {

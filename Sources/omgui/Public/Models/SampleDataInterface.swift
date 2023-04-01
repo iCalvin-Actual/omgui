@@ -132,6 +132,10 @@ public class SampleData: DataInterface {
         let content = String.htmlContent
         return .init(owner: name, content: content)
     }
+    
+    public func saveAddressProfile(_ name: AddressName, content: String, credential: APICredential) async throws -> AddressProfile? {
+        try await fetchAddressProfile(name, credential: credential)
+    }
 }
 
 fileprivate extension Double {
