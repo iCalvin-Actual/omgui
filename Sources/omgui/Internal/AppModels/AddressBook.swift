@@ -48,13 +48,13 @@ class AddressBook: DataFetcher {
         
         accountModel.objectWillChange.sink { _ in
             Task {
-                await self.update()
+                await self.perform()
             }
         }
         .store(in: &requests)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         myAddressesFetcher = AccountAddressDataFetcher(interface: fetchConstructor.interface, credential: accountModel.authKey)
         myAddressesFetcher?.objectWillChange.sink { _ in
             self.handleAddresses(self.myAddresses)
@@ -83,7 +83,7 @@ class AddressBook: DataFetcher {
         .store(in: &requests)
         self.followingFetcher = followingFetcher
         Task {
-            await followingFetcher.update()
+            await followingFetcher.perform()
         }
     }
     
@@ -114,6 +114,21 @@ class AddressBook: DataFetcher {
     public let directoryFetcher: AddressDirectoryDataFetcher
     public let gardenFetcher: NowGardenDataFetcher
     public let statusLogFetcher: StatusLogDataFetcher
+    
+    private var editProfileCache: [AddressName: ProfileDraftPoster] = [:]
+    public func profilePoster(for address: AddressName) -> ProfileDraftPoster? {
+        guard myAddresses.contains(address) else {
+            return nil
+        }
+        if let poster = editProfileCache[address] {
+            return poster
+        } else if let credential = accountModel.credential(for: address, in: self) {
+            let poster = ProfileDraftPoster(address, draft: .init(content: "", publish: true), interface: interface, credential: credential)
+            editProfileCache[address] = poster
+            return poster
+        }
+        return nil
+    }
     
     private var publicProfileCache: [AddressName: AddressSummaryDataFetcher] = [:]
     private func constructFetcher(for address: AddressName) -> AddressSummaryDataFetcher {

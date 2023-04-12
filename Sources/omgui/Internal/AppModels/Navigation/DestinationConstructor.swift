@@ -54,7 +54,12 @@ struct DestinationConstructor {
         case .statusLog(let address):
             StatusList(fetcher: addressBook.addressSummary(address).statusFetcher, context: .profile)
         case .editWebpage(let name):
-            EditPageView(addressBook.addressSummary(name).profileFetcher.html ?? "EMPTY")
+            if let poster = addressBook.profilePoster(for: name) {
+                EditPageView(poster: poster)
+            } else {
+                // Unauthenticated
+                EmptyView()
+            }
         default:
             EmptyView()
         }

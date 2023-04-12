@@ -100,7 +100,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
             }
         }
         .refreshable(action: {
-            await dataFetcher.update()
+            await dataFetcher.perform()
         })
         .listStyle(.plain)
     }

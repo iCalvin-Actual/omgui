@@ -38,14 +38,14 @@ class AccountModel: DataFetcher {
     func login(_ incomingAuthKey: APICredential) async {
         authKey = incomingAuthKey
         Task {
-            await update()
+            await perform()
         }
     }
     
     func logout() {
         authKey = ""
         Task {
-            await update()
+            await perform()
         }
     }
     
@@ -57,7 +57,7 @@ class AccountModel: DataFetcher {
         return AccountInfoDataFetcher(address: name, interface: interface, credential: credential)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         guard !authKey.isEmpty else {
             accountInfoFetcher = nil
             threadSafeSendUpdate()
@@ -88,7 +88,7 @@ class AccountModel: DataFetcher {
     func authenticate() async {
         logout()
         Task {
-            await authenticationFetcher.update()
+            await authenticationFetcher.perform()
         }
     }
     

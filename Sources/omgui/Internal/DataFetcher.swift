@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 import Foundation
 
-class DataFetcher: NSObject, ObservableObject {
+class Request: NSObject, ObservableObject {
     let interface: DataInterface
     
     var loaded: Bool = false
@@ -20,34 +20,22 @@ class DataFetcher: NSObject, ObservableObject {
     
     var requests: [AnyCancellable] = []
     
-    init(interface: DataInterface, autoLoad: Bool = true, autoReloadDuration: TimeInterval? = nil) {
+    init(interface: DataInterface) {
         self.interface = interface
         super.init()
-        if autoLoad {
-            Task {
-                await update()
-            }
-        }
     }
     
-    func updateIfNeeded() async {
-        guard !loading else {
-            return
-        }
-        await update()
-    }
-    
-    func update() async {
+    func perform() async {
         loading = true
         threadSafeSendUpdate()
         do {
-            try await throwingUpdate()
+            try await throwingRequest()
         } catch {
             handle(error)
         }
     }
     
-    func throwingUpdate() async throws {
+    func throwingRequest() async throws {
     }
     
     func fetchFinished() {
@@ -67,6 +55,125 @@ class DataFetcher: NSObject, ObservableObject {
         DispatchQueue.main.async {
             self.objectWillChange.send()
         }
+    }
+}
+
+class DraftPoster<D: DraftItem>: Request {
+    let address: AddressName
+    let credential: APICredential
+    var draft: D
+    
+    init(_ address: AddressName, draft: D, interface: DataInterface, credential: APICredential) {
+        self.address = address
+        self.credential = credential
+        self.draft = draft
+        super.init(interface: interface)
+        Task {
+            await fetchCurrentValue()
+        }
+    }
+    
+    func fetchCurrentValue() async {
+    }
+}
+
+class MDDraftPoster<D: MDDraft>: DraftPoster<D> {
+    var originalContent: String
+    
+    override init(_ address: AddressName, draft: D, interface: DataInterface, credential: APICredential) {
+        self.originalContent = draft.content
+        super.init(address, draft: draft, interface: interface, credential: credential)
+    }
+}
+
+class NamedDraftPoster<D: NamedDraft>: DraftPoster<D> {
+    init(_ address: AddressName, title: String, interface: DataInterface, credential: APICredential) {
+        let draft: D = .init(name: title, content: "")
+        super.init(address, draft: draft, interface: interface, credential: credential)
+    }
+}
+
+class ProfileDraftPoster: MDDraftPoster<AddressProfile.Draft> {
+    override func throwingRequest() async throws {
+        loading = true
+        let _ = try await interface.saveAddressProfile(
+            address,
+            content: draft.content,
+            credential: credential
+        )
+        originalContent = draft.content
+        threadSafeSendUpdate()
+    }
+    
+    override func fetchCurrentValue() async {
+        loading = true
+        do {
+            if let profile = try await interface.fetchAddressProfile(address, credential: credential) {
+                draft.content = profile.content
+                originalContent = profile.content
+            }
+            threadSafeSendUpdate()
+        } catch {
+            loading = false
+        }
+    }
+}
+
+class NowDraftPoster: DraftPoster<NowModel.Draft> {
+    override func throwingRequest() async throws {
+        threadSafeSendUpdate()
+    }
+}
+
+class PasteDraftPoster: DraftPoster<PasteModel.Draft> {
+    init(_ address: AddressName, title: String, interface: DataInterface, credential: APICredential) {
+        let emptyDraft = PasteModel.Draft(name: title, content: "")
+        super.init(address, draft: emptyDraft, interface: interface, credential: credential)
+    }
+    
+    override func throwingRequest() async throws {
+        let _ = try await interface.savePaste(draft, to: address, credential: credential)
+        threadSafeSendUpdate()
+    }
+}
+
+class PURLDraftPoster: DraftPoster<PURLModel.Draft> {
+    override func throwingRequest() async throws {
+        threadSafeSendUpdate()
+    }
+}
+
+class StatusDraftPoster: DraftPoster<StatusModel.Draft> {
+    override func throwingRequest() async throws {
+        threadSafeSendUpdate()
+    }
+}
+
+class DataFetcher: Request {
+    struct AutomationPreferences {
+        var autoLoad: Bool
+        var reloadDuration: TimeInterval?
+        
+        init(_ autoLoad: Bool = true, reloadDuration: TimeInterval? = nil) {
+            self.reloadDuration = reloadDuration
+            self.autoLoad = autoLoad
+        }
+    }
+    
+    init(interface: DataInterface, automation: AutomationPreferences = .init()) {
+        super.init(interface: interface)
+        if automation.autoLoad {
+            Task {
+                await perform()
+            }
+        }
+    }
+    
+    func updateIfNeeded() async {
+        guard !loading else {
+            return
+        }
+        await perform()
     }
 }
 
@@ -116,7 +223,7 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
     
     init(client: ClientInfo, interface: DataInterface) {
         self.client = client
-        super.init(interface: interface, autoLoad: false)
+        super.init(interface: interface, automation: .init(false))
         self.url = interface.authURL()
         self.recreateWebSession()
     }
@@ -125,7 +232,7 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
         return ASPresentationAnchor()
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         recreateWebSession()
         DispatchQueue.main.async {
             self.webSession?.start()
@@ -156,16 +263,12 @@ class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
         "app.lol"
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         Task {
-            do {
-                let directory = try await interface.fetchAddressDirectory()
-                DispatchQueue.main.async {
-                    self.listItems = directory.map({ AddressModel(name: $0) })
-                    self.fetchFinished()
-                }
-            } catch {
-                self.handle(error)
+            let directory = try await interface.fetchAddressDirectory()
+            DispatchQueue.main.async {
+                self.listItems = directory.map({ AddressModel(name: $0) })
+                self.fetchFinished()
             }
         }
     }
@@ -183,7 +286,7 @@ class AccountInfoDataFetcher: DataFetcher {
         super.init(interface: interface)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         let info = try await interface.fetchAccountInfo(name, credential: credential)
         self.accountName = info?.name
         self.threadSafeSendUpdate()
@@ -201,14 +304,10 @@ class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
         super.init(items: [], interface: interface)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         Task {
-            do {
-                self.listItems = try await interface.fetchAccountAddresses(credential).map({ AddressModel(name: $0) })
-                self.fetchFinished()
-            } catch {
-                self.handle(error)
-            }
+            self.listItems = try await interface.fetchAccountAddresses(credential).map({ AddressModel(name: $0) })
+            self.fetchFinished()
         }
     }
 }
@@ -223,7 +322,7 @@ class AddressBioDataFetcher: DataFetcher {
         super.init(interface: interface)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         Task {
             let bio = try await interface.fetchAddressBio(address)
             self.bio = bio
@@ -246,7 +345,7 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
         super.init(interface: interface)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         Task {
             guard let content = try await interface.fetchPaste("app.lol.following", from: address, credential: credential)?.content else {
                 self.fetchFinished()
@@ -268,13 +367,12 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     func follow(_ toFollow: AddressName, credential: APICredential) {
         let newValue = Array(Set(self.listItems.map({ $0.name }) + [toFollow]))
         let newContent = newValue.joined(separator: "\n")
-        let newPaste = PasteModel(
-            owner: address,
+        let draft = PasteModel.Draft(
             name: "app.lol.following",
             content: newContent
         )
         Task {
-            let _ = try await self.interface.savePaste(newPaste, credential: credential)
+            let _ = try await self.interface.savePaste(draft, to: address, credential: credential)
             self.handleItems(newValue)
         }
     }
@@ -282,13 +380,12 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     func unFollow(_ toRemove: AddressName, credential: APICredential) {
         let newValue = listItems.map({ $0.name }).filter({ $0 != toRemove })
         let newContent = newValue.joined(separator: "\n")
-        let newPaste = PasteModel(
-            owner: address,
+        let draft = PasteModel.Draft(
             name: "app.lol.following",
             content: newContent
         )
         Task {
-            let _ = try await self.interface.savePaste(newPaste, credential: credential)
+            let _ = try await self.interface.savePaste(draft, to: address, credential: credential)
             self.handleItems(newValue)
         }
     }
@@ -370,8 +467,8 @@ class BlockListDataFetcher: ListDataFetcher<AddressModel> {
         self.fetchFinished()
     }
     
-    override func update() async {
-        await super.update()
+    override func perform() async {
+        await super.perform()
         await globalBlocklistFetcher.updateIfNeeded()
         await localBloclistFetcher.updateIfNeeded()
         await addressBlocklistFetcher?.updateIfNeeded()
@@ -401,7 +498,7 @@ class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
         set {
             currentlyPinnedAddresses = Array(Set(newValue)).joined(separator: "&&&")
             Task {
-                await self.update()
+                await self.perform()
             }
         }
     }
@@ -410,7 +507,7 @@ class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
         "pinned"
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         DispatchQueue.main.async {
             self.listItems = self.pinnedAddresses.map({ AddressModel.init(name: $0) })
             self.fetchFinished()
@@ -443,7 +540,7 @@ class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
         set {
             cachedBlockList = Array(Set(newValue)).joined(separator: "&&&")
             Task {
-                await self.update()
+                await self.perform()
             }
         }
     }
@@ -457,7 +554,7 @@ class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
         "blocked"
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         self.listItems = blockedAddresses.map({ AddressModel.init(name: $0) })
         self.fetchFinished()
     }
@@ -485,7 +582,7 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
         super.init(interface: interface)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         guard !address.isEmpty else {
             threadSafeSendUpdate()
             return
@@ -499,13 +596,12 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     func block(_ toBlock: AddressName, credential: APICredential) {
         let newValue = Array(Set(self.listItems.map({ $0.name }) + [toBlock]))
         let newContent = newValue.joined(separator: "\n")
-        let newPaste = PasteModel(
-            owner: address,
+        let draft = PasteModel.Draft(
             name: "app.lol.blocked",
             content: newContent
         )
         Task {
-            let _ = try await self.interface.savePaste(newPaste, credential: credential)
+            let _ = try await self.interface.savePaste(draft, to: address, credential: credential)
             self.handleItems(newValue)
         }
         
@@ -514,13 +610,12 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     func unBlock(_ toUnblock: AddressName, credential: APICredential) {
         let newValue = listItems.map({ $0.name }).filter({ $0 != toUnblock })
         let newContent = newValue.joined(separator: "\n")
-        let newPaste = PasteModel(
-            owner: address,
+        let draft = PasteModel.Draft(
             name: "app.lol.blocked",
             content: newContent
         )
         Task {
-            let _ = try await self.interface.savePaste(newPaste, credential: credential)
+            let _ = try await self.interface.savePaste(draft, to: address, credential: credential)
             self.handleItems(newValue)
         }
     }
@@ -528,7 +623,7 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     private func handleItems(_ addresses: [AddressName]) {
         self.listItems = addresses.map({ AddressModel(name: $0) })
         Task {
-            await self.update()
+            await self.perform()
         }
     }
 }
@@ -549,7 +644,7 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
         super.init(items: statuses, interface: interface)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         Task {
             if addresses.isEmpty {
                 let statuses = try await interface.fetchStatusLog()
@@ -568,7 +663,7 @@ class NowGardenDataFetcher: ListDataFetcher<NowListing> {
     override var title: String {
         "garden.lol"
     }
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         Task {
             let garden = try await interface.fetchNowGarden()
             DispatchQueue.main.async {
@@ -592,7 +687,7 @@ class AddressProfileDataFetcher: DataFetcher {
         super.init(interface: interface)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         guard !addressName.isEmpty else {
             return
         }
@@ -621,7 +716,7 @@ class AddressNowDataFetcher: DataFetcher {
         super.init(interface: interface)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         guard !addressName.isEmpty else {
             return
         }
@@ -647,7 +742,7 @@ class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
         super.init(items: pastes, interface: interface)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         guard !addressName.isEmpty else {
             return
         }
@@ -673,7 +768,7 @@ class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
         super.init(items: purls, interface: interface)
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         Task {
             let purls = try await interface.fetchAddressPURLs(addressName)
             DispatchQueue.main.async {
@@ -727,11 +822,11 @@ class AddressSummaryDataFetcher: DataFetcher {
         super.init(interface: interface)
     }
     
-    override func update() async {
+    override func perform() async {
         guard !addressName.isEmpty else {
             return
         }
-        await super.update()
+        await super.perform()
         
         await profileFetcher.updateIfNeeded()
         await nowFetcher.updateIfNeeded()
@@ -743,7 +838,7 @@ class AddressSummaryDataFetcher: DataFetcher {
         await blockedFetcher.updateIfNeeded()
     }
     
-    override func throwingUpdate() async throws {
+    override func throwingRequest() async throws {
         guard !addressName.isEmpty else {
             return
         }

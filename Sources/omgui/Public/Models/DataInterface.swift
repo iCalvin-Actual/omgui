@@ -80,7 +80,8 @@ public protocol DataInterface {
     async throws -> PasteModel?
     
     func savePaste(
-        _ draft: PasteModel,
+        _ draft: PasteModel.Draft,
+        to address: AddressName,
         credential: APICredential
     )
     async throws -> PasteModel?

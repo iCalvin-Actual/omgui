@@ -95,10 +95,11 @@ public class SampleData: DataInterface {
     }
     
     public func savePaste(
-        _ draft: PasteModel,
+        _ draft: PasteModel.Draft,
+        to address: AddressName,
         credential: APICredential
     ) async throws -> PasteModel? {
-        try await fetchPaste(draft.id, from: draft.owner, credential: credential)
+        try await fetchPaste(draft.name, from: address, credential: credential)
     }
     
     public func fetchStatusLog() async throws -> [StatusModel] {

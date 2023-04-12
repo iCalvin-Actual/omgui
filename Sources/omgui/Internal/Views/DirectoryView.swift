@@ -54,7 +54,7 @@ struct DirectoryView: View {
             }
         }
         .refreshable(action: {
-            await dataFetcher.update()
+            await dataFetcher.perform()
         })
         .searchable(text: $queryString, placement: .automatic)
         .toolbar(content: {

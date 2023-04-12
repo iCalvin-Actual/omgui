@@ -67,12 +67,21 @@ class FetchConstructor {
         AddressProfileDataFetcher(name: address, interface: interface)
     }
     
+    func addressProfilePoster(_ address: AddressName, credential: APICredential) -> ProfileDraftPoster {
+        let draft = AddressProfile.Draft(content: "", publish: true)
+        return ProfileDraftPoster(address, draft: draft, interface: interface, credential: credential)
+    }
+    
     func addresNowFetcher(_ address: AddressName) -> AddressNowDataFetcher {
         AddressNowDataFetcher(name: address, interface: interface)
     }
     
     func addressPastesFetcher(_ address: AddressName) -> AddressPasteBinDataFetcher {
         AddressPasteBinDataFetcher(name: address, interface: interface)
+    }
+    
+    func draftPastePoster(_ title: String, for address: AddressName, credential: APICredential) -> PasteDraftPoster {
+        PasteDraftPoster(address, title: title, interface: interface, credential: credential)
     }
     
     func addressPURLsFetcher(_ address: AddressName) -> AddressPURLsDataFetcher {
