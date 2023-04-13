@@ -26,6 +26,7 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     case webpage(_ name: AddressName)
     case editWebpage(_ name: AddressName)
     case now(_ name: AddressName)
+    case editNow(_ name: AddressName)
     case purls(_ name: AddressName)
     case pastebin(_ name: AddressName)
     case statusLog(_ name: AddressName)
@@ -44,12 +45,13 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         case .followingAddresses:       return "following.addresses"
         case .saved(let feature):       return "saved.\(feature.rawValue)"
         case .comingSoon(let feature):  return "coming.\(feature.rawValue)"
-        case .account:    return "account"
+        case .account:                  return "account"
         case .blocked:                  return "blocked"
         case .addressFollowing(let address): return "following.\(address)"
         case .webpage(let address):     return "webpage.\(address)"
         case .editWebpage(let address): return "webpage.\(address).edit"
         case .now(let address):         return "now.\(address)"
+        case .editNow(let address):     return "now.\(address).edit"
         case .purls(let address):       return "purls.\(address)"
         case .pastebin(let address):    return "pastes.\(address)"
         case .statusLog(let address):   return "status.\(address)"
@@ -109,7 +111,11 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
             guard splitString.count > 1 else {
                 return nil
             }
-            self = .now(splitString[1])
+            if splitString.last == "edit" {
+                self = .editNow(splitString[1])
+            } else {
+                self = .now(splitString[1])
+            }
         case "paste":
             guard splitString.count > 2 else {
                 return nil

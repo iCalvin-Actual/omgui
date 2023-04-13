@@ -61,6 +61,7 @@ class Request: NSObject, ObservableObject {
 class DraftPoster<D: DraftItem>: Request {
     let address: AddressName
     let credential: APICredential
+    
     var draft: D
     
     init(_ address: AddressName, draft: D, interface: DataInterface, credential: APICredential) {
@@ -119,9 +120,29 @@ class ProfileDraftPoster: MDDraftPoster<AddressProfile.Draft> {
     }
 }
 
-class NowDraftPoster: DraftPoster<NowModel.Draft> {
+class NowDraftPoster: MDDraftPoster<NowModel.Draft> {
     override func throwingRequest() async throws {
+        let _ = try await interface.saveAddressNow(
+            address,
+            content: draft.content,
+            credential: credential
+        )
+        originalContent = draft.content
         threadSafeSendUpdate()
+    }
+    
+    override func fetchCurrentValue() async {
+        loading = true
+        do {
+            if let now = try await interface.fetchAddressNow(address) {
+                let nonNilContent = now.content ?? draft.content
+                draft.content = nonNilContent
+                originalContent = nonNilContent
+            }
+            threadSafeSendUpdate()
+        } catch {
+            loading = false
+        }
     }
 }
 

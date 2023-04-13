@@ -130,6 +130,21 @@ class AddressBook: DataFetcher {
         return nil
     }
     
+    private var editNowCache: [AddressName: NowDraftPoster] = [:]
+    public func nowPoster(for address: AddressName) -> NowDraftPoster? {
+        guard myAddresses.contains(address) else {
+            return nil
+        }
+        if let poster = editNowCache[address] {
+            return poster
+        } else if let credential = accountModel.credential(for: address, in: self) {
+            let poster = NowDraftPoster(address, draft: .init(content: "", listed: true), interface: interface, credential: credential)
+            editNowCache[address] = poster
+            return poster
+        }
+        return nil
+    }
+    
     private var publicProfileCache: [AddressName: AddressSummaryDataFetcher] = [:]
     private func constructFetcher(for address: AddressName) -> AddressSummaryDataFetcher {
         fetchConstructor.addressDetailsFetcher(address, credential: accountModel.credential(for: address, in: self))

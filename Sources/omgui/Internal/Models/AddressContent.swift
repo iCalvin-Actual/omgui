@@ -94,6 +94,8 @@ enum AddressContent: String, Identifiable, Codable {
         switch self {
         case .profile:
             return .editWebpage(name)
+        case .now:
+            return .editNow(name)
         default:
             return destination(name)
         }

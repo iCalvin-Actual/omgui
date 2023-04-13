@@ -62,6 +62,13 @@ public protocol DataInterface {
     )
     async throws -> NowModel?
     
+    func saveAddressNow(
+        _ name: AddressName,
+        content: String,
+        credential: APICredential
+    )
+    async throws -> NowModel?
+    
     func fetchAddressPURLs(
         _ name: AddressName
     )

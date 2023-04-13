@@ -60,6 +60,13 @@ struct DestinationConstructor {
                 // Unauthenticated
                 EmptyView()
             }
+        case .editNow(let name):
+            if let poster = addressBook.nowPoster(for: name) {
+                EditPageView(poster: poster)
+            } else {
+                // Unauthenticated
+                EmptyView()
+            }
         default:
             EmptyView()
         }

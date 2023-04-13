@@ -66,6 +66,10 @@ public class SampleData: DataInterface {
         return .sample(with: name)
     }
     
+    public func saveAddressNow(_ name: AddressName, content: String, credential: APICredential) -> NowModel? {
+        return .sample(with: name)
+    }
+    
     public func fetchAddressPURLs(_ name: AddressName) async throws -> [PURLModel] {
         try await Task.sleep(nanoseconds: artificalDelay)
         return [
