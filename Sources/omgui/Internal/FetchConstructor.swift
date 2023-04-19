@@ -59,32 +59,31 @@ class FetchConstructor {
         NowGardenDataFetcher(interface: interface)
     }
     
-    func addressDetailsFetcher(_ address: AddressName, credential: APICredential?) -> AddressSummaryDataFetcher {
-        AddressSummaryDataFetcher(name: address, credential: credential, interface: interface)
+    func addressDetailsFetcher(_ address: AddressName) -> AddressSummaryDataFetcher {
+        AddressSummaryDataFetcher(name: address, interface: interface)
+    }
+    
+    func addressPrivateDetailsFetcher(_ address: AddressName, credential: APICredential) -> AddressPrivateSummaryDataFetcher {
+        AddressPrivateSummaryDataFetcher(name: address, interface: interface, credential: credential)
     }
     
     func addressProfileFetcher(_ address: AddressName) -> AddressProfileDataFetcher {
         AddressProfileDataFetcher(name: address, interface: interface)
     }
     
-    func addressProfilePoster(_ address: AddressName, credential: APICredential) -> ProfileDraftPoster {
-        let draft = AddressProfile.Draft(content: "", publish: true)
-        return ProfileDraftPoster(address, draft: draft, interface: interface, credential: credential)
-    }
-    
     func addresNowFetcher(_ address: AddressName) -> AddressNowDataFetcher {
         AddressNowDataFetcher(name: address, interface: interface)
     }
     
-    func addressPastesFetcher(_ address: AddressName) -> AddressPasteBinDataFetcher {
-        AddressPasteBinDataFetcher(name: address, interface: interface)
+    func addressPastesFetcher(_ address: AddressName, credential: APICredential?) -> AddressPasteBinDataFetcher {
+        AddressPasteBinDataFetcher(name: address, interface: interface, credential: credential)
     }
     
     func draftPastePoster(_ title: String, for address: AddressName, credential: APICredential) -> PasteDraftPoster {
         PasteDraftPoster(address, title: title, interface: interface, credential: credential)
     }
     
-    func addressPURLsFetcher(_ address: AddressName) -> AddressPURLsDataFetcher {
-        AddressPURLsDataFetcher(name: address, interface: interface)
+    func addressPURLsFetcher(_ address: AddressName, credential: APICredential?) -> AddressPURLsDataFetcher {
+        AddressPURLsDataFetcher(name: address, interface: interface, credential: credential)
     }
 }

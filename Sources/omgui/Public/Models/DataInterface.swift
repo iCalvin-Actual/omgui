@@ -70,12 +70,28 @@ public protocol DataInterface {
     async throws -> NowModel?
     
     func fetchAddressPURLs(
-        _ name: AddressName
+        _ name: AddressName,
+        credential: APICredential?
     )
     async throws -> [PURLModel]
     
+    func fetchPURL(
+        _ id: String,
+        from address: AddressName,
+        credential: APICredential?
+    )
+    async throws -> PURLModel?
+    
+    func savePURL(
+        _ draft: PURLModel.Draft,
+        to address: AddressName,
+        credential: APICredential
+    )
+    async throws -> PURLModel?
+    
     func fetchAddressPastes(
-        _ name: AddressName
+        _ name: AddressName,
+        credential: APICredential?
     )
     async throws -> [PasteModel]
     
@@ -100,6 +116,19 @@ public protocol DataInterface {
         addresses: [AddressName]
     )
     async throws -> [StatusModel]
+    
+    func fetchAddressStatus(
+        _ id: String,
+        from address: AddressName
+    )
+    async throws -> StatusModel?
+    
+    func saveStatusDraft(
+        _ draft: StatusModel.Draft,
+        to address: AddressName,
+        credential: APICredential
+    )
+    async throws -> StatusModel?
     
     func fetchAddressBio(
         _ name: AddressName

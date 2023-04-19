@@ -115,39 +115,17 @@ class AddressBook: DataFetcher {
     public let gardenFetcher: NowGardenDataFetcher
     public let statusLogFetcher: StatusLogDataFetcher
     
-    private var editProfileCache: [AddressName: ProfileDraftPoster] = [:]
     public func profilePoster(for address: AddressName) -> ProfileDraftPoster? {
-        guard myAddresses.contains(address) else {
-            return nil
-        }
-        if let poster = editProfileCache[address] {
-            return poster
-        } else if let credential = accountModel.credential(for: address, in: self) {
-            let poster = ProfileDraftPoster(address, draft: .init(content: "", publish: true), interface: interface, credential: credential)
-            editProfileCache[address] = poster
-            return poster
-        }
-        return nil
+        try? addressPrivateSummary(address).profilePoster
     }
     
-    private var editNowCache: [AddressName: NowDraftPoster] = [:]
     public func nowPoster(for address: AddressName) -> NowDraftPoster? {
-        guard myAddresses.contains(address) else {
-            return nil
-        }
-        if let poster = editNowCache[address] {
-            return poster
-        } else if let credential = accountModel.credential(for: address, in: self) {
-            let poster = NowDraftPoster(address, draft: .init(content: "", listed: true), interface: interface, credential: credential)
-            editNowCache[address] = poster
-            return poster
-        }
-        return nil
+        try? addressPrivateSummary(address).nowPoster
     }
     
     private var publicProfileCache: [AddressName: AddressSummaryDataFetcher] = [:]
     private func constructFetcher(for address: AddressName) -> AddressSummaryDataFetcher {
-        fetchConstructor.addressDetailsFetcher(address, credential: accountModel.credential(for: address, in: self))
+        fetchConstructor.addressDetailsFetcher(address)
     }
     public func addressSummary(_ address: AddressName) -> AddressSummaryDataFetcher {
         if let model = publicProfileCache[address] {
@@ -155,6 +133,29 @@ class AddressBook: DataFetcher {
         } else {
             let model = constructFetcher(for: address)
             publicProfileCache[address] = model
+            return model
+        }
+    }
+    
+    private var privateProfileCache: [AddressName: AddressPrivateSummaryDataFetcher] = [:]
+    private func constructPrivateFetcher(for address: AddressName) -> AddressPrivateSummaryDataFetcher? {
+        guard let credential = accountModel.credential(for: address, in: self) else {
+            return nil
+        }
+        return fetchConstructor.addressPrivateDetailsFetcher(address, credential: credential)
+    }
+    enum AddressBookError: Error {
+        case notYourAddress
+    }
+    public func addressPrivateSummary(_ address: AddressName) throws -> AddressPrivateSummaryDataFetcher {
+        
+        if let model = privateProfileCache[address] {
+            return model
+        } else {
+            guard let model = constructPrivateFetcher(for: address) else {
+                throw AddressBookError.notYourAddress
+            }
+            privateProfileCache[address] = model
             return model
         }
     }
@@ -213,7 +214,12 @@ class AddressBook: DataFetcher {
         return BlockListDataFetcher(
             globalFetcher: globalBlocklistFetcher,
             localFetcher: localBloclistFetcher,
-            addressFetcher: addressSummary(actingAddress).blockedFetcher,
+            addressFetcher: {
+                if myAddresses.contains(actingAddress), let summary = try? addressPrivateSummary(actingAddress) {
+                    return summary.blockedFetcher
+                }
+                return nil
+            }(),
             interface: interface
         )
     }
@@ -250,7 +256,11 @@ class AddressBook: DataFetcher {
     
     private var myAddressesFetcher: AccountAddressDataFetcher?
     var myAddresses: [AddressName] {
-        myAddressesFetcher?.listItems.map { $0.name } ?? []
+        let fetchedAddresses = myAddressesFetcher?.listItems.map { $0.name } ?? []
+        guard !fetchedAddresses.isEmpty else {
+            return accountModel.localAddresses
+        }
+        return fetchedAddresses
     }
     
     func isPinned(_ address: AddressName) -> Bool {

@@ -12,6 +12,17 @@ class AccountModel: DataFetcher {
     @AppStorage("app.lol.auth", store: .standard)
     var authKey: String = ""
     
+    @AppStorage("app.lol.addresses.cache", store: .standard)
+    private var localAddressesCache: String = ""
+    public var localAddresses: [String] {
+        get {
+            localAddressesCache.split(separator: "&&&").map({ String($0) })
+        }
+        set {
+            localAddressesCache = newValue.joined(separator: "&&&")
+        }
+    }
+    
     private var authenticationFetcher: AccountAuthDataFetcher
     private var accountInfoFetcher: AccountInfoDataFetcher?
     
@@ -44,6 +55,7 @@ class AccountModel: DataFetcher {
     
     func logout() {
         authKey = ""
+        localAddresses = []
         Task {
             await perform()
         }

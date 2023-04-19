@@ -70,7 +70,7 @@ public class SampleData: DataInterface {
         return .sample(with: name)
     }
     
-    public func fetchAddressPURLs(_ name: AddressName) async throws -> [PURLModel] {
+    public func fetchAddressPURLs(_ name: AddressName, credential: APICredential?) async throws -> [PURLModel] {
         try await Task.sleep(nanoseconds: artificalDelay)
         return [
             .sample(with: name),
@@ -79,7 +79,17 @@ public class SampleData: DataInterface {
         ]
     }
     
-    public func fetchAddressPastes(_ name: AddressName) async throws -> [PasteModel] {
+    public func fetchPURL(_ id: String, from address: AddressName, credential: APICredential?) async throws -> PURLModel? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return .sample(with: address)
+    }
+    
+    public func savePURL(_ draft: PURLModel.Draft, to address: AddressName, credential: APICredential) async throws -> PURLModel? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return PURLModel(owner: address, value: draft.name, destination: draft.content)
+    }
+    
+    public func fetchAddressPastes(_ name: AddressName, credential: APICredential?) async throws -> [PasteModel] {
         try await Task.sleep(nanoseconds: artificalDelay)
         return [
             .sample(with: name),
@@ -124,6 +134,16 @@ public class SampleData: DataInterface {
                 }
                 return addresses.contains(element.address)
             })
+    }
+    
+    public func fetchAddressStatus(_ id: String, from address: AddressName) async throws -> StatusModel? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return StatusModel.sample(with: address, id: id)
+    }
+    
+    public func saveStatusDraft(_ draft: StatusModel.Draft, to address: AddressName, credential: APICredential) async throws -> StatusModel? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return try await fetchAddressStatus(draft.id ?? UUID().uuidString, from: address)
     }
     
     public func fetchAddressBio(_ name: AddressName) async throws -> AddressBioModel {
@@ -377,13 +397,13 @@ calvin
 }
 
 fileprivate extension StatusModel {
-    static func sample(with address: AddressName) -> StatusModel {
+    static func sample(with address: AddressName, id: String? = nil) -> StatusModel {
         let contentItems = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat", " Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.", "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."]
         let emojiItems = ["🙈", "🤷", "😘", "🤣", "😅", "🦖", "🤓", "🙃", "✨", "🎉", "🤔", "😍", "🙊", "😉", "🖤", "🤩"]
         let content = contentItems.randomElement()!
         let emoji = emojiItems.randomElement()!
         return StatusModel(
-            id: UUID().uuidString,
+            id: id ?? UUID().uuidString,
             address: address,
             posted: Date(timeIntervalSince1970: .random(min: 1600000000.0, max: 1678019926.0)),
             status: content,
