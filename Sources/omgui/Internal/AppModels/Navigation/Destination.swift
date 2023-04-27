@@ -30,8 +30,10 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     case purls(_ name: AddressName)
     case pastebin(_ name: AddressName)
     case statusLog(_ name: AddressName)
+    case status(_ name: AddressName, id: String)
     case paste(_ name: AddressName, title: String)
     case purl(_ addressName: AddressName, title: String)
+    case editStatus(_ name: AddressName, id: String)
     case editPaste(_ name: AddressName, title: String)
     case editPURL(_ name: AddressName, title: String)
     
@@ -57,6 +59,8 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         case .purls(let address):       return "purls.\(address)"
         case .pastebin(let address):    return "pastes.\(address)"
         case .statusLog(let address):   return "status.\(address)"
+        case .status(let address, let id):          return "status.\(address).\(id)"
+        case .editStatus(let address, let id):      return "status.\(address).\(id).edit"
         case .paste(let address, let paste):        return "paste.\(address).\(paste)"
         case .purl(let address, let purl):          return "purl.\(address).\(purl)"
         case .editPURL(let address, let purl):      return "purl.\(address).\(purl).edit"
@@ -153,10 +157,18 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
                 self = .purl(address, title: title)
             }
         case "status":
-            guard splitString.count > 1 else {
-                return nil
+            switch splitString.count {
+            case 0, 1:
+                self = .community
+            case 2:
+                self = .statusLog(splitString[1])
+            default:
+                if splitString.last == "edit" {
+                    self = .editStatus(splitString[1], id: splitString[2])
+                } else {
+                    self = .status(splitString[1], id: splitString[2])
+                }
             }
-            self = .statusLog(splitString[1])
         default:
             return nil
         }
