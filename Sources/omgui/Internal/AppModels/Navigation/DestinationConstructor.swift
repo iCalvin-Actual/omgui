@@ -85,6 +85,8 @@ struct DestinationConstructor {
                 // Unauthenticated
                 EmptyView()
             }
+        case .status(let address, id: let id):
+            StatusView(fetcher: fetchConstructor.statusFetcher(id, from: address))
         default:
             EmptyView()
         }

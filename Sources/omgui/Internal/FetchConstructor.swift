@@ -95,6 +95,15 @@ class FetchConstructor {
         PURLDraftPoster(address, title: title, interface: interface, credential: credential)
     }
     
+    func statusFetcher(_ id: String, from address: AddressName) -> StatusDataFetcher {
+        return StatusDataFetcher(id: id, from: address, interface: interface)
+    }
+    
+    func draftStatusPoster(_ id: String? = nil, for address: AddressName, credential: APICredential) -> StatusDraftPoster {
+        let draft = StatusModel.Draft(id: id, content: "")
+        return StatusDraftPoster(address, draft: draft, interface: interface, credential: credential)
+    }
+    
     func addressPURLsFetcher(_ address: AddressName, credential: APICredential?) -> AddressPURLsDataFetcher {
         AddressPURLsDataFetcher(name: address, interface: interface, credential: credential)
     }

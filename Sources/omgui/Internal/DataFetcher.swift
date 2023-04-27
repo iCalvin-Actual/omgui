@@ -89,7 +89,6 @@ class MDDraftPoster<D: MDDraft>: DraftPoster<D> {
 class NamedDraftPoster<D: NamedDraft>: DraftPoster<D> {
     let title: String
     
-    
     init(_ address: AddressName, title: String, interface: DataInterface, credential: APICredential) {
         self.title = title
         let draft: D = .init(name: title, content: "", listed: false)
@@ -720,6 +719,26 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
         }
     }
 }
+
+class StatusDataFetcher: DataFetcher {
+    let address: AddressName
+    let id: String
+    
+    var status: StatusModel?
+    
+    init(id: String, from address: String, interface: DataInterface) {
+        self.address = address
+        self.id = id
+        super.init(interface: interface)
+    }
+    
+    override func throwingRequest() async throws {
+        status = try await interface.fetchAddressStatus(id, from: address)
+        threadSafeSendUpdate()
+    }
+}
+
+
 
 class NowGardenDataFetcher: ListDataFetcher<NowListing> {
     override var title: String {

@@ -14,7 +14,7 @@ struct StatusList: View {
     let context: ViewContext
     
     var body: some View {
-        ListView<StatusModel, StatusView, EmptyView>(
+        ListView<StatusModel, StatusRowView, EmptyView>(
             context: context,
             filters: .everyone,
             dataFetcher: fetcher,
@@ -23,7 +23,7 @@ struct StatusList: View {
     }
     
     @ViewBuilder
-    func statusView(_ status: StatusModel) -> StatusView {
-        StatusView(model: status, context: context)
+    func statusView(_ status: StatusModel) -> StatusRowView {
+        StatusRowView(model: status, context: context)
     }
 }

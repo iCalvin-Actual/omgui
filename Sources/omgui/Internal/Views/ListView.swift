@@ -141,8 +141,10 @@ struct ListView<T: Listable, V: View, H: View>: View {
             return .paste(pasteModel.addressName, title: pasteModel.name)
         case let purlModel as PURLModel:
             return .purl(purlModel.addressName, title: purlModel.value)
+        case let status as StatusModel:
+            return .status(status.address, id: status.id)
         default:
-            if context != .profile {
+            if context == .column {
                 return .address(item.addressName)
             }
         }

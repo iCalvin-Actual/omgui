@@ -9,5 +9,6 @@ import Foundation
 
 enum ViewContext {
     case column
+    case detail
     case profile
 }
