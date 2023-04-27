@@ -9,15 +9,36 @@ import SwiftUI
 
 struct NamedItemDraftView<D: NamedDraft>: View {
     @ObservedObject
-    var fetcher: DraftPoster<D>
+    var fetcher: NamedDraftPoster<D>
     
-    @State
-    var title: String = ""
-    var content: String = ""
+    public init(fetcher: NamedDraftPoster<D>) {
+        self.fetcher = fetcher
+    }
     
     var body: some View {
-        Form {
-            TextField("Title", text: $fetcher.draft.name)
+        VStack(alignment: .leading) {
+            
+            HStack {
+                Text("Title")
+                    .font(.callout)
+                TextField("Title", text: $fetcher.draft.name)
+            }
+            
+            Toggle("Public", isOn: $fetcher.draft.listed)
+                
+            TextEditor(text: $fetcher.draft.content)
+        }
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    Task {
+                        await fetcher.perform()
+                    }
+                } label: {
+                    Text("Save")
+                }
+
+            }
         }
     }
 }

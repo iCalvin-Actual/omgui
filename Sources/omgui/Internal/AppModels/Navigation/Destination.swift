@@ -31,7 +31,9 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     case pastebin(_ name: AddressName)
     case statusLog(_ name: AddressName)
     case paste(_ name: AddressName, title: String)
+    case purl(_ addressName: AddressName, title: String)
     case editPaste(_ name: AddressName, title: String)
+    case editPURL(_ name: AddressName, title: String)
     
     var rawValue: String {
         switch self {
@@ -55,8 +57,10 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         case .purls(let address):       return "purls.\(address)"
         case .pastebin(let address):    return "pastes.\(address)"
         case .statusLog(let address):   return "status.\(address)"
-        case .paste(let paste, let address): return "paste.\(address).\(paste)"
-        case .editPaste(let paste, let address): return "paste.\(address).\(paste)"
+        case .paste(let address, let paste):        return "paste.\(address).\(paste)"
+        case .purl(let address, let purl):          return "purl.\(address).\(purl)"
+        case .editPURL(let address, let purl):      return "purl.\(address).\(purl).edit"
+        case .editPaste(let paste, let address):    return "paste.\(address).\(paste).edit"
         }
     }
     
@@ -137,6 +141,17 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
                 return nil
             }
             self = .purls(splitString[1])
+        case "purl":
+            guard splitString.count > 2 else {
+                return nil
+            }
+            let address = splitString[1]
+            let title = splitString[2]
+            if splitString.last == "edit" {
+                self = .editPURL(address, title: title)
+            } else {
+                self = .purl(address, title: title)
+            }
         case "status":
             guard splitString.count > 1 else {
                 return nil

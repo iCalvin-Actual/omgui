@@ -17,7 +17,7 @@ struct AddressPasteView: View {
     let context: ViewContext
     
     var body: some View {
-        ListView<PasteModel, PasteView, EmptyView>(
+        ListView<PasteModel, PasteRowView, EmptyView>(
             context: context,
             filters: .everyone,
             dataFetcher: fetcher,
@@ -31,7 +31,7 @@ struct AddressPasteView: View {
         }
     }
     
-    func pasteView(_ model: PasteModel) -> PasteView {
-        PasteView(model: model, context: context)
+    func pasteView(_ model: PasteModel) -> PasteRowView {
+        PasteRowView(model: model, context: context)
     }
 }

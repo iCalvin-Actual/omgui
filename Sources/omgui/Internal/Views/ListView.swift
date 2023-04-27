@@ -137,6 +137,10 @@ struct ListView<T: Listable, V: View, H: View>: View {
         switch item {
         case let nowModel as NowListing:
             return .now(nowModel.owner)
+        case let pasteModel as PasteModel:
+            return .paste(pasteModel.addressName, title: pasteModel.name)
+        case let purlModel as PURLModel:
+            return .purl(purlModel.addressName, title: purlModel.value)
         default:
             if context != .profile {
                 return .address(item.addressName)

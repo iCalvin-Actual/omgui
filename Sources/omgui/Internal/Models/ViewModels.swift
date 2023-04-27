@@ -66,6 +66,7 @@ public struct PasteModel: Hashable, Identifiable, RawRepresentable, Codable {
         self.owner = String(split[0])
         self.name = String(split[1])
         self.content = String(split[2])
+        self.listed = true
     }
     
     public var rawValue: String {
@@ -74,11 +75,13 @@ public struct PasteModel: Hashable, Identifiable, RawRepresentable, Codable {
     public let owner: AddressName
     public let name: String
     public var content: String?
+    public var listed: Bool
     
-    public init(owner: AddressName, name: String, content: String? = nil) {
+    public init(owner: AddressName, name: String, content: String? = nil, listed: Bool = true) {
         self.owner = owner
         self.name = name
         self.content = content
+        self.listed = listed
     }
 }
 
@@ -93,6 +96,7 @@ public struct PURLModel: Hashable, Identifiable, RawRepresentable, Codable {
         }
         self.owner = String(split[0])
         self.value = String(split[1])
+        self.listed = true
     }
     
     public var rawValue: String {
@@ -102,11 +106,13 @@ public struct PURLModel: Hashable, Identifiable, RawRepresentable, Codable {
     let owner: AddressName
     let value: String
     var destination: String?
+    let listed: Bool
     
-    public init(owner: AddressName, value: String, destination: String? = nil) {
+    public init(owner: AddressName, value: String, destination: String? = nil, listed: Bool) {
         self.owner = owner
         self.destination = destination
         self.value = value
+        self.listed = listed
     }
 }
 
