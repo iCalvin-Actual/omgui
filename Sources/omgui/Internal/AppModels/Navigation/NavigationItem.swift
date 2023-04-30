@@ -12,6 +12,7 @@ import Foundation
 enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     var id: String { rawValue }
     
+    case account
     case addressBook
     case search
     case nowGarden
@@ -25,6 +26,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     
     var rawValue: String {
         switch self {
+        case .account:                  return "account"
         case .addressBook:              return "addressBook"
         case .search:                   return "search"
         case .nowGarden:                return "garden"
@@ -40,6 +42,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     init?(rawValue: String) {
         let splitString = rawValue.components(separatedBy: ".")
         switch splitString.first {
+        case "account":     self = .account
         case "addressBook": self = .addressBook
         case "search":      self = .search
         case "garden":      self = .nowGarden
@@ -71,6 +74,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     
     var displayString: String {
         switch self {
+        case .account:
+            return "Account"
         case .addressBook:
             return "Address Book"
         case .community:
@@ -90,6 +95,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     
     var iconName: String {
         switch self {
+        case .account:
+            return "at"
         case .addressBook:
             return "book.closed.fill"
         case .search:
@@ -124,6 +131,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     
     var destination: NavigationDestination {
         switch self {
+        case .account:
+            return .account
         case .addressBook:
             return .lists
         case .search:

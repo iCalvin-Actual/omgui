@@ -17,6 +17,9 @@ class SceneModel: ObservableObject {
     
     var requests: [AnyCancellable] = []
     
+    @Published
+    var editingModel: DraftItem?
+    
     var destinationConstructor: DestinationConstructor {
         .init(
             addressBook: addressBook,

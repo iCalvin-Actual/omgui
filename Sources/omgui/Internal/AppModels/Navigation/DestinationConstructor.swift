@@ -87,6 +87,13 @@ struct DestinationConstructor {
             }
         case .status(let address, id: let id):
             StatusView(fetcher: fetchConstructor.statusFetcher(id, from: address))
+        case .editStatus(let address, id: let id):
+            if let credential = accountModel.credential(for: address, in: addressBook) {
+                StatusDraftView(draftPoster: fetchConstructor.draftStatusPoster(id, for: address, credential: credential))
+            } else {
+                // Unauthenticated
+                EmptyView()
+            }
         default:
             EmptyView()
         }
