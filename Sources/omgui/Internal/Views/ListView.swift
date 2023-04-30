@@ -129,7 +129,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
         }
         .listRowSeparator(.hidden, edges: .all)
         .contextMenu(menuItems: {
-            self.menuBuilder.contextMenu(for: item, with: sceneModel.addressBook)
+            self.menuBuilder.contextMenu(for: item, sceneModel: sceneModel)
         })
     }
     

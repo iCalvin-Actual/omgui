@@ -120,3 +120,65 @@ extension StatusModel: Sharable {
         ]
     }
 }
+
+extension PURLModel: Sharable {
+    private var address: CopyPacket {
+        .init(name: "Address", content: owner)
+    }
+    var primaryCopy: CopyPacket? {
+        guard let destination = destination else {
+            return address
+        }
+        return .init(name: "Copy URL", content: destination)
+    }
+    var copyText: [CopyPacket] {
+        if destination == nil {
+            return [
+                address
+            ]
+        } else {
+            return []
+        }
+    }
+    
+    var primaryURL: SharePacket? {
+        guard let destination = destination, let url = URL(string: destination) else {
+            return nil
+        }
+        return .init(name: "URL", content: url)
+    }
+    var shareURLs: [SharePacket] {
+        [
+            .init(name: "Profile", content: URL(string: "https://\(owner).omg.lol")!)
+        ]
+    }
+}
+
+extension PasteModel: Sharable {
+    private var address: CopyPacket {
+        .init(name: "Address", content: owner)
+    }
+    var primaryCopy: CopyPacket? {
+        guard let content = content else {
+            return address
+        }
+        return .init(name: "Copy Content", content: content)
+    }
+    var copyText: [CopyPacket] {
+        if content == nil {
+            return [
+                .init(name: "Address", content: owner)
+            ]
+        } else {
+            return []
+        }
+    }
+    
+    var primaryURL: SharePacket? {
+        nil
+    }
+    var shareURLs: [SharePacket] {
+        [
+        ]
+    }
+}

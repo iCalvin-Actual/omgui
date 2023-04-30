@@ -21,16 +21,39 @@ extension NowListing: AddressManagable {
 extension StatusModel: AddressManagable {
     var addressToActOn: AddressName { address }
 }
+extension PURLModel: AddressManagable {
+    var addressToActOn: AddressName { owner }
+}
+extension PasteModel: AddressManagable {
+    var addressToActOn: AddressName { owner }
+}
 
 protocol Menuable {
     associatedtype M: View
-    func contextMenu(with addressBook: AddressBook) -> M
+    func contextMenu(in scene: SceneModel) -> M
+}
+
+extension Menuable {
+    @ViewBuilder
+    func editingSection(in scene: SceneModel) -> some View {
+        if self is Editable {
+            Divider()
+            Button(action: {
+                withAnimation {
+                    scene.editingModel = self as? Editable
+                }
+            }, label: {
+                Label("Edit", systemImage: "pencil.line")
+            })
+            Divider()
+        }
+    }
 }
 
 struct ContextMenuBuilder<T: Menuable> {
     @ViewBuilder
-    func contextMenu(for item: T, with addressBook: AddressBook) -> some View {
-        item.contextMenu(with: addressBook)
+    func contextMenu(for item: T, sceneModel: SceneModel) -> some View {
+        item.contextMenu(in: sceneModel)
     }
 }
 
@@ -154,18 +177,18 @@ extension Sharable where Self: Menuable {
 }
 
 extension Listable where Self: Menuable {
-    func contextMenu(with addressBook: AddressBook) -> some View {
+    func contextMenu(in scene: SceneModel) -> some View {
         EmptyView()
     }
 }
 
 extension NavigationItem: Menuable {
     @ViewBuilder
-    func contextMenu(with addressBook: AddressBook) -> some View {
+    func contextMenu(in scene: SceneModel) -> some View {
         switch self {
         case .pinnedAddress(let name):
             Button(action: {
-                addressBook.removePin(name)
+                scene.addressBook.removePin(name)
             }, label: {
                 Label("Un-Pin", systemImage: "pin.slash")
             })
@@ -177,33 +200,55 @@ extension NavigationItem: Menuable {
 
 extension AddressModel: Menuable {
     @ViewBuilder
-    func contextMenu(with addressBook: AddressBook) -> some View {
+    func contextMenu(in scene: SceneModel) -> some View {
         Group {
             self.shareSection()
-            Divider()
-            self.manageSection(addressBook)
+            self.editingSection(in: scene)
+            self.manageSection(scene.addressBook)
         }
     }
 }
 
 extension NowListing: Menuable {
     @ViewBuilder
-    func contextMenu(with addressBook: AddressBook) -> some View {
+    func contextMenu(in scene: SceneModel) -> some View {
         Group {
             self.shareSection()
-            Divider()
-            self.manageSection(addressBook)
+            self.editingSection(in: scene)
+            self.manageSection(scene.addressBook)
+        }
+    }
+}
+
+extension PURLModel: Menuable {
+    @ViewBuilder
+    func contextMenu(in scene: SceneModel) -> some View {
+        Group {
+            self.shareSection()
+            self.editingSection(in: scene)
+            self.manageSection(scene.addressBook)
+        }
+    }
+}
+
+extension PasteModel: Menuable {
+    @ViewBuilder
+    func contextMenu(in scene: SceneModel) -> some View {
+        Group {
+            self.shareSection()
+            self.editingSection(in: scene)
+            self.manageSection(scene.addressBook)
         }
     }
 }
 
 extension StatusModel: Menuable {
     @ViewBuilder
-    func contextMenu(with addressBook: AddressBook) -> some View {
+    func contextMenu(in scene: SceneModel) -> some View {
         Group {
             self.shareSection()
-            Divider()
-            self.manageSection(addressBook)
+            self.editingSection(in: scene)
+            self.manageSection(scene.addressBook)
         }
     }
 }
