@@ -95,6 +95,14 @@ struct AddressBookView: View {
         }
     }
     
+    var titleText: String {
+        let address = addressBook.actingAddress
+        guard !address.isEmpty else {
+            return "addresses"
+        }
+        return "\(address.addressDisplayString)'s address book"
+    }
+    
     var body: some View {
         ListView(
             allowSearch: showSearch,
@@ -103,8 +111,6 @@ struct AddressBookView: View {
             rowBuilder: { _ in return nil as ListRow<AddressModel>? },
             headerBuilder: {
                 Group {
-                    accountHeader
-                    
                     if !showSearch {
                         NavigationItem.search.sidebarView
                     }
@@ -117,49 +123,32 @@ struct AddressBookView: View {
                 }
             }
         )
-        .alert("Logout", isPresented: $showConfirmLogout) {
-            Button("Cancel", role: .cancel) { }
-            Button("Yes", role: .destructive) {
-                accountModel.logout()
-            }
-        }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                ThemedTextView(text: accountModel.welcomeText)
+                ThemedTextView(text: titleText)
             }
         }
         .toolbar {
             if addressBook.accountModel.signedIn {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
-                        addressPickerSection
-                        
-                        Button(role: .destructive) {
-                            self.showConfirmLogout.toggle()
-                        } label: {
-                            Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
+                        Section {
+                            ForEach(addressBook.myAddresses) { address in
+                                Button {
+                                    addressBook.setActiveAddress(address)
+                                } label: {
+                                    addressOption(address)
+                                }
+                            }
+                        } header: {
+                            Text("Select active address")
                         }
                     } label: {
-                        Label("More", systemImage: "ellipsis.circle")
+                        Label("More", systemImage: "chevron.down.circle")
                     }
 
                 }
             }
-        }
-    }
-    
-    @ViewBuilder
-    private var addressPickerSection: some View {
-        Section {
-            ForEach(addressBook.myAddresses) { address in
-                Button {
-                    addressBook.setActiveAddress(address)
-                } label: {
-                    addressOption(address)
-                }
-            }
-        } header: {
-            Text("Select active address")
         }
     }
     

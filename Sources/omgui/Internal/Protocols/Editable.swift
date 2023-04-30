@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-protocol Editable {
+protocol Editable: AddressManagable {
     var editingDestination: NavigationDestination { get }
 }
 

@@ -36,8 +36,7 @@ protocol Menuable {
 extension Menuable {
     @ViewBuilder
     func editingSection(in scene: SceneModel) -> some View {
-        if self is Editable {
-            Divider()
+        if self is Editable, let name = (self as? Editable)?.addressToActOn, scene.addressBook.myAddresses.contains(name) {
             Button(action: {
                 withAnimation {
                     scene.editingModel = self as? Editable
@@ -166,6 +165,7 @@ extension Sharable where Self: Menuable {
                 Label("Copy", systemImage: "doc.on.clipboard")
             }
         }
+        Divider()
     }
     
     @ViewBuilder

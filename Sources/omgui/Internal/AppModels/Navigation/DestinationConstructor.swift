@@ -24,7 +24,7 @@ struct DestinationConstructor {
                 accountModel: accountModel
             )
         case .community:
-            StatusList(fetcher: addressBook.statusLogFetcher, context: .column)
+            CommunityView(communityFetcher: addressBook.statusLogFetcher, followingFetcher: addressBook.followingStatusLogFetcher)
         case .address(let name):
             AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), context: .profile, allowEditing: addressBook.actingAddress == name)
         case .webpage(let name):
