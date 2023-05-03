@@ -94,6 +94,8 @@ struct DestinationConstructor {
                 // Unauthenticated
                 EmptyView()
             }
+        case .account:
+            AccountView()
         default:
             EmptyView()
         }
