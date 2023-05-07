@@ -10,9 +10,9 @@ import Foundation
 struct TabBarModel {
     var tabs: [NavigationItem] {
         [
+            .account,
             .addressBook,
             .community,
-            .account,
             .nowGarden
         ]
     }

@@ -12,7 +12,8 @@ class SceneModel: ObservableObject {
     
     let fetchConstructor: FetchConstructor
     
-    let accountModel: AccountModel
+    var accountModel: AccountModel
+    
     let addressBook: AddressBook
     
     var requests: [AnyCancellable] = []
@@ -32,8 +33,9 @@ class SceneModel: ObservableObject {
     }
     
     init(fetchConstructor: FetchConstructor) {
+        let account = fetchConstructor.constructAccountModel()
         self.fetchConstructor = fetchConstructor
-        self.accountModel = fetchConstructor.constructAccountModel()
-        self.addressBook = AddressBook(accountModel: accountModel, fetchConstructor: fetchConstructor)
+        self.accountModel = account
+        self.addressBook = AddressBook(accountModel: account, fetchConstructor: fetchConstructor)
     }
 }

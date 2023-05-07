@@ -54,10 +54,12 @@ class AccountModel: DataFetcher {
     }
     
     func logout() {
-        authKey = ""
-        localAddresses = []
-        Task {
-            await perform()
+        DispatchQueue.main.async {
+            self.authKey = ""
+            self.localAddresses = []
+            Task {
+                await self.perform()
+            }
         }
     }
     
@@ -84,9 +86,9 @@ class AccountModel: DataFetcher {
     
     var welcomeText: String {
         guard let accountName = accountInfoFetcher?.accountName else {
-            return "app.lol"
+            return "Welcome"
         }
-        return "Hello, \(accountName)"
+        return "Welcome, \(accountName)"
     }
     
     var displayName: String {
