@@ -24,7 +24,6 @@ struct TabBar: View {
                 sceneModel.editingModel = nil
             }
         }
-
     }
     
     var body: some View {
@@ -44,6 +43,9 @@ struct TabBar: View {
             if let model = sceneModel.editingModel {
                 sceneModel.destinationConstructor.destination(model.editingDestination)
             }
+        }
+        .sheet(isPresented: $sceneModel.presentUpsellModal) {
+            UpsellView()
         }
     }
 }

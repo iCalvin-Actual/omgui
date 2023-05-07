@@ -10,6 +10,9 @@ import SwiftUI
 struct AccountView: View {
     @Environment(\.colorScheme) var colorScheme
     
+    @EnvironmentObject
+    var sceneModel: SceneModel
+    
     @State
     var searchAddress: String = ""
     
@@ -74,107 +77,160 @@ struct AccountView: View {
                 .padding()
                 .background(Color.lolPurple)
                 
-                StandardCard(
-                    titleText: Text("Already have an address on")
-                    +
-                    Text(" omg.lol")
-                        .foregroundColor(.lolPink)
-                    +
-                    Text("?"),
-                    buttonText: Text("Sign in with omg.lol"),
-                    color: .lolBlue) {
-                        print("Sign in")
-                    }
-                
-                StandardCard(
-                    titleText: Text("Learn more about ")
+                VStack(alignment: .leading) {
+                    HStack {
+                        Group {
+                            Text("Already have an address on")
+                            +
+                            Text(" omg.lol")
+                                .foregroundColor(.lolPink)
+                            +
+                            Text("?")
+                        }
+                        .bold()
+                        .multilineTextAlignment(.leading)
+                        .font(.title2)
+                        .fontDesign(.serif)
                         .foregroundColor(.black)
-                    +
-                    Text("omg.lol")
-                        .foregroundColor(.lolPink),
-                    bodyText: Text("The best way to build your presence on the open web."), iconName: "tree.fill",
-                    buttonText: Text("Sign in with omg.lol"),
-                    color: .lolGreen) {
-                        print("Sign in")
+                        
+                        Spacer()
                     }
+                    .frame(maxWidth: .infinity)
+                    
+                    HStack {
+                        Button {
+                            DispatchQueue.main.async {
+                                Task {
+                                    await sceneModel.accountModel.authenticate()
+                                }
+                            }
+                        } label: {
+                            Text("Sign in with omg.lol")
+                                .bold()
+                                .font(.callout)
+                                .fontDesign(.serif)
+                                .padding(3)
+                        }
+                        .accentColor(.lolPink)
+                        .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.roundedRectangle(radius: 6))
+                        Spacer()
+                    }
+                    .padding(.top, 4)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.lolBlue)
                 
-                StandardCard(
-                    titleText: Text("Manage on the go with ")
+                
+                VStack(alignment: .leading) {
+                    HStack {
+                        Group {
+                            Text("Learn more about ")
+                                .foregroundColor(.black)
+                            +
+                            Text("omg.lol")
+                                .foregroundColor(.lolPink)
+                        }
+                        .bold()
+                        .multilineTextAlignment(.leading)
+                        .font(.title2)
+                        .fontDesign(.serif)
                         .foregroundColor(.black)
-                    +
-                    Text("app.lol")
-                        .foregroundColor(.lolPink),
-                    bodyText: Text("Follow addresses, find new friends. Take the experience further with plus-plus."),
-                    iconName: "app.badge.fill",
-                    buttonText: Text("app.lol ++"),
-                    color: .lolOrange) {
-                        print("Sign in")
+                        
+                        Spacer()
+                        
+                        Image(systemName: "tree.fill")
+                            .resizable()
+                            .frame(width: 88, height: 88)
+                            .foregroundColor(.lolGreen)
+                            .brightness(-0.5)
+                            .padding([.top, .trailing], 4)
                     }
+                    .frame(maxWidth: .infinity)
+                    
+                    Text("The best way to build your presence on the open web.")
+                        .fixedSize(horizontal: false, vertical: true)
+                        .font(.headline)
+                        .fontDesign(Font.Design.monospaced)
+                        .foregroundColor(.black)
+                    
+                    HStack {
+                        Link(destination: URL(string: "https://home.omg.lol/referred-by/app")!) {
+                            Text("Discover")
+                                .bold()
+                                .font(.callout)
+                                .fontDesign(.serif)
+                                .padding(3)
+                        }
+                        .accentColor(.lolPink)
+                        .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.roundedRectangle(radius: 6))
+                        Spacer()
+                    }
+                    .padding(.top, 4)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.lolGreen)
+                
+                VStack(alignment: .leading) {
+                    HStack {
+                        Group {
+                            Text("The complete experience, on-the-go, with ")
+                            +
+                            Text("app.lol++")
+                                .foregroundColor(.lolPink)
+                        }
+                        .bold()
+                        .multilineTextAlignment(.leading)
+                        .font(.title2)
+                        .fontDesign(.serif)
+                        .foregroundColor(.black)
+                        
+                        Spacer()
+                        
+                        Image(systemName: "app.badge.fill")
+                            .resizable()
+                            .frame(width: 88, height: 88)
+                            .foregroundColor(.lolOrange)
+                            .brightness(-0.5)
+                            .padding([.top, .trailing], 4)
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    Text("Follow addresses, find new friends. Take the experience further with plus-plus.")
+                        .fixedSize(horizontal: false, vertical: true)
+                        .font(.headline)
+                        .fontDesign(Font.Design.monospaced)
+                        .foregroundColor(.black)
+                    
+                    HStack {
+                        Button {
+                            sceneModel.presentUpsellModal = true
+                        } label: {
+                            Text("app.lol ++")
+                                .bold()
+                                .font(.callout)
+                                .fontDesign(.serif)
+                                .padding(3)
+                        }
+                        .accentColor(.lolPink)
+                        .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.roundedRectangle(radius: 6))
+                        Spacer()
+                    }
+                    .padding(.top, 4)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.lolOrange)
+                
             }
             .padding()
             .frame(maxWidth: .infinity)
         }
         .background(Color.lolBackground)
-    }
-}
-
-struct StandardCard: View {
-    var titleText: Text?
-    var bodyText: Text?
-    var iconName: String?
-    var buttonText: Text?
-    var color: Color = .lolRandom()
-    var buttonAction: (() -> Void)?
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                titleText?
-                    .bold()
-                    .multilineTextAlignment(.leading)
-                    .font(.title2)
-                    .fontDesign(.serif)
-                    .foregroundColor(.black)
-                
-                Spacer()
-                
-                if let iconName = iconName {
-                    Image(systemName: iconName)
-                        .resizable()
-                        .frame(width: 88, height: 88)
-                        .foregroundColor(color)
-                        .brightness(-0.5)
-                        .padding([.top, .trailing], 4)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            
-            bodyText?
-                .fixedSize(horizontal: false, vertical: true)
-                .font(.headline)
-                .fontDesign(Font.Design.monospaced)
-                .foregroundColor(.black)
-            
-            HStack {
-                Button {
-                    buttonAction?()
-                } label: {
-                    buttonText?
-                        .bold()
-                        .font(.callout)
-                        .fontDesign(.serif)
-                        .padding(3)
-                }
-                .accentColor(.lolPink)
-                .buttonStyle(.borderedProminent)
-                .buttonBorderShape(.roundedRectangle(radius: 6))
-                Spacer()
-            }
-            .padding(.top, 4)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(color)
     }
 }
 
