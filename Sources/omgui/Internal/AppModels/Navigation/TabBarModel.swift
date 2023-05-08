@@ -13,7 +13,7 @@ struct TabBarModel {
             .account,
             .addressBook,
             .community,
-            .nowGarden
+            .following
         ]
     }
 }

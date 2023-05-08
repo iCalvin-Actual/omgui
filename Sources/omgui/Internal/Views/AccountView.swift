@@ -14,6 +14,9 @@ struct AccountView: View {
     var sceneModel: SceneModel
     
     @ObservedObject
+    var addressBook: AddressBook
+    
+    @ObservedObject
     var accountModel: AccountModel
     
     @State
@@ -28,18 +31,40 @@ struct AccountView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 44) {
                     if accountModel.signedIn {
-                        VStack(alignment: .leading) {
-                            Text("Welcome Calvin")
-                                .multilineTextAlignment(.center)
-                                .font(.title)
+                        HStack {
+                            Text(accountModel.welcomeText)
+                                .multilineTextAlignment(.leading)
+                                .font(.headline)
                                 .bold()
                                 .fontDesign(.serif)
-                                .foregroundColor(colorScheme == .dark ? .lolYellow : .lolTeal)
-                                .frame(maxWidth: .infinity)
+                            Spacer(minLength: 1)
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.lolPurple)
+                        .background(Color.lolBlue)
+                        
+                        VStack(spacing: 22) {
+                            ForEach(addressBook.myAddresses) { address in
+                                let isActing = addressBook.actingAddress == address
+                                HStack {
+                                    Text(address.addressDisplayString)
+                                        .multilineTextAlignment(.leading)
+                                        .font(.title)
+                                        .bold()
+                                        .fontDesign(.serif)
+                                    Spacer(minLength: isActing ? 0 : 22)
+                                    if isActing {
+                                        Image(systemName: "checkmark.rectangle.portrait.fill")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 22)
+                                    }
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.lolYellow)
+                            }
+                        }
                         
                         Button {
                             accountModel.logout()

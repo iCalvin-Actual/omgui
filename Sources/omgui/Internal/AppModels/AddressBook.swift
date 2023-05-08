@@ -9,7 +9,7 @@ import Combine
 import SwiftUI
 
 
-class AddressBook: DataFetcher {
+class AddressBook: ListDataFetcher<AddressModel> {
 //    @SceneStorage("app.lol.active")
     var preferredAddress: AddressName = ""
     
@@ -271,5 +271,10 @@ class AddressBook: DataFetcher {
     }
     func removePin(_ address: AddressName) {
         pinnedAddressFetcher.removePin(address)
+    }
+    
+    override var listItems: [AddressModel] {
+        get { myAddressesFetcher?.listItems ?? [] }
+        set { }
     }
 }

@@ -95,7 +95,7 @@ struct DestinationConstructor {
                 EmptyView()
             }
         case .account:
-            AccountView(accountModel: accountModel)
+            AccountView(addressBook: addressBook, accountModel: accountModel)
         default:
             EmptyView()
         }

@@ -115,7 +115,7 @@ struct AddressBookView: View {
                         NavigationItem.search.sidebarView
                     }
                     if showFollowing {
-                        NavigationItem.following.sidebarView
+                        NavigationItem.followingAddresses.sidebarView
                     }
                     if showBlocklist {
                         NavigationItem.blocked.sidebarView
