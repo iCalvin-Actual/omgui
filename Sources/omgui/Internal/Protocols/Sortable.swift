@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Calvin Chestnut on 3/5/23.
 //
@@ -81,9 +81,7 @@ extension AddressModel: AllSortable {
     static var defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
-            .alphabet,
-            .newestFirst,
-            .oldestFirst
+            .alphabet
         ]
     }
 }
@@ -95,7 +93,6 @@ extension StatusModel: AllSortable {
     static var defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
-            .alphabet,
             .newestFirst,
             .oldestFirst
         ]
@@ -110,8 +107,7 @@ extension NowListing: AllSortable {
     static var sortOptions: [Sort] {
         [
             .alphabet,
-            .newestFirst,
-            .oldestFirst
+            .newestFirst
         ]
     }
 }

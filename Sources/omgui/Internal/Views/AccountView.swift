@@ -1,6 +1,6 @@
 //
 //  SwiftUIView.swift
-//  
+//
 //
 //  Created by Calvin Chestnut on 5/2/23.
 //
@@ -31,40 +31,32 @@ struct AccountView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 44) {
                     if accountModel.signedIn {
-                        HStack {
-                            Text(accountModel.welcomeText)
-                                .multilineTextAlignment(.leading)
-                                .font(.headline)
-                                .bold()
-                                .fontDesign(.serif)
-                            Spacer(minLength: 1)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.lolBlue)
+                        Text(accountModel.welcomeText)
+                            .multilineTextAlignment(.leading)
+                            .font(.headline)
+                            .bold()
+                            .fontDesign(.serif)
+                            .asCard(color: .lolBlue)
                         
                         VStack(spacing: 22) {
                             ForEach(addressBook.myAddresses) { address in
-                                let isActing = addressBook.actingAddress == address
-                                HStack {
-                                    Text(address.addressDisplayString)
-                                        .multilineTextAlignment(.leading)
-                                        .font(.title)
-                                        .bold()
-                                        .fontDesign(.serif)
-                                    Spacer(minLength: isActing ? 0 : 22)
-                                    if isActing {
-                                        Image(systemName: "checkmark.rectangle.portrait.fill")
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                            .frame(width: 22)
+                                NavigationLink(destination: sceneModel.destinationConstructor.destination(.address(address))) {
+                                    let isActing = addressBook.actingAddress == address
+                                    HStack {
+                                        Text(address.addressDisplayString)
+                                            .multilineTextAlignment(.leading)
+                                            .font(.title)
+                                            .bold()
+                                            .fontDesign(.serif)
+                                        Spacer(minLength: isActing ? 0 : 22)
                                     }
+                                    .foregroundColor(.black)
+                                    .asCard(color: Color.lolYellow, padding: 12)
                                 }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.lolYellow)
                             }
                         }
+                        
+                        Spacer()
                         
                         Button {
                             accountModel.logout()
@@ -78,6 +70,7 @@ struct AccountView: View {
                         .accentColor(.red)
                         .buttonStyle(.borderedProminent)
                         .buttonBorderShape(.roundedRectangle(radius: 6))
+                        .shadow(radius: 8, y: 12)
                     } else {
                         signedOutBody
                             .frame(maxWidth: .infinity)
@@ -87,6 +80,12 @@ struct AccountView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(Color.lolBackground)
+        }
+        .navigationTitle("")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                ThemedTextView(text: "app.lol")
+            }
         }
     }
     

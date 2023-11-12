@@ -1,14 +1,14 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Calvin Chestnut on 3/8/23.
 //
 
 import SwiftUI
 
-enum AddressContent: String, Identifiable, Codable {
-    var id: String { rawValue }
+enum AddressContent: Identifiable, Codable {
+    var id: String { displayString }
     
     case profile
     case now
@@ -42,6 +42,15 @@ enum AddressContent: String, Identifiable, Codable {
             return "list.clipboard"
         case .statuslog:
             return "bubble.left"
+        }
+    }
+    
+    var editText: String {
+        switch self {
+        case .profile, .now:
+            return "Edit"
+        default:
+            return "New"
         }
     }
     
@@ -96,8 +105,12 @@ enum AddressContent: String, Identifiable, Codable {
             return .editWebpage(name)
         case .now:
             return .editNow(name)
-        default:
-            return destination(name)
+        case .pastebin:
+            return .editPaste(name, title: "")
+        case .purl:
+            return .editPURL(name, title: "")
+        case .statuslog:
+            return .editStatus(name, id: "")
         }
     }
 }

@@ -15,6 +15,7 @@ extension DateFormatter {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         formatter.timeStyle = .short
+        formatter.locale = .autoupdatingCurrent
         return formatter
     }()
     
