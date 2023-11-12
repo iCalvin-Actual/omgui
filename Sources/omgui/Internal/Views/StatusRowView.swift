@@ -1,12 +1,13 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Calvin Chestnut on 3/8/23.
 //
 
 import MarkdownUI
 import SwiftUI
+import Ink
 
 struct StatusRowView: View {
     let model: StatusModel
@@ -16,39 +17,42 @@ struct StatusRowView: View {
         VStack(alignment: .leading, spacing: 0) {
             if context != .profile {
                 AddressNameView(model.address, font: .title3)
+                    .foregroundColor(.black)
                     .padding([.horizontal, .bottom], 4)
             }
             
             VStack(alignment: .leading) {
                 Group {
                     Text(model.displayEmoji)
-                        .font(.largeTitle)
+                        .font(.system(size: 44))
                     + Text(" ").font(.largeTitle) +
                     Text(model.status)
                         .font(.body)
                 }
                 .multilineTextAlignment(.leading)
                 
-                HStack(alignment: .bottom) {
-                    if let text = model.linkText {
-                        Button(action: {
-                            print("Show Link")
-                        }, label: {
-                            Label(text, systemImage: "link")
-                        })
-                    }
+                HStack {
                     Spacer()
-                    if let caption = model.listCaption {
-                        Text(caption)
-                            .font(.caption)
-                    }
                 }
-                .padding(.top, 4)
             }
             .foregroundColor(.black)
-            .padding(12)
-            .background(Color.lolRandom(model.displayEmoji))
-            .cornerRadius(12, antialiased: true)
+            .asCard(color: .lolRandom(model.displayEmoji), radius: 6)
+            .padding(.bottom, 4)
+            
+            HStack(alignment: .bottom) {
+                if let text = model.link?.absoluteString {
+                    Button(action: {
+                        print("Show Link")
+                    }, label: {
+                        Label(text, systemImage: "link")
+                    })
+                }
+                Spacer()
+                if let caption = model.listCaption {
+                    Text(caption)
+                        .font(.caption)
+                }
+            }
         }
     }
 }
