@@ -80,10 +80,8 @@ struct ListRow<T: Listable>: View {
             }
             .padding(.trailing)
         }
-        .padding(.vertical)
-        .padding(.leading, 32)
-        .background(Color.lolRandom(model))
-        .cornerRadius(24)
+        .padding(4)
+        .asCard(color: .lolRandom(model), radius: 8)
         .fontDesign(.serif)
     }
 }
