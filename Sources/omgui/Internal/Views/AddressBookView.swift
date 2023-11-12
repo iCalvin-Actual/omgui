@@ -24,6 +24,9 @@ struct AddressBookView: View {
     var showBlocklist: Bool {
         !addressBook.viewableBlocklist.isEmpty
     }
+    var showPinned: Bool {
+        !addressBook.pinned.isEmpty
+    }
     
     var primaryFetcher: ListDataFetcher<AddressModel> {
         if addressBook.pinned.count > 0 {
@@ -95,14 +98,6 @@ struct AddressBookView: View {
         }
     }
     
-    var titleText: String {
-        let address = addressBook.actingAddress
-        guard !address.isEmpty else {
-            return "addresses"
-        }
-        return "\(address.addressDisplayString)'s address book"
-    }
-    
     var body: some View {
         ListView(
             allowSearch: showSearch,
@@ -120,15 +115,16 @@ struct AddressBookView: View {
                     if showBlocklist {
                         NavigationItem.blocked.sidebarView
                     }
+                    if showPinned {
+                        ForEach(addressBook.pinned) { NavigationItem.pinnedAddress($0).sidebarView }
+                    }
                 }
             }
         )
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                ThemedTextView(text: titleText)
+                ThemedTextView(text: "addresses")
             }
-        }
-        .toolbar {
             if addressBook.accountModel.signedIn {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
