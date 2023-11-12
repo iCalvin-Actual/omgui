@@ -11,6 +11,9 @@ public protocol DataInterface {
     
     func authURL() -> URL?
     
+    func fetchThemes() 
+    async throws -> [ThemeModel]
+    
     func fetchAccessToken(
         authCode: String,
         clientID: String,

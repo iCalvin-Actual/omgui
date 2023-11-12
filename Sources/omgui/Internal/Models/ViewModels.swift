@@ -29,6 +29,40 @@ public struct AccountInfoModel {
     }
 }
 
+public struct ThemeModel: Codable {
+    let id: String
+    let name: String
+    let created: Date
+    let updated: Date
+    let author: String
+    let license: String
+    let details: String
+    let preview: String
+    
+    public enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case created
+        case updated
+        case author
+        case license
+        case details = "description"
+        case preview
+    }
+    
+    
+    public init(id: String, name: String, created: Date, updated: Date, author: String, license: String, description: String, preview: String) {
+        self.id = id
+        self.name = name
+        self.created = created
+        self.updated = updated
+        self.author = author
+        self.license = license
+        self.details = description
+        self.preview = preview
+    }
+}
+
 public struct AddressProfile {
     let owner: AddressName
     let content: String
