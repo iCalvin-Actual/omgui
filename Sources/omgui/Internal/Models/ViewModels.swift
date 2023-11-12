@@ -32,8 +32,8 @@ public struct AccountInfoModel {
 public struct ThemeModel: Codable {
     let id: String
     let name: String
-    let created: Date
-    let updated: Date
+    let created: String
+    let updated: String
     let author: String
     let license: String
     let details: String
@@ -51,7 +51,7 @@ public struct ThemeModel: Codable {
     }
     
     
-    public init(id: String, name: String, created: Date, updated: Date, author: String, license: String, description: String, preview: String) {
+    public init(id: String, name: String, created: String, updated: String, author: String, license: String, description: String, preview: String) {
         self.id = id
         self.name = name
         self.created = created

@@ -165,7 +165,7 @@ public class SampleData: DataInterface {
     public func fetchThemes() async throws -> [ThemeModel] {
         try await Task.sleep(nanoseconds: artificalDelay)
         return [
-            .init(id: "default", name: "Default", created: .init(timeIntervalSince1970: 1660967179), updated: .init(timeIntervalSince1970: 1660967179), author: "omg.lol", license: "MIT", description: "A friendly, simple look for your amazing profile.", preview: "")
+            .init(id: "default", name: "Default", created: "1660967179", updated: "1660967179", author: "omg.lol", license: "MIT", description: "A friendly, simple look for your amazing profile.", preview: "")
         ]
     }
 }
