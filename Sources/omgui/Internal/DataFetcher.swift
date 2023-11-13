@@ -20,6 +20,10 @@ class Request: NSObject, ObservableObject {
     
     var requests: [AnyCancellable] = []
     
+    var noContent: Bool {
+        !loading
+    }
+    
     init(interface: DataInterface) {
         self.interface = interface
         super.init()
@@ -219,6 +223,10 @@ class DataFetcher: Request {
             self.reloadDuration = reloadDuration
             self.autoLoad = autoLoad
         }
+    }
+    
+    var summaryString: String? {
+        "Loading"
     }
     
     init(interface: DataInterface, automation: AutomationPreferences = .init()) {
@@ -781,6 +789,35 @@ class AddressProfileDataFetcher: DataFetcher {
     
     var theme: String {
         return ""
+    }
+    
+    var imageURL: URL? {
+        let firstSplit = html?.split(separator: "<")
+        guard let important = firstSplit?.first(where: { line in
+            line.contains("property=\"og:image")
+        }) else {
+            return nil
+        }
+        let trimmingEnd = important.split(separator: "\">")
+        guard let almostThere = trimmingEnd.first else {
+            return nil
+        }
+        let finallyThere = almostThere.split(separator: "meta property=\"og:image\" content=\"")
+        guard let finally = finallyThere.first else {
+            return nil
+        }
+        return URL(string: String(finally))
+    }
+    
+    override var noContent: Bool {
+        !loading && (html ?? "").isEmpty
+    }
+    
+    override var summaryString: String? {
+        guard !noContent else {
+            return super.summaryString
+        }
+        return DateFormatter.short.string(from: Date())
     }
 }
 

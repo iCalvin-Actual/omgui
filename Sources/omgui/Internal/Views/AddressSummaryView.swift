@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Calvin Chestnut on 3/8/23.
 //
@@ -61,15 +61,20 @@ struct AddressSummaryView: View {
     
     var sidebar: some View {
         VStack {
+            AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
+                image.resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                Color.lolRandom()
+            }
+            .frame(width: 128, height: 128) .clipShape(RoundedRectangle(cornerRadius: 25))
+
             Grid {
                 Section {
-                    GridRow {
-                        ForEach(pages) { item in
-                            HStack {
-                                Spacer()
-                                AddressContentButton(contentType: item, name: addressSummaryFetcher.addressName, preferEditing: allowEditing)
-                                Spacer()
-                            }
+                    ForEach(pages) { item in
+                        let fetcher = fetcherForContent(item)
+                        GridRow {
+                            AddressContentButton(contentType: item, name: addressSummaryFetcher.addressName, knownEmpty: fetcher.noContent, accessoryText: fetcher.summaryString)
                         }
                     }
                 } header: {
@@ -85,13 +90,9 @@ struct AddressSummaryView: View {
                 
                 Section {
                     ForEach(more) { item in
+                        let fetcher = fetcherForContent(item)
                         GridRow {
-                            HStack {
-                                Spacer()
-                                AddressContentButton(contentType: item, name: addressSummaryFetcher.addressName, preferEditing: allowEditing)
-                                Spacer()
-                            }
-                            .gridCellColumns(2)
+                            AddressContentButton(contentType: item, name: addressSummaryFetcher.addressName, knownEmpty: fetcher.noContent, accessoryText: fetcher.summaryString)
                         }
                     }
                 } header: {
@@ -121,5 +122,20 @@ struct AddressSummaryView: View {
             .ignoresSafeArea(.container, edges: [.bottom, .leading, .trailing])
             .navigationSplitViewColumnWidth(min: 250, ideal: 600)
             .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    func fetcherForContent(_ content: AddressContent) -> DataFetcher {
+        switch content {
+        case .now:
+            return addressSummaryFetcher.nowFetcher
+        case .pastebin:
+            return addressSummaryFetcher.pasteFetcher
+        case .purl:
+            return addressSummaryFetcher.purlFetcher
+        case .profile:
+            return addressSummaryFetcher.profileFetcher
+        case .statuslog:
+            return addressSummaryFetcher.statusFetcher
+        }
     }
 }
