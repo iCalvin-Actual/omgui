@@ -16,8 +16,9 @@ class AddressBook: ListDataFetcher<AddressModel> {
     var actingAddress: AddressName = "" {
         didSet {
             guard oldValue != actingAddress else { return }
-            fetchForAddress()
-            self.threadSafeSendUpdate()
+            Task {
+                await perform()
+            }
         }
     }
     
@@ -61,10 +62,6 @@ class AddressBook: ListDataFetcher<AddressModel> {
         }
         .store(in: &requests)
         
-        fetchForAddress()
-    }
-    
-    func fetchForAddress() {
         blocklistFetcher = constructBlocklist()
         blocklistFetcher.objectWillChange.sink { _ in
             self.threadSafeSendUpdate()
