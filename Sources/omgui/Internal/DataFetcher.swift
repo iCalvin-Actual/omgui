@@ -7,6 +7,7 @@
 
 import AuthenticationServices
 import Combine
+import omgapi
 import SwiftUI
 import Foundation
 
@@ -143,7 +144,6 @@ class NowDraftPoster: MDDraftPoster<NowModel.Draft> {
     }
     
     override func fetchCurrentValue() async {
-        loading = true
         do {
             if let now = try await interface.fetchAddressNow(address) {
                 let nonNilContent = now.content ?? draft.content
@@ -206,7 +206,7 @@ class StatusDraftPoster: DraftPoster<StatusModel.Draft> {
         if let status = try? await interface.fetchAddressStatus(id, from: address) {
             draft.emoji = status.emoji
             draft.content = status.status
-            draft.externalUrl = status.linkText
+            draft.externalUrl = status.link?.absoluteString
             threadSafeSendUpdate()
         } else {
             loading = false
@@ -325,6 +325,20 @@ class ListDataFetcher<T: Listable>: DataFetcher {
         super.init(interface: interface)
         self.loaded = items.isEmpty
     }
+    
+    override var noContent: Bool {
+        !loading && listItems.isEmpty
+    }
+    
+    override var summaryString: String? {
+        let supe = super.summaryString
+        guard supe == nil else {
+            return supe
+        }
+        return "\(items)"
+    }
+    
+    var items: Int { listItems.count }
 }
 
 class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
@@ -359,6 +373,10 @@ class AccountInfoDataFetcher: DataFetcher {
         let info = try await interface.fetchAccountInfo(name, credential: credential)
         self.accountName = info?.name
         self.threadSafeSendUpdate()
+    }
+    
+    override var noContent: Bool {
+        !loading && name.isEmpty
     }
 }
 
@@ -718,12 +736,11 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
             if addresses.isEmpty {
                 let statuses = try await interface.fetchStatusLog()
                 self.listItems = statuses
-                self.threadSafeSendUpdate()
             } else {
                 let statuses = try await interface.fetchAddressStatuses(addresses: addresses)
                 self.listItems = statuses
-                self.threadSafeSendUpdate()
             }
+            self.fetchFinished()
         }
     }
 }
@@ -839,12 +856,30 @@ class AddressNowDataFetcher: DataFetcher {
             return
         }
         Task {
-            let now = try await interface.fetchAddressNow(addressName)
-            self.content = now?.content
-            self.updated = now?.updated
-            self.listed = now?.listed
+            do {
+                let now = try await interface.fetchAddressNow(addressName)
+                self.content = now?.content
+                self.updated = now?.updated
+                self.listed = now?.listed
+            } catch {
+                guard let error = error as? APIError, error == .notFound else {
+                    throw error
+                }
+            }
             self.fetchFinished()
         }
+    }
+    
+    override var noContent: Bool {
+        !loading && (content ?? "").isEmpty
+    }
+    
+    override var summaryString: String? {
+        let supe = super.summaryString
+        if supe != nil {
+            return supe
+        }
+        return ""
     }
 }
 
@@ -896,6 +931,10 @@ class AddressPasteDataFetcher: DataFetcher {
             threadSafeSendUpdate()
         }
     }
+    
+    override var noContent: Bool {
+        !loading && paste == nil
+    }
 }
 
 class AddressPURLDataFetcher: DataFetcher {
@@ -922,6 +961,10 @@ class AddressPURLDataFetcher: DataFetcher {
             }
             threadSafeSendUpdate()
         }
+    }
+    
+    override var noContent: Bool {
+        !loading && purl == nil
     }
 }
 
