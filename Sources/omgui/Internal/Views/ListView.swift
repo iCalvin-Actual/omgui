@@ -128,6 +128,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
             buildRow(item)
         }
         .listRowSeparator(.hidden, edges: .all)
+        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
         .contextMenu(menuItems: {
             self.menuBuilder.contextMenu(for: item, sceneModel: sceneModel)
         })
