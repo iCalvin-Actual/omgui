@@ -48,8 +48,8 @@ class AddressBook: ListDataFetcher<AddressModel> {
         super.init(interface: interface)
         
         accountModel.objectWillChange.sink { _ in
-            Task {
-                await self.perform()
+            Task { [weak self] in
+                await self?.perform()
             }
         }
         .store(in: &requests)
@@ -57,13 +57,15 @@ class AddressBook: ListDataFetcher<AddressModel> {
     
     override func throwingRequest() async throws {
         myAddressesFetcher = AccountAddressDataFetcher(interface: fetchConstructor.interface, credential: accountModel.authKey)
-        myAddressesFetcher?.objectWillChange.sink { _ in
+        myAddressesFetcher?.objectWillChange.sink { [weak self] _ in
+            guard let self = self else { return }
             self.handleAddresses(self.myAddresses)
         }
         .store(in: &requests)
         
         blocklistFetcher = constructBlocklist()
-        blocklistFetcher.objectWillChange.sink { _ in
+        blocklistFetcher.objectWillChange.sink { [weak self] _ in
+            guard let self = self else { return }
             self.threadSafeSendUpdate()
         }
         .store(in: &requests)
@@ -71,7 +73,8 @@ class AddressBook: ListDataFetcher<AddressModel> {
         followingFetcher = nil
         followingStatusLogFetcher = nil
         let followingFetcher = addressSummary(actingAddress).followingFetcher
-        followingFetcher.objectWillChange.sink { _ in
+        followingFetcher.objectWillChange.sink { [weak self] _ in
+            guard let self = self else { return }
             if self.following.sorted() != self.followingStatusLogFetcher?.addresses.sorted() ?? [] {
                 self.followingStatusLogFetcher = self.fetchConstructor.statusLog(for: self.following)
                 self.threadSafeSendUpdate()
@@ -95,7 +98,8 @@ class AddressBook: ListDataFetcher<AddressModel> {
             return
         }
         let firstAddress = incomingAddresses.first!
-        Task {
+        Task { [weak self] in
+            guard let self = self else { return }
             let preference = self.myAddresses.contains(self.preferredAddress) ? self.preferredAddress : firstAddress
             self.setActiveAddress(preference)
         }
