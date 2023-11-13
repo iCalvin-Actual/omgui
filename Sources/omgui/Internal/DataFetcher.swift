@@ -7,7 +7,6 @@
 
 import AuthenticationServices
 import Combine
-import omgapi
 import SwiftUI
 import Foundation
 
@@ -862,9 +861,7 @@ class AddressNowDataFetcher: DataFetcher {
                 self.updated = now?.updated
                 self.listed = now?.listed
             } catch {
-                guard let error = error as? APIError, error == .notFound else {
-                    throw error
-                }
+                handle(error)
             }
             self.fetchFinished()
         }
