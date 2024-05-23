@@ -20,14 +20,11 @@ struct SplitView: View {
     var body: some View {
         NavigationSplitView(columnVisibility: $visibility) {
             Sidebar(selected: $selected, model: .init(sceneModel.addressBook))
-                .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
-        } content: {
-            let destination = selected?.destination ?? .lists
-            destinationView(destination)
-                .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
+                .navigationDestination(for: NavigationDestination.self, destination: destinationView(_:))
         } detail: {
+            let destination = selected?.destination ?? .lists
             NavigationStack {
-                sceneModel.destinationConstructor.destination(.now("app"))
+                destinationView(destination)
             }
         }
     }
@@ -35,5 +32,6 @@ struct SplitView: View {
     @ViewBuilder
     func destinationView(_ destination: NavigationDestination? = .webpage("app")) -> some View {
         sceneModel.destinationConstructor.destination(destination)
+            .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
     }
 }

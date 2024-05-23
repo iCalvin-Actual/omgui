@@ -45,29 +45,95 @@ struct AddressSummaryView: View {
     
     @ViewBuilder
     var sizeAppropriateBody: some View {
-        if horizontalSizeClass == .regular && context != .column {
-            NavigationSplitView(columnVisibility: $sidebarVisibility) {
-                sidebar
-                    .navigationSplitViewColumnWidth(ideal: 225, max: 420)
-                    .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
-            } detail: {
-                destination()
+        VStack {
+            if horizontalSizeClass == .regular {
+                HStack {
+                    HStack(alignment: .top) {
+                        AddressNameView(addressSummaryFetcher.addressName)
+                        Spacer()
+                        
+                        AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Color.lolRandom()
+                        }
+                        .frame(width: 44, height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .frame(maxWidth: 330)
+                    
+                    Spacer()
+                    
+                    ScrollView(.horizontal) {
+                        HStack {
+                            Spacer()
+                            ForEach(pages) { page in
+                                Button(action: {
+                                    // Update selection
+                                }) {
+                                    Text(page.displayString)
+                                }
+                            }
+                            Spacer()
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .frame(height: 44)
+            } else {
+                VStack(spacing: 0) {
+                    HStack(alignment: .top) {
+                        AddressNameView(addressSummaryFetcher.addressName)
+                        Spacer()
+                        
+                        AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Color.lolRandom()
+                        }
+                        .frame(width: 44, height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                        
+                    ScrollView(.horizontal) {
+                        HStack {
+                            Spacer()
+                            ForEach(pages) { page in
+                                Button(action: {
+                                    // Update selection
+                                }) {
+                                    Text(page.displayString)
+                                }
+                            }
+                            Spacer()
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .frame(height: 44)
             }
-            .navigationSplitViewStyle(.balanced)
-        } else {
-            sidebar
+            destination()
         }
     }
     
     var sidebar: some View {
-        VStack {
-            AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
-                image.resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Color.lolRandom()
+        VStack(alignment: .leading) {
+            HStack(alignment: .top) {
+                AddressNameView(addressSummaryFetcher.addressName)
+                Spacer()
+                
+                AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
+                    image.resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Color.lolRandom()
+                }
+                .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
             }
-            .frame(width: 128, height: 128) .clipShape(RoundedRectangle(cornerRadius: 25))
+            .padding(.horizontal)
 
             Grid {
                 Section {
