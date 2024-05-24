@@ -10,9 +10,11 @@ import SwiftUI
 struct SplitView: View {
     @EnvironmentObject
     var sceneModel: SceneModel
+    @Environment(\.horizontalSizeClass)
+    var sizeClass
     
     @State
-    var selected: NavigationItem? = nil
+    var selected: NavigationItem?
     @State
     var visibility: NavigationSplitViewVisibility = .all
     
@@ -24,6 +26,11 @@ struct SplitView: View {
             let destination = selected?.destination ?? .lists
             NavigationStack {
                 destinationView(destination)
+            }
+        }
+        .onAppear {
+            if sizeClass != .compact && selected == nil {
+                selected = .account
             }
         }
     }

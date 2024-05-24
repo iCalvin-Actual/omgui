@@ -576,6 +576,7 @@ class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
     
     @AppStorage("app.lol.cache.pinned", store: .standard)
     private var currentlyPinnedAddresses: String = "app"
+    
     var pinnedAddresses: [AddressName] {
         get {
             let split = currentlyPinnedAddresses.split(separator: "&&&")

@@ -29,43 +29,67 @@ struct Sidebar: View {
     var showConfirmLogout: Bool = false
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                if sidebarModel.addressBook.accountModel.signedIn {
-                    ZStack {
-                        NavigationLink(value: NavigationDestination.address(sidebarModel.actingAddress)) {
-                            EmptyView()
+        List(selection: $selected) {
+            ForEach(sidebarModel.sections) { section in
+                let items = sidebarModel.items(for: section)
+                if !items.isEmpty {
+                    Section {
+                        ForEach(items) { item in
+                            item.sidebarView
+                                .tag(item)
+                                .contextMenu(menuItems: {
+                                    item.contextMenu(in: sceneModel)
+                                })
                         }
-                        .opacity(0)
-                        
-                        ListRow<AddressModel>(model: .init(name: sidebarModel.actingAddress), preferredStyle: .minimal)
-                    }
-                }
-                List(selection: $selected) {
-                    ForEach(sidebarModel.sections) { section in
-                        let items = sidebarModel.items(for: section)
-                        if !items.isEmpty {
-                            Section {
-                                ForEach(items) { item in
-                                    item.sidebarView
-                                        .contextMenu(menuItems: {
-                                            item.contextMenu(in: sceneModel)
-                                        })
-                                }
-                            } header: {
-                                HStack {
-                                    Text(section.displayName)
-                                        .fontDesign(.monospaced)
-                                        .font(.subheadline)
-                                        .bold()
-                                    Spacer()
-                                }
-                            }
+                    } header: {
+                        HStack {
+                            Text(section.displayName)
+                                .fontDesign(.monospaced)
+                                .font(.subheadline)
+                                .bold()
+                            Spacer()
                         }
                     }
                 }
             }
         }
+        .safeAreaInset(edge: .top) {
+            if sidebarModel.addressBook.accountModel.signedIn {
+                ZStack {
+                    NavigationLink(value: NavigationDestination.address(sidebarModel.actingAddress)) {
+                        EmptyView()
+                    }
+                    .opacity(0)
+                    
+                    ListRow<AddressModel>(model: .init(name: sidebarModel.actingAddress), preferredStyle: .minimal)
+                }
+            }
+        }
+        .safeAreaInset(edge: .bottom, content: {
+            if !sidebarModel.addressBook.accountModel.signedIn {
+                Button {
+                    DispatchQueue.main.async {
+                        Task {
+                            await sidebarModel.addressBook.accountModel.authenticate()
+                        }
+                    }
+                } label: {
+                    Label {
+                        Text("Sign in")
+                    } icon: {
+                        Image("prami", bundle: .module)
+                            .resizable()
+                            .frame(width: 33, height: 33)
+                    }
+                }
+                .bold()
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.lolRandom(Int.random(in: 0...10)))
+                .cornerRadius(16)
+                .padding(.horizontal)
+            }
+        })
         .alert("Logout", isPresented: $showConfirmLogout) {
             Button("Cancel", role: .cancel) { }
             Button("Yes", role: .destructive) {
@@ -73,31 +97,12 @@ struct Sidebar: View {
             }
         }
         .toolbar {
-            if !sidebarModel.addressBook.accountModel.signedIn {
-                ToolbarItem(placement: .bottomBar) {
-                    HStack {
-                        Button("omg.lol sign in") {
-                            DispatchQueue.main.async {
-                                Task {
-                                    await sidebarModel.addressBook.accountModel.authenticate()
-                                }
-                            }
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.lolRandom(Int.random(in: 0...10)))
-                        .cornerRadius(16)
-                    }
-                    .background(Color(uiColor: horizontalSize == .compact ? .systemGroupedBackground : .systemBackground))
-                    .padding()
-                }
-            }
             ToolbarItem(placement: .topBarLeading) {
                 ThemedTextView(text: "app.lol")
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    if sidebarModel.addressBook.accountModel.signedIn {
+                if sidebarModel.addressBook.accountModel.signedIn {
+                    Menu {
                         addressPickerSection
                         
                         Button(role: .destructive) {
@@ -105,19 +110,9 @@ struct Sidebar: View {
                         } label: {
                             Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
                         }
-                    } else {
-                        Button {
-                            DispatchQueue.main.async {
-                                Task {
-                                    await sidebarModel.addressBook.accountModel.authenticate()
-                                }
-                            }
-                        } label: {
-                            Label("Login", systemImage: "person.crop.circle.badge.plus")
-                        }
+                    } label: {
+                        Label("More", systemImage: "ellipsis.circle")
                     }
-                } label: {
-                    Label("More", systemImage: "ellipsis.circle")
                 }
             }
         }

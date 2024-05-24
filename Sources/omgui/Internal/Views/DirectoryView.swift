@@ -56,7 +56,7 @@ struct DirectoryView: View {
         .refreshable(action: {
             await dataFetcher.perform()
         })
-        .searchable(text: $queryString, isPresented: .constant(true), placement: .automatic)
+        .searchable(text: $queryString, placement: .automatic)
         .toolbar(content: {
             SortOrderMenu(sort: $sort, options: AddressModel.sortOptions)
         })

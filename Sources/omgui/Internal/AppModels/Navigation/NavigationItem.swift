@@ -116,9 +116,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     
     @ViewBuilder
     var sidebarView: some View {
-        NavigationLink(value: self.destination) {
-            label
-        }
+        label
     }
     
     var label: some View {
