@@ -54,21 +54,6 @@ enum AddressContent: Identifiable, Codable {
         }
     }
     
-    func externalUrlString(for name: AddressName) -> String {
-        switch self {
-        case .profile:
-            return "\(name).omg.lol"
-        case .now:
-            return "\(name).omg.lol/now"
-        case .purl:
-            return "\(name).url.lol"
-        case .pastebin:
-            return "\(name).paste.lol"
-        case .statuslog:
-            return "\(name).status.lol"
-        }
-    }
-    
     var color: Color {
         switch self {
         case .profile:

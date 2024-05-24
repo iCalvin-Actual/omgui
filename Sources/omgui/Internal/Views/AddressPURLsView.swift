@@ -20,12 +20,6 @@ struct AddressPURLView: View {
             dataFetcher: fetcher,
             rowBuilder: purlView(_:)
         )
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                ThemedTextView(text: AddressContent.purl.externalUrlString(for: fetcher.addressName), font: .callout)
-                    .fontDesign(.monospaced)
-            }
-        }
     }
     
     func purlView(_ model: PURLModel) -> PURLRowView {

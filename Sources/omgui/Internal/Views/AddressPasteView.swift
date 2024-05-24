@@ -23,12 +23,6 @@ struct AddressPasteView: View {
             dataFetcher: fetcher,
             rowBuilder: pasteView(_:)
         )
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                ThemedTextView(text: AddressContent.pastebin.externalUrlString(for: fetcher.addressName), font: .callout)
-                    .fontDesign(.monospaced)
-            }
-        }
     }
     
     func pasteView(_ model: PasteModel) -> PasteRowView {

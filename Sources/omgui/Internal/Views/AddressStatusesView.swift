@@ -21,10 +21,9 @@ struct AddressStatusesView: View {
             AddressBioView(fetcher: bioFetcher)
             StatusList(fetcher: fetcher, context: .profile)
         }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                ThemedTextView(text: AddressContent.statuslog.externalUrlString(for: fetcher.addresses.first!), font: .callout)
-                    .fontDesign(.monospaced)
+        .toolbar {       
+            ToolbarItem(placement: .topBarLeading) {
+                ThemedTextView(text: bioFetcher.address.addressDisplayString + ".statuses")
             }
         }
     }

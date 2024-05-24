@@ -23,6 +23,13 @@ struct AddressSummaryView: View {
     @State
     var sidebarVisibility: NavigationSplitViewVisibility = .all
     
+    @State
+    var selectedPage: AddressContent = .profile
+    
+    private var allPages: [AddressContent] {
+        pages + more
+    }
+    
     private var pages: [AddressContent] {
         [
             .profile,
@@ -40,47 +47,43 @@ struct AddressSummaryView: View {
     
     var body: some View {
         sizeAppropriateBody
-            .navigationTitle("")
     }
     
     @ViewBuilder
     var sizeAppropriateBody: some View {
-        VStack {
+        VStack(spacing: 0) {
             if horizontalSizeClass == .regular {
                 HStack {
-                    HStack(alignment: .top) {
-                        AddressNameView(addressSummaryFetcher.addressName)
-                        Spacer()
-                        
-                        AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
-                            image.resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Color.lolRandom()
-                        }
-                        .frame(width: 44, height: 44)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
+                        image.resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Color.lolRandom()
                     }
-                    .frame(maxWidth: 330)
+                    .frame(width: 44, height: 44)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.vertical, 8)
                     
                     Spacer()
                     
                     ScrollView(.horizontal) {
-                        HStack {
+                        HStack(spacing: 0) {
                             Spacer()
-                            ForEach(pages) { page in
+                            ForEach(allPages) { page in
                                 Button(action: {
-                                    // Update selection
+                                    withAnimation {
+                                        selectedPage = page
+                                    }
                                 }) {
                                     Text(page.displayString)
                                 }
+                                .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
                             }
-                            Spacer()
                         }
                     }
                 }
                 .padding(.horizontal)
-                .frame(height: 44)
+                .frame(height: 60)
             } else {
                 VStack(spacing: 0) {
                     HStack(alignment: .top) {
@@ -114,16 +117,14 @@ struct AddressSummaryView: View {
                 .padding(.horizontal)
                 .frame(height: 44)
             }
-            destination()
+            destination(selectedPage)
         }
     }
     
     var sidebar: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .top) {
-                AddressNameView(addressSummaryFetcher.addressName)
-                Spacer()
-                
+
                 AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
                     image.resizable()
                         .aspectRatio(contentMode: .fill)

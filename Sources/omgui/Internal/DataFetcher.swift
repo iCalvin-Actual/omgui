@@ -718,10 +718,14 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
     let addresses: [AddressName]
     
     override var title: String {
-        if addresses.count > 0 {
+        switch addresses.count {
+        case 0:
             return "following"
-        } else {
-            return "status.lol"
+        case 1:
+            let address = addresses.first?.addressDisplayString ?? ""
+            return address + ".statuses"
+        default:
+            return "statuses"
         }
     }
     
@@ -885,7 +889,7 @@ class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
     let credential: APICredential?
     
     override var title: String {
-        "\(addressName).paste.lol"
+        "\(addressName.addressDisplayString).pastes"
     }
     
     init(name: AddressName, pastes: [PasteModel] = [], interface: DataInterface, credential: APICredential?) {
@@ -970,7 +974,7 @@ class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
     let credential: APICredential?
     
     override var title: String {
-        "\(addressName).url.lol"
+        "\(addressName.addressDisplayString).PURLs"
     }
     
     init(name: AddressName, purls: [PURLModel] = [], interface: DataInterface, credential: APICredential?) {
