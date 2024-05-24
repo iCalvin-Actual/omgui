@@ -93,16 +93,25 @@ struct ListView<T: Listable, V: View, H: View>: View {
                         .listRowSeparator(.hidden)
                 }
                 Section(dataFetcher.title) {
-                    ForEach(items, content: rowView(_:) )
+                    listContent
                 }
             } else {
-                ForEach(items, content: rowView(_:) )
+                listContent
             }
         }
         .refreshable(action: {
             await dataFetcher.perform()
         })
         .listStyle(.plain)
+    }
+    
+    @ViewBuilder
+    var listContent: some View {
+        if !items.isEmpty {
+            ForEach(items, content: rowView(_:) )
+        } else {
+            emptyRowView()
+        }
     }
     
     @ViewBuilder
@@ -113,6 +122,19 @@ struct ListView<T: Listable, V: View, H: View>: View {
         } else {
             list
         }
+    }
+    
+    @ViewBuilder
+    func emptyRowView() -> some View {
+        HStack {
+            Spacer()
+            Text("Empty")
+                .font(.title3)
+                .bold()
+            Spacer()
+        }
+        .listRowSeparator(.hidden, edges: .all)
+        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
     }
     
     @ViewBuilder
@@ -127,6 +149,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
             
             buildRow(item)
         }
+        .padding(.top, item == items.first ? 8 : 0)
         .listRowSeparator(.hidden, edges: .all)
         .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
         .contextMenu(menuItems: {

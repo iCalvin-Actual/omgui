@@ -10,13 +10,25 @@ import Foundation
 import WebKit
 
 struct HTMLContentView: UIViewRepresentable {
-    
     class Coordinator: NSObject, WKNavigationDelegate {
     
         var pendingContent: String?
+
+        var handleURL: ((_ url: URL?) -> Void)?
+        
+        init(pendingContent: String? = nil, handleURL: ((_: URL?) -> Void)? = nil) {
+            self.pendingContent = pendingContent
+            self.handleURL = handleURL
+        }
         
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
-            return .allow
+            switch navigationAction.navigationType {
+            case .linkActivated:
+                handleURL?(navigationAction.request.url)
+                return .cancel
+            default:
+                return .allow
+            }
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -40,10 +52,15 @@ struct HTMLContentView: UIViewRepresentable {
         }
     }
     
+    @Binding
+    var activeURL: URL?
+    
     let htmlContent: String?
     
     func makeCoordinator() -> Coordinator {
-        Coordinator()
+        Coordinator { url in
+            activeURL = url
+        }
     }
     
     func makeUIView(context: HTMLContentView.Context) -> WKWebView {
@@ -63,14 +80,18 @@ struct HTMLContentView: UIViewRepresentable {
 struct HTMLContentView_Previews: PreviewProvider {
     @State
     static var content: String = ""
+    @State
+    static var url: URL?
     
     static var previews: some View {
-        HTMLContentView(htmlContent: content)
-            .onAppear {
-                Task {
-                    let new = try await SampleData().fetchAddressProfile("some", credential: nil)
-                    Self.content = new?.content ?? "Failed"
+        TabView {
+            HTMLContentView(activeURL: $url, htmlContent: content)
+                .onAppear {
+                    Task {
+                        let new = try await SampleData().fetchAddressProfile("some", credential: nil)
+                        Self.content = new?.content ?? "Failed"
+                    }
                 }
-            }
+        }
     }
 }

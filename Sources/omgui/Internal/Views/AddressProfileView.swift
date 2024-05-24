@@ -11,8 +11,15 @@ struct AddressProfileView: View {
     @ObservedObject
     var fetcher: AddressProfileDataFetcher
     
+    @State
+    var presentedURL: URL? = nil
+    
     var body: some View {
-        HTMLContentView(htmlContent: fetcher.html)
+        HTMLContentView(activeURL: $presentedURL, htmlContent: fetcher.html)
+            .sheet(item: $presentedURL, content: { url in
+                SafariView(url: url)
+                    .ignoresSafeArea(.all, edges: .bottom)
+            })
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     ThemedTextView(text: fetcher.addressName.addressDisplayString)

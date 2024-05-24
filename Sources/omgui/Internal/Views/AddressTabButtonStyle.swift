@@ -12,6 +12,8 @@ struct AddressTabStyle: ButtonStyle {
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .foregroundColor(isActive ? .white : .primary)
+            .bold(isActive)
             .padding(.horizontal, 16)
             .frame(maxHeight: .infinity)
             .background(isActive ? Color(uiColor: UIColor.tintColor) : .clear)

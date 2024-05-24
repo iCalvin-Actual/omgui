@@ -17,8 +17,8 @@ struct MarkdownContentView: View {
     }
     
     var body: some View {
-        if let content = strippingComments {
-            ScrollView {
+        ScrollView {
+            if let content = strippingComments {
                 Markdown(content)
                     .padding()
             }
