@@ -54,18 +54,6 @@ struct AddressSummaryView: View {
     var sizeAppropriateBody: some View {
         VStack(spacing: 0) {
             HStack {
-                AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
-                    image.resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Color.lolRandom()
-                }
-                .frame(width: 44, height: 44)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.vertical, 8)
-                
-                Spacer()
-                
                 ScrollView(.horizontal) {
                     HStack(spacing: 0) {
                         Spacer()
@@ -81,8 +69,22 @@ struct AddressSummaryView: View {
                         }
                     }
                 }
+                Spacer()
+                Menu {
+                    AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
+                } label: {
+                    AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
+                        image.resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Color.lolRandom()
+                    }
+                    .frame(width: 44, height: 44)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.vertical, 8)
+                }
+                .padding(.trailing)
             }
-            .padding(.horizontal)
             .frame(height: 60)
             destination(selectedPage)
         }

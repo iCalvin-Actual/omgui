@@ -27,6 +27,7 @@ struct DestinationConstructor {
             CommunityView(addressBook: addressBook)
         case .address(let name):
             AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), context: .profile, allowEditing: addressBook.actingAddress == name)
+                .toolbarRole(.editor)
         case .webpage(let name):
             AddressProfileView(fetcher: addressBook.addressSummary(name).profileFetcher)
         case .now(let name):

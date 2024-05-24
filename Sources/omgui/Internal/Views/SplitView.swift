@@ -12,13 +12,12 @@ struct SplitView: View {
     var sceneModel: SceneModel
     
     @State
-    var selected: NavigationItem? = .pinnedAddress("app")
-    
+    var selected: NavigationItem? = nil
     @State
     var visibility: NavigationSplitViewVisibility = .all
     
     var body: some View {
-        NavigationSplitView(columnVisibility: $visibility) {
+        NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(.sidebar)) {
             Sidebar(selected: $selected, model: .init(sceneModel.addressBook))
                 .navigationDestination(for: NavigationDestination.self, destination: destinationView(_:))
         } detail: {

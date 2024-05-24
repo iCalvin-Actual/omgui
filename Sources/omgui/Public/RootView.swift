@@ -24,7 +24,7 @@ struct RootView: View {
     let fetchConstructor: FetchConstructor
     
     var body: some View {
-        appropriateNavigation
+        SplitView()
             .environmentObject(
                 SceneModel(fetchConstructor: fetchConstructor)
             )
