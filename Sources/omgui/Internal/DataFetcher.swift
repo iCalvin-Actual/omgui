@@ -723,7 +723,7 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
             return "following"
         case 1:
             let address = addresses.first?.addressDisplayString ?? ""
-            return address + ".statuses"
+            return address + ".statusLog"
         default:
             return "statuses"
         }

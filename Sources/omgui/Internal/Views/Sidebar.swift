@@ -44,9 +44,9 @@ struct Sidebar: View {
                     }
                 }
                 .padding()
+                .frame(maxWidth: .infinity)
                 .background(Color.lolRandom(Int.random(in: 0...10)))
                 .cornerRadius(16)
-                .frame(maxWidth: .infinity)
             }
         }
     }

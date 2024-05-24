@@ -23,7 +23,7 @@ struct AddressStatusesView: View {
         }
         .toolbar {       
             ToolbarItem(placement: .topBarLeading) {
-                ThemedTextView(text: bioFetcher.address.addressDisplayString + ".statuses")
+                ThemedTextView(text: bioFetcher.address.addressDisplayString + ".statusLog")
             }
         }
     }

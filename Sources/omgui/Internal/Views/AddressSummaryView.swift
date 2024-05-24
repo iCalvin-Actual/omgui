@@ -47,76 +47,43 @@ struct AddressSummaryView: View {
     
     var body: some View {
         sizeAppropriateBody
+            .background(Color(uiColor: .systemBackground))
     }
     
     @ViewBuilder
     var sizeAppropriateBody: some View {
         VStack(spacing: 0) {
-            if horizontalSizeClass == .regular {
-                HStack {
-                    AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
-                        image.resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Color.lolRandom()
-                    }
-                    .frame(width: 44, height: 44)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.vertical, 8)
-                    
-                    Spacer()
-                    
-                    ScrollView(.horizontal) {
-                        HStack(spacing: 0) {
-                            Spacer()
-                            ForEach(allPages) { page in
-                                Button(action: {
-                                    withAnimation {
-                                        selectedPage = page
-                                    }
-                                }) {
-                                    Text(page.displayString)
-                                }
-                                .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
-                            }
-                        }
-                    }
+            HStack {
+                AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
+                    image.resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Color.lolRandom()
                 }
-                .padding(.horizontal)
-                .frame(height: 60)
-            } else {
-                VStack(spacing: 0) {
-                    HStack(alignment: .top) {
-                        AddressNameView(addressSummaryFetcher.addressName)
+                .frame(width: 44, height: 44)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.vertical, 8)
+                
+                Spacer()
+                
+                ScrollView(.horizontal) {
+                    HStack(spacing: 0) {
                         Spacer()
-                        
-                        AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
-                            image.resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Color.lolRandom()
-                        }
-                        .frame(width: 44, height: 44)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                        
-                    ScrollView(.horizontal) {
-                        HStack {
-                            Spacer()
-                            ForEach(pages) { page in
-                                Button(action: {
-                                    // Update selection
-                                }) {
-                                    Text(page.displayString)
+                        ForEach(allPages) { page in
+                            Button(action: {
+                                withAnimation {
+                                    selectedPage = page
                                 }
+                            }) {
+                                Text(page.displayString)
                             }
-                            Spacer()
+                            .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
                         }
                     }
                 }
-                .padding(.horizontal)
-                .frame(height: 44)
             }
+            .padding(.horizontal)
+            .frame(height: 60)
             destination(selectedPage)
         }
     }
