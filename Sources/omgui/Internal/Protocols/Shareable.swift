@@ -65,10 +65,10 @@ extension AddressModel: Sharable {
     }
     
     var primaryURL: SharePacket? {
-        guard !addressName.isEmpty else {
+        guard !addressName.isEmpty, let urlSafeAddress = addressName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
             return nil
         }
-        return .init(name: "Webpage", content: URL(string: "https://\(addressName).omg.lol")!)
+        return .init(name: "Webpage", content: URL(string: "https://\(urlSafeAddress).omg.lol")!)
     }
     
     var shareURLs: [SharePacket] {

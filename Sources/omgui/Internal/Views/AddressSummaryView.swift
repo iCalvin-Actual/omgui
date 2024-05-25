@@ -24,7 +24,7 @@ struct AddressSummaryView: View {
     var sidebarVisibility: NavigationSplitViewVisibility = .all
     
     @State
-    var selectedPage: AddressContent = .profile
+    var selectedPage: AddressContent
     
     private var allPages: [AddressContent] {
         pages + more
@@ -48,6 +48,9 @@ struct AddressSummaryView: View {
     var body: some View {
         sizeAppropriateBody
             .background(Color(uiColor: .systemBackground))
+            .onChange(of: addressSummaryFetcher) { oldValue, newValue in
+                selectedPage = .profile
+            }
     }
     
     @ViewBuilder

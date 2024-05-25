@@ -16,11 +16,16 @@ struct DirectoryView: View {
     
     @EnvironmentObject
     var sceneModel: SceneModel
+    @Environment(\.horizontalSizeClass)
+    var sizeClass
     
     @State
     var queryString: String = ""
     @State
     var sort: Sort = .alphabet
+    
+    @State
+    var selected: String?
     
     let filters: [FilterOption]
     
@@ -48,7 +53,22 @@ struct DirectoryView: View {
     }
     
     var body: some View {
-        List {
+        sizeAppropriateView
+    }
+    
+    @ViewBuilder
+    var sizeAppropriateView: some View {
+        switch sizeClass {
+        case .compact:
+            compactBody
+        default:
+            regularBody
+        }
+    }
+    
+    @ViewBuilder
+    var listBody: some View {
+        List(selection: $selected) {
             Section {
                 ForEach(filtered(unfilteredItems)) { rowView($0) }
             }
@@ -64,25 +84,62 @@ struct DirectoryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("")
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                ThemedTextView(text: "directory")
+            if sizeClass == .compact {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    ThemedTextView(text: "directory")
+                }
             }
         }
     }
     
     @ViewBuilder
+    var compactBody: some View {
+        listBody
+    }
+    
+    @ViewBuilder
+    var regularBody: some View {
+        HStack {
+            listBody
+                .frame(maxWidth: 300)
+            addressBody
+                .frame(maxWidth: .infinity)
+        }
+    }
+    
+    @ViewBuilder
+    var addressBody: some View {
+        if let selectedAddress = selected {
+            AddressSummaryView(addressSummaryFetcher: sceneModel.addressBook.addressSummary(selectedAddress), context: .profile, allowEditing: false, selectedPage: .profile)
+        } else {
+            Text("Select an Address")
+        }
+    }
+    
+    @ViewBuilder
     func rowView(_ item: AddressModel) -> some View {
-        ZStack(alignment: .leading) {
-            NavigationLink(value: NavigationDestination.address(item.addressName)) {
-                EmptyView()
+        rowBuilder(item)
+            .tag(item.addressName)
+            .listRowSeparator(.hidden, edges: .all)
+            .contextMenu(menuItems: {
+                self.menuBuilder?.contextMenu(for: item, sceneModel: sceneModel)
+            })
+    }
+    
+    @ViewBuilder
+    func rowBuilder(_ item: AddressModel) -> some View {
+        switch sizeClass {
+        case .compact:
+            ZStack(alignment: .leading) {
+                NavigationLink(value: NavigationDestination.address(item.addressName)) {
+                    EmptyView()
+                }
+                .opacity(0)
+                
+                ListRow(model: item)
             }
-            .opacity(0)
-            
+        default:
             ListRow(model: item)
         }
-        .listRowSeparator(.hidden, edges: .all)
-        .contextMenu(menuItems: {
-            self.menuBuilder?.contextMenu(for: item, sceneModel: sceneModel)
-        })
     }
 }

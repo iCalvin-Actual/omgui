@@ -63,6 +63,7 @@ struct Sidebar: View {
                     
                     ListRow<AddressModel>(model: .init(name: sidebarModel.actingAddress), preferredStyle: .minimal)
                 }
+                .padding(.horizontal)
             }
         }
         .safeAreaInset(edge: .bottom, content: {
@@ -97,7 +98,7 @@ struct Sidebar: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItem(placement: .principal) {
                 ThemedTextView(text: "app.lol")
             }
             ToolbarItem(placement: .topBarTrailing) {

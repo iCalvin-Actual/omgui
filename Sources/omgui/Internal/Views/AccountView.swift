@@ -83,7 +83,7 @@ struct AccountView: View {
         }
         .navigationTitle("")
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .principal) {
                 ThemedTextView(text: "app.lol")
             }
         }

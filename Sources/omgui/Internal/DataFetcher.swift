@@ -313,7 +313,7 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
     }
 }
 
-class ListDataFetcher<T: Listable>: DataFetcher {
+class ListDataFetcher<T: Listable>: DataFetcher, Observable {
     
     var listItems: [T] = []
     

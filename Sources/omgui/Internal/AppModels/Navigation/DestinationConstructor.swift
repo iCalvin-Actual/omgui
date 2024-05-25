@@ -11,9 +11,15 @@ struct DestinationConstructor {
     let addressBook: AddressBook
     let accountModel: AccountModel
     let fetchConstructor: FetchConstructor
-    
+
     @ViewBuilder
     func destination(_ destination: NavigationDestination? = nil) -> some View {
+        appliedDestination(destination)
+            .environment(addressBook)
+    }
+    
+    @ViewBuilder
+    func appliedDestination(_ destination: NavigationDestination? = nil) -> some View {
         let destination = destination ?? .community
         switch destination {
         case .directory:
@@ -26,7 +32,7 @@ struct DestinationConstructor {
         case .community:
             CommunityView(addressBook: addressBook)
         case .address(let name):
-            AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), context: .profile, allowEditing: addressBook.actingAddress == name)
+            AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), context: .profile, allowEditing: addressBook.actingAddress == name, selectedPage: .profile)
                 .toolbarRole(.editor)
         case .webpage(let name):
             AddressProfileView(fetcher: addressBook.addressSummary(name).profileFetcher)
