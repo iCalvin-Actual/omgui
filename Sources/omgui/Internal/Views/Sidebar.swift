@@ -53,6 +53,7 @@ struct Sidebar: View {
                 }
             }
         }
+        .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .top) {
             if sidebarModel.addressBook.accountModel.signedIn {
                 ZStack {
