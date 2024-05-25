@@ -101,7 +101,7 @@ struct DirectoryView: View {
     var regularBody: some View {
         HStack {
             listBody
-                .frame(maxWidth: 300)
+                .frame(maxWidth: 330)
             addressBody
                 .frame(maxWidth: .infinity)
         }

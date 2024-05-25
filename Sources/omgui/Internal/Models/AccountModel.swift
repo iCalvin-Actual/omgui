@@ -39,8 +39,8 @@ class AccountModel: DataFetcher {
             guard !newValue.isEmpty else {
                 return
             }
-            Task {
-                await self.login(newValue)
+            Task { @MainActor [weak self] in
+                await self?.login(newValue)
             }
         }
         .store(in: &requests)
@@ -48,18 +48,17 @@ class AccountModel: DataFetcher {
     
     func login(_ incomingAuthKey: APICredential) async {
         authKey = incomingAuthKey
-        Task {
-            await perform()
+        Task { [weak self] in
+            await self?.perform()
         }
     }
     
     func logout() {
-        DispatchQueue.main.async {
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
             self.authKey = ""
             self.localAddresses = []
-            Task {
-                await self.perform()
-            }
+            await self.perform()
         }
     }
     
