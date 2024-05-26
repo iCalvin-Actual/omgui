@@ -12,10 +12,12 @@ protocol Listable: Filterable, Sortable, Menuable, Hashable, Identifiable {
     var listSubtitle: String { get }
     var listCaption: String? { get }
     var displayDate: Date?   { get }
+    var iconURL: URL?        { get }
 }
 
 extension Listable {
     var displayDate: Date? { nil }
+    var iconURL: URL? { nil }
     
     var listCaption: String? {
         guard let date = displayDate else {
@@ -29,6 +31,7 @@ extension AddressModel: Listable {
     var listTitle: String { addressName.addressDisplayString }
     var listSubtitle: String { url?.absoluteString ?? "" }
     var displayDate: Date? { registered }
+    var iconURL: URL? { URL(string: "https://profiles.cache.lol/\(rawValue)/picture") }
 }
 extension StatusModel: Listable     {
     var listTitle: String     { status }

@@ -27,6 +27,9 @@ struct GardenView: View {
     
     var body: some View {
         sizeAppropriateBody
+            .toolbarRole(.editor)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     ThemedTextView(text: "now.garden 🌷")
@@ -77,15 +80,6 @@ struct GardenView: View {
             SortOrderMenu(sort: $sort, options: AddressModel.sortOptions)
         })
         .listStyle(.plain)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle("")
-        .toolbar {
-            if sizeClass == .compact {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    ThemedTextView(text: "directory")
-                }
-            }
-        }
     }
     
     @ViewBuilder

@@ -116,7 +116,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     @ViewBuilder
     var searchableIfNeeded: some View {
-        if self.allowSearch {
+        if self.allowSearch && !items.isEmpty {
             list
                 .searchable(text: $queryString, placement: .automatic)
         } else {

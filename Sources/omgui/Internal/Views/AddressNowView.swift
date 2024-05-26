@@ -11,12 +11,29 @@ struct AddressNowView: View {
     @ObservedObject
     var fetcher: AddressNowDataFetcher
     
+    @State
+    var presentedURL: URL? = nil
+    
     var body: some View {
-        MarkdownContentView(content: fetcher.content)
+        htmlBody
+            .sheet(item: $presentedURL, content: { url in
+                SafariView(url: url)
+                    .ignoresSafeArea(.all, edges: .bottom)
+            })
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     ThemedTextView(text: fetcher.addressName.addressDisplayString + ".now")
                 }
             }
+    }
+    
+    @ViewBuilder
+    var htmlBody: some View {
+        HTMLContentView(activeURL: $presentedURL, htmlContent: fetcher.html)
+    }
+    
+    @ViewBuilder
+    var markdowyBody: some View {
+        MarkdownContentView(source: fetcher, content: fetcher.content)
     }
 }

@@ -54,6 +54,7 @@ struct DirectoryView: View {
     
     var body: some View {
         sizeAppropriateView
+            .toolbarRole(.editor)
     }
     
     @ViewBuilder
@@ -86,7 +87,7 @@ struct DirectoryView: View {
         .toolbar {
             if sizeClass == .compact {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    ThemedTextView(text: "directory")
+                    ThemedTextView(text: "omg.directory")
                 }
             }
         }

@@ -29,31 +29,33 @@ struct Sidebar: View {
     var showConfirmLogout: Bool = false
     
     var body: some View {
-        List(selection: $selected) {
-            ForEach(sidebarModel.sections) { section in
-                let items = sidebarModel.items(for: section)
-                if !items.isEmpty {
-                    Section {
-                        ForEach(items) { item in
-                            item.sidebarView
-                                .tag(item)
-                                .contextMenu(menuItems: {
-                                    item.contextMenu(in: sceneModel)
-                                })
-                        }
-                    } header: {
-                        HStack {
-                            Text(section.displayName)
-                                .fontDesign(.monospaced)
-                                .font(.subheadline)
-                                .bold()
-                            Spacer()
+        NavigationStack {
+            List(selection: $selected) {
+                ForEach(sidebarModel.sections) { section in
+                    let items = sidebarModel.items(for: section)
+                    if !items.isEmpty {
+                        Section {
+                            ForEach(items) { item in
+                                item.sidebarView
+                                    .tag(item)
+                                    .contextMenu(menuItems: {
+                                        item.contextMenu(in: sceneModel)
+                                    })
+                            }
+                        } header: {
+                            HStack {
+                                Text(section.displayName)
+                                    .fontDesign(.monospaced)
+                                    .font(.subheadline)
+                                    .bold()
+                                Spacer()
+                            }
                         }
                     }
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .top) {
             if sidebarModel.addressBook.accountModel.signedIn {
                 ZStack {

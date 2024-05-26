@@ -41,9 +41,9 @@ struct ListRow<T: Listable>: View {
         case .minimal:
             return 0
         case .smaller:
-            return 4
+            return 0
         case .standard:
-            return 8
+            return 2
         }
     }
     
@@ -53,19 +53,33 @@ struct ListRow<T: Listable>: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(model.listTitle)
-                .font(.title)
-                .bold()
-                .foregroundColor(.black)
-                .padding(.vertical, verticalPadding)
-                .padding(.trailing, trailingPadding)
-            
+            HStack {
+                Text(model.listTitle)
+                    .font(.title)
+                    .bold()
+                    .foregroundColor(.black)
+                if let icon = model.iconURL {
+                    Spacer()
+                    
+                    AsyncImage(url: icon) { image in
+                        image.resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Color.lolRandom()
+                    }
+                    .frame(width: 55, height: 55)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 8)
+                }
+            }
+            .padding(.vertical, verticalPadding)
+            .padding(.trailing, trailingPadding)
             
             let subtitle = model.listSubtitle
             let caption = model.listCaption ?? ""
             let hasMoreText: Bool = !subtitle.isEmpty || !caption.isEmpty
-            HStack(alignment: .bottom) {
-                if hasMoreText {
+            if hasMoreText {
+                HStack(alignment: .bottom) {
                     Text(subtitle)
                         .font(.headline)
                         .foregroundColor(.accentColor.opacity(0.8))
@@ -74,14 +88,13 @@ struct ListRow<T: Listable>: View {
                     Text(caption)
                         .foregroundColor(.accentColor.opacity(0.6))
                         .font(.subheadline)
-                } else {
-                    Spacer()
                 }
+                .padding(.trailing)
             }
-            .padding(.trailing)
         }
         .padding(4)
         .asCard(color: .lolRandom(model), radius: 8)
         .fontDesign(.serif)
+        .padding(4)
     }
 }

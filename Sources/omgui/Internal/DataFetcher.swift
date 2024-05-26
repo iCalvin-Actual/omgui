@@ -850,6 +850,8 @@ class AddressNowDataFetcher: DataFetcher {
     
     var listed: Bool?
     
+    var html: String?
+    
     init(name: AddressName, interface: DataInterface) {
         self.addressName = name
         super.init(interface: interface)
@@ -863,6 +865,7 @@ class AddressNowDataFetcher: DataFetcher {
             do {
                 let now = try await interface.fetchAddressNow(addressName)
                 self.content = now?.content
+                self.html = now?.html
                 self.updated = now?.updated
                 self.listed = now?.listed
             } catch {
@@ -1037,6 +1040,10 @@ class AddressSummaryDataFetcher: DataFetcher {
     var url: URL?
     var registered: Date?
     
+    var iconURL: URL? {
+        URL(string: "https://profiles.cache.lol/\(addressName)/picture")
+    }
+    
     var profileFetcher: AddressProfileDataFetcher
     var nowFetcher: AddressNowDataFetcher
     var purlFetcher: AddressPURLsDataFetcher
@@ -1069,8 +1076,8 @@ class AddressSummaryDataFetcher: DataFetcher {
         }
         await super.perform()
         
-        await profileFetcher.updateIfNeeded()
-        await nowFetcher.updateIfNeeded()
+//        await profileFetcher.updateIfNeeded()
+//        await nowFetcher.updateIfNeeded()
         await purlFetcher.updateIfNeeded()
         await pasteFetcher.updateIfNeeded()
         await statusFetcher.updateIfNeeded()

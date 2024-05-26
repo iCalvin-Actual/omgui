@@ -18,6 +18,12 @@ extension DateFormatter {
         formatter.locale = .autoupdatingCurrent
         return formatter
     }()
+    static let medium: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
     
     static let monthYear: DateFormatter = {
         var formatter = DateFormatter()

@@ -59,7 +59,6 @@ struct AddressSummaryView: View {
             HStack {
                 ScrollView(.horizontal) {
                     HStack(spacing: 0) {
-                        Spacer()
                         ForEach(allPages) { page in
                             Button(action: {
                                 withAnimation {
@@ -71,8 +70,8 @@ struct AddressSummaryView: View {
                             .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
                         }
                     }
+                    .padding(.horizontal)
                 }
-                Spacer()
                 Menu {
                     AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
                 } label: {
