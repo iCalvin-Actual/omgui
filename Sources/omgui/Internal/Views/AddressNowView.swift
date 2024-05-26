@@ -16,6 +16,7 @@ struct AddressNowView: View {
     
     var body: some View {
         htmlBody
+            .frame(maxHeight: .infinity)
             .sheet(item: $presentedURL, content: { url in
                 SafariView(url: url)
                     .ignoresSafeArea(.all, edges: .bottom)
@@ -29,7 +30,13 @@ struct AddressNowView: View {
     
     @ViewBuilder
     var htmlBody: some View {
-        HTMLContentView(activeURL: $presentedURL, htmlContent: fetcher.html)
+        if let html = fetcher.html {
+            HTMLContentView(activeURL: $presentedURL, htmlContent: html)
+        } else if fetcher.loading {
+            ThemedTextView(text: "Loading")
+        } else {
+            ThemedTextView(text: "No Now page")
+        }
     }
     
     @ViewBuilder

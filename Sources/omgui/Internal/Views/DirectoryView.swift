@@ -85,10 +85,8 @@ struct DirectoryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("")
         .toolbar {
-            if sizeClass == .compact {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    ThemedTextView(text: "omg.directory")
-                }
+            ToolbarItem(placement: .navigationBarLeading) {
+                ThemedTextView(text: "omg.directory")
             }
         }
     }
@@ -113,7 +111,7 @@ struct DirectoryView: View {
         if let selectedAddress = selected {
             AddressSummaryView(addressSummaryFetcher: sceneModel.addressBook.addressSummary(selectedAddress), context: .profile, allowEditing: false, selectedPage: .profile)
         } else {
-            Text("Select an Address")
+            ThemedTextView(text: "Select an Address")
         }
     }
     

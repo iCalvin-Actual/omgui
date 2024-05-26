@@ -63,7 +63,7 @@ struct GardenView: View {
         if let selected = selected {
             AddressNowView(fetcher: sceneModel.addressBook.fetchConstructor.addresNowFetcher(selected))
         } else {
-            Text("Select something")
+            ThemedTextView(text: "Select a Now page")
         }
     }
     

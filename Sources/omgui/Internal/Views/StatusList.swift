@@ -90,7 +90,7 @@ struct StatusList: View {
         if let selectedAddress = selected?.addressName {
             AddressSummaryView(addressSummaryFetcher: sceneModel.addressBook.addressSummary(selectedAddress), context: .profile, allowEditing: false, selectedPage: .statuslog)
         } else {
-            Text("Select an Address")
+            ThemedTextView(text: "Select a Status")
         }
     }
     
