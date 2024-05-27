@@ -29,6 +29,7 @@ struct StatusRowView: View {
                     Text(model.status)
                         .font(.body)
                 }
+                .lineLimit(5)
                 .multilineTextAlignment(.leading)
                 
                 HStack {

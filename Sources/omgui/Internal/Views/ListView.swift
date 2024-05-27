@@ -88,10 +88,9 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     @ViewBuilder
     var sizeAppropriateBody: some View {
-        switch sizeClass {
-        case .compact:
+        if sizeClass == .compact || dataFetcher.noContent {
             compactBody
-        default:
+        } else {
             GeometryReader { proxy in
                 switch proxy.size.width > 330 {
                 case true:
@@ -136,7 +135,8 @@ struct ListView<T: Listable, V: View, H: View>: View {
         if let selected = selected {
             sceneModel.destinationConstructor.destination(destination(for: selected))
         } else {
-            ThemedTextView(text: "Make selection")
+            ThemedTextView(text: "select")
+                .padding()
         }
     }
     
@@ -222,8 +222,8 @@ struct ListView<T: Listable, V: View, H: View>: View {
             return .paste(pasteModel.addressName, title: pasteModel.name)
         case let purlModel as PURLModel:
             return .purl(purlModel.addressName, title: purlModel.value)
-        case let status as StatusModel:
-            return .status(status.address, id: status.id)
+        case let statusModel as StatusModel:
+            return .status(statusModel.address, id: statusModel.id)
         default:
             if context == .column {
                 return .address(item.addressName)
