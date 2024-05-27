@@ -54,6 +54,6 @@ struct StatusRowView: View {
                 }
             }
         }
-        .padding(.horizontal)
+        .padding([.horizontal, .top])
     }
 }

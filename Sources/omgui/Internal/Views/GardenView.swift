@@ -26,10 +26,8 @@ struct GardenView: View {
     var menuBuilder: ContextMenuBuilder<NowListing>?
     
     var body: some View {
-        sizeAppropriateBody
+        ListView<NowListing, ListRow<NowListing>, EmptyView>(dataFetcher: fetcher, rowBuilder: { ListRow(model: $0) })
             .toolbarRole(.editor)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle("")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     ThemedTextView(text: "now.garden 🌷")
@@ -63,7 +61,7 @@ struct GardenView: View {
         if let selected = selected {
             AddressNowView(fetcher: sceneModel.addressBook.fetchConstructor.addresNowFetcher(selected))
         } else {
-            ThemedTextView(text: "Select a Now page")
+            ThemedTextView(text: "select a /now page")
         }
     }
     

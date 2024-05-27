@@ -16,7 +16,6 @@ struct AddressNowView: View {
     
     var body: some View {
         htmlBody
-            .frame(maxHeight: .infinity)
             .sheet(item: $presentedURL, content: { url in
                 SafariView(url: url)
                     .ignoresSafeArea(.all, edges: .bottom)
@@ -32,10 +31,17 @@ struct AddressNowView: View {
     var htmlBody: some View {
         if let html = fetcher.html {
             HTMLContentView(activeURL: $presentedURL, htmlContent: html)
-        } else if fetcher.loading {
-            ThemedTextView(text: "Loading")
         } else {
-            ThemedTextView(text: "No Now page")
+            VStack {
+                if fetcher.loading {
+                    ThemedTextView(text: "loading")
+                        .padding()
+                } else {
+                    ThemedTextView(text: "no /now page")
+                        .padding()
+                }
+                Spacer()
+            }
         }
     }
     

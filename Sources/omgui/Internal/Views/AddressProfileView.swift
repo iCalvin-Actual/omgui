@@ -15,7 +15,7 @@ struct AddressProfileView: View {
     var presentedURL: URL? = nil
     
     var body: some View {
-        HTMLContentView(activeURL: $presentedURL, htmlContent: fetcher.html)
+        htmlBody
             .sheet(item: $presentedURL, content: { url in
                 SafariView(url: url)
                     .ignoresSafeArea(.all, edges: .bottom)
@@ -25,5 +25,23 @@ struct AddressProfileView: View {
                     ThemedTextView(text: fetcher.addressName.addressDisplayString)
                 }
             }
+    }
+    
+    @ViewBuilder
+    var htmlBody: some View {
+        if let html = fetcher.html {
+            HTMLContentView(activeURL: $presentedURL, htmlContent: html)
+        } else {
+            VStack {
+                if fetcher.loading {
+                    ThemedTextView(text: "loading")
+                        .padding()
+                } else {
+                    ThemedTextView(text: "no public profile")
+                        .padding()
+                }
+                Spacer()
+            }
+        }
     }
 }

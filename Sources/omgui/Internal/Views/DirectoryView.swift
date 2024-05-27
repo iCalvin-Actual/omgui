@@ -53,7 +53,7 @@ struct DirectoryView: View {
         if let selectedAddress = selected {
             AddressSummaryView(addressSummaryFetcher: sceneModel.addressBook.addressSummary(selectedAddress), context: .profile, allowEditing: false, selectedPage: .profile)
         } else {
-            ThemedTextView(text: "Select an Address")
+            ThemedTextView(text: "select an @address")
         }
     }
 }

@@ -174,9 +174,10 @@ struct ListView<T: Listable, V: View, H: View>: View {
     func emptyRowView() -> some View {
         HStack {
             Spacer()
-            Text("Empty")
+            ThemedTextView(text: "empty")
                 .font(.title3)
                 .bold()
+                .padding()
             Spacer()
         }
         .listRowSeparator(.hidden, edges: .all)

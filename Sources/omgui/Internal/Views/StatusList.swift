@@ -31,7 +31,7 @@ struct StatusList: View {
     let context: ViewContext
     
     var body: some View {
-        sizeAppropriateView
+        ListView<StatusModel, StatusRowView, EmptyView>(dataFetcher: fetcher, rowBuilder: { StatusRowView(model: $0, context: context) })
             .toolbarRole(.editor)
     }
     
@@ -90,7 +90,7 @@ struct StatusList: View {
         if let selectedAddress = selected?.addressName {
             AddressSummaryView(addressSummaryFetcher: sceneModel.addressBook.addressSummary(selectedAddress), context: .profile, allowEditing: false, selectedPage: .statuslog)
         } else {
-            ThemedTextView(text: "Select a Status")
+            ThemedTextView(text: "select a status.log")
         }
     }
     

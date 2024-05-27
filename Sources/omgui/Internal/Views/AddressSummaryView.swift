@@ -92,67 +92,6 @@ struct AddressSummaryView: View {
         }
     }
     
-    var sidebar: some View {
-        VStack(alignment: .leading) {
-            HStack(alignment: .top) {
-
-                AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
-                    image.resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Color.lolRandom()
-                }
-                .frame(width: 64, height: 64)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-            }
-            .padding(.horizontal)
-
-            Grid {
-                Section {
-                    ForEach(pages) { item in
-                        let fetcher = fetcherForContent(item)
-                        GridRow {
-                            AddressContentButton(contentType: item, name: addressSummaryFetcher.addressName, knownEmpty: fetcher.noContent, accessoryText: fetcher.summaryString)
-                        }
-                    }
-                } header: {
-                    HStack {
-                        Text("pages")
-                            .fontDesign(.monospaced)
-                            .font(.subheadline)
-                            .bold()
-                            .padding(8)
-                        Spacer()
-                    }
-                }
-                
-                Section {
-                    ForEach(more) { item in
-                        let fetcher = fetcherForContent(item)
-                        GridRow {
-                            AddressContentButton(contentType: item, name: addressSummaryFetcher.addressName, knownEmpty: fetcher.noContent, accessoryText: fetcher.summaryString)
-                        }
-                    }
-                } header: {
-                    HStack {
-                        Text("more")
-                            .fontDesign(.monospaced)
-                            .font(.subheadline)
-                            .bold()
-                            .padding(8)
-                        Spacer()
-                    }
-                }
-            }
-            Spacer()
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                AddressNameView(addressSummaryFetcher.addressName)
-            }
-        }
-    }
-    
     @ViewBuilder
     func destination(_ item: AddressContent? = nil) -> some View {
         let workingItem = item ?? .profile
