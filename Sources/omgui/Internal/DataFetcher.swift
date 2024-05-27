@@ -264,9 +264,9 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
         ) { (callbackUrl, error) in
             guard let callbackUrl = callbackUrl else {
                 if let error = error {
-                    print("Error \(error)")
+                    print("DEBUG: Error \(error)")
                 } else {
-                    print("Unknown error")
+                    print("DEBUG: Unknown error")
                 }
                 return
             }
@@ -342,7 +342,7 @@ class ListDataFetcher<T: Listable>: DataFetcher, Observable {
 
 class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
     override var title: String {
-        "app.lol"
+        "omg.lol"
     }
     
     override func throwingRequest() async throws {

@@ -38,72 +38,14 @@ struct DirectoryView: View {
         self.menuBuilder = ContextMenuBuilder()
     }
     
-    var unfilteredItems: [AddressModel] {
-        dataFetcher.listItems
-    }
-    
-    func filtered(_ listItems: [AddressModel]) -> [AddressModel] {
-        var filters = filters
-        if !queryString.isEmpty {
-            filters.append(.query(queryString))
-        }
-        return filters
-            .applyFilters(to: listItems, addressBook: sceneModel.addressBook)
-            .sorted(with: sort)
-    }
-    
     var body: some View {
-        sizeAppropriateView
+        listBody
             .toolbarRole(.editor)
     }
     
     @ViewBuilder
-    var sizeAppropriateView: some View {
-        switch sizeClass {
-        case .compact:
-            compactBody
-        default:
-            regularBody
-        }
-    }
-    
-    @ViewBuilder
     var listBody: some View {
-        List(selection: $selected) {
-            Section {
-                ForEach(filtered(unfilteredItems)) { rowView($0) }
-            }
-        }
-        .refreshable(action: {
-            await dataFetcher.perform()
-        })
-        .searchable(text: $queryString, placement: .automatic)
-        .toolbar(content: {
-            SortOrderMenu(sort: $sort, options: AddressModel.sortOptions)
-        })
-        .listStyle(.plain)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle("")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                ThemedTextView(text: "omg.directory")
-            }
-        }
-    }
-    
-    @ViewBuilder
-    var compactBody: some View {
-        listBody
-    }
-    
-    @ViewBuilder
-    var regularBody: some View {
-        HStack {
-            listBody
-                .frame(maxWidth: 330)
-            addressBody
-                .frame(maxWidth: .infinity)
-        }
+        ListView<AddressModel, ListRow<AddressModel>, EmptyView>(dataFetcher: dataFetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
     }
     
     @ViewBuilder
@@ -112,33 +54,6 @@ struct DirectoryView: View {
             AddressSummaryView(addressSummaryFetcher: sceneModel.addressBook.addressSummary(selectedAddress), context: .profile, allowEditing: false, selectedPage: .profile)
         } else {
             ThemedTextView(text: "Select an Address")
-        }
-    }
-    
-    @ViewBuilder
-    func rowView(_ item: AddressModel) -> some View {
-        rowBuilder(item)
-            .tag(item.addressName)
-            .listRowSeparator(.hidden, edges: .all)
-            .contextMenu(menuItems: {
-                self.menuBuilder?.contextMenu(for: item, sceneModel: sceneModel)
-            })
-    }
-    
-    @ViewBuilder
-    func rowBuilder(_ item: AddressModel) -> some View {
-        switch sizeClass {
-        case .compact:
-            ZStack(alignment: .leading) {
-                NavigationLink(value: NavigationDestination.address(item.addressName)) {
-                    EmptyView()
-                }
-                .opacity(0)
-                
-                ListRow(model: item)
-            }
-        default:
-            ListRow(model: item)
         }
     }
 }

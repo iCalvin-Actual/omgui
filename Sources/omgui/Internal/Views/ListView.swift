@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ListView<T: Listable, V: View, H: View>: View {
     
+    @Environment(\.horizontalSizeClass)
+    var sizeClass
     @EnvironmentObject
     var sceneModel: SceneModel
     
@@ -65,7 +67,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
     }
     
     var body: some View {
-        searchableIfNeeded
+        sizeAppropriateBody
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("")
             .toolbar {
@@ -82,6 +84,60 @@ struct ListView<T: Listable, V: View, H: View>: View {
                     }
                 }
             }
+    }
+    
+    @ViewBuilder
+    var sizeAppropriateBody: some View {
+        switch sizeClass {
+        case .compact:
+            compactBody
+        default:
+            GeometryReader { proxy in
+                switch proxy.size.width > 330 {
+                case true:
+                    regularBody
+                default:
+                    compactBody
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var compactBody: some View {
+        searchableList
+    }
+    
+    @ViewBuilder
+    var searchableList: some View {
+        if self.allowSearch && !items.isEmpty {
+            list
+                .searchable(text: $queryString, placement: .automatic)
+        } else {
+            list
+        }
+    }
+    
+    @ViewBuilder
+    var regularBody: some View {
+        HStack(spacing: 0) {
+            compactBody
+                .frame(maxWidth: 330)
+            GeometryReader { proxy in
+                regularBodyContent
+                    .frame(maxWidth: .infinity)
+                    .environment(\.horizontalSizeClass, proxy.size.width > 500 ? .regular : .compact)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var regularBodyContent: some View {
+        if let selected = selected {
+            sceneModel.destinationConstructor.destination(destination(for: selected))
+        } else {
+            ThemedTextView(text: "Make selection")
+        }
     }
     
     @ViewBuilder
@@ -115,16 +171,6 @@ struct ListView<T: Listable, V: View, H: View>: View {
     }
     
     @ViewBuilder
-    var searchableIfNeeded: some View {
-        if self.allowSearch && !items.isEmpty {
-            list
-                .searchable(text: $queryString, placement: .automatic)
-        } else {
-            list
-        }
-    }
-    
-    @ViewBuilder
     func emptyRowView() -> some View {
         HStack {
             Spacer()
@@ -139,22 +185,32 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     @ViewBuilder
     func rowView(_ item: T) -> some View {
-        ZStack(alignment: .leading) {
-            if let destination = destination(for: item) {
-                NavigationLink(value: destination) {
-                    EmptyView()
+        rowBody(item)
+            .tag(item)
+            .listRowSeparator(.hidden, edges: .all)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .contextMenu(menuItems: {
+                self.menuBuilder.contextMenu(for: item, sceneModel: sceneModel)
+            })
+    }
+    
+    @ViewBuilder
+    func rowBody(_ item: T) -> some View {
+        switch sizeClass {
+        case .compact:
+            ZStack(alignment: .leading) {
+                if let destination = destination(for: item) {
+                    NavigationLink(value: destination) {
+                        EmptyView()
+                    }
+                    .opacity(0)
                 }
-                .opacity(0)
+                
+                buildRow(item)
             }
-            
+        default:
             buildRow(item)
         }
-        .padding(.top, item == items.first ? 8 : 0)
-        .listRowSeparator(.hidden, edges: .all)
-        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-        .contextMenu(menuItems: {
-            self.menuBuilder.contextMenu(for: item, sceneModel: sceneModel)
-        })
     }
     
     private func destination(for item: T) -> NavigationDestination? {
