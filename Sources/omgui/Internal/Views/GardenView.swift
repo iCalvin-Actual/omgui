@@ -28,11 +28,6 @@ struct GardenView: View {
     var body: some View {
         ListView<NowListing, ListRow<NowListing>, EmptyView>(dataFetcher: fetcher, rowBuilder: { ListRow(model: $0) })
             .toolbarRole(.editor)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    ThemedTextView(text: "now.garden 🌷")
-                }
-            }
     }
     
     @ViewBuilder

@@ -24,7 +24,7 @@ struct CardViewModifier: ViewModifier {
                 .padding(padding)
                 .background(color)
                 .cornerRadius(radius)
-                .shadow(radius: 4, y: 4)
+                .shadow(radius: 4, y: 2)
     }
 }
 

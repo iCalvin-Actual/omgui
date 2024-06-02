@@ -771,7 +771,7 @@ class StatusDataFetcher: DataFetcher {
 
 class NowGardenDataFetcher: ListDataFetcher<NowListing> {
     override var title: String {
-        "garden.lol"
+        "now.garden🌷"
     }
     override func throwingRequest() async throws {
         Task {

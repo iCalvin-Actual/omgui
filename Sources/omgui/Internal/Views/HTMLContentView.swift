@@ -11,19 +11,32 @@ import WebKit
 
 struct HTMLContentView: UIViewRepresentable {
     class Coordinator: NSObject, WKNavigationDelegate {
-    
+        
+        let activeAddress: AddressName?
         var pendingContent: String?
 
         var handleURL: ((_ url: URL?) -> Void)?
         
-        init(pendingContent: String? = nil, handleURL: ((_: URL?) -> Void)? = nil) {
+        init(activeAddress: AddressName?, pendingContent: String? = nil, handleURL: ((_: URL?) -> Void)? = nil) {
+            self.activeAddress = activeAddress
             self.pendingContent = pendingContent
             self.handleURL = handleURL
         }
         
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
-            switch navigationAction.navigationType {
-            case .linkActivated:
+            switch (navigationAction.navigationType, navigationAction.request.url?.host() == nil) {
+            case (.linkActivated, true):
+                // Should handle natively one day
+                guard let address = activeAddress, let path = navigationAction.request.url?.path(), let omgURL = URL(string: "https://\(address).omg.lol".appending(path)) else {
+                    // Host is empty and path is too? Cancel that
+                    return .cancel
+                }
+                let request = URLRequest(url: omgURL)
+                Task {
+                    await webView.load(request)
+                }
+                return .cancel
+            case (.linkActivated, _):
                 handleURL?(navigationAction.request.url)
                 return .cancel
             default:
@@ -52,13 +65,14 @@ struct HTMLContentView: UIViewRepresentable {
         }
     }
     
+    let activeAddress: AddressName?
+    let htmlContent: String?
+    
     @Binding
     var activeURL: URL?
     
-    let htmlContent: String?
-    
     func makeCoordinator() -> Coordinator {
-        Coordinator { url in
+        Coordinator(activeAddress: activeAddress) { url in
             activeURL = url
         }
     }
@@ -85,7 +99,7 @@ struct HTMLContentView_Previews: PreviewProvider {
     
     static var previews: some View {
         TabView {
-            HTMLContentView(activeURL: $url, htmlContent: content)
+            HTMLContentView(activeAddress: "preview", htmlContent: content, activeURL: $url)
                 .onAppear {
                     Task {
                         let new = try await SampleData().fetchAddressProfile("some", credential: nil)

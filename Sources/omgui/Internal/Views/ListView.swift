@@ -150,9 +150,11 @@ struct ListView<T: Listable, V: View, H: View>: View {
                 }
                 Section(dataFetcher.title) {
                     listContent
+                        .padding(.horizontal)
                 }
             } else {
                 listContent
+                    .padding(.horizontal)
             }
         }
         .refreshable(action: {
