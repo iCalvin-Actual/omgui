@@ -15,26 +15,33 @@ struct StatusRowView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if context != .profile {
-                AddressNameView(model.address, font: .title3)
-                    .foregroundColor(.black)
-                    .padding([.horizontal, .bottom], 4)
+            HStack(alignment: .firstTextBaseline) {
+                Text(model.displayEmoji)
+                    .font(.system(size: 42))
+                Spacer()
+                if context != .profile {
+                    AddressNameView(model.address, font: .title3)
+                        .foregroundColor(.black)
+                        .padding([.horizontal, .bottom], 4)
+                }
             }
             
             VStack(alignment: .leading) {
                 Group {
-                    Text(model.displayEmoji)
-                        .font(.system(size: 44))
-                    + Text(" ").font(.largeTitle) +
+                    /*
+                     This was tricky to set up
+                     so I'm leaving it here
+                     
+//                    Text(model.displayEmoji)
+//                        .font(.system(size: 44))
+//                    + Text(" ").font(.largeTitle) +
+                     */
                     Text(model.status)
                         .font(.body)
+                        .frame(maxWidth: .infinity)
                 }
                 .lineLimit(5)
                 .multilineTextAlignment(.leading)
-                
-                HStack {
-                    Spacer()
-                }
             }
             .foregroundColor(.black)
             .asCard(color: .lolRandom(model.displayEmoji), radius: 6)
@@ -55,6 +62,6 @@ struct StatusRowView: View {
                 }
             }
         }
-        .padding([.horizontal, .top])
+        .padding([.horizontal])
     }
 }
