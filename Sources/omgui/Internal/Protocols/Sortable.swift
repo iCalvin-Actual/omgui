@@ -103,7 +103,7 @@ extension NowListing: AllSortable {
     var primarySortValue: String { owner }
     var dateValue: Date? { updated }
     
-    static var defaultSort: Sort = .newestFirst
+    static var defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
             .alphabet,

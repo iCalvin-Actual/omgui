@@ -25,6 +25,9 @@ struct HTMLContentView: UIViewRepresentable {
         
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
             switch (navigationAction.navigationType, navigationAction.request.url?.host() == nil) {
+            /// This... isn't a great experience.
+            /// Hold onto the code until we're ready to handle these links natively
+            /*
             case (.linkActivated, true):
                 // Should handle natively one day
                 guard let address = activeAddress, let path = navigationAction.request.url?.path(), let omgURL = URL(string: "https://\(address).omg.lol".appending(path)) else {
@@ -36,6 +39,7 @@ struct HTMLContentView: UIViewRepresentable {
                     await webView.load(request)
                 }
                 return .cancel
+             */
             case (.linkActivated, _):
                 handleURL?(navigationAction.request.url)
                 return .cancel
