@@ -61,7 +61,7 @@ struct AddressBookView: View {
                     }
                 }
                 .padding()
-                .background(Color.lolRandom(Int.random(in: 0...10)))
+                .background(Color.lolRandom())
                 .cornerRadius(16)
                 .frame(maxWidth: .infinity)
             }

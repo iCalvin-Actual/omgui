@@ -37,8 +37,8 @@ struct StatusRowView: View {
 //                    + Text(" ").font(.largeTitle) +
                      */
                     Text(model.status)
-                        .font(.body)
-                        .frame(maxWidth: .infinity)
+                        .font(.system(.subheadline))
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .lineLimit(5)
                 .multilineTextAlignment(.leading)
@@ -62,6 +62,5 @@ struct StatusRowView: View {
                 }
             }
         }
-        .padding([.horizontal])
     }
 }

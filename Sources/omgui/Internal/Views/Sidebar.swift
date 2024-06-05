@@ -89,7 +89,7 @@ struct Sidebar: View {
                 .bold()
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color.lolRandom(Int.random(in: 0...10)))
+                .background(Color.lolRandom())
                 .cornerRadius(16)
                 .padding(.horizontal)
             }

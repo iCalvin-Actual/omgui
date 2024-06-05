@@ -93,7 +93,7 @@ struct ListRow<T: Listable>: View {
             }
         }
         .padding(4)
-        .asCard(color: .lolRandom(model), radius: 8)
+        .asCard(color: .lolRandom(model.listTitle), radius: 8)
         .fontDesign(.serif)
         .padding(4)
     }
