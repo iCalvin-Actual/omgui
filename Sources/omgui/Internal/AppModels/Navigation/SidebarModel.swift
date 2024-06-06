@@ -14,6 +14,7 @@ class SidebarModel: ObservableObject {
         
         case account
         case directory
+        case now
         case status
         case saved
         case weblog
@@ -25,6 +26,8 @@ class SidebarModel: ObservableObject {
                 return "my account"
             case .directory:
                 return "address book"
+            case .now:
+                return "/now pages"
             case .status:
                 return "status.lol"
             case .saved:
@@ -57,16 +60,13 @@ class SidebarModel: ObservableObject {
     }
     
     var sections: [Section] {
-        [.directory, .status]
+        [.status, .directory, .now]
     }
     
     func items(for section: Section) -> [NavigationItem] {
         switch section {
         case .directory:
-            var destinations = [
-                NavigationItem.search,
-                NavigationItem.nowGarden
-            ]
+            var destinations: [NavigationItem] = [.search]
             if addressBook.accountModel.signedIn {
                 destinations.append(.followingAddresses)
             }
@@ -78,6 +78,12 @@ class SidebarModel: ObservableObject {
         case .account:
             return [
             ]
+        case .now:
+            let destinations = [
+                NavigationItem.nowGarden
+            ]
+            // Handle pinned
+            return destinations
         case .status:
             var destinations = [
                 NavigationItem.community

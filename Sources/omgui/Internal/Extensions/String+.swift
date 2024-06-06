@@ -175,3 +175,9 @@ extension HTMLToMarkdownConverter {
         }
     }
 }
+
+extension AddressName {
+    var addressIconURL: URL? {
+        URL(string: "https://profiles.cache.lol/\(self)/picture")
+    }
+}

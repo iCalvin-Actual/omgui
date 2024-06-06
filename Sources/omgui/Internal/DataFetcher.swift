@@ -721,12 +721,12 @@ class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
     override var title: String {
         switch addresses.count {
         case 0:
-            return "following"
+            return "status.lol"
         case 1:
             let address = addresses.first?.addressDisplayString ?? ""
             return address + ".statusLog"
         default:
-            return "statuses"
+            return "following"
         }
     }
     
@@ -1041,7 +1041,7 @@ class AddressSummaryDataFetcher: DataFetcher {
     var registered: Date?
     
     var iconURL: URL? {
-        URL(string: "https://profiles.cache.lol/\(addressName)/picture")
+        addressName.addressIconURL
     }
     
     var profileFetcher: AddressProfileDataFetcher

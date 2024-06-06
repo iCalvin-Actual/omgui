@@ -23,6 +23,15 @@ struct StatusRowView: View {
                     AddressNameView(model.address, font: .title3)
                         .foregroundColor(.black)
                         .padding([.horizontal, .bottom], 4)
+                    AsyncImage(url: model.address.addressIconURL) { image in
+                        image.resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Color.lolRandom()
+                    }
+                    .frame(width: 33, height: 33)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .padding(.horizontal, 4)
                 }
             }
             
@@ -36,11 +45,11 @@ struct StatusRowView: View {
 //                        .font(.system(size: 44))
 //                    + Text(" ").font(.largeTitle) +
                      */
-                    Text(model.status)
+                    Markdown(model.status)
                         .font(.system(.subheadline))
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .lineLimit(5)
+                .lineLimit(context == .column ? 5 : nil)
                 .multilineTextAlignment(.leading)
             }
             .foregroundColor(.black)
