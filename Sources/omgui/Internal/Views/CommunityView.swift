@@ -59,45 +59,5 @@ struct CommunityView: View {
     
     var body: some View {
         StatusList(fetcher: communityFetcher, context: .column)
-            .toolbar {
-                // Check if this is appropriate to show?
-                ToolbarItem(placement: .bottomBar) {
-                    HStack {
-                        Menu {
-                            if addressBook.accountModel.signedIn {
-                                Button {
-                                    active = .me
-                                } label: {
-                                    Label(title: { Text("My addresses") }, icon: { EmptyView() })
-                                }
-                                Section {
-                                    ForEach(addressBook.myAddresses) { address in
-                                        Button {
-                                            active = .following(address)
-                                        } label: {
-                                            Label(title: { Text(address) }, icon: { EmptyView() })
-                                        }
-                                    }
-                                } header: {
-                                    Text("Followed from:")
-                                }
-                            }
-                            Button {
-                                active = .community
-                            } label: {
-                                Label(title: { Text("community") }, icon: { EmptyView() })
-                            }
-                        } label: {
-                            Label(listLabel, systemImage: "chevron.down.circle")
-                        }
-                        Spacer()
-                        Button {
-                            // Change timeline
-                        } label: {
-                            Text("This week")
-                        }
-                    }
-                }
-            }
     }
 }

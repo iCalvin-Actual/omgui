@@ -65,7 +65,7 @@ struct ListRow<T: Listable>: View {
                         image.resizable()
                             .aspectRatio(contentMode: .fill)
                     } placeholder: {
-                        Color.lolRandom()
+                        Color.lolRandom(model.addressName)
                     }
                     .frame(width: 55, height: 55)
                     .clipShape(RoundedRectangle(cornerRadius: 12))

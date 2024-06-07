@@ -212,6 +212,10 @@ public struct StatusModel: Hashable, Identifiable {
     var urlString: String {
         "https://\(address).status.lol/\(id)"
     }
+    
+    var primaryDestination: NavigationDestination {
+        .statusLog(address)
+    }
 }
 
 public struct GroupStatusLogModel {

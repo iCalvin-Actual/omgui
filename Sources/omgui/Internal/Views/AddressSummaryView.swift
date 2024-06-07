@@ -79,7 +79,7 @@ struct AddressSummaryView: View {
                         image.resizable()
                             .aspectRatio(contentMode: .fill)
                     } placeholder: {
-                        Color.lolRandom()
+                        Color.lolRandom(addressSummaryFetcher.addressName)
                     }
                     .frame(width: 44, height: 44)
                     .clipShape(RoundedRectangle(cornerRadius: 12))

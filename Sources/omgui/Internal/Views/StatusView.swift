@@ -10,9 +10,14 @@ import SwiftUI
 struct StatusView: View {
     @ObservedObject
     var fetcher: StatusDataFetcher
+    @EnvironmentObject
+    var sceneModel: SceneModel
     
     @ObservedObject
     var feedFetcher: StatusLogDataFetcher
+    
+    @State
+    var shareURL: URL?
     
     init(fetcher: StatusDataFetcher) {
         self.fetcher = fetcher
@@ -20,15 +25,27 @@ struct StatusView: View {
     }
     
     var body: some View {
-        VStack {
-            if let model = fetcher.status {
-                StatusRowView(model: model, context: .detail)
-            } else {
-                // Loading View
-                EmptyView()
+        ScrollView(.vertical) {
+            VStack {
+                if let model = fetcher.status {
+                    StatusRowView(model: model, context: .detail)
+                        .padding()
+                } else {
+                    // Loading View
+                    EmptyView()
+                }
+                Spacer()
             }
-            Spacer()
-            StatusList(fetcher: feedFetcher, context: .detail)
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                ThemedTextView(text: fetcher.address.addressDisplayString.appending(".status"))
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                if let url = fetcher.status?.shareURLs.first?.content {
+                    ShareLink(item: url)
+                }
+            }
         }
     }
 }
