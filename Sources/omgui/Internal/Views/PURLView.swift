@@ -10,6 +10,8 @@ import SwiftUI
 struct PURLView: View {
     @Environment(\.horizontalSizeClass)
     var sizeClass
+    @EnvironmentObject
+    var sceneModel: SceneModel
     
     @ObservedObject
     var fetcher: AddressPURLDataFetcher
@@ -17,8 +19,30 @@ struct PURLView: View {
     @State
     var presentedURL: URL?
     
+    var context: ViewContext
+    
     var body: some View {
         VStack(alignment: .leading) {
+            if context != .profile {
+                HStack(alignment: .top) {
+                    Spacer()
+                    ThemedTextView(text: fetcher.addressName.addressDisplayString)
+                    Menu {
+                        AddressModel(name: fetcher.addressName).contextMenu(in: sceneModel)
+                    } label: {
+                        AsyncImage(url: fetcher.addressName.addressIconURL) { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Color.lolRandom(fetcher.addressName)
+                        }
+                        .frame(width: 44, height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+    //                    .padding(.vertical, 8)
+                    }
+                    .padding(.trailing)
+                }
+            }
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Group {
                     switch sizeClass {
@@ -77,9 +101,37 @@ struct PURLView: View {
             }
         }
         .toolbar {
-            if let name = fetcher.purl?.value {
-                ToolbarItem(placement: .topBarLeading) {
-                    ThemedTextView(text: "/\(name)")
+            ToolbarItem(placement: .topBarLeading) {
+                ThemedTextView(text: "/\(fetcher.title)")
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    if let purlURL = URL(string: "https://\(fetcher.addressName).url.lol/\(fetcher.title)") {
+                        ShareLink(item: purlURL)
+                        Button(action: {
+                            // Copy Content
+                        }, label: {
+                            Label(
+                                title: { Text("Copy PURL") },
+                                icon: { Image(systemName: "doc.on.doc") }
+                            )
+                        })
+                    }
+                    Divider()
+                    if let shareURL = fetcher.purl?.destinationURL {
+                        ShareLink("Share destination URL", item: shareURL)
+                        Button(action: {
+                            // Copy URL
+                        }, label: {
+                            Label(
+                                title: { Text("Copy destination") },
+                                icon: { Image(systemName: "link") }
+                            )
+                        })
+                    }
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
                 }
             }
         }

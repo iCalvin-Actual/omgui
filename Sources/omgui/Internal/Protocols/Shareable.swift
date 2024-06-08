@@ -149,6 +149,7 @@ extension PURLModel: Sharable {
     }
     var shareURLs: [SharePacket] {
         [
+            .init(name: "PURL", content: URL(string: "https://\(owner).url.lol/\(value)")!),
             .init(name: "Profile", content: URL(string: "https://\(owner).omg.lol")!)
         ]
     }
