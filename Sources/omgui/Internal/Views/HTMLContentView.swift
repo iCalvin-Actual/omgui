@@ -14,11 +14,14 @@ struct HTMLContentView: UIViewRepresentable {
         
         let activeAddress: AddressName?
         var pendingContent: String?
+        
+        let baseURL: URL?
 
         var handleURL: ((_ url: URL?) -> Void)?
         
-        init(activeAddress: AddressName?, pendingContent: String? = nil, handleURL: ((_: URL?) -> Void)? = nil) {
+        init(activeAddress: AddressName?, baseURL: URL? = nil, pendingContent: String? = nil, handleURL: ((_: URL?) -> Void)? = nil) {
             self.activeAddress = activeAddress
+            self.baseURL = baseURL
             self.pendingContent = pendingContent
             self.handleURL = handleURL
         }
@@ -57,26 +60,27 @@ struct HTMLContentView: UIViewRepresentable {
             if webView.isLoading {
                 pendingContent = newContent
             } else if let newContent = newContent {
-                webView.loadHTMLString(newContent, baseURL: nil)
+                webView.loadHTMLString(newContent, baseURL: baseURL)
             }
         }
         
         private func showPendingContentIfNeeded(in webView: WKWebView) {
             if let pending = pendingContent {
                 pendingContent = nil
-                webView.loadHTMLString(pending, baseURL: nil)
+                webView.loadHTMLString(pending, baseURL: baseURL)
             }
         }
     }
     
     let activeAddress: AddressName?
     let htmlContent: String?
+    let baseURL: URL?
     
     @Binding
     var activeURL: URL?
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(activeAddress: activeAddress) { url in
+        Coordinator(activeAddress: activeAddress, baseURL: baseURL) { url in
             activeURL = url
         }
     }
@@ -103,7 +107,7 @@ struct HTMLContentView_Previews: PreviewProvider {
     
     static var previews: some View {
         TabView {
-            HTMLContentView(activeAddress: "preview", htmlContent: content, activeURL: $url)
+            HTMLContentView(activeAddress: "preview", htmlContent: content, baseURL: nil, activeURL: $url)
                 .onAppear {
                     Task {
                         let new = try await SampleData().fetchAddressProfile("some", credential: nil)
@@ -111,5 +115,62 @@ struct HTMLContentView_Previews: PreviewProvider {
                     }
                 }
         }
+    }
+}
+
+struct RemoteHTMLContentView: UIViewRepresentable {
+    class Coordinator: NSObject, WKNavigationDelegate {
+        
+        let activeAddress: AddressName?
+        var pendingContent: String?
+
+        var handleURL: ((_ url: URL?) -> Void)?
+        
+        init(activeAddress: AddressName?, pendingContent: String? = nil, handleURL: ((_: URL?) -> Void)? = nil) {
+            self.activeAddress = activeAddress
+            self.pendingContent = pendingContent
+            self.handleURL = handleURL
+        }
+        
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
+            switch (navigationAction.navigationType, navigationAction.request.url?.host() == nil) {
+            case (.linkActivated, _):
+                handleURL?(navigationAction.request.url)
+                return .cancel
+            default:
+                return .allow
+            }
+        }
+        
+        func load(url: URL, webView: WKWebView) {
+            let request = URLRequest(url: url)
+            webView.load(request)
+        }
+    }
+    
+    let activeAddress: AddressName?
+    let startingURL: URL
+    
+    @Binding
+    var activeURL: URL?
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(activeAddress: activeAddress) { url in
+            activeURL = url
+        }
+    }
+    
+    func makeUIView(context: RemoteHTMLContentView.Context) -> WKWebView {
+        let view = WKWebView()
+        
+        view.allowsLinkPreview = true
+        view.allowsBackForwardNavigationGestures = true
+        
+        return view
+    }
+    
+    func updateUIView(_ uiView: WKWebView, context: RemoteHTMLContentView.Context) {
+        context.coordinator.load(url: startingURL, webView: uiView)
+//        context.coordinator.showContent(htmlContent, in: uiView)
     }
 }

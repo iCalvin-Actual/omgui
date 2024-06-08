@@ -947,6 +947,8 @@ class AddressPURLDataFetcher: DataFetcher {
     let title: String
     let credential: APICredential?
     
+    var purlContent: String?
+    
     var purl: PURLModel?
     
     init(name: AddressName, title: String, interface: DataInterface, credential: APICredential? = nil) {
@@ -964,6 +966,7 @@ class AddressPURLDataFetcher: DataFetcher {
                 let addressPurls = try await interface.fetchAddressPURLs(addressName, credential: nil)
                 purl = addressPurls.first(where: { $0.value == title })
             }
+            purlContent = try await interface.fetchPURLContent(title, from: addressName, credential: credential)
             threadSafeSendUpdate()
         }
     }

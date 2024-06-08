@@ -85,6 +85,13 @@ public protocol DataInterface {
     )
     async throws -> PURLModel?
     
+    func fetchPURLContent(
+        _ id: String,
+        from address: AddressName,
+        credential: APICredential?
+    )
+    async throws -> String?
+    
     func savePURL(
         _ draft: PURLModel.Draft,
         to address: AddressName,

@@ -84,6 +84,12 @@ public class SampleData: DataInterface {
         return .sample(with: address)
     }
     
+    public func fetchPURLContent(_ id: String, from address: AddressName, credential: APICredential?) async throws -> String? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        let content = String.htmlContent
+        return content
+    }
+    
     public func savePURL(_ draft: PURLModel.Draft, to address: AddressName, credential: APICredential) async throws -> PURLModel? {
         try await Task.sleep(nanoseconds: artificalDelay)
         return PURLModel(owner: address, value: draft.name, destination: draft.content, listed: true)

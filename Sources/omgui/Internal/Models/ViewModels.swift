@@ -144,6 +144,13 @@ public struct PURLModel: Hashable, Identifiable, RawRepresentable, Codable {
     var destination: String?
     let listed: Bool
     
+    var destinationURL: URL? {
+        guard let string = destination else {
+            return nil
+        }
+        return URL(string: string)
+    }
+    
     public init(owner: AddressName, value: String, destination: String? = nil, listed: Bool) {
         self.owner = owner
         self.destination = destination

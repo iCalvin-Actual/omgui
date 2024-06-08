@@ -82,11 +82,11 @@ struct ListRow<T: Listable>: View {
                 HStack(alignment: .bottom) {
                     Text(subtitle)
                         .font(.headline)
-                        .foregroundColor(.accentColor.opacity(0.8))
+                        .foregroundColor(.black.opacity(0.8))
                         .bold()
                     Spacer()
                     Text(caption)
-                        .foregroundColor(.accentColor.opacity(0.6))
+                        .foregroundColor(.gray.opacity(0.6))
                         .font(.subheadline)
                 }
                 .padding(.trailing)

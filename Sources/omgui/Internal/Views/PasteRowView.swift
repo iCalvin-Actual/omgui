@@ -20,7 +20,7 @@ struct PasteRowView: View {
             
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text(model.name)
+                    Text("/\(model.name)")
                         .font(.title2)
                         .bold()
                         .fontDesign(.serif)

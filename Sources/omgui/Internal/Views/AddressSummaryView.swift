@@ -66,7 +66,7 @@ struct AddressSummaryView: View {
                                 }
                             }) {
                                 Text(page.displayString)
-                                    .font(.subheadline)
+                                    .font(.callout)
                                     .fontDesign(.rounded)
                                     .bold()
                             }
@@ -86,7 +86,7 @@ struct AddressSummaryView: View {
                     }
                     .frame(width: 44, height: 44)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.vertical, 8)
+//                    .padding(.vertical, 8)
                 }
                 .padding(.trailing)
             }

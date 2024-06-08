@@ -30,7 +30,7 @@ struct AddressNowView: View {
     @ViewBuilder
     var htmlBody: some View {
         if let html = fetcher.html {
-            HTMLContentView(activeAddress: self.fetcher.address, htmlContent: html, activeURL: $presentedURL)
+            HTMLContentView(activeAddress: self.fetcher.address, htmlContent: html, baseURL: nil, activeURL: $presentedURL)
         } else {
             VStack {
                 if fetcher.loading {

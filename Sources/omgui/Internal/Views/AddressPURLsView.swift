@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AddressPURLView: View {
+struct AddressPURLsView: View {
     @ObservedObject
     var fetcher: AddressPURLsDataFetcher
     
