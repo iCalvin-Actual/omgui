@@ -893,7 +893,7 @@ class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
     let credential: APICredential?
     
     override var title: String {
-        "\(addressName.addressDisplayString).pasteBin"
+        "\(addressName.addressDisplayString).paste"
     }
     
     init(name: AddressName, pastes: [PasteModel] = [], interface: DataInterface, credential: APICredential?) {

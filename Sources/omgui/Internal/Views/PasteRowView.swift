@@ -18,27 +18,31 @@ struct PasteRowView: View {
                     .padding(2)
             }
             
-            VStack(alignment: .leading) {
-                Text(model.name)
-                    .foregroundColor(.accentColor)
-                    .font(.largeTitle)
-                    .padding(.vertical)
-                
-                HStack(alignment: .bottom) {
-                    if let destination = model.content {
-                        Text(destination)
-                            .font(.body)
-                            .foregroundColor(.black)
-                            .padding(.bottom)
-                    }
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text(model.name)
+                        .font(.title2)
+                        .bold()
+                        .fontDesign(.serif)
+                        .lineLimit(2)
                     Spacer()
+                }
+                
+                if let destination = model.content {
+                    Text(destination)
+                        .font(.subheadline)
+                        .fontDesign(.monospaced)
+                        .lineLimit(5)
                 }
             }
             .multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity)
             .padding(12)
-            .accentColor(.black)
+            .foregroundColor(.black)
             .background(Color.lolRandom(model.name))
             .cornerRadius(12, antialiased: true)
+            .padding(.vertical, 4)
         }
+        .frame(maxWidth: .infinity)
     }
 }

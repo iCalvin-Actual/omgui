@@ -12,15 +12,71 @@ struct PasteView: View {
     @ObservedObject
     var fetcher: AddressPasteDataFetcher
     
+    var context: ViewContext
+    
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading) {
+        VStack(alignment: .leading) {
+            Group {
+                Text("\(fetcher.addressName).paste.lol/")
+                    .font(.title2)
+                    .bold()
+                    .foregroundStyle(Color.accentColor)
+                +
                 Text(fetcher.paste?.name ?? fetcher.title)
-                    .font(.title)
-                Text(fetcher.paste?.content ?? "")
-                Spacer()
+                    .font(.title3)
+                    .foregroundStyle(Color.primary)
             }
-            .frame(maxWidth: .infinity)
+            .fontDesign(.monospaced)
+            .padding(.top)
+            .padding(.horizontal)
+            
+            ScrollView {
+                Text(fetcher.paste?.content ?? "")
+                    .textSelection(.enabled)
+                    .font(.body)
+                    .fontDesign(.monospaced)
+                    .padding(.vertical, 4)
+                    .padding(.horizontal)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(4)
+        }
+        .frame(maxWidth: .infinity)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                if let name = fetcher.paste?.name {
+                    ThemedTextView(text: "/\(name)")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    if let content = fetcher.paste?.content {
+                        ShareLink(item: content)
+                        Button(action: {
+                            // Copy Content
+                        }, label: {
+                            Label(
+                                title: { Text("Copy Content") },
+                                icon: { Image(systemName: "doc.on.doc") }
+                            )
+                        })
+                    }
+                    Divider()
+                    if let shareItem = fetcher.paste?.shareURLs.first {
+                        ShareLink(shareItem.name, item: shareItem.content)
+                        Button(action: {
+                            // Copy URL
+                        }, label: {
+                            Label(
+                                title: { Text("Copy URL") },
+                                icon: { Image(systemName: "link") }
+                            )
+                        })
+                    }
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
         }
     }
 }

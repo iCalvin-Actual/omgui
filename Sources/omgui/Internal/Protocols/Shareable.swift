@@ -175,10 +175,15 @@ extension PasteModel: Sharable {
     }
     
     var primaryURL: SharePacket? {
-        nil
+        guard let url = URL(string: "https://\(addressName).paste.lol/\(name)") else {
+            return nil
+        }
+        return .init(name: "Paste URL", content: url)
     }
     var shareURLs: [SharePacket] {
         [
+            primaryURL
         ]
+        .compactMap({ $0 })
     }
 }

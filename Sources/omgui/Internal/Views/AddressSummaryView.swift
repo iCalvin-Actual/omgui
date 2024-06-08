@@ -66,6 +66,9 @@ struct AddressSummaryView: View {
                                 }
                             }) {
                                 Text(page.displayString)
+                                    .font(.subheadline)
+                                    .fontDesign(.rounded)
+                                    .bold()
                             }
                             .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
                         }

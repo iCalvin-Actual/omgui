@@ -109,7 +109,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     @ViewBuilder
     var searchableList: some View {
-        if self.allowSearch && !items.isEmpty {
+        if self.allowSearch {
             list
                 .searchable(text: $queryString, placement: .automatic)
         } else {
@@ -161,6 +161,12 @@ struct ListView<T: Listable, V: View, H: View>: View {
             await dataFetcher.perform()
         })
         .listStyle(.plain)
+        .onAppear(perform: {
+            guard sizeClass == .regular, dataFetcher.loaded, selected == nil else {
+                return
+            }
+            selected = dataFetcher.listItems.first
+        })
     }
     
     @ViewBuilder

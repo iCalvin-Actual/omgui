@@ -55,13 +55,13 @@ struct DestinationConstructor {
         case .nowGarden:
             GardenView(fetcher: addressBook.gardenFetcher)
         case .pastebin(let address):
-            ListView<PasteModel, ListRow<PasteModel>, EmptyView>(filters: .none, dataFetcher: addressBook.addressSummary(address).pasteFetcher, rowBuilder: { _ in return nil as ListRow<PasteModel>? })
+            AddressPasteView(fetcher: addressBook.addressSummary(address).pasteFetcher, context: .profile)
         case .purls(let address):
             ListView<PURLModel, ListRow<PURLModel>, EmptyView>(filters: .none, dataFetcher: addressBook.addressSummary(address).purlFetcher, rowBuilder: { _ in return nil as ListRow<PURLModel>? })
         case .purl(let address, title: let title):
             PURLView(fetcher: fetchConstructor.addressPURLFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
         case .paste(let address, title: let title):
-            PasteView(fetcher: fetchConstructor.addressPasteFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
+            PasteView(fetcher: fetchConstructor.addressPasteFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)), context: .profile)
         case .editPURL(let address, title: let title):
             if let credential = accountModel.credential(for: address, in: addressBook) {
                 NamedItemDraftView(fetcher: fetchConstructor.draftPurlPoster(title, for: address, credential: credential))

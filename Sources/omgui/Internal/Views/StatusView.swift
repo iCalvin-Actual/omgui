@@ -39,7 +39,7 @@ struct StatusView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                ThemedTextView(text: fetcher.address.addressDisplayString.appending(".status"))
+                ThemedTextView(text: ".status")
             }
             ToolbarItem(placement: .topBarTrailing) {
                 if let url = fetcher.status?.shareURLs.first?.content {

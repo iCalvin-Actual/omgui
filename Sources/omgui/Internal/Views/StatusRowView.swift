@@ -146,12 +146,15 @@ struct StatusRowView: View {
 //                    + Text(" ").font(.largeTitle) +
              */
             Markdown(model.status)
-                .font(.system(.subheadline))
+                .font(.system(.headline))
+                .fontWeight(.medium)
+                .fontDesign(.serif)
+                .environment(\.colorScheme, .light)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundColor(.black)
         }
         .lineLimit(context == .column ? 5 : nil)
         .multilineTextAlignment(.leading)
-        .foregroundColor(.black)
     }
     
     @ViewBuilder

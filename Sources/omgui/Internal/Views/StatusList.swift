@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/8/23.
 //
 
+import Combine
 import SwiftUI
 
 struct StatusList: View {
@@ -20,9 +21,6 @@ struct StatusList: View {
     var queryString: String = ""
     @State
     var sort: Sort = .alphabet
-    
-    @State
-    var selected: StatusModel?
     
     let filters: [FilterOption] = []
     
