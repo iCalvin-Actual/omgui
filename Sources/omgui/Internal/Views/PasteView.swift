@@ -53,7 +53,7 @@ struct PasteView: View {
                     if let content = fetcher.paste?.content {
                         ShareLink(item: content)
                         Button(action: {
-                            // Copy Content
+                            UIPasteboard.general.string = content
                         }, label: {
                             Label(
                                 title: { Text("Copy Content") },
@@ -65,7 +65,7 @@ struct PasteView: View {
                     if let shareItem = fetcher.paste?.shareURLs.first {
                         ShareLink(shareItem.name, item: shareItem.content)
                         Button(action: {
-                            // Copy URL
+                            UIPasteboard.general.string = shareItem.content.absoluteString
                         }, label: {
                             Label(
                                 title: { Text("Copy URL") },

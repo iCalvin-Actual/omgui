@@ -71,7 +71,7 @@ extension AddressManagable where Self: Menuable {
                         addressBook.follow(name)
                     }
                 }, label: {
-                    Label("Follow", systemImage: "plus.circle")
+                    Label("Follow \(name.addressDisplayString)", systemImage: "plus.circle")
                 })
             } else if canUnfollow {
                 Button(action: {
@@ -79,7 +79,7 @@ extension AddressManagable where Self: Menuable {
                         addressBook.unFollow(name)
                     }
                 }, label: {
-                    Label("Un-follow", systemImage: "minus.circle")
+                    Label("Un-follow \(name.addressDisplayString)", systemImage: "minus.circle")
                 })
             }
             
@@ -89,7 +89,7 @@ extension AddressManagable where Self: Menuable {
                         addressBook.removePin(name)
                     }
                 }, label: {
-                    Label("Un-Pin", systemImage: "pin.slash")
+                    Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
                 })
             } else {
                 Button(action: {
@@ -97,7 +97,7 @@ extension AddressManagable where Self: Menuable {
                         addressBook.pin(name)
                     }
                 }, label: {
-                    Label("Pin", systemImage: "pin")
+                    Label("Pin \(name.addressDisplayString)", systemImage: "pin")
                 })
             }
             
@@ -112,7 +112,7 @@ extension AddressManagable where Self: Menuable {
                     Label("Block", systemImage: "eye.slash.circle")
                 })
                 
-                ReportButton()
+                ReportButton(addressInQuestion: name)
             } label: {
                 Label("Safety", systemImage: "hand.raised")
             }
@@ -127,7 +127,7 @@ extension AddressManagable where Self: Menuable {
                 })
             }
             
-            ReportButton()
+            ReportButton(addressInQuestion: name)
         }
     }
 }
@@ -190,7 +190,7 @@ extension NavigationItem: Menuable {
             Button(action: {
                 scene.addressBook.removePin(name)
             }, label: {
-                Label("Un-Pin", systemImage: "pin.slash")
+                Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
             })
         default:
             EmptyView()
@@ -254,10 +254,20 @@ extension StatusModel: Menuable {
 }
 
 struct ReportButton: View {
+    var addressInQuestion: AddressName?
+    
     var body: some View {
         Button(action: {
-            withAnimation {
-                print("Report Address Somehow")
+            let subject = "app.lol content report"
+            let body = "/*\nPlease describe the offending behavior, provide links where appropriate.\nWe will review the offending content as quickly as we can and respond appropriately.\n */ \nOffending address: \(addressInQuestion ?? "unknown")\nmy omg.lol address: \n\n"
+            let coded = "mailto:app@omg.lol?subject=\(subject)&body=\(body)"
+                .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+
+            if let coded = coded, let emailURL = URL(string: coded) {
+                if UIApplication.shared.canOpenURL(emailURL)
+                {
+                    UIApplication.shared.open(emailURL)
+                }
             }
         }, label: {
             Label("Report", systemImage: "exclamationmark.bubble")
