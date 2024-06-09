@@ -30,9 +30,8 @@ struct StatusView: View {
                 if let model = fetcher.status {
                     StatusRowView(model: model, context: .detail)
                         .padding()
-                } else {
-                    // Loading View
-                    EmptyView()
+                } else if fetcher.loading {
+                    LoadingView()
                 }
                 Spacer()
             }

@@ -16,9 +16,6 @@ struct PURLView: View {
     @ObservedObject
     var fetcher: AddressPURLDataFetcher
     
-    @State
-    var presentedURL: URL?
-    
     var context: ViewContext
     
     var body: some View {
@@ -78,7 +75,8 @@ struct PURLView: View {
             .padding(.horizontal)
             
             if let content = fetcher.purlContent {
-                HTMLContentView(
+                HTMLFetcherView(
+                    fetcher: fetcher,
                     activeAddress: fetcher.addressName,
                     htmlContent: content,
                     baseURL: {
@@ -89,13 +87,8 @@ struct PURLView: View {
                             return nil
                         }
                         return URL(string: "\(scheme)://\(host)")
-                    }(),
-                    activeURL: $presentedURL
+                    }()
                 )
-                .sheet(item: $presentedURL, content: { url in
-                    SafariView(url: url)
-                        .ignoresSafeArea(.all, edges: .bottom)
-                })
             } else {
                 Spacer()
             }

@@ -68,6 +68,13 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     var body: some View {
         sizeAppropriateBody
+            .onAppear(perform: {
+                if !dataFetcher.loading {
+                    Task {
+                        await dataFetcher.updateIfNeeded()
+                    }
+                }
+            })
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("")
             .toolbar {
@@ -173,6 +180,9 @@ struct ListView<T: Listable, V: View, H: View>: View {
     var listContent: some View {
         if !items.isEmpty {
             ForEach(items, content: rowView(_:) )
+        } else if dataFetcher.loading {
+            LoadingView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             emptyRowView()
         }

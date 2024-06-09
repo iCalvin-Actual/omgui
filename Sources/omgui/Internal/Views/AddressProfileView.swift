@@ -11,15 +11,8 @@ struct AddressProfileView: View {
     @ObservedObject
     var fetcher: AddressProfileDataFetcher
     
-    @State
-    var presentedURL: URL? = nil
-    
     var body: some View {
         htmlBody
-            .sheet(item: $presentedURL, content: { url in
-                SafariView(url: url)
-                    .ignoresSafeArea(.all, edges: .bottom)
-            })
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     ThemedTextView(text: fetcher.addressName.addressDisplayString)
@@ -30,12 +23,16 @@ struct AddressProfileView: View {
     @ViewBuilder
     var htmlBody: some View {
         if let html = fetcher.html {
-            HTMLContentView(activeAddress: fetcher.addressName, htmlContent: html, baseURL: nil, activeURL: $presentedURL)
+            HTMLFetcherView(
+                fetcher: fetcher,
+                activeAddress: fetcher.addressName,
+                htmlContent: html,
+                baseURL: nil
+            )
         } else {
             VStack {
                 if fetcher.loading {
-                    ThemedTextView(text: "loading")
-                        .padding()
+                    LoadingView()
                 } else {
                     ThemedTextView(text: "no public profile")
                         .padding()
