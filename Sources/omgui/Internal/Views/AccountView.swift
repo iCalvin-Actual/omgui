@@ -30,19 +30,12 @@ struct AccountView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 44) {
-                    if accountModel.signedIn {
-                        AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(addressBook.actingAddress), context: .detail, allowEditing: true, selectedPage: .profile)
-                    } else {
-                        signedOutBody
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .padding()
-                .frame(maxWidth: .infinity)
+            if accountModel.signedIn {
+                AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(addressBook.actingAddress), context: .detail, allowEditing: true, selectedPage: .profile)
+            } else {
+                signedOutBody
+                    .frame(maxWidth: .infinity)
             }
-            .background(Color.lolBackground)
         }
         .navigationTitle("")
         .toolbar {

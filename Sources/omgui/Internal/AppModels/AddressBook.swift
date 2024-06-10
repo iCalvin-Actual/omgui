@@ -22,7 +22,8 @@ class AddressBook: ListDataFetcher<AddressModel> {
         }
     }
     
-    let accountModel: AccountModel
+    @ObservedObject
+    var accountModel: AccountModel
     
     let fetchConstructor: FetchConstructor
     
