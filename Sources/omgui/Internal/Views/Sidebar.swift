@@ -66,17 +66,25 @@ struct Sidebar: View {
                 } else {
                     VStack(alignment: .trailing) {
                         activeAddressLabel
-                        ForEach(sidebarModel.addressBook.accountModel.localAddresses) { address in
+                        ForEach(sidebarModel.addressBook.myAddresses) { address in
                             if address != sidebarModel.actingAddress {
-                                Button {
-                                    // Update active address
-                                } label: {
-                                    Text(address)
+                                HStack {
+                                    Button {
+                                        withAnimation {
+                                            expandAddresses = false
+                                            sidebarModel.addressBook.setActiveAddress(address)
+                                        }
+                                    } label: {
+                                        ThemedTextView(text: address.addressDisplayString)
+                                            .padding(.horizontal)
+                                    }
+                                    Spacer()
                                 }
+                                .padding(.leading)
                             }
                         }
                         Button {
-                            sidebarModel.addressBook.accountModel.logout()
+                            self.showConfirmLogout.toggle()
                         } label: {
                             Text("Sign out")
                                 .bold()
@@ -144,21 +152,6 @@ struct Sidebar: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 ThemedTextView(text: "app.lol")
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                if sidebarModel.addressBook.accountModel.signedIn {
-                    Menu {
-                        addressPickerSection
-                        
-                        Button(role: .destructive) {
-                            self.showConfirmLogout.toggle()
-                        } label: {
-                            Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
-                        }
-                    } label: {
-                        Label("More", systemImage: "ellipsis.circle")
-                    }
-                }
             }
         }
     }
