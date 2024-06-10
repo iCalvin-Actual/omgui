@@ -142,7 +142,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
         if let selected = selected {
             sceneModel.destinationConstructor.destination(destination(for: selected))
         } else {
-            ThemedTextView(text: "select")
+            ThemedTextView(text: "no selection")
                 .padding()
         }
     }

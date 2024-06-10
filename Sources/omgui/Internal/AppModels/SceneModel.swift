@@ -21,9 +21,6 @@ class SceneModel: ObservableObject {
     @Published
     var editingModel: Editable?
     
-    @Published
-    var presentUpsellModal: Bool = false
-    
     var destinationConstructor: DestinationConstructor {
         .init(
             addressBook: addressBook,

@@ -21,6 +21,8 @@ struct AccountView: View {
     
     @State
     var searchAddress: String = ""
+    @State
+    var presentUpsell: Bool = false
     
     var availabilityText: String {
         "Enter an address to check availability"
@@ -84,7 +86,7 @@ struct AccountView: View {
         .navigationTitle("")
         .toolbar {
             ToolbarItem(placement: .principal) {
-                ThemedTextView(text: "app.lol")
+                ThemedTextView(text: "omg.lol?")
             }
         }
     }
@@ -275,7 +277,7 @@ struct AccountView: View {
             
             HStack {
                 Button {
-                    sceneModel.presentUpsellModal = true
+                    presentUpsell = true
                 } label: {
                     Text("app.lol ++")
                         .bold()
@@ -293,5 +295,8 @@ struct AccountView: View {
         .frame(maxWidth: .infinity)
         .padding()
         .background(Color.lolOrange)
+        .sheet(isPresented: $presentUpsell) {
+            UpsellView()
+        }
     }
 }

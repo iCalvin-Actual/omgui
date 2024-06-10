@@ -44,8 +44,5 @@ struct TabBar: View {
                 sceneModel.destinationConstructor.destination(model.editingDestination)
             }
         }
-        .sheet(isPresented: $sceneModel.presentUpsellModal) {
-            UpsellView()
-        }
     }
 }

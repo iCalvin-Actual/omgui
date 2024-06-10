@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import SwiftUI
 
 class SidebarModel: ObservableObject {
     enum Section: String, Identifiable {
@@ -40,7 +41,8 @@ class SidebarModel: ObservableObject {
         }
     }
     
-    let addressBook: AddressBook
+    @ObservedObject
+    var addressBook: AddressBook
     
     var requests: [AnyCancellable] = []
     

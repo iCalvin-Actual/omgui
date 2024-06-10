@@ -14,6 +14,9 @@ struct Sidebar: View {
     @EnvironmentObject
     var sceneModel: SceneModel
     
+    @State
+    var expandAddresses: Bool = false
+    
     @Binding
     var selected: NavigationItem?
     
@@ -58,19 +61,39 @@ struct Sidebar: View {
         }
         .safeAreaInset(edge: .top) {
             if sidebarModel.addressBook.accountModel.signedIn {
-                ZStack {
-                    NavigationLink(value: NavigationDestination.address(sidebarModel.actingAddress)) {
-                        EmptyView()
+                if !expandAddresses {
+                    activeAddressLabel
+                } else {
+                    VStack(alignment: .trailing) {
+                        activeAddressLabel
+                            .background(Color.red)
+                        ForEach(sidebarModel.addressBook.accountModel.localAddresses) { address in
+                            if address != sidebarModel.actingAddress {
+                                Button {
+                                    // Update active address
+                                } label: {
+                                    Text(address)
+                                }
+                            }
+                        }
+                        .background(Color.blue)
+                        Button {
+                            sidebarModel.addressBook.accountModel.logout()
+                        } label: {
+                            Text("Sign out")
+                                .bold()
+                                .font(.callout)
+                                .fontDesign(.serif)
+                                .padding(3)
+                        }
+                        .accentColor(.red)
+                        .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.roundedRectangle(radius: 6))
+                        .padding(.horizontal)
+                        .background(Color.green)
                     }
-                    .opacity(0)
-                    
-                    ListRow<AddressModel>(model: .init(name: sidebarModel.actingAddress), preferredStyle: .minimal)
                 }
-                .padding(.horizontal)
-            }
-        }
-        .safeAreaInset(edge: .bottom, content: {
-            if !sidebarModel.addressBook.accountModel.signedIn {
+            } else {
                 Button {
                     DispatchQueue.main.async {
                         Task {
@@ -79,7 +102,28 @@ struct Sidebar: View {
                     }
                 } label: {
                     Label {
-                        Text("Sign in")
+                        Text("sgn in")
+                    } icon: {
+                        Image("prami", bundle: .module)
+                            .resizable()
+                            .frame(width: 33, height: 33)
+                    }
+                }
+                .bold()
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.lolRandom())
+                .cornerRadius(16)
+                .padding(.horizontal)
+            }
+        }
+        .safeAreaInset(edge: .bottom, content: {
+            if !sidebarModel.addressBook.accountModel.signedIn {
+                Button {
+                    selected = .account
+                } label: {
+                    Label {
+                        Text("mre abt omg.lol")
                     } icon: {
                         Image("prami", bundle: .module)
                             .resizable()
@@ -118,6 +162,21 @@ struct Sidebar: View {
                         Label("More", systemImage: "ellipsis.circle")
                     }
                 }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var activeAddressLabel: some View {
+        ListRow<AddressModel>(
+            model: .init(name: sidebarModel.actingAddress),
+            preferredStyle: .minimal
+        )
+        .padding(.horizontal)
+        .padding(.top)
+        .onTapGesture {
+            withAnimation {
+                expandAddresses.toggle()
             }
         }
     }
