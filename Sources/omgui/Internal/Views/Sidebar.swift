@@ -66,7 +66,6 @@ struct Sidebar: View {
                 } else {
                     VStack(alignment: .trailing) {
                         activeAddressLabel
-                            .background(Color.red)
                         ForEach(sidebarModel.addressBook.accountModel.localAddresses) { address in
                             if address != sidebarModel.actingAddress {
                                 Button {
@@ -76,7 +75,6 @@ struct Sidebar: View {
                                 }
                             }
                         }
-                        .background(Color.blue)
                         Button {
                             sidebarModel.addressBook.accountModel.logout()
                         } label: {
@@ -90,7 +88,6 @@ struct Sidebar: View {
                         .buttonStyle(.borderedProminent)
                         .buttonBorderShape(.roundedRectangle(radius: 6))
                         .padding(.horizontal)
-                        .background(Color.green)
                     }
                 }
             } else {

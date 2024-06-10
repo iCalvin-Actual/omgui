@@ -33,46 +33,7 @@ struct AccountView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 44) {
                     if accountModel.signedIn {
-                        Text(accountModel.welcomeText)
-                            .multilineTextAlignment(.leading)
-                            .font(.headline)
-                            .bold()
-                            .fontDesign(.serif)
-                            .asCard(color: .lolBlue)
-                        
-                        VStack(spacing: 22) {
-                            ForEach(addressBook.myAddresses) { address in
-                                NavigationLink(destination: sceneModel.destinationConstructor.destination(.address(address))) {
-                                    let isActing = addressBook.actingAddress == address
-                                    HStack {
-                                        Text(address.addressDisplayString)
-                                            .multilineTextAlignment(.leading)
-                                            .font(.title)
-                                            .bold()
-                                            .fontDesign(.serif)
-                                        Spacer(minLength: isActing ? 0 : 22)
-                                    }
-                                    .foregroundColor(.black)
-                                    .asCard(color: Color.lolYellow, padding: 12)
-                                }
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        Button {
-                            accountModel.logout()
-                        } label: {
-                            Text("Sign out")
-                                .bold()
-                                .font(.callout)
-                                .fontDesign(.serif)
-                                .padding(3)
-                        }
-                        .accentColor(.red)
-                        .buttonStyle(.borderedProminent)
-                        .buttonBorderShape(.roundedRectangle(radius: 6))
-                        .shadow(radius: 8, y: 12)
+                        AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(addressBook.actingAddress), context: .detail, allowEditing: true, selectedPage: .profile)
                     } else {
                         signedOutBody
                             .frame(maxWidth: .infinity)
@@ -85,8 +46,10 @@ struct AccountView: View {
         }
         .navigationTitle("")
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                ThemedTextView(text: "omg.lol?")
+            if !accountModel.signedIn {
+                ToolbarItem(placement: .principal) {
+                    ThemedTextView(text: "omg.lol?")
+                }
             }
         }
     }
