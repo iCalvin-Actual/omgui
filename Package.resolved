@@ -19,14 +19,23 @@
       }
     },
     {
+      "identity" : "networkimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gonzalezreal/NetworkImage",
+      "state" : {
+        "revision" : "7aff8d1b31148d32c5933d75557d42f6323ee3d1",
+        "version" : "6.0.0"
+      }
+    },
+    {
       "identity" : "swift-markdown-ui",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/gonzalezreal/swift-markdown-ui",
+      "location" : "https://github.com/iCalvin-Actual/swift-markdown-ui",
       "state" : {
-        "revision" : "5e15c0d75e42b9840301503e0df681027d4bea05",
-        "version" : "2.0.1"
+        "branch" : "main",
+        "revision" : "96438a4413f0cb0ab9a456984c104347e65c540b"
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
