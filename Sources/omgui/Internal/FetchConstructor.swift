@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 class FetchConstructor {
     let client: ClientInfo
     let interface: DataInterface

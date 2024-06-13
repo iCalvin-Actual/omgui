@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 import Foundation
 
+@MainActor
 class Request: NSObject, ObservableObject {
     let interface: DataInterface
     
@@ -56,12 +57,11 @@ class Request: NSObject, ObservableObject {
     }
     
     func threadSafeSendUpdate() {
-        DispatchQueue.main.async {
-            self.objectWillChange.send()
-        }
+        objectWillChange.send()
     }
 }
 
+@MainActor
 class DraftPoster<D: DraftItem>: Request {
     let address: AddressName
     let credential: APICredential
@@ -213,6 +213,7 @@ class StatusDraftPoster: DraftPoster<StatusModel.Draft> {
     }
 }
 
+@MainActor
 class DataFetcher: Request {
     struct AutomationPreferences {
         var autoLoad: Bool
@@ -245,16 +246,35 @@ class DataFetcher: Request {
     }
 }
 
-class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContextProviding {
+@MainActor
+class AccountAuthDataFetcher: NSObject, ObservableObject {
     private var webSession: ASWebAuthenticationSession?
     
-    private var url: URL?
-    private var client: ClientInfo
+    private let client: ClientInfo
+    private let interface: DataInterface
+    
+    var loaded = false
+    var loading = false
     
     @Published
     var authToken: String?
     
-    func recreateWebSession() {
+    private var url: URL?
+    private var error: Error?
+    private var requests: [AnyCancellable] = []
+    
+    private let anchor = ASPresentationAnchor()
+    
+    init(client: ClientInfo, interface: DataInterface) {
+        self.client = client
+        self.interface = interface
+        self.url = interface.authURL
+        super.init()
+        
+        self.recreateWebSession()
+    }
+    
+    private func recreateWebSession() {
         guard let url = url else {
             return
         }
@@ -289,30 +309,21 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
         self.webSession?.presentationContextProvider = self
     }
     
-    init(client: ClientInfo, interface: DataInterface) {
-        self.client = client
-        super.init(interface: interface, automation: .init(false))
-        self.url = interface.authURL
-        self.recreateWebSession()
-    }
-    
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        return ASPresentationAnchor()
-    }
-    
-    override func throwingRequest() async throws {
+    func perform() {
+        loading = true
         recreateWebSession()
-        DispatchQueue.main.async {
-            self.webSession?.start()
-        }
-    }
-    
-    override func fetchFinished() {
-        super.fetchFinished()
-        recreateWebSession()
+        webSession?.start()
     }
 }
 
+extension AccountAuthDataFetcher: ASWebAuthenticationPresentationContextProviding {
+    nonisolated
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        anchor
+    }
+}
+
+@MainActor
 class ListDataFetcher<T: Listable>: DataFetcher, Observable {
     
     var listItems: [T] = []
@@ -842,6 +853,7 @@ class AddressProfileDataFetcher: DataFetcher {
     }
 }
 
+@MainActor
 class AddressNowDataFetcher: DataFetcher {
     let addressName: AddressName
     
@@ -1001,6 +1013,7 @@ class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
     }
 }
 
+@MainActor
 class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
     var blockedFetcher: AddressBlockListDataFetcher
     

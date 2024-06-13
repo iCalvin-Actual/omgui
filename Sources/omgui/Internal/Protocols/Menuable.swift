@@ -30,9 +30,12 @@ extension PasteModel: AddressManagable {
 
 protocol Menuable {
     associatedtype M: View
+    
+    @MainActor
     func contextMenu(in scene: SceneModel) -> M
 }
 
+@MainActor
 extension Menuable {
     @ViewBuilder
     func editingSection(in scene: SceneModel) -> some View {
@@ -49,6 +52,7 @@ extension Menuable {
     }
 }
 
+@MainActor
 struct ContextMenuBuilder<T: Menuable> {
     @ViewBuilder
     func contextMenu(for item: T, sceneModel: SceneModel) -> some View {
@@ -57,6 +61,7 @@ struct ContextMenuBuilder<T: Menuable> {
 }
 
 extension AddressManagable where Self: Menuable {
+    @MainActor
     @ViewBuilder
     func manageSection(_ addressBook: AddressBook) -> some View {
         let name = addressToActOn
@@ -188,7 +193,9 @@ extension NavigationItem: Menuable {
         switch self {
         case .pinnedAddress(let name):
             Button(action: {
-                scene.addressBook.removePin(name)
+                Task { @MainActor in
+                    scene.addressBook.removePin(name)
+                }
             }, label: {
                 Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
             })
@@ -200,6 +207,7 @@ extension NavigationItem: Menuable {
 
 extension AddressModel: Menuable {
     @ViewBuilder
+    @MainActor
     func contextMenu(in scene: SceneModel) -> some View {
         Group {
             self.shareSection()

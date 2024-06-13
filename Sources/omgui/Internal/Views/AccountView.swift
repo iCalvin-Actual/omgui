@@ -10,7 +10,7 @@ import SwiftUI
 struct AccountView: View {
     @Environment(\.colorScheme) var colorScheme
     
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
     @ObservedObject

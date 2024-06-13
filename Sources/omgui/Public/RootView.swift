@@ -17,6 +17,7 @@ class Router: ObservableObject {
     var navPath: NavigationPath = .init()
 }
 
+@MainActor
 struct RootView: View {
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
@@ -25,7 +26,7 @@ struct RootView: View {
     
     var body: some View {
         SplitView()
-            .environmentObject(
+            .environment(
                 SceneModel(fetchConstructor: fetchConstructor)
             )
     }

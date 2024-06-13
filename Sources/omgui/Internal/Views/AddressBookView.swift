@@ -72,7 +72,9 @@ struct AddressBookView: View {
     var logoutButton: some View {
         Button {
             // Show Login
-            accountModel.logout()
+            Task {
+                await accountModel.logout()
+            }
         } label: {
             HStack {
                 Spacer()

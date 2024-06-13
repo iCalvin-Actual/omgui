@@ -7,8 +7,9 @@
 
 import SwiftUI
 
+@MainActor
 struct GardenView: View {
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     @Environment(\.horizontalSizeClass)
     var sizeClass
@@ -63,7 +64,9 @@ struct GardenView: View {
     @ViewBuilder
     var listBody: some View {
         List(selection: $selected) {
-            ForEach(fetcher.listItems, content: rowView(_:))
+            ForEach(fetcher.listItems, content: { item in
+                rowView(item)
+            })
         }
         .refreshable(action: {
             await fetcher.perform()

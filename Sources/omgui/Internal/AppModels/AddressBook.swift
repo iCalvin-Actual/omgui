@@ -8,7 +8,7 @@
 import Combine
 import SwiftUI
 
-
+@MainActor
 class AddressBook: ListDataFetcher<AddressModel> {
 //    @SceneStorage("app.lol.active")
     var preferredAddress: AddressName = ""
@@ -24,6 +24,20 @@ class AddressBook: ListDataFetcher<AddressModel> {
     
     @ObservedObject
     var accountModel: AccountModel
+    
+    private var publicProfileCache: [AddressName: AddressSummaryDataFetcher] = [:]
+    
+    public let directoryFetcher: AddressDirectoryDataFetcher
+    public let gardenFetcher: NowGardenDataFetcher
+    public let statusLogFetcher: StatusLogDataFetcher
+    public var followingStatusLogFetcher: StatusLogDataFetcher?
+    public var followingFetcher: AddressFollowingDataFetcher?
+    public var blocklistFetcher: BlockListDataFetcher
+    public var pinnedAddressFetcher: PinnedListDataFetcher
+    
+    private var myAddressesFetcher: AccountAddressDataFetcher?
+    private let localBloclistFetcher: LocalBlockListDataFetcher
+    private let globalBlocklistFetcher: AddressBlockListDataFetcher
     
     let fetchConstructor: FetchConstructor
     
@@ -83,6 +97,7 @@ class AddressBook: ListDataFetcher<AddressModel> {
         }
         .store(in: &requests)
         self.followingFetcher = followingFetcher
+        
         Task {
             await followingFetcher.perform()
         }
@@ -113,10 +128,6 @@ class AddressBook: ListDataFetcher<AddressModel> {
         actingAddress = address
     }
     
-    public let directoryFetcher: AddressDirectoryDataFetcher
-    public let gardenFetcher: NowGardenDataFetcher
-    public let statusLogFetcher: StatusLogDataFetcher
-    
     public func profilePoster(for address: AddressName) -> ProfileDraftPoster? {
         try? addressPrivateSummary(address).profilePoster
     }
@@ -125,7 +136,6 @@ class AddressBook: ListDataFetcher<AddressModel> {
         try? addressPrivateSummary(address).nowPoster
     }
     
-    private var publicProfileCache: [AddressName: AddressSummaryDataFetcher] = [:]
     private func constructFetcher(for address: AddressName) -> AddressSummaryDataFetcher {
         fetchConstructor.addressDetailsFetcher(address)
     }
@@ -162,7 +172,6 @@ class AddressBook: ListDataFetcher<AddressModel> {
         }
     }
     
-    var followingFetcher: AddressFollowingDataFetcher?
     public var following: [AddressName] {
         followingFetcher?.listItems.map({ $0.name }) ?? []
     }
@@ -196,15 +205,10 @@ class AddressBook: ListDataFetcher<AddressModel> {
         }
         fetcher.unFollow(address, credential: credential)
     }
-    var followingStatusLogFetcher: StatusLogDataFetcher?
     
-    public var blocklistFetcher: BlockListDataFetcher
-    
-    private let globalBlocklistFetcher: AddressBlockListDataFetcher
     private var globalBlocked: [AddressName] {
         globalBlocklistFetcher.listItems.map { $0.name }
     }
-    private let localBloclistFetcher: LocalBlockListDataFetcher
     private var localBlocked: [AddressName] {
         localBloclistFetcher.listItems.map { $0.name }
     }
@@ -212,6 +216,7 @@ class AddressBook: ListDataFetcher<AddressModel> {
     private var addressBlocked: [AddressName] {
         blocklistFetcher.addressBlocklistFetcher?.listItems.map { $0.name } ?? []
     }
+    
     public func constructBlocklist() -> BlockListDataFetcher {
         return BlockListDataFetcher(
             globalFetcher: globalBlocklistFetcher,
@@ -251,12 +256,10 @@ class AddressBook: ListDataFetcher<AddressModel> {
         localBloclistFetcher.remove(address)
     }
     
-    let pinnedAddressFetcher: PinnedListDataFetcher
     var pinned: [AddressName] {
         pinnedAddressFetcher.listItems.map { $0.name }
     }
     
-    private var myAddressesFetcher: AccountAddressDataFetcher?
     var myAddresses: [AddressName] {
         let fetchedAddresses = myAddressesFetcher?.listItems.map { $0.name } ?? []
         guard !fetchedAddresses.isEmpty else {

@@ -9,7 +9,9 @@ import SwiftUI
 import Foundation
 import WebKit
 
+@MainActor
 struct HTMLContentView: UIViewRepresentable {
+    @MainActor
     class Coordinator: NSObject, WKNavigationDelegate {
         
         let activeAddress: AddressName?
@@ -26,6 +28,7 @@ struct HTMLContentView: UIViewRepresentable {
             self.handleURL = handleURL
         }
         
+        nonisolated
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
             switch (navigationAction.navigationType, navigationAction.request.url?.host() == nil) {
             /// This... isn't a great experience.
@@ -44,17 +47,24 @@ struct HTMLContentView: UIViewRepresentable {
                 return .cancel
              */
             case (.linkActivated, _):
-                handleURL?(navigationAction.request.url)
+                let url = navigationAction.request.url
+                Task { @MainActor in
+                    handleURL?(url)
+                }
                 return .cancel
             default:
                 return .allow
             }
         }
         
+        nonisolated
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            showPendingContentIfNeeded(in: webView)
+            MainActor.assumeIsolated {
+                showPendingContentIfNeeded(in: webView)
+            }
         }
         
+        @MainActor
         func showContent(_ newContent: String?, in webView: WKWebView) {
             webView.navigationDelegate = self
             if webView.isLoading {
@@ -64,6 +74,7 @@ struct HTMLContentView: UIViewRepresentable {
             }
         }
         
+        @MainActor
         private func showPendingContentIfNeeded(in webView: WKWebView) {
             if let pending = pendingContent {
                 pendingContent = nil
@@ -118,7 +129,9 @@ struct HTMLContentView_Previews: PreviewProvider {
     }
 }
 
+@MainActor
 struct RemoteHTMLContentView: UIViewRepresentable {
+    @MainActor
     class Coordinator: NSObject, WKNavigationDelegate {
         
         let activeAddress: AddressName?
@@ -132,10 +145,14 @@ struct RemoteHTMLContentView: UIViewRepresentable {
             self.handleURL = handleURL
         }
         
+        nonisolated
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
             switch (navigationAction.navigationType, navigationAction.request.url?.host() == nil) {
             case (.linkActivated, _):
-                handleURL?(navigationAction.request.url)
+                let url = navigationAction.request.url
+                Task { @MainActor in
+                    handleURL?(url)
+                }
                 return .cancel
             default:
                 return .allow

@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol DraftItem {
+protocol DraftItem: Sendable {
     var content: String { get set }
 }
 

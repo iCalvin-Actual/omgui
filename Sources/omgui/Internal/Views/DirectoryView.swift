@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 struct DirectoryView: View {
     @ObservedObject
     var dataFetcher: AddressDirectoryDataFetcher
@@ -14,7 +15,7 @@ struct DirectoryView: View {
     @AppStorage("app.lol.directory.showPinned", store: .standard)
     var showPinned: Bool = true
     
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     @Environment(\.horizontalSizeClass)
     var sizeClass

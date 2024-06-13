@@ -27,9 +27,12 @@ extension Array<FilterOption> {
 protocol Filterable {
     var addressName: AddressName { get }
     var filterDate: Date? { get }
+    
+    @MainActor
     func include(with filter: FilterOption, addressBook: AddressBook) -> Bool
 }
 
+@MainActor
 extension Filterable {
     func include(with filters: [FilterOption], addressBook: AddressBook) -> Bool {
         for filter in filters {
@@ -48,17 +51,24 @@ extension Filterable where Self: DateSortable {
 }
 
 protocol QueryFilterable: Filterable {
+    
+    @MainActor
     var queryCheckStrings: [String] { get }
+    
+    @MainActor
     func matches(_ query: String) -> Bool
 }
 
 extension QueryFilterable {
+    
+    @MainActor
     func matches(_ query: String) -> Bool {
         queryCheckStrings.contains(where: { $0.lowercased().contains(query.lowercased()) })
     }
 }
 
 extension Filterable {
+    @MainActor
     func include(with filter: FilterOption, addressBook: AddressBook) -> Bool {
         switch filter {
 //        case .following:

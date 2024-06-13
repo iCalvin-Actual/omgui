@@ -12,7 +12,7 @@ struct StatusList: View {
     @ObservedObject
     var fetcher: StatusLogDataFetcher
     
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     @Environment(\.horizontalSizeClass)
     var sizeClass

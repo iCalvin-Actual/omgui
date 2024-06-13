@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 struct DestinationConstructor {
     let addressBook: AddressBook
     let accountModel: AccountModel
@@ -62,47 +63,47 @@ struct DestinationConstructor {
             PURLView(fetcher: fetchConstructor.addressPURLFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)), context: .profile)
         case .paste(let address, title: let title):
             PasteView(fetcher: fetchConstructor.addressPasteFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)), context: .profile)
-        case .editPURL(let address, title: let title):
-            if let credential = accountModel.credential(for: address, in: addressBook) {
-                NamedItemDraftView(fetcher: fetchConstructor.draftPurlPoster(title, for: address, credential: credential))
-            } else {
-                // Unauthorized
-                EmptyView()
-            }
-        case .editPaste(let address, title: let title):
-            if let credential = accountModel.credential(for: address, in: addressBook) {
-                NamedItemDraftView(fetcher: fetchConstructor.draftPastePoster(title, for: address, credential: credential))
-            } else {
-                // Unauthorized
-                EmptyView()
-            }
         case .statusLog(let address):
             StatusList(fetcher: addressBook.addressSummary(address).statusFetcher, context: .profile)
-        case .editWebpage(let name):
-            if let poster = addressBook.profilePoster(for: name) {
-                EditPageView(poster: poster)
-            } else {
-                // Unauthenticated
-                EmptyView()
-            }
-        case .editNow(let name):
-            if let poster = addressBook.nowPoster(for: name) {
-                EditPageView(poster: poster)
-            } else {
-                // Unauthenticated
-                EmptyView()
-            }
         case .status(let address, id: let id):
             StatusView(fetcher: fetchConstructor.statusFetcher(id, from: address))
-        case .editStatus(let address, id: let id):
-            if let credential = accountModel.credential(for: address, in: addressBook) {
-                StatusDraftView(draftPoster: fetchConstructor.draftStatusPoster(id, for: address, credential: credential))
-            } else {
-                // Unauthenticated
-                EmptyView()
-            }
         case .account:
             AccountView(addressBook: addressBook, accountModel: accountModel)
+//        case .editPURL(let address, title: let title):
+//            if let credential = accountModel.credential(for: address, in: addressBook) {
+//                NamedItemDraftView(fetcher: fetchConstructor.draftPurlPoster(title, for: address, credential: credential))
+//            } else {
+//                // Unauthorized
+//                EmptyView()
+//            }
+//        case .editPaste(let address, title: let title):
+//            if let credential = accountModel.credential(for: address, in: addressBook) {
+//                NamedItemDraftView(fetcher: fetchConstructor.draftPastePoster(title, for: address, credential: credential))
+//            } else {
+//                // Unauthorized
+//                EmptyView()
+//            }
+//        case .editWebpage(let name):
+//            if let poster = addressBook.profilePoster(for: name) {
+//                EditPageView(poster: poster)
+//            } else {
+//                // Unauthenticated
+//                EmptyView()
+//            }
+//        case .editNow(let name):
+//            if let poster = addressBook.nowPoster(for: name) {
+//                EditPageView(poster: poster)
+//            } else {
+//                // Unauthenticated
+//                EmptyView()
+//            }
+//        case .editStatus(let address, id: let id):
+//            if let credential = accountModel.credential(for: address, in: addressBook) {
+//                StatusDraftView(draftPoster: fetchConstructor.draftStatusPoster(id, for: address, credential: credential))
+//            } else {
+//                // Unauthenticated
+//                EmptyView()
+//            }
         default:
             EmptyView()
         }

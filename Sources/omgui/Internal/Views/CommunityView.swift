@@ -7,8 +7,8 @@
 
 import SwiftUI
 
+@MainActor
 struct CommunityView: View {
-    
     
     let addressBook: AddressBook
     

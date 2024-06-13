@@ -8,7 +8,9 @@
 import Combine
 import SwiftUI
 
-class SceneModel: ObservableObject {
+@Observable
+@MainActor
+class SceneModel {
     
     let fetchConstructor: FetchConstructor
     
@@ -18,7 +20,6 @@ class SceneModel: ObservableObject {
     
     var requests: [AnyCancellable] = []
     
-    @Published
     var editingModel: Editable?
     
     var destinationConstructor: DestinationConstructor {

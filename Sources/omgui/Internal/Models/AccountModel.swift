@@ -8,7 +8,8 @@
 import Combine
 import SwiftUI
 
-class AccountModel: DataFetcher {
+@MainActor
+class AccountModel: ObservableObject {
     @AppStorage("app.lol.auth", store: .standard)
     var authKey: String = ""
     
@@ -23,8 +24,19 @@ class AccountModel: DataFetcher {
         }
     }
     
+    @ObservedObject
     private var authenticationFetcher: AccountAuthDataFetcher
+    
     private var accountInfoFetcher: AccountInfoDataFetcher?
+    
+    let interface: DataInterface
+    
+    var loaded: Bool = false
+    var loading: Bool = false
+    
+    var error: Error?
+    
+    var requests: [AnyCancellable] = []
     
     init(client: ClientInfo, interface: DataInterface) {
         self.authenticationFetcher = AccountAuthDataFetcher(
@@ -32,34 +44,47 @@ class AccountModel: DataFetcher {
             interface: interface
         )
         
-        super.init(interface: interface)
+        self.interface = interface
         
-        authenticationFetcher.$authToken.sink { newValue in
-            let newValue = newValue ?? ""
-            guard !newValue.isEmpty else {
-                return
-            }
-            Task { @MainActor [weak self] in
-                await self?.login(newValue)
-            }
+        Task {
+            subscribe()
         }
-        .store(in: &requests)
+    }
+    
+    @MainActor
+    func subscribe() {
+        authenticationFetcher.$authToken
+            .sink { newValue in
+                let newValue = newValue ?? ""
+                guard !newValue.isEmpty else {
+                    return
+                }
+                Task { [weak self] in
+                    await self?.login(newValue)
+                }
+            }
+            .store(in: &requests)
+    }
+    
+    func perform() async {
+        loading = true
+        threadSafeSendUpdate()
+        do {
+            try await throwingRequest()
+        } catch {
+            handle(error)
+        }
     }
     
     func login(_ incomingAuthKey: APICredential) async {
         authKey = incomingAuthKey
-        Task { [weak self] in
-            await self?.perform()
-        }
+        await perform()
     }
     
-    func logout() {
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            self.authKey = ""
-            self.localAddresses = []
-            await self.perform()
-        }
+    func logout() async {
+        self.authKey = ""
+        self.localAddresses = []
+        await self.perform()
     }
     
     func constructAccountAddressesFetcher(_ credential: APICredential) -> AccountAddressDataFetcher? {
@@ -70,7 +95,7 @@ class AccountModel: DataFetcher {
         return AccountInfoDataFetcher(address: name, interface: interface, credential: credential)
     }
     
-    override func throwingRequest() async throws {
+    func throwingRequest() async throws {
         guard !authKey.isEmpty else {
             accountInfoFetcher = nil
             threadSafeSendUpdate()
@@ -81,6 +106,22 @@ class AccountModel: DataFetcher {
             self.threadSafeSendUpdate()
         }
         .store(in: &self.requests)
+    }
+    
+    func fetchFinished() {
+        loaded = true
+        loading = false
+        threadSafeSendUpdate()
+    }
+    
+    func handle(_ incomingError: Error) {
+        loaded = false
+        loading = false
+        error = incomingError
+        threadSafeSendUpdate()
+    }
+    
+    func threadSafeSendUpdate() {
     }
     
     var welcomeText: String {
@@ -99,10 +140,8 @@ class AccountModel: DataFetcher {
     }
     
     func authenticate() async {
-        logout()
-        Task {
-            await authenticationFetcher.perform()
-        }
+        await logout()
+        authenticationFetcher.perform()
     }
     
     public func credential(for address: AddressName, in addressBook: AddressBook) -> APICredential? {

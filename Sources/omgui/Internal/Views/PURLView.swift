@@ -10,7 +10,7 @@ import SwiftUI
 struct PURLView: View {
     @Environment(\.horizontalSizeClass)
     var sizeClass
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
     @ObservedObject

@@ -8,11 +8,13 @@
 import MarkdownUI
 import SwiftUI
 
+@MainActor
 protocol MarkdownSourceProvider {
     var address: String { get }
     var updated: Date? { get }
 }
 
+@MainActor
 struct MarkdownContentView: View {
     
     let source: MarkdownSourceProvider?

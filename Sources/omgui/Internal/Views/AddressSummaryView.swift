@@ -11,7 +11,7 @@ struct AddressSummaryView: View {
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
     
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
     @ObservedObject

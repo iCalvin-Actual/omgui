@@ -7,9 +7,12 @@
 
 import SwiftUI
 
+@MainActor
 struct SplitView: View {
-    @EnvironmentObject
+    
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
+    
     @Environment(\.horizontalSizeClass)
     var sizeClass
     
@@ -21,7 +24,6 @@ struct SplitView: View {
     var body: some View {
         NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(.sidebar)) {
             Sidebar(selected: $selected, model: .init(sceneModel.addressBook))
-                .navigationDestination(for: NavigationDestination.self, destination: destinationView(_:))
         } detail: {
             let destination = selected?.destination ?? .lists
             NavigationStack {
@@ -37,7 +39,7 @@ struct SplitView: View {
     
     @ViewBuilder
     func destinationView(_ destination: NavigationDestination? = .webpage("app")) -> some View {
-        sceneModel.destinationConstructor.destination(destination)
-            .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
+            sceneModel.destinationConstructor.destination(destination)
+                .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
     }
 }

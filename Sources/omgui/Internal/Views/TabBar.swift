@@ -7,8 +7,9 @@
 
 import SwiftUI
 
+@MainActor
 struct TabBar: View {
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
     @State

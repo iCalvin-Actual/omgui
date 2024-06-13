@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ServiceInfoModel {
+public struct ServiceInfoModel: Sendable {
     let members: Int?
     let addresses: Int?
     let profiles: Int?
@@ -19,7 +19,7 @@ public struct ServiceInfoModel {
     }
 }
 
-public struct AccountInfoModel {
+public struct AccountInfoModel: Sendable {
     let name: String
     let created: Date
     
@@ -29,7 +29,7 @@ public struct AccountInfoModel {
     }
 }
 
-public struct ThemeModel: Codable {
+public struct ThemeModel: Codable, Sendable {
     let id: String
     let name: String
     let created: String
@@ -63,7 +63,7 @@ public struct ThemeModel: Codable {
     }
 }
 
-public struct AddressProfile {
+public struct AddressProfile: Sendable {
     let owner: AddressName
     let content: String
     
@@ -73,7 +73,7 @@ public struct AddressProfile {
     }
 }
 
-public struct NowModel {
+public struct NowModel: Sendable {
     let owner: AddressName
     
     let content: String?
@@ -90,7 +90,7 @@ public struct NowModel {
     }
 }
 
-public struct PasteModel: Hashable, Identifiable, RawRepresentable, Codable {
+public struct PasteModel: Hashable, Identifiable, RawRepresentable, Codable, Sendable {
     public var id: String { rawValue }
     static var separator: String { "{PASTE}" }
     
@@ -121,7 +121,7 @@ public struct PasteModel: Hashable, Identifiable, RawRepresentable, Codable {
     }
 }
 
-public struct PURLModel: Hashable, Identifiable, RawRepresentable, Codable {
+public struct PURLModel: Hashable, Identifiable, RawRepresentable, Codable, Sendable {
     public var id: String { rawValue }
     static var separator: String { "{PURL}" }
     
@@ -159,7 +159,7 @@ public struct PURLModel: Hashable, Identifiable, RawRepresentable, Codable {
     }
 }
 
-public struct NowListing: Hashable, Identifiable {
+public struct NowListing: Hashable, Identifiable, Sendable {
     public var id: String { owner+url }
     let owner: AddressName
     let url: String
@@ -172,7 +172,7 @@ public struct NowListing: Hashable, Identifiable {
     }
 }
 
-public struct AddressModel: Hashable, Identifiable, RawRepresentable, Codable {
+public struct AddressModel: Hashable, Identifiable, RawRepresentable, Codable, Sendable {
     public init?(rawValue: String) {
         self = AddressModel(name: rawValue)
     }
@@ -191,7 +191,7 @@ public struct AddressModel: Hashable, Identifiable, RawRepresentable, Codable {
     }
 }
 
-public struct StatusModel: Hashable, Identifiable {
+public struct StatusModel: Hashable, Identifiable, Sendable {
     public let id: String
     let address: AddressName
     let posted: Date
@@ -225,7 +225,7 @@ public struct StatusModel: Hashable, Identifiable {
     }
 }
 
-public struct GroupStatusLogModel {
+public struct GroupStatusLogModel: Sendable {
     let displayTitle: String?
     let statuses: [StatusModel]
 }

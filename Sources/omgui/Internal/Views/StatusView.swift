@@ -10,7 +10,7 @@ import SwiftUI
 struct StatusView: View {
     @ObservedObject
     var fetcher: StatusDataFetcher
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
     @ObservedObject

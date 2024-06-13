@@ -7,11 +7,12 @@
 
 import SwiftUI
 
+@MainActor
 struct Sidebar: View {
     
     @Environment(\.horizontalSizeClass)
     var horizontalSize
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
     @State
@@ -59,6 +60,7 @@ struct Sidebar: View {
             }
             .navigationBarTitleDisplayMode(.inline)
         }
+        .navigationDestination(for: NavigationDestination.self, destination: destinationView(_:))
         .safeAreaInset(edge: .top) {
             if sidebarModel.addressBook.accountModel.signedIn {
                 if !expandAddresses {
@@ -146,7 +148,9 @@ struct Sidebar: View {
         .alert("Logout", isPresented: $showConfirmLogout) {
             Button("Cancel", role: .cancel) { }
             Button("Yes", role: .destructive) {
-                sidebarModel.addressBook.accountModel.logout()
+                Task {
+                    await sidebarModel.addressBook.accountModel.logout()
+                }
             }
         }
         .toolbar {
@@ -199,5 +203,11 @@ struct Sidebar: View {
         } else {
             Label(title: { Text(address) }, icon: { EmptyView() })
         }
+    }
+    
+    @ViewBuilder
+    func destinationView(_ destination: NavigationDestination? = .webpage("app")) -> some View {
+            sceneModel.destinationConstructor.destination(destination)
+                .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
     }
 }

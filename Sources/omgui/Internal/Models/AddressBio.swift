@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AddressBioModel {
+public struct AddressBioModel: Sendable {
     let address: AddressName
     let bio: String?
     

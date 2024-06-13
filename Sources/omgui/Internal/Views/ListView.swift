@@ -11,7 +11,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     @Environment(\.horizontalSizeClass)
     var sizeClass
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
     let context: ViewContext
