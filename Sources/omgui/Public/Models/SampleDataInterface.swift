@@ -12,10 +12,11 @@ public class SampleData: DataInterface {
         return UInt64(Double.random(min: 0.02, max: 5.0) * Double(NSEC_PER_SEC))
     }
     
-    public init() { }
-    public func authURL() -> URL? {
+    public var authURL: URL? {
         URL(string: "https://home.omg.lol")
     }
+    
+    public init() { }
     public func fetchAccessToken(authCode: String, clientID: String, clientSecret: String, redirect: String) async throws -> String? {
         try await Task.sleep(nanoseconds: artificalDelay)
         return authCode

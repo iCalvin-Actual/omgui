@@ -30,7 +30,9 @@ let package = Package(
                 "MarkupEditor",
                 "Ink"
             ],
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
+            ]
         ),
         .testTarget(
             name: "omguiTests",

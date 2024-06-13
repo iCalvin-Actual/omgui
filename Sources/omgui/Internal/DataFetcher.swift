@@ -292,7 +292,7 @@ class AccountAuthDataFetcher: DataFetcher, ASWebAuthenticationPresentationContex
     init(client: ClientInfo, interface: DataInterface) {
         self.client = client
         super.init(interface: interface, automation: .init(false))
-        self.url = interface.authURL()
+        self.url = interface.authURL
         self.recreateWebSession()
     }
     
