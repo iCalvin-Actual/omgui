@@ -268,7 +268,7 @@ class AccountAuthDataFetcher: NSObject, ObservableObject {
     init(client: ClientInfo, interface: DataInterface) {
         self.client = client
         self.interface = interface
-        self.url = interface.authURL
+        self.url = interface.authURL(with: client.secret, redirect: client.redirectUrl)
         super.init()
         
         self.recreateWebSession()
