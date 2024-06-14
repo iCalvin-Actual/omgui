@@ -78,7 +78,7 @@ extension AddressModel: AllSortable {
     var primarySortValue: String { name }
     var dateValue: Date? { registered }
     
-    static var defaultSort: Sort = .alphabet
+    static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
             .alphabet
@@ -90,7 +90,7 @@ extension StatusModel: AllSortable {
     var primarySortValue: String { address }
     var dateValue: Date? { posted }
     
-    static var defaultSort: Sort = .newestFirst
+    static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
             .newestFirst,
@@ -103,7 +103,7 @@ extension NowListing: AllSortable {
     var primarySortValue: String { owner }
     var dateValue: Date? { updated }
     
-    static var defaultSort: Sort = .newestFirst
+    static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
             .alphabet,
@@ -115,7 +115,7 @@ extension NowListing: AllSortable {
 extension PasteModel: StringSortable {
     var primarySortValue: String { name }
     
-    static var defaultSort: Sort = .alphabet
+    static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
             .alphabet
@@ -126,7 +126,7 @@ extension PasteModel: StringSortable {
 extension PURLModel: StringSortable {
     var primarySortValue: String { value }
     
-    static var defaultSort: Sort = .alphabet
+    static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
             .alphabet

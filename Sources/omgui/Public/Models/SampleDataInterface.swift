@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SampleData: DataInterface {
+public final class SampleData: DataInterface {
     private var artificalDelay: UInt64 {
         return UInt64(Double.random(min: 0.02, max: 5.0) * Double(NSEC_PER_SEC))
     }
@@ -17,6 +17,8 @@ public class SampleData: DataInterface {
     }
     
     public init() { }
+    
+    @MainActor
     public func fetchAccessToken(authCode: String, clientID: String, clientSecret: String, redirect: String) async throws -> String? {
         try await Task.sleep(nanoseconds: artificalDelay)
         return authCode

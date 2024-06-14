@@ -29,14 +29,14 @@ extension String {
     }
 }
 
-extension String: RawRepresentable {
+extension String: @retroactive RawRepresentable {
     public var rawValue: String { self }
     public init?(rawValue: String) {
         self = rawValue
     }
 }
 
-extension String: Identifiable {
+extension String: @retroactive Identifiable {
     public var id: String { rawValue }
 }
 

@@ -106,6 +106,7 @@ class NamedDraftPoster<D: NamedDraft>: DraftPoster<D> {
 }
 
 class ProfileDraftPoster: MDDraftPoster<AddressProfile.Draft> {
+    @MainActor
     override func throwingRequest() async throws {
         loading = true
         let _ = try await interface.saveAddressProfile(
@@ -247,7 +248,7 @@ class DataFetcher: Request {
 }
 
 @MainActor
-class AccountAuthDataFetcher: NSObject, ObservableObject {
+final class AccountAuthDataFetcher: NSObject, ObservableObject, Sendable {
     private var webSession: ASWebAuthenticationSession?
     
     private let client: ClientInfo

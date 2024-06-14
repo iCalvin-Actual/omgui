@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol DataInterface {
+public protocol DataInterface: Sendable {
     
     func authURL()
     -> URL?
@@ -15,6 +15,7 @@ public protocol DataInterface {
     func fetchThemes() 
     async throws -> [ThemeModel]
     
+    @MainActor
     func fetchAccessToken(
         authCode: String,
         clientID: String,

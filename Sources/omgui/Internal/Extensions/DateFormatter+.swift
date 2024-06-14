@@ -8,9 +8,8 @@
 import Foundation
 
 extension DateFormatter {
-    static let storage: ISO8601DateFormatter = {
-        return ISO8601DateFormatter()
-    }()
+    @MainActor
+    static let storage: ISO8601DateFormatter = ISO8601DateFormatter()
     static let short: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
