@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AddressContentButton: View {
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
     let contentType: AddressContent

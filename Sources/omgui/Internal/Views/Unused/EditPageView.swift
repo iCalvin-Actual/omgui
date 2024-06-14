@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EditPageView<D: MDDraft>: View {
-    @EnvironmentObject
+    @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
     @StateObject

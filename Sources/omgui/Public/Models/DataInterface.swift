@@ -9,10 +9,7 @@ import Foundation
 
 public protocol DataInterface {
     
-    func authURL(
-        with clientId: String,
-        redirect: String
-    )
+    func authURL()
     -> URL?
     
     func fetchThemes() 

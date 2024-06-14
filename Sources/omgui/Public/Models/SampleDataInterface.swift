@@ -12,7 +12,7 @@ public class SampleData: DataInterface {
         return UInt64(Double.random(min: 0.02, max: 5.0) * Double(NSEC_PER_SEC))
     }
     
-    public func authURL(with clientId: String, redirect: String) -> URL? {
+    public func authURL() -> URL? {
         URL(string: "https://home.omg.lol")
     }
     
