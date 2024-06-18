@@ -11,8 +11,8 @@ struct TabBarModel {
     var tabs: [NavigationItem] {
         [
             .account,
-            .addressBook,
-            .community
+            .community,
+            .search
         ]
     }
 }

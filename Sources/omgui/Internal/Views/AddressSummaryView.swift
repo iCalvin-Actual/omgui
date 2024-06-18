@@ -23,8 +23,8 @@ struct AddressSummaryView: View {
     @State
     var sidebarVisibility: NavigationSplitViewVisibility = .all
     
-    @State
-    var selectedPage: AddressContent
+    @SceneStorage("app.lol.address.page")
+    var selectedPage: AddressContent = .profile
     
     private var allPages: [AddressContent] {
         pages + more
@@ -48,9 +48,9 @@ struct AddressSummaryView: View {
     var body: some View {
         sizeAppropriateBody
             .background(Color(uiColor: .systemBackground))
-            .onChange(of: addressSummaryFetcher) { oldValue, newValue in
-                selectedPage = .profile
-            }
+//            .onChange(of: addressSummaryFetcher) { oldValue, newValue in
+//                selectedPage = .profile
+//            }
     }
     
     @ViewBuilder

@@ -25,7 +25,7 @@ struct SplitView: View {
         NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(.sidebar)) {
             Sidebar(selected: $selected, model: .init(sceneModel.addressBook))
         } detail: {
-            let destination = selected?.destination ?? .lists
+            let destination = selected?.destination ?? .account
             NavigationStack {
                 destinationView(destination)
             }

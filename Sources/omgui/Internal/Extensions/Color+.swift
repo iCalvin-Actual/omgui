@@ -69,6 +69,10 @@ extension Color {
     static let lolOrange: Color =       .init(hex: .hexOrange)
     static let lolAccent: Color =       .init(hex: "e34199")
     
+    static var lolRandom: [Color] {
+        String.lolRandom.map({ Color(hex: $0) })
+    }
+    
     static func lolRandom(_ input: String = .lolRandom.randomElement() ?? "000000") -> Color {
         let hash = input.hashValue
         let colors: [Color] = String.lolRandom.map({ .init(hex: $0) })

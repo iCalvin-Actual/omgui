@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-enum AddressContent: Identifiable, Codable {
+enum AddressContent: String, Identifiable {
+    
     var id: String { displayString }
     
     case profile

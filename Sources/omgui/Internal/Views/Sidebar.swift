@@ -10,10 +10,15 @@ import SwiftUI
 @MainActor
 struct Sidebar: View {
     
+    @SceneStorage("app.lol.address")
+    var actingAddress: AddressName = ""
+    
     @Environment(\.horizontalSizeClass)
     var horizontalSize
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
+    @Environment(AddressBook.self)
+    var addressBook: AddressBook
     
     @State
     var expandAddresses: Bool = false
@@ -23,6 +28,13 @@ struct Sidebar: View {
     
     @ObservedObject
     var sidebarModel: SidebarModel
+    
+    private var myAddresses: [AddressName] {
+        sceneModel.accountModel.myAddresses
+    }
+    private var myOtherAddresses: [AddressName] {
+        myAddresses.filter({ $0 != actingAddress })
+    }
     
     init(selected: Binding<NavigationItem?>, model: SidebarModel) {
         self._selected = selected
@@ -61,113 +73,138 @@ struct Sidebar: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .navigationDestination(for: NavigationDestination.self, destination: destinationView(_:))
-        .safeAreaInset(edge: .top) {
-            if sidebarModel.addressBook.accountModel.signedIn {
-                if !expandAddresses {
+        .safeAreaInset(edge: .bottom) {
+            VStack(alignment: .trailing, spacing: 8) {
+                if addressBook.accountModel.signedIn {
+                    if expandAddresses {
+                        HStack(alignment: .top, spacing: 2) {
+                            if !myOtherAddresses.isEmpty {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    ForEach(myOtherAddresses) { address in
+                                        Button {
+                                            withAnimation {
+                                                expandAddresses = false
+                                                actingAddress = address
+                                            }
+                                        } label: {
+                                            ThemedTextView(text: address.addressDisplayString)
+                                                .padding(.horizontal)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                        }
+                                        .padding(.vertical, 2)
+                                    }
+                                }
+                            } else {
+                                Spacer()
+                            }
+                        
+                            Button {
+                                withAnimation {
+                                    self.showConfirmLogout.toggle()
+                                }
+                            } label: {
+                                Text("Sign out")
+                                    .bold()
+                                    .font(.callout)
+                                    .fontDesign(.serif)
+                                    .padding(3)
+                            }
+                            .accentColor(.red)
+                            .buttonStyle(.borderedProminent)
+                            .buttonBorderShape(.roundedRectangle(radius: 6))
+                            .padding(.trailing, 24)
+                        }
+                        .transition(
+                            .asymmetric(
+                                insertion: .move(edge: .bottom).combined(with: .opacity),
+                                removal: .move(edge: .bottom).combined(with: .opacity)
+                            )
+                        )
+                    }
                     activeAddressLabel
                 } else {
-                    VStack(alignment: .trailing) {
-                        activeAddressLabel
-                        ForEach(sidebarModel.addressBook.myAddresses) { address in
-                            if address != sidebarModel.actingAddress {
-                                HStack {
-                                    Button {
-                                        withAnimation {
-                                            expandAddresses = false
-                                            sidebarModel.addressBook.setActiveAddress(address)
-                                        }
-                                    } label: {
-                                        ThemedTextView(text: address.addressDisplayString)
-                                            .padding(.horizontal)
-                                    }
-                                    Spacer()
-                                }
-                                .padding(.leading)
+                    Button {
+                        DispatchQueue.main.async {
+                            Task {
+                                await sidebarModel.addressBook.accountModel.authenticate()
                             }
                         }
-                        Button {
-                            self.showConfirmLogout.toggle()
-                        } label: {
-                            Text("Sign out")
+                    } label: {
+                        Label {
+                            Text("sign in")
+                                .font(.title3)
                                 .bold()
-                                .font(.callout)
                                 .fontDesign(.serif)
-                                .padding(3)
+                        } icon: {
+                            Image("prami", bundle: .module)
+                                .resizable()
+                                .frame(width: 33, height: 33)
                         }
-                        .accentColor(.red)
-                        .buttonStyle(.borderedProminent)
-                        .buttonBorderShape(.roundedRectangle(radius: 6))
-                        .padding(.horizontal)
+                        .frame(maxWidth: .infinity)
+                        .padding()
                     }
+                    .background(Color.lolRandom())
+                    .cornerRadius(16)
                 }
-            } else {
-                Button {
-                    DispatchQueue.main.async {
-                        Task {
-                            await sidebarModel.addressBook.accountModel.authenticate()
-                        }
-                    }
-                } label: {
-                    Label {
-                        Text("sgn in")
-                    } icon: {
-                        Image("prami", bundle: .module)
-                            .resizable()
-                            .frame(width: 33, height: 33)
-                    }
-                }
-                .bold()
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.lolRandom())
-                .cornerRadius(16)
-                .padding(.horizontal)
             }
+            .padding()
+            .background(Material.bar)
         }
-        .safeAreaInset(edge: .bottom, content: {
+        .safeAreaInset(edge: .top, content: {
             if !sidebarModel.addressBook.accountModel.signedIn {
                 Button {
                     selected = .account
                 } label: {
-                    Label {
-                        Text("mre abt omg.lol")
-                    } icon: {
-                        Image("prami", bundle: .module)
-                            .resizable()
-                            .frame(width: 33, height: 33)
-                    }
+                    Text("more about omg.lol?")
+                        .font(.title3)
+                        .bold()
+                        .fontDesign(.serif)
+                        .frame(maxWidth: .infinity)
+                        .padding()
                 }
-                .bold()
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.lolRandom())
+                .background(Color.lolBlue)
                 .cornerRadius(16)
-                .padding(.horizontal)
+                .padding()
+                .background(Material.bar)
             }
         })
-        .alert("Logout", isPresented: $showConfirmLogout) {
+        .alert("Are you sure?", isPresented: $showConfirmLogout, actions: {
             Button("Cancel", role: .cancel) { }
-            Button("Yes", role: .destructive) {
-                Task {
-                    await sidebarModel.addressBook.accountModel.logout()
+            Button(
+                "Yes",
+                role: .destructive,
+                action: {
+                    Task {
+                        await sidebarModel.addressBook.accountModel.logout()
+                    }
+                })
+        }, message: {
+            Text("Are you sure you want to sign out of omg.lol?")
+        })
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                HStack(spacing: 4) {
+                    IconView()
+                        .frame(height: 34)
+                    ThemedTextView(text: "app.lol")
                 }
             }
         }
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                ThemedTextView(text: "app.lol")
+        .onReceive(sceneModel.accountModel.objectWillChange, perform: { _ in
+            Task { @MainActor in
+                if actingAddress.isEmpty, let first = myAddresses.first {
+                    actingAddress = first
+                }
             }
-        }
+        })
     }
     
     @ViewBuilder
     var activeAddressLabel: some View {
         ListRow<AddressModel>(
-            model: .init(name: sidebarModel.actingAddress),
+            model: .init(name: actingAddress),
             preferredStyle: .minimal
         )
-        .padding(.horizontal)
-        .padding(.top)
         .onTapGesture {
             withAnimation {
                 expandAddresses.toggle()
@@ -176,16 +213,18 @@ struct Sidebar: View {
     }
     
     private func isActingAddress(_ address: AddressName) -> Bool {
-        sidebarModel.addressBook.actingAddress == address
+        actingAddress == address
     }
     
     @ViewBuilder
     private var addressPickerSection: some View {
-        if !sidebarModel.addressBook.myAddresses.isEmpty {
+        if !myAddresses.isEmpty {
             Section {
-                ForEach(sidebarModel.addressBook.myAddresses) { address in
+                ForEach(myAddresses) { address in
                     Button {
-                        sidebarModel.addressBook.setActiveAddress(address)
+                        Task {
+                            actingAddress = address
+                        }
                     } label: {
                         addressOption(address)
                     }

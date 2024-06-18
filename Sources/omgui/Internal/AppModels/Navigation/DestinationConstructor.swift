@@ -25,11 +25,6 @@ struct DestinationConstructor {
         switch destination {
         case .directory:
             DirectoryView(dataFetcher: addressBook.directoryFetcher)
-        case .lists:
-            AddressBookView(
-                addressBook: addressBook,
-                accountModel: accountModel
-            )
         case .community:
             CommunityView(addressBook: addressBook)
         case .address(let name):

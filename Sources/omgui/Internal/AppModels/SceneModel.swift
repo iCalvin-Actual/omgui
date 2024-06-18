@@ -30,10 +30,10 @@ class SceneModel {
         )
     }
     
-    init(fetchConstructor: FetchConstructor) {
+    init(actingAddress: AddressName, fetchConstructor: FetchConstructor) {
         let account = fetchConstructor.constructAccountModel()
         self.fetchConstructor = fetchConstructor
         self.accountModel = account
-        self.addressBook = AddressBook(accountModel: account, fetchConstructor: fetchConstructor)
+        self.addressBook = AddressBook(actingAddress: actingAddress, accountModel: account, fetchConstructor: fetchConstructor)
     }
 }

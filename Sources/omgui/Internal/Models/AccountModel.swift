@@ -27,7 +27,27 @@ class AccountModel: ObservableObject {
     @ObservedObject
     private var authenticationFetcher: AccountAuthDataFetcher
     
+    @ObservedObject
+    public var pinnedAddressFetcher: PinnedListDataFetcher
+    
     private var accountInfoFetcher: AccountInfoDataFetcher?
+    public var myAddressesFetcher: AccountAddressDataFetcher?
+    public let globalBlocklistFetcher: AddressBlockListDataFetcher
+    public let localBloclistFetcher: LocalBlockListDataFetcher
+    
+    var myAddresses: [AddressName] {
+        let fetchedAddresses = myAddressesFetcher?.listItems.map { $0.name } ?? []
+        guard !fetchedAddresses.isEmpty else {
+            return localAddresses
+        }
+        return fetchedAddresses
+    }
+    var globalBlocked: [AddressName] {
+        globalBlocklistFetcher.listItems.map { $0.name }
+    }
+    var localBlocked: [AddressName] {
+        localBloclistFetcher.listItems.map { $0.name }
+    }
     
     let interface: DataInterface
     
@@ -38,6 +58,21 @@ class AccountModel: ObservableObject {
     
     var requests: [AnyCancellable] = []
     
+    var publicProfileCache: [AddressName: AddressSummaryDataFetcher] = [:]
+    
+    var pinned: [AddressName] {
+        pinnedAddressFetcher.listItems.map { $0.name }
+    }
+    func isPinned(_ address: AddressName) -> Bool {
+        pinned.contains(address)
+    }
+    func pin(_ address: AddressName) {
+        pinnedAddressFetcher.pin(address)
+    }
+    func removePin(_ address: AddressName) {
+        pinnedAddressFetcher.removePin(address)
+    }
+    
     init(client: ClientInfo, interface: DataInterface) {
         self.authenticationFetcher = AccountAuthDataFetcher(
             client: client,
@@ -45,9 +80,14 @@ class AccountModel: ObservableObject {
         )
         
         self.interface = interface
+        self.pinnedAddressFetcher = PinnedListDataFetcher(interface: interface)
+        self.globalBlocklistFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: interface)
+        self.localBloclistFetcher = LocalBlockListDataFetcher(interface: interface)
+        
+        subscribe()
         
         Task {
-            subscribe()
+            await perform()
         }
     }
     
@@ -101,6 +141,13 @@ class AccountModel: ObservableObject {
             threadSafeSendUpdate()
             return
         }
+        myAddressesFetcher = AccountAddressDataFetcher(interface: interface, credential: authKey)
+        myAddressesFetcher?.objectWillChange.sink { [weak self] _ in
+            guard let self = self else { return }
+            self.handleAddresses(self.myAddresses)
+        }
+        .store(in: &requests)
+        
         self.accountInfoFetcher = self.constructAccountInfoFetcher("application", credential: self.authKey)
         self.accountInfoFetcher?.objectWillChange.sink { [self] _ in
             self.threadSafeSendUpdate()
@@ -121,7 +168,16 @@ class AccountModel: ObservableObject {
         threadSafeSendUpdate()
     }
     
+    func handleAddresses(_ incomingAddresses: [AddressName]) {
+        incomingAddresses.forEach { address in
+            publicProfileCache[address] = 
+            AddressSummaryDataFetcher(name: address, interface: interface)
+        }
+        threadSafeSendUpdate()
+    }
+    
     func threadSafeSendUpdate() {
+        objectWillChange.send()
     }
     
     var welcomeText: String {
@@ -149,5 +205,10 @@ class AccountModel: ObservableObject {
             return nil
         }
         return authKey
+    }
+    
+    var listItems: [AddressModel] {
+        get { myAddressesFetcher?.listItems ?? [] }
+        set { }
     }
 }

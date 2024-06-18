@@ -13,7 +13,6 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     var id: String { rawValue }
     
     case account
-    case addressBook
     case search
     case nowGarden
     case community
@@ -27,7 +26,6 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     var rawValue: String {
         switch self {
         case .account:                  return "account"
-        case .addressBook:              return "addressBook"
         case .search:                   return "search"
         case .nowGarden:                return "garden"
         case .pinnedAddress(let address):     return "pinned.\(address)"
@@ -43,7 +41,6 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         let splitString = rawValue.components(separatedBy: ".")
         switch splitString.first {
         case "account":     self = .account
-        case "addressBook": self = .addressBook
         case "search":      self = .search
         case "garden":      self = .nowGarden
         case "community":   self = .community
@@ -76,8 +73,6 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         switch self {
         case .account:
             return "Account"
-        case .addressBook:
-            return "Address Book"
         case .community:
             return "Community"
         case .following, .followingStatuses, .followingAddresses:
@@ -97,8 +92,6 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         switch self {
         case .account:
             return "at"
-        case .addressBook:
-            return "book.closed.fill"
         case .search:
             return "magnifyingglass"
         case .nowGarden:
@@ -131,8 +124,6 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         switch self {
         case .account:
             return .account
-        case .addressBook:
-            return .lists
         case .search:
             return .directory
         case .nowGarden:

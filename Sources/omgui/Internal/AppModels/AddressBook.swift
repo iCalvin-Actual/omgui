@@ -10,22 +10,11 @@ import SwiftUI
 
 @MainActor
 class AddressBook: ListDataFetcher<AddressModel> {
-//    @SceneStorage("app.lol.active")
-    var preferredAddress: AddressName = ""
     
-    var actingAddress: AddressName = "" {
-        didSet {
-            guard oldValue != actingAddress else { return }
-            Task {
-                await perform()
-            }
-        }
-    }
+    let actingAddress: AddressName
     
     @ObservedObject
     var accountModel: AccountModel
-    
-    private var publicProfileCache: [AddressName: AddressSummaryDataFetcher] = [:]
     
     public let directoryFetcher: AddressDirectoryDataFetcher
     public let gardenFetcher: NowGardenDataFetcher
@@ -33,29 +22,22 @@ class AddressBook: ListDataFetcher<AddressModel> {
     public var followingStatusLogFetcher: StatusLogDataFetcher?
     public var followingFetcher: AddressFollowingDataFetcher?
     public var blocklistFetcher: BlockListDataFetcher
-    public var pinnedAddressFetcher: PinnedListDataFetcher
-    
-    private var myAddressesFetcher: AccountAddressDataFetcher?
-    private let localBloclistFetcher: LocalBlockListDataFetcher
-    private let globalBlocklistFetcher: AddressBlockListDataFetcher
     
     let fetchConstructor: FetchConstructor
     
-    init(accountModel: AccountModel, fetchConstructor: FetchConstructor) {
+    init(actingAddress: AddressName, accountModel: AccountModel, fetchConstructor: FetchConstructor) {
         let interface = fetchConstructor.interface
         self.accountModel = accountModel
         self.fetchConstructor = fetchConstructor
+        self.actingAddress = actingAddress
         
         self.directoryFetcher = fetchConstructor.addressDirectoryDataFetcher()
         self.gardenFetcher = fetchConstructor.nowGardenFetcher()
         self.statusLogFetcher = fetchConstructor.generalStatusLog()
-        self.globalBlocklistFetcher = fetchConstructor.blockListFetcher(for: "app", credential: nil)
-        self.localBloclistFetcher = LocalBlockListDataFetcher(interface: interface)
-        self.pinnedAddressFetcher = PinnedListDataFetcher(interface: interface)
         
         self.blocklistFetcher = BlockListDataFetcher(
-            globalFetcher: globalBlocklistFetcher,
-            localFetcher: localBloclistFetcher,
+            globalFetcher: accountModel.globalBlocklistFetcher,
+            localFetcher: accountModel.localBloclistFetcher,
             addressFetcher: nil,
             interface: interface
         )
@@ -71,13 +53,6 @@ class AddressBook: ListDataFetcher<AddressModel> {
     }
     
     override func throwingRequest() async throws {
-        myAddressesFetcher = AccountAddressDataFetcher(interface: fetchConstructor.interface, credential: accountModel.authKey)
-        myAddressesFetcher?.objectWillChange.sink { [weak self] _ in
-            guard let self = self else { return }
-            self.handleAddresses(self.myAddresses)
-        }
-        .store(in: &requests)
-        
         blocklistFetcher = constructBlocklist()
         blocklistFetcher.objectWillChange.sink { [weak self] _ in
             guard let self = self else { return }
@@ -105,27 +80,8 @@ class AddressBook: ListDataFetcher<AddressModel> {
     
     public func handleAddresses(_ incomingAddresses: [AddressName]) {
         incomingAddresses.forEach { address in
-            publicProfileCache[address] = constructFetcher(for: address)
+            accountModel.publicProfileCache[address] = constructFetcher(for: address)
         }
-        guard !incomingAddresses.isEmpty else {
-            return
-        }
-        guard actingAddress.isEmpty || !incomingAddresses.contains(actingAddress) else {
-            return
-        }
-        let firstAddress = incomingAddresses.first!
-        Task { [weak self] in
-            guard let self = self else { return }
-            let preference = self.myAddresses.contains(self.preferredAddress) ? self.preferredAddress : firstAddress
-            self.setActiveAddress(preference)
-        }
-    }
-    
-    public func setActiveAddress(_ address: AddressName) {
-        if !address.isEmpty {
-            preferredAddress = address
-        }
-        actingAddress = address
     }
     
     public func profilePoster(for address: AddressName) -> ProfileDraftPoster? {
@@ -140,11 +96,11 @@ class AddressBook: ListDataFetcher<AddressModel> {
         fetchConstructor.addressDetailsFetcher(address)
     }
     public func addressSummary(_ address: AddressName) -> AddressSummaryDataFetcher {
-        if let model = publicProfileCache[address] {
+        if let model = accountModel.publicProfileCache[address] {
             return model
         } else {
             let model = constructFetcher(for: address)
-            publicProfileCache[address] = model
+            accountModel.publicProfileCache[address] = model
             return model
         }
     }
@@ -207,10 +163,10 @@ class AddressBook: ListDataFetcher<AddressModel> {
     }
     
     private var globalBlocked: [AddressName] {
-        globalBlocklistFetcher.listItems.map { $0.name }
+        accountModel.globalBlocklistFetcher.listItems.map { $0.name }
     }
     private var localBlocked: [AddressName] {
-        localBloclistFetcher.listItems.map { $0.name }
+        accountModel.localBloclistFetcher.listItems.map { $0.name }
     }
     
     private var addressBlocked: [AddressName] {
@@ -219,10 +175,10 @@ class AddressBook: ListDataFetcher<AddressModel> {
     
     public func constructBlocklist() -> BlockListDataFetcher {
         return BlockListDataFetcher(
-            globalFetcher: globalBlocklistFetcher,
-            localFetcher: localBloclistFetcher,
+            globalFetcher: accountModel.globalBlocklistFetcher,
+            localFetcher: accountModel.localBloclistFetcher,
             addressFetcher: {
-                if myAddresses.contains(actingAddress), let summary = try? addressPrivateSummary(actingAddress) {
+                if accountModel.myAddresses.contains(actingAddress), let summary = try? addressPrivateSummary(actingAddress) {
                     return summary.blockedFetcher
                 }
                 return nil
@@ -247,21 +203,21 @@ class AddressBook: ListDataFetcher<AddressModel> {
         if let addressFetcher = blocklistFetcher.addressBlocklistFetcher, let credential = accountModel.credential(for: actingAddress, in: self) {
             addressFetcher.block(address, credential: credential)
         }
-        localBloclistFetcher.insert(address)
+        accountModel.localBloclistFetcher.insert(address)
     }
     func unblock(_ address: AddressName) {
         if let addressFetcher = blocklistFetcher.addressBlocklistFetcher, let credential = accountModel.credential(for: actingAddress, in: self) {
             addressFetcher.unBlock(address, credential: credential)
         }
-        localBloclistFetcher.remove(address)
+        accountModel.localBloclistFetcher.remove(address)
     }
     
     var pinned: [AddressName] {
-        pinnedAddressFetcher.listItems.map { $0.name }
+        accountModel.pinnedAddressFetcher.listItems.map { $0.name }
     }
     
     var myAddresses: [AddressName] {
-        let fetchedAddresses = myAddressesFetcher?.listItems.map { $0.name } ?? []
+        let fetchedAddresses = accountModel.myAddressesFetcher?.listItems.map { $0.name } ?? []
         guard !fetchedAddresses.isEmpty else {
             return accountModel.localAddresses
         }
@@ -272,14 +228,14 @@ class AddressBook: ListDataFetcher<AddressModel> {
         pinned.contains(address)
     }
     func pin(_ address: AddressName) {
-        pinnedAddressFetcher.pin(address)
+        accountModel.pinnedAddressFetcher.pin(address)
     }
     func removePin(_ address: AddressName) {
-        pinnedAddressFetcher.removePin(address)
+        accountModel.pinnedAddressFetcher.removePin(address)
     }
     
     override var listItems: [AddressModel] {
-        get { myAddressesFetcher?.listItems ?? [] }
+        get { accountModel.myAddressesFetcher?.listItems ?? [] }
         set { }
     }
 }

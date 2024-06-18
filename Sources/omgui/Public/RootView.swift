@@ -19,26 +19,16 @@ class Router: ObservableObject {
 
 @MainActor
 struct RootView: View {
-    @Environment(\.horizontalSizeClass)
-    var horizontalSizeClass
+    @SceneStorage("app.lol.address")
+    var actingAddress: AddressName = ""
     
     let fetchConstructor: FetchConstructor
     
     var body: some View {
-        SplitView()
+        NavigationView()
             .environment(
-                SceneModel(fetchConstructor: fetchConstructor)
+                SceneModel(actingAddress: actingAddress, fetchConstructor: fetchConstructor)
             )
-    }
-    
-    @ViewBuilder
-    var appropriateNavigation: some View {
-        switch horizontalSizeClass {
-        case .compact:
-            TabBar()
-        default:
-            SplitView()
-        }
     }
 }
 
