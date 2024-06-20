@@ -69,15 +69,6 @@ struct StatusRowView: View {
             tappableIfNeeded
                 .padding(.bottom, 2)
                 .asCard(color: .lolRandom(model.displayEmoji), radius: 6)
-            
-            
-            if let caption = model.listCaption {
-                Text(caption)
-                    .frame(alignment: .trailing)
-                    .font(.caption2)
-                    .foregroundStyle(Color.gray)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-            }
         
             if let text = model.link?.absoluteString {
                 Button(action: {
@@ -144,9 +135,8 @@ struct StatusRowView: View {
 //                    + Text(" ").font(.largeTitle) +
              */
             Markdown(model.status)
-                .font(.system(.headline))
-                .fontWeight(.medium)
-                .fontDesign(.serif)
+                .font(.system(.body))
+                .fontDesign(.rounded)
                 .environment(\.colorScheme, .light)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .foregroundColor(.black)
@@ -193,10 +183,20 @@ struct StatusRowView: View {
                 VStack(alignment: .trailing, spacing: 0) {
                     if context != .profile {
                         AddressNameView(model.address, font: .title3)
+                            .multilineTextAlignment(.trailing)
+                            .lineLimit(3)
                             .foregroundColor(.black)
-                            .padding([.horizontal, .bottom], 4)
+                            .padding(.horizontal, 4)
+                    }
+                    if let caption = model.listCaption {
+                        Text(caption)
+                            .frame(alignment: .trailing)
+                            .font(.system(size: 10))
+                            .foregroundStyle(Color.gray)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                 }
+                .padding(.bottom, 4)
             }
         }
     }

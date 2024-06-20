@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Calvin Chestnut on 3/8/23.
 //
@@ -87,7 +87,7 @@ struct Sidebar: View {
                                                 actingAddress = address
                                             }
                                         } label: {
-                                            ThemedTextView(text: address.addressDisplayString)
+                                            ThemedTextView(text: address.addressDisplayString, font: .headline)
                                                 .padding(.horizontal)
                                                 .frame(maxWidth: .infinity, alignment: .leading)
                                         }
@@ -112,7 +112,7 @@ struct Sidebar: View {
                             .accentColor(.red)
                             .buttonStyle(.borderedProminent)
                             .buttonBorderShape(.roundedRectangle(radius: 6))
-                            .padding(.trailing, 12)
+                            .padding(.trailing, 4)
                         }
                         .transition(
                             .asymmetric(

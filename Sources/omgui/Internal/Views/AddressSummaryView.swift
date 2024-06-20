@@ -80,7 +80,7 @@ struct AddressSummaryView: View {
                 Menu {
                     AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
                 } label: {
-                    AsyncImage(url: addressSummaryFetcher.profileFetcher.imageURL) { image in
+                    AsyncImage(url: addressSummaryFetcher.addressName.addressIconURL) { image in
                         image.resizable()
                             .aspectRatio(contentMode: .fill)
                     } placeholder: {
