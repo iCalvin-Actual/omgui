@@ -23,6 +23,12 @@ extension DateFormatter {
         formatter.timeStyle = .short
         return formatter
     }()
+    static let shortDate: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .none
+        return formatter
+    }()
     
     static let monthYear: DateFormatter = {
         var formatter = DateFormatter()

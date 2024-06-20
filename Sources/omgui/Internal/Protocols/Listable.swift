@@ -23,7 +23,7 @@ extension Listable {
         guard let date = displayDate else {
             return nil
         }
-        return DateFormatter.monthYear.string(from: date)
+        return DateFormatter.shortDate.string(from: date)
     }
 }
 
