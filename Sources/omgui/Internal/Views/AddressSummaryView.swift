@@ -47,7 +47,7 @@ struct AddressSummaryView: View {
     
     var body: some View {
         sizeAppropriateBody
-            .background(Color(uiColor: .systemBackground))
+            .background(Color.lolBackground)
 //            .onChange(of: addressSummaryFetcher) { oldValue, newValue in
 //                selectedPage = .profile
 //            }
@@ -86,7 +86,6 @@ struct AddressSummaryView: View {
                     }
                     .frame(width: 44, height: 44)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-//                    .padding(.vertical, 8)
                 }
                 .padding(.trailing)
             }

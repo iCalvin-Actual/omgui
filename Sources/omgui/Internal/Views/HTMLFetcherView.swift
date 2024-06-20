@@ -32,7 +32,6 @@ struct HTMLFetcherView: View {
                     .background(Material.regular)
             }
         })
-        .ignoresSafeArea(.all, edges: .bottom)
         .sheet(item: $presentedURL, content: { url in
             SafariView(url: url)
                 .ignoresSafeArea(.all, edges: .bottom)

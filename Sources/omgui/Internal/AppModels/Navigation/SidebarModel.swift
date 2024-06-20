@@ -20,6 +20,7 @@ class SidebarModel: ObservableObject {
         case saved
         case weblog
         case comingSoon
+        case new
         
         var displayName: String {
             switch self {
@@ -37,6 +38,8 @@ class SidebarModel: ObservableObject {
                 return "blog.app.lol"
             case .comingSoon:
                 return "Coming Soon"
+            case .new:
+                return "New"
             }
         }
     }
@@ -62,7 +65,13 @@ class SidebarModel: ObservableObject {
     }
     
     var sections: [Section] {
-        [.status, .directory, .now]
+        var sections: [Section] = [.status, .directory, .now]
+        
+        if addressBook.accountModel.signedIn {
+            sections.append(.new)
+        }
+        
+        return sections
     }
     
     func items(for section: Section) -> [NavigationItem] {
@@ -70,6 +79,7 @@ class SidebarModel: ObservableObject {
         case .directory:
             var destinations: [NavigationItem] = [.search]
             if addressBook.accountModel.signedIn {
+                destinations.append(.editProfile)
                 destinations.append(.followingAddresses)
             }
             if !addressBook.viewableBlocklist.isEmpty {
@@ -81,9 +91,12 @@ class SidebarModel: ObservableObject {
             return [
             ]
         case .now:
-            let destinations = [
+            var destinations = [
                 NavigationItem.nowGarden
             ]
+            if addressBook.accountModel.signedIn {
+                destinations.insert(.editNow, at: 0)
+            }
             // Handle pinned
             return destinations
         case .status:
@@ -91,7 +104,7 @@ class SidebarModel: ObservableObject {
                 NavigationItem.community
             ]
             if addressBook.accountModel.signedIn {
-                destinations.append(.following)
+                destinations.insert(contentsOf: [.newStatus, .myStatuses, .following], at: 0)
             }
             return destinations
         default:

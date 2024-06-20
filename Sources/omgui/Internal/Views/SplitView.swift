@@ -22,17 +22,13 @@ struct SplitView: View {
     var visibility: NavigationSplitViewVisibility = .all
     
     var body: some View {
-        NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(.sidebar)) {
+        NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(.detail)) {
             Sidebar(selected: $selected, model: .init(sceneModel.addressBook))
         } detail: {
-            let destination = selected?.destination ?? .account
+            let item: NavigationItem = selected ?? (sceneModel.accountModel.signedIn ? .newStatus : .account)
+            let destination = item.destination
             NavigationStack {
                 destinationView(destination)
-            }
-        }
-        .onAppear {
-            if sizeClass != .compact && selected == nil {
-                selected = .account
             }
         }
     }

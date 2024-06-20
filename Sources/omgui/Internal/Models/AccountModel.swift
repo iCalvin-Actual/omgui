@@ -31,7 +31,10 @@ class AccountModel: ObservableObject {
     public var pinnedAddressFetcher: PinnedListDataFetcher
     
     private var accountInfoFetcher: AccountInfoDataFetcher?
+    
+    @Published
     public var myAddressesFetcher: AccountAddressDataFetcher?
+    
     public let globalBlocklistFetcher: AddressBlockListDataFetcher
     public let localBloclistFetcher: LocalBlockListDataFetcher
     

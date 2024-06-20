@@ -75,7 +75,7 @@ struct GardenView: View {
         .toolbar(content: {
             SortOrderMenu(sort: $sort, options: AddressModel.sortOptions)
         })
-        .listStyle(.plain)
+//        .listStyle(.plain)
     }
     
     @ViewBuilder

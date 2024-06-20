@@ -112,7 +112,7 @@ struct Sidebar: View {
                             .accentColor(.red)
                             .buttonStyle(.borderedProminent)
                             .buttonBorderShape(.roundedRectangle(radius: 6))
-                            .padding(.trailing, 24)
+                            .padding(.trailing, 12)
                         }
                         .transition(
                             .asymmetric(
@@ -126,6 +126,7 @@ struct Sidebar: View {
                     Button {
                         DispatchQueue.main.async {
                             Task {
+                                expandAddresses = false
                                 await sidebarModel.addressBook.accountModel.authenticate()
                             }
                         }
@@ -197,6 +198,7 @@ struct Sidebar: View {
                 }
             }
         })
+        .navigationTitle("")
     }
     
     @ViewBuilder
