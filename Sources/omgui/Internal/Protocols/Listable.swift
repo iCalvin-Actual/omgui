@@ -53,4 +53,5 @@ extension NowListing: Listable     {
     var listTitle: String     { owner.addressDisplayString }
     var listSubtitle: String  { url.replacingOccurrences(of: "https://", with: "") }
     var displayDate: Date?    { updated }
+    var iconURL: URL? { URL(string: "https://profiles.cache.lol/\(owner)/picture") }
 }

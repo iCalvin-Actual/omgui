@@ -48,17 +48,14 @@ struct AddressSummaryView: View {
     var body: some View {
         sizeAppropriateBody
             .background(Color.lolBackground)
-//            .onChange(of: addressSummaryFetcher) { oldValue, newValue in
-//                selectedPage = .profile
-//            }
     }
     
     @ViewBuilder
     var sizeAppropriateBody: some View {
-        VStack(spacing: 0) {
-            HStack {
+        VStack(spacing: -3) {
+            HStack(alignment: .bottom) {
                 ScrollView(.horizontal) {
-                    HStack(spacing: 0) {
+                    HStack(alignment: .bottom, spacing: 0) {
                         ForEach(allPages) { page in
                             Button(action: {
                                 withAnimation {
@@ -69,10 +66,15 @@ struct AddressSummaryView: View {
                                     .font(.subheadline)
                                     .fontDesign(.rounded)
                                     .bold()
-                                    .frame(minWidth: 44, maxWidth: selectedPage == page ? .infinity : nil)
+                                    .padding(8)
+                                    .padding(.bottom, 6)
+                                    .frame(minWidth: 44, maxHeight: .infinity, alignment: .bottom)
+                                    .background(selectedPage == page ? Color.accentColor : Color.clear)
+                                    .clipShape(UnevenRoundedRectangle(cornerRadii: .init(topLeading: 12, topTrailing: 12), style: .circular))
                             }
                             .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
                         }
+                        .padding(.horizontal, 6)
                     }
                 }
                 Menu {
@@ -87,7 +89,7 @@ struct AddressSummaryView: View {
                     .frame(width: 44, height: 44)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .padding(.trailing)
+                .padding([.trailing, .bottom], 6)
             }
             .frame(height: 50)
             

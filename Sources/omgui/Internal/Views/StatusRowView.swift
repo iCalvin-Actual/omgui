@@ -66,28 +66,25 @@ struct StatusRowView: View {
         VStack(alignment: .leading, spacing: 0) {
             buttonIfNeeded
             
-            VStack(alignment: .trailing, spacing: 1) {
-                tappableIfNeeded
-                
-                if let caption = model.listCaption {
-                    Text(caption)
-                        .font(.caption2)
-                        .foregroundStyle(Color.gray)
-                }
-            }
-            .asCard(color: .lolRandom(model.displayEmoji), radius: 6)
-            .padding(.bottom, 2)
+            tappableIfNeeded
+                .padding(.bottom, 2)
+                .asCard(color: .lolRandom(model.displayEmoji), radius: 6)
             
-            HStack(alignment: .bottom) {
-                if let text = model.link?.absoluteString {
-                    Button(action: {
-                        print("Show Link")
-                    }, label: {
-                        Label(text, systemImage: "link")
-                    })
-                }
-                Spacer()
-                    .frame(height: 4)
+            
+            if let caption = model.listCaption {
+                Text(caption)
+                    .frame(alignment: .trailing)
+                    .font(.caption2)
+                    .foregroundStyle(Color.gray)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+        
+            if let text = model.link?.absoluteString {
+                Button(action: {
+                    print("Show Link")
+                }, label: {
+                    Label(text, systemImage: "link")
+                })
             }
         }
         .sheet(item: $destination, content: { destination in

@@ -27,7 +27,7 @@ struct GardenView: View {
     var menuBuilder: ContextMenuBuilder<NowListing>?
     
     var body: some View {
-        ListView<NowListing, ListRow<NowListing>, EmptyView>(dataFetcher: fetcher, rowBuilder: { ListRow(model: $0) })
+        ListView<NowListing, GardenItemView, EmptyView>(dataFetcher: fetcher, rowBuilder: { GardenItemView(model: $0) })
             .toolbarRole(.editor)
     }
     
@@ -63,45 +63,54 @@ struct GardenView: View {
     
     @ViewBuilder
     var listBody: some View {
-        List(selection: $selected) {
-            ForEach(fetcher.listItems, content: { item in
-                rowView(item)
-            })
-        }
-        .refreshable(action: {
-            await fetcher.perform()
-        })
-        .searchable(text: $queryString, placement: .automatic)
-        .toolbar(content: {
-            SortOrderMenu(sort: $sort, options: AddressModel.sortOptions)
-        })
-//        .listStyle(.plain)
+        ListView<NowListing, GardenItemView, EmptyView>(dataFetcher: fetcher, rowBuilder: { GardenItemView(model: $0) })
     }
+}
+
+struct GardenItemView: View {
+    var model: NowListing
     
-    @ViewBuilder
-    func rowView(_ item: NowListing) -> some View {
-        rowBuilder(item)
-            .tag(item.addressName)
-            .listRowSeparator(.hidden, edges: .all)
-            .contextMenu(menuItems: {
-                self.menuBuilder?.contextMenu(for: item, sceneModel: sceneModel)
-            })
-    }
-    
-    @ViewBuilder
-    func rowBuilder(_ item: NowListing) -> some View {
-        switch sizeClass {
-        case .compact:
-            ZStack(alignment: .leading) {
-                NavigationLink(value: NavigationDestination.now(item.addressName)) {
-                    EmptyView()
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Text(model.listTitle)
+                    .font(.title3)
+                    .bold()
+                    .foregroundColor(.black)
+                if let icon = model.iconURL {
+                    Spacer()
+                    
+                    AsyncImage(url: icon) { image in
+                        image.resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Color.lolRandom(model.addressName)
+                    }
+                    .frame(width: 55, height: 55)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .opacity(0)
-                
-                ListRow(model: item)
             }
-        default:
-            ListRow(model: item)
+            
+            let subtitle = model.listSubtitle
+            let caption = model.listCaption ?? ""
+            let hasMoreText: Bool = !subtitle.isEmpty || !caption.isEmpty
+            if hasMoreText {
+                HStack(alignment: .bottom) {
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .fontDesign(.monospaced)
+                        .foregroundColor(.black.opacity(0.8))
+                        .bold()
+                    Spacer()
+                    Text(caption)
+                        .foregroundColor(.gray.opacity(0.6))
+                        .font(.subheadline)
+                        .fontDesign(.rounded)
+                }
+            }
         }
+        .asCard(color: .lolRandom(model.listTitle), padding: 4, radius: 8)
+        .fontDesign(.serif)
+        .padding(2)
     }
 }

@@ -7,6 +7,20 @@
 
 import SwiftUI
 
+struct AppropriateDirectoryView: View {
+    @ObservedObject
+    var fetcher: AddressDirectoryDataFetcher
+    
+    var body: some View {
+        ListView<AddressModel, ListRow, EmptyView>(
+            context: .column,
+            filters: .everyone,
+            dataFetcher: fetcher,
+            rowBuilder: { _ in return nil as ListRow<AddressModel>?}
+        )
+    }
+}
+
 @MainActor
 struct DirectoryView: View {
     @ObservedObject

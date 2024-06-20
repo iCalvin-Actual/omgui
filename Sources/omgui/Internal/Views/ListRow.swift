@@ -43,7 +43,7 @@ struct ListRow<T: Listable>: View {
         case .smaller:
             return 0
         case .standard:
-            return 2
+            return 0
         }
     }
     
@@ -52,10 +52,10 @@ struct ListRow<T: Listable>: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: verticalPadding) {
             HStack {
                 Text(model.listTitle)
-                    .font(.title)
+                    .font(.headline)
                     .bold()
                     .foregroundColor(.black)
                 if let icon = model.iconURL {
@@ -69,7 +69,6 @@ struct ListRow<T: Listable>: View {
                     }
                     .frame(width: 55, height: 55)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal, 8)
                 }
             }
             .padding(.vertical, verticalPadding)
@@ -81,20 +80,19 @@ struct ListRow<T: Listable>: View {
             if hasMoreText {
                 HStack(alignment: .bottom) {
                     Text(subtitle)
-                        .font(.headline)
+                        .font(.subheadline)
                         .foregroundColor(.black.opacity(0.8))
                         .bold()
                     Spacer()
                     Text(caption)
                         .foregroundColor(.gray.opacity(0.6))
-                        .font(.subheadline)
+                        .font(.footnote)
                 }
-                .padding(.trailing)
+                .padding(.trailing, trailingPadding)
             }
         }
-        .padding(4)
-        .asCard(color: .lolRandom(model.listTitle), radius: 8)
+        .asCard(color: .lolRandom(model.listTitle), padding: 4, radius: 8)
         .fontDesign(.serif)
-        .padding(4)
+        .padding(2)
     }
 }

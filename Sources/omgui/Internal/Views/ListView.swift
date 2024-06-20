@@ -75,6 +75,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
                     }
                 }
             })
+            .toolbarBackgroundVisibility(.visible, for: .navigationBar)
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("")
             .toolbar {

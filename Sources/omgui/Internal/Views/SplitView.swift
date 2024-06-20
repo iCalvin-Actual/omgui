@@ -16,7 +16,7 @@ struct SplitView: View {
     @Environment(\.horizontalSizeClass)
     var sizeClass
     
-    @State
+    @SceneStorage("app.lol.sidebar")
     var selected: NavigationItem?
     @State
     var visibility: NavigationSplitViewVisibility = .all

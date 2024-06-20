@@ -148,7 +148,8 @@ struct Sidebar: View {
                     .cornerRadius(16)
                 }
             }
-            .padding()
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             .background(Material.bar)
         }
         .safeAreaInset(edge: .top, content: {
