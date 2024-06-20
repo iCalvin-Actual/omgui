@@ -90,6 +90,8 @@ struct AddressSummaryView: View {
                 .padding(.trailing)
             }
             .frame(height: 60)
+            .background(Material.bar)
+            
             destination(selectedPage)
         }
     }

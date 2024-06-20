@@ -112,6 +112,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
     @ViewBuilder
     var compactBody: some View {
         searchableList
+            .listRowBackground(Color.clear)
     }
     
     @ViewBuilder
@@ -150,19 +151,8 @@ struct ListView<T: Listable, V: View, H: View>: View {
     @ViewBuilder
     var list: some View {
         List(selection: $selected) {
-            if let headerBuilder = headerBuilder {
-                Section {
-                    headerBuilder()
-                        .listRowSeparator(.hidden)
-                }
-                Section(dataFetcher.title) {
-                    listContent
-                        .padding(.horizontal)
-                }
-            } else {
-                listContent
-                    .padding(.horizontal)
-            }
+            listItems
+                .listRowBackground(Color.clear)
         }
         .refreshable(action: {
             await dataFetcher.perform()
@@ -174,6 +164,23 @@ struct ListView<T: Listable, V: View, H: View>: View {
             }
             selected = dataFetcher.listItems.first
         })
+    }
+    
+    @ViewBuilder
+    var listItems: some View {
+        if let headerBuilder = headerBuilder {
+            Section {
+                headerBuilder()
+                    .listRowSeparator(.hidden)
+            }
+            Section(dataFetcher.title) {
+                listContent
+                    .padding(.horizontal)
+            }
+        } else {
+            listContent
+                .padding(.horizontal)
+        }
     }
     
     @ViewBuilder
