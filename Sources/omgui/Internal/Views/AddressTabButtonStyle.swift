@@ -14,10 +14,10 @@ struct AddressTabStyle: ButtonStyle {
         configuration.label
             .foregroundColor(isActive ? .white : .primary)
             .bold(isActive)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 8)
             .frame(maxHeight: .infinity)
             .background(isActive ? Color(uiColor: UIColor.tintColor) : .clear)
-            .clipShape(UnevenRoundedRectangle(cornerRadii: .init(topLeading: 20, topTrailing: 20), style: .circular))
+            .clipShape(UnevenRoundedRectangle(cornerRadii: .init(topLeading: 24, topTrailing: 24), style: .circular))
     }
 }
 

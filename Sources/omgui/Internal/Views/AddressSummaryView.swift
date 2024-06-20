@@ -66,14 +66,14 @@ struct AddressSummaryView: View {
                                 }
                             }) {
                                 Text(page.displayString)
-                                    .font(.callout)
+                                    .font(.subheadline)
                                     .fontDesign(.rounded)
                                     .bold()
+                                    .frame(minWidth: 44, maxWidth: selectedPage == page ? .infinity : nil)
                             }
                             .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
                         }
                     }
-                    .padding(.horizontal)
                 }
                 Menu {
                     AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
@@ -89,8 +89,7 @@ struct AddressSummaryView: View {
                 }
                 .padding(.trailing)
             }
-            .frame(height: 60)
-            .background(Material.bar)
+            .frame(height: 50)
             
             destination(selectedPage)
         }

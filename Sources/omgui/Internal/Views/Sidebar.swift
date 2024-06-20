@@ -188,9 +188,6 @@ struct Sidebar: View {
                     IconView()
                         .frame(height: 34)
                     ThemedTextView(text: "app.lol")
-                        .foregroundStyle(
-                            LinearGradient(colors: Color.lolRandom, startPoint: 0, endPoint: 1)
-                        )
                 }
             }
         }

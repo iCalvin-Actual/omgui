@@ -118,6 +118,7 @@ extension PasteModel: StringSortable {
     static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
+            .newestFirst,
             .alphabet
         ]
     }
@@ -129,6 +130,7 @@ extension PURLModel: StringSortable {
     static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
+            .newestFirst,
             .alphabet
         ]
     }
