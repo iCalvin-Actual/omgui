@@ -66,7 +66,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
     }
     
     var body: some View {
-        sizeAppropriateBody
+        toolbarAwareBody
             .onAppear(perform: {
                 if !dataFetcher.loading {
                     Task {
@@ -74,7 +74,6 @@ struct ListView<T: Listable, V: View, H: View>: View {
                     }
                 }
             })
-            .toolbarBackgroundVisibility(.visible, for: .navigationBar)
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("")
             .toolbar {
@@ -91,6 +90,16 @@ struct ListView<T: Listable, V: View, H: View>: View {
                     }
                 }
             }
+    }
+    
+    @ViewBuilder
+    var toolbarAwareBody: some View {
+        if #available(iOS 18.0, *) {
+            sizeAppropriateBody
+                .toolbarBackgroundVisibility(.visible, for: .navigationBar)
+        } else {
+            sizeAppropriateBody
+        }
     }
     
     @ViewBuilder
