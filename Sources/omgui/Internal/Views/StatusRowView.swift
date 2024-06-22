@@ -67,9 +67,9 @@ struct StatusRowView: View {
         VStack(alignment: .leading, spacing: 0) {
             buttonIfNeeded
             
-            tappableIfNeeded
+            rowBody
                 .padding(.bottom, 2)
-                .asCard(color: .lolRandom(model.displayEmoji), radius: 6)
+                .asCard(backgroundColor: .lolRandom(model.displayEmoji), radius: 6)
         
             if let text = model.link?.absoluteString {
                 Button(action: {
@@ -111,21 +111,7 @@ struct StatusRowView: View {
     }
     
     @ViewBuilder
-    var tappableIfNeeded: some View {
-        if context != .column, !imageLinks.isEmpty {
-            Button {
-                showURLs.toggle()
-            } label: {
-                tappableBody
-            }
-            .buttonStyle(.plain)
-        } else {
-            tappableBody
-        }
-    }
-    
-    @ViewBuilder
-    var tappableBody: some View {
+    var rowBody: some View {
         Group {
             /*
              This was tricky to set up
@@ -135,8 +121,9 @@ struct StatusRowView: View {
 //                        .font(.system(size: 44))
 //                    + Text(" ").font(.largeTitle) +
              */
-            MarkdownContentView(source: model, content: model.status)
+            appropriateMarkdown
                 .font(.system(.body))
+                .fontWeight(.medium)
                 .fontDesign(.rounded)
                 .environment(\.colorScheme, .light)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -144,6 +131,18 @@ struct StatusRowView: View {
         }
         .lineLimit(context == .column ? 5 : nil)
         .multilineTextAlignment(.leading)
+    }
+    
+    @ViewBuilder
+    var appropriateMarkdown: some View {
+        switch context {
+        case .detail:
+            MarkdownContentView(source: model, content: model.status)
+        case .column:
+            Markdown(model.status)
+        case .profile:
+            Markdown(model.status)
+        }
     }
     
     @ViewBuilder
@@ -194,11 +193,11 @@ struct StatusRowView: View {
                             .multilineTextAlignment(.trailing)
                             .lineLimit(3)
                             .foregroundColor(.black)
-                            .padding(.horizontal, 4)
                     }
                 }
                 .padding(.vertical, 4)
             }
+            .padding(.horizontal, 2)
         }
     }
 }

@@ -52,14 +52,12 @@ struct AddressContentButton: View {
                         }
                         .frame(minWidth: 55)
                         .padding(8)
-                        .foregroundColor(.black)
                         .background(contentType.color)
                         .cornerRadius(12, antialiased: true)
                     }
                 }
             }
             .padding(8)
-            .foregroundColor(.black)
             .background(contentType.color)
             .cornerRadius(12, antialiased: true)
         }

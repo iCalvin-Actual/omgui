@@ -20,6 +20,9 @@ struct MarkdownContentView: View {
     let source: MarkdownSourceProvider?
     let content: String?
     
+    @Environment(\.viewContext)
+    var context: ViewContext
+    
     @State
     var presentedURL: URL?
     
@@ -61,6 +64,9 @@ struct MarkdownContentView: View {
                     .environment(
                         \.openURL,
                          OpenURLAction { url in
+                             guard context != .column else {
+                                 return .systemAction
+                             }
                              Task {
                                  presentedURL = url
                              }

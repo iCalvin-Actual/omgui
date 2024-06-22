@@ -55,9 +55,8 @@ struct ListRow<T: Listable>: View {
         VStack(alignment: .leading, spacing: verticalPadding) {
             HStack {
                 Text(model.listTitle)
-                    .font(.headline)
+                    .font(.title3)
                     .bold()
-                    .foregroundColor(.black)
                 if let icon = model.iconURL {
                     Spacer()
                     
@@ -80,13 +79,13 @@ struct ListRow<T: Listable>: View {
             if hasMoreText {
                 HStack(alignment: .bottom) {
                     Text(subtitle)
-                        .font(.subheadline)
+                        .font(.headline)
                         .foregroundColor(.black.opacity(0.8))
                         .bold()
                     Spacer()
                     Text(caption)
                         .foregroundColor(.gray.opacity(0.6))
-                        .font(.footnote)
+                        .font(.subheadline)
                 }
                 .padding(.trailing, trailingPadding)
             }

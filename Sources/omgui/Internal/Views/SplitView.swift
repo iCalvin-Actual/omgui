@@ -21,8 +21,15 @@ struct SplitView: View {
     @State
     var visibility: NavigationSplitViewVisibility = .all
     
+    var preferredColumn: NavigationSplitViewColumn {
+        guard let selected else {
+            return .sidebar
+        }
+        return .detail
+    }
+    
     var body: some View {
-        NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(.detail)) {
+        NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(preferredColumn)) {
             Sidebar(selected: $selected, model: .init(sceneModel.addressBook))
                 .environment(\.viewContext, .column)
         } detail: {
@@ -31,7 +38,7 @@ struct SplitView: View {
             NavigationStack {
                 destinationView(destination)
             }
-            .environment(\.viewContext, .detail)
+            .environment(\.viewContext, sizeClass == .regular ? .detail : .column)
         }
     }
     

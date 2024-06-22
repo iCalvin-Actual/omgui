@@ -9,11 +9,13 @@ import SwiftUI
 
 struct CardViewModifier: ViewModifier {
     let color: Color
+    let background: Color?
     let padding: CGFloat
     let radius: CGFloat
     
-    init(color: Color = .lolRandom(), padding: CGFloat, radius: CGFloat) {
+    init(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat, radius: CGFloat) {
         self.color = color
+        self.background = backgroundColor
         self.padding = padding
         self.radius = radius
     }
@@ -22,29 +24,31 @@ struct CardViewModifier: ViewModifier {
             content
                 .frame(maxWidth: .infinity)
                 .padding(padding)
-                .background(color)
+                .background(background ?? Color.clear)
+                .background(Material.regular)
+                .foregroundStyle(color)
                 .cornerRadius(radius)
                 .shadow(radius: 4, y: 2)
     }
 }
 
 extension HStack {
-    func asCard(color: Color = .lolRandom(), padding: CGFloat = 8, radius: CGFloat = 0) -> some View {
-        self.modifier(CardViewModifier(color: color, padding: padding, radius: radius))
+    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 8, radius: CGFloat = 0) -> some View {
+        self.modifier(CardViewModifier(color: color, backgroundColor: backgroundColor, padding: padding, radius: radius))
     }
 }
 extension VStack {
-    func asCard(color: Color = .lolRandom(), padding: CGFloat = 8, radius: CGFloat = 0) -> some View {
-        self.modifier(CardViewModifier(color: color, padding: padding, radius: radius))
+    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 8, radius: CGFloat = 0) -> some View {
+        self.modifier(CardViewModifier(color: color, backgroundColor: backgroundColor, padding: padding, radius: radius))
     }
 }
 extension View {
-    func asCard(color: Color = .lolRandom(), padding: CGFloat = 8, radius: CGFloat = 0) -> some View {
+    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 8, radius: CGFloat = 0) -> some View {
         HStack {
             self
             Spacer(minLength: 0)
         }
-        .asCard(color: color, padding: padding, radius: radius)
+        .asCard(color: color, backgroundColor: backgroundColor, padding: padding, radius: radius)
     }
 }
 
