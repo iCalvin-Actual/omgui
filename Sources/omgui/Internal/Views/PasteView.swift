@@ -12,8 +12,6 @@ struct PasteView: View {
     @ObservedObject
     var fetcher: AddressPasteDataFetcher
     
-    var context: ViewContext
-    
     var body: some View {
         VStack(alignment: .leading) {
             Group {

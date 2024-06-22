@@ -14,7 +14,8 @@ struct ListView<T: Listable, V: View, H: View>: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    let context: ViewContext
+    @Environment(\.viewContext)
+    var context: ViewContext
     let filters: [FilterOption]
     
     let allowSearch: Bool
@@ -39,7 +40,6 @@ struct ListView<T: Listable, V: View, H: View>: View {
     var menuBuilder: ContextMenuBuilder<T> = .init()
     
     init(
-        context: ViewContext = .column,
         filters: [FilterOption] = .everyone,
         allowSearch: Bool = true,
         allowFilter: Bool = true,
@@ -52,7 +52,6 @@ struct ListView<T: Listable, V: View, H: View>: View {
         self.allowFilter = allowFilter
         self.dataFetcher = dataFetcher
         self.rowBuilder = rowBuilder
-        self.context = context
         self.headerBuilder = headerBuilder
     }
     
@@ -131,9 +130,11 @@ struct ListView<T: Listable, V: View, H: View>: View {
         HStack(spacing: 0) {
             compactBody
                 .frame(maxWidth: 330)
+                .environment(\.viewContext, .column)
             GeometryReader { proxy in
                 regularBodyContent
                     .frame(maxWidth: .infinity)
+                    .environment(\.viewContext, .detail)
                     .environment(\.horizontalSizeClass, proxy.size.width > 500 ? .regular : .compact)
             }
         }
@@ -154,6 +155,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
         List(selection: $selected) {
             listItems
                 .listRowBackground(Color.clear)
+                .padding(.vertical, 4)
         }
         .refreshable(action: {
             await dataFetcher.perform()

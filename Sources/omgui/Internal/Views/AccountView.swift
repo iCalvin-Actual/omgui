@@ -31,7 +31,7 @@ struct AccountView: View {
     var body: some View {
         NavigationStack {
             if accountModel.signedIn {
-                AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(addressBook.actingAddress), context: .detail, allowEditing: true, selectedPage: .profile)
+                AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(addressBook.actingAddress), allowEditing: true, selectedPage: .profile)
             } else {
                 signedOutHeader
                 
@@ -204,6 +204,7 @@ struct AccountView: View {
                 .background(Color.lolOrange)
             }
         }
+        .environment(\.viewContext, ViewContext.detail)
         .sheet(isPresented: $presentUpsell) {
             UpsellView()
         }

@@ -17,7 +17,6 @@ struct AddressSummaryView: View {
     @ObservedObject
     var addressSummaryFetcher: AddressSummaryDataFetcher
     
-    var context: ViewContext
     var allowEditing: Bool
     
     @State

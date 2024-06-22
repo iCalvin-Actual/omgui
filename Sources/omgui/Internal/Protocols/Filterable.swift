@@ -7,11 +7,57 @@
 
 import Foundation
 
-enum FilterOption {
+enum FilterOption: Equatable, RawRepresentable {
+    var rawValue: String {
+        switch self {
+        case .recent(let interval):
+            return "interval.\(interval)"
+        case .query(let query):
+            return "query.\(query)"
+        case .none:
+            return ""
+        case .notBlocked:
+            return "notBlocked"
+        case .mine:
+            return "mine"
+        }
+    }
+    
+    init?(rawValue: String) {
+        let splitString = rawValue.components(separatedBy: ".")
+        switch splitString.first {
+        case "interval":
+            guard splitString.count > 1 else {
+                return nil
+            }
+            let joined = splitString.dropFirst().joined(separator: ".")
+            guard let double = TimeInterval(joined) else {
+                return nil
+            }
+            self = .recent(double)
+        case "query":
+            guard splitString.count > 1 else {
+                return nil
+            }
+            let joined = splitString.dropFirst().joined(separator: ".")
+            self = .query(joined)
+        case "notBlocked":
+            self = .notBlocked
+        case "mine":
+            self = .mine
+        case "":
+            self = .none
+        default:
+            return nil
+        }
+    }
+    
 //    case following
     case recent(TimeInterval)
     case notBlocked
     case query(String)
+    case mine
+    case none
 }
 
 extension Array<FilterOption> {
@@ -71,6 +117,8 @@ extension Filterable {
     @MainActor
     func include(with filter: FilterOption, addressBook: AddressBook) -> Bool {
         switch filter {
+        case .none:
+            return true
 //        case .following:
 //            guard !addressBook.following.contains(addressName) else {
 //                return false
@@ -94,6 +142,8 @@ extension Filterable {
             if Date().timeIntervalSince(date) > interval {
                 return false
             }
+        case .mine:
+            return addressBook.myAddresses.contains(addressName)
         }
         return true
     }

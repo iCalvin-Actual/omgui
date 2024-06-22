@@ -53,7 +53,7 @@ class FetchConstructor {
     }
     
     func generalStatusLog() -> StatusLogDataFetcher {
-        StatusLogDataFetcher(interface: interface)
+        StatusLogDataFetcher(title: "statusLog", interface: interface)
     }
     
     func nowGardenFetcher() -> NowGardenDataFetcher {

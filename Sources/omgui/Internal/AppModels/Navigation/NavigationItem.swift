@@ -181,6 +181,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return .address(name)
         case .blocked:
             return .blocked
+        case .myStatuses:
+            return .myStatuses
         default:
             return .account
         }

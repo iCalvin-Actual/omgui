@@ -24,11 +24,11 @@ struct DestinationConstructor {
         let destination = destination ?? .community
         switch destination {
         case .directory:
-            AppropriateDirectoryView(fetcher: addressBook.directoryFetcher)
+            DirectoryView(fetcher: addressBook.directoryFetcher)
         case .community:
             CommunityView(addressBook: addressBook)
         case .address(let name):
-            AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), context: .profile, allowEditing: addressBook.actingAddress == name, selectedPage: .profile)
+            AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), allowEditing: addressBook.actingAddress == name, selectedPage: .profile)
                 .toolbarRole(.editor)
         case .webpage(let name):
             AddressProfileView(fetcher: addressBook.addressSummary(name).profileFetcher)
@@ -44,26 +44,28 @@ struct DestinationConstructor {
             }
         case .followingStatuses:
             if let fetcher = addressBook.followingStatusLogFetcher {
-                StatusList(fetcher: fetcher, context: .column)
+                StatusList(fetcher: fetcher)
             }
         case .addressFollowing(let name):
             ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetchConstructor.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .nowGarden:
             GardenView(fetcher: addressBook.gardenFetcher)
         case .pastebin(let address):
-            AddressPasteView(fetcher: addressBook.addressSummary(address).pasteFetcher, context: .profile)
+            AddressPasteView(fetcher: addressBook.addressSummary(address).pasteFetcher)
         case .purls(let address):
-            AddressPURLsView(fetcher: addressBook.addressSummary(address).purlFetcher, context: .profile)
+            AddressPURLsView(fetcher: addressBook.addressSummary(address).purlFetcher)
         case .purl(let address, title: let title):
-            PURLView(fetcher: fetchConstructor.addressPURLFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)), context: .profile)
+            PURLView(fetcher: fetchConstructor.addressPURLFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
         case .paste(let address, title: let title):
-            PasteView(fetcher: fetchConstructor.addressPasteFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)), context: .profile)
+            PasteView(fetcher: fetchConstructor.addressPasteFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
         case .statusLog(let address):
-            StatusList(fetcher: addressBook.addressSummary(address).statusFetcher, context: .profile)
+            StatusList(fetcher: addressBook.addressSummary(address).statusFetcher)
         case .status(let address, id: let id):
             StatusView(fetcher: fetchConstructor.statusFetcher(id, from: address))
         case .account:
             AccountView(addressBook: addressBook, accountModel: accountModel)
+        case .myStatuses:
+            MyStatusesView(addressBook: addressBook, accountModel: accountModel)
 //        case .editPURL(let address, title: let title):
 //            if let credential = accountModel.credential(for: address, in: addressBook) {
 //                NamedItemDraftView(fetcher: fetchConstructor.draftPurlPoster(title, for: address, credential: credential))

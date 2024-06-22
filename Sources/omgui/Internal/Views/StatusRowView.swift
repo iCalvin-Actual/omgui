@@ -24,7 +24,8 @@ struct StatusRowView: View {
     private var zoom = 1.0
     
     let model: StatusModel
-    let context: ViewContext
+    @Environment(\.viewContext)
+    var context: ViewContext
     
     var imageLinks: [SharePacket] {
         func extractImageNamesAndURLs(from markdown: String) -> [(name: String, url: URL)] {
@@ -134,7 +135,7 @@ struct StatusRowView: View {
 //                        .font(.system(size: 44))
 //                    + Text(" ").font(.largeTitle) +
              */
-            Markdown(model.status)
+            MarkdownContentView(source: model, content: model.status)
                 .font(.system(.body))
                 .fontDesign(.rounded)
                 .environment(\.colorScheme, .light)
@@ -180,14 +181,7 @@ struct StatusRowView: View {
                 Text(model.displayEmoji)
                     .font(.system(size: 42))
                 Spacer()
-                VStack(alignment: .trailing, spacing: 0) {
-                    if context != .profile {
-                        AddressNameView(model.address, font: .title3)
-                            .multilineTextAlignment(.trailing)
-                            .lineLimit(3)
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 4)
-                    }
+                VStack(alignment: .trailing, spacing: -2) {
                     if let caption = model.listCaption {
                         Text(caption)
                             .frame(alignment: .trailing)
@@ -195,8 +189,15 @@ struct StatusRowView: View {
                             .foregroundStyle(Color.gray)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
+                    if context != .profile {
+                        AddressNameView(model.address, font: .title3)
+                            .multilineTextAlignment(.trailing)
+                            .lineLimit(3)
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 4)
+                    }
                 }
-                .padding(.bottom, 4)
+                .padding(.vertical, 4)
             }
         }
     }

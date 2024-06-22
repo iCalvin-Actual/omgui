@@ -30,7 +30,7 @@ struct FollowingView: View {
     @ViewBuilder
     var followingView: some View {
         if let followingFetcher = addressBook.followingStatusLogFetcher {
-            StatusList(fetcher: followingFetcher, context: .column)
+            StatusList(fetcher: followingFetcher)
         } else {
             signedOutView
                 .toolbar {

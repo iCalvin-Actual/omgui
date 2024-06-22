@@ -9,7 +9,8 @@ import SwiftUI
 
 struct PURLRowView: View {
     let model: PURLModel
-    let context: ViewContext
+    @Environment(\.viewContext)
+    var context: ViewContext
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

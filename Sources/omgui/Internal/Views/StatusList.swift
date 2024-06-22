@@ -26,10 +26,8 @@ struct StatusList: View {
     
     var menuBuilder: ContextMenuBuilder<StatusModel>?
     
-    let context: ViewContext
-    
     var body: some View {
-        ListView<StatusModel, StatusRowView, EmptyView>(dataFetcher: fetcher, rowBuilder: { StatusRowView(model: $0, context: context) })
+        ListView<StatusModel, StatusRowView, EmptyView>(dataFetcher: fetcher, rowBuilder: { StatusRowView(model: $0) })
             .toolbarRole(.editor)
     }
 }

@@ -24,12 +24,14 @@ struct SplitView: View {
     var body: some View {
         NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(.detail)) {
             Sidebar(selected: $selected, model: .init(sceneModel.addressBook))
+                .environment(\.viewContext, .column)
         } detail: {
             let item: NavigationItem = selected ?? (sceneModel.accountModel.signedIn ? .newStatus : .account)
             let destination = item.destination
             NavigationStack {
                 destinationView(destination)
             }
+            .environment(\.viewContext, .detail)
         }
     }
     

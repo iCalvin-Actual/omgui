@@ -12,11 +12,11 @@ struct PURLView: View {
     var sizeClass
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
+    @Environment(\.viewContext)
+    var context: ViewContext
     
     @ObservedObject
     var fetcher: AddressPURLDataFetcher
-    
-    var context: ViewContext
     
     var body: some View {
         VStack(alignment: .leading) {

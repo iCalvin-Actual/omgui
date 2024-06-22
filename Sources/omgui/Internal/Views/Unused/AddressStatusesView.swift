@@ -14,12 +14,10 @@ struct AddressStatusesView: View {
     @ObservedObject
     var bioFetcher: AddressBioDataFetcher
     
-    let context: ViewContext
-    
     var body: some View {
         VStack(alignment: .leading) {
             AddressBioView(fetcher: bioFetcher)
-            StatusList(fetcher: fetcher, context: .profile)
+            StatusList(fetcher: fetcher)
         }
         .toolbar {       
             ToolbarItem(placement: .topBarLeading) {

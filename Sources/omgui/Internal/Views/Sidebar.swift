@@ -72,6 +72,7 @@ struct Sidebar: View {
             }
             .navigationBarTitleDisplayMode(.inline)
         }
+        .environment(\.viewContext, ViewContext.column)
         .navigationDestination(for: NavigationDestination.self, destination: destinationView(_:))
         .safeAreaInset(edge: .bottom) {
             VStack(alignment: .trailing, spacing: 8) {

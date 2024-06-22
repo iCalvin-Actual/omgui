@@ -9,7 +9,8 @@ import SwiftUI
 
 struct PasteRowView: View {
     let model: PasteModel
-    let context: ViewContext
+    @Environment(\.viewContext)
+    var context: ViewContext
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

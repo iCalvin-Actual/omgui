@@ -58,6 +58,7 @@ struct CommunityView: View {
     }
     
     var body: some View {
-        StatusList(fetcher: communityFetcher, context: .column)
+        StatusList(fetcher: communityFetcher)
+            .environment(\.viewContext, .column)
     }
 }

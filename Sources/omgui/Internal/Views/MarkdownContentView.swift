@@ -20,6 +20,9 @@ struct MarkdownContentView: View {
     let source: MarkdownSourceProvider?
     let content: String?
     
+    @State
+    var presentedURL: URL?
+    
     init(source: MarkdownSourceProvider? = nil, content: String?) {
         var strippingComments: String? {
             let markdownCommentBlock = try! Regex(#"(?s)\/\*.*?\*\/(\r\n)|(\/\/\s).*?\r\n|(---\s).*?(\s---)(\r\n)"#)
@@ -55,7 +58,19 @@ struct MarkdownContentView: View {
         ScrollView {
             if let content {
                 Markdown(content)
-                    .padding()
+                    .environment(
+                        \.openURL,
+                         OpenURLAction { url in
+                             Task {
+                                 presentedURL = url
+                             }
+                             return .handled
+                         }
+                    )
+                    .sheet(item: $presentedURL, content: { url in
+                        SafariView(url: url)
+                            .ignoresSafeArea(.all, edges: .bottom)
+                    })
             }
         }
     }
@@ -64,5 +79,11 @@ struct MarkdownContentView: View {
 extension AddressNowDataFetcher: MarkdownSourceProvider {
     var address: String {
         addressName
+    }
+}
+
+extension StatusModel: MarkdownSourceProvider {
+    var updated: Date? {
+        dateValue
     }
 }

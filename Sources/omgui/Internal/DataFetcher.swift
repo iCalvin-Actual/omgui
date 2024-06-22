@@ -338,7 +338,7 @@ class ListDataFetcher<T: Listable>: DataFetcher, Observable {
     }
     
     override var noContent: Bool {
-        !loading && listItems.isEmpty
+        (!loaded && !loading) && listItems.isEmpty
     }
     
     override var summaryString: String? {
@@ -728,21 +728,22 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
 }
 
 class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
+    let displayTitle: String
     let addresses: [AddressName]
     
-    override var title: String {
-        switch addresses.count {
-        case 0:
-            return "status.lol"
-        case 1:
-            let address = addresses.first?.addressDisplayString ?? ""
-            return address + ".statusLog"
-        default:
-            return "following"
-        }
-    }
+    override var title: String { displayTitle }
     
-    init(addresses: [AddressName] = [], statuses: [StatusModel] = [], interface: DataInterface) {
+    init(title: String? = nil, addresses: [AddressName] = [], statuses: [StatusModel] = [], interface: DataInterface) {
+        self.displayTitle = title ?? {
+            switch addresses.count {
+            case 0:
+                return "status"
+            case 1:
+                return "@/statuses"
+            default:
+                return "statuses"
+            }
+        }()
         self.addresses = addresses
         super.init(items: statuses, interface: interface)
     }
