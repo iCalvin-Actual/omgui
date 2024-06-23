@@ -138,9 +138,7 @@ struct StatusRowView: View {
         switch context {
         case .detail:
             MarkdownContentView(source: model, content: model.status)
-        case .column:
-            Markdown(model.status)
-        case .profile:
+        default:
             Markdown(model.status)
         }
     }
@@ -199,5 +197,7 @@ struct StatusRowView: View {
             }
             .padding(.horizontal, 2)
         }
+        .background(Material.regular)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

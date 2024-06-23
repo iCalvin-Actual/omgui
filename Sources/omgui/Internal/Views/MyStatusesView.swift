@@ -39,7 +39,7 @@ struct MyStatusesView: View {
                         Image(systemName: "person.3")
                             .opacity(filter != .mine ? 1 : 0)
                         Image(systemName: "person.fill")
-                            .scaleEffect(1.1)
+                            .scaleEffect(filter == .mine ? 1.1 : 1)
                     }
                     .bold()
                     .foregroundStyle(Color.white)

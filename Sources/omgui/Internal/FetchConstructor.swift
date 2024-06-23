@@ -101,7 +101,7 @@ class FetchConstructor {
     }
     
     func draftStatusPoster(_ id: String? = nil, for address: AddressName, credential: APICredential) -> StatusDraftPoster {
-        let draft = StatusModel.Draft(id: id, content: "")
+        let draft = StatusModel.Draft(address: address, id: id, content: "", emoji: "")
         return StatusDraftPoster(address, draft: draft, interface: interface, credential: credential)
     }
     

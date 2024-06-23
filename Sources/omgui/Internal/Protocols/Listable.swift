@@ -16,6 +16,12 @@ protocol Listable: Filterable, Sortable, Menuable, Hashable, Identifiable {
 }
 
 extension Listable {
+    var hideIcon: Bool {
+        iconURL == nil
+    }
+}
+
+extension Listable {
     var displayDate: Date? { nil }
     var iconURL: URL? { nil }
     
@@ -31,7 +37,7 @@ extension AddressModel: Listable {
     var listTitle: String { addressName.addressDisplayString }
     var listSubtitle: String { url?.absoluteString ?? "" }
     var displayDate: Date? { registered }
-    var iconURL: URL? { URL(string: "https://profiles.cache.lol/\(rawValue)/picture") }
+    var hideIcon: Bool { false }
 }
 extension StatusModel: Listable     {
     var listTitle: String     { status }
@@ -53,5 +59,5 @@ extension NowListing: Listable     {
     var listTitle: String     { owner.addressDisplayString }
     var listSubtitle: String  { url.replacingOccurrences(of: "https://", with: "") }
     var displayDate: Date?    { updated }
-    var iconURL: URL? { URL(string: "https://profiles.cache.lol/\(owner)/picture") }
+    var hideIcon: Bool { false }
 }

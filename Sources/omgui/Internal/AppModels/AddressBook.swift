@@ -106,6 +106,7 @@ class AddressBook: ListDataFetcher<AddressModel> {
     }
     
     private var privateProfileCache: [AddressName: AddressPrivateSummaryDataFetcher] = [:]
+    private var imageCache: [AddressName: Image] = [:]
     private func constructPrivateFetcher(for address: AddressName) -> AddressPrivateSummaryDataFetcher? {
         guard let credential = accountModel.credential(for: address, in: self) else {
             return nil
@@ -116,7 +117,6 @@ class AddressBook: ListDataFetcher<AddressModel> {
         case notYourAddress
     }
     public func addressPrivateSummary(_ address: AddressName) throws -> AddressPrivateSummaryDataFetcher {
-        
         if let model = privateProfileCache[address] {
             return model
         } else {

@@ -79,14 +79,7 @@ struct AddressSummaryView: View {
                 Menu {
                     AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
                 } label: {
-                    AsyncImage(url: addressSummaryFetcher.addressName.addressIconURL) { image in
-                        image.resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Color.lolRandom(addressSummaryFetcher.addressName)
-                    }
-                    .frame(width: 44, height: 44)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    AddressIconView(address: addressSummaryFetcher.addressName)
                 }
                 .padding([.trailing, .bottom], 6)
             }

@@ -25,3 +25,16 @@ extension EnvironmentValues {
     set { self[ViewContextKey.self] = newValue }
   }
 }
+
+struct NavigationPath: EnvironmentKey {
+    static var defaultValue: NavigationPath {
+        .init()
+    }
+}
+
+extension EnvironmentValues {
+    var navigationStack: NavigationPath {
+    get { self[NavigationPath.self] }
+    set { self[NavigationPath.self] = newValue }
+  }
+}

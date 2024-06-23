@@ -66,10 +66,15 @@ class DraftPoster<D: SomeDraftable>: Request {
     var address: AddressName
     let credential: APICredential
     
+    @Published
     var draft: D.Draft
     var originalContent: String
     
     var result: D?
+    
+    var navigationTitle: String {
+        "New"
+    }
     
     init(_ address: AddressName, draft: D.Draft, interface: DataInterface, credential: APICredential) {
         self.address = address
@@ -125,7 +130,7 @@ class NamedDraftPoster<D: NamedDraftable>: DraftPoster<D> {
     
     init(_ address: AddressName, title: String, interface: DataInterface, credential: APICredential) {
         self.title = title
-        self.namedDraft = D.NamedDraftItem(name: title, content: "", listed: false)
+        self.namedDraft = D.NamedDraftItem(address: address, name: title, content: "", listed: false)
         let d = namedDraft as! D.Draft
         super.init(address, draft: d, interface: interface, credential: credential)
     }
@@ -137,6 +142,10 @@ class NamedDraftPoster<D: NamedDraftable>: DraftPoster<D> {
 }
 
 class ProfileDraftPoster: MDDraftPoster<AddressProfile> {
+    override var navigationTitle: String {
+        "webpage"
+    }
+    
     @MainActor
     override func throwingRequest() async throws {
         loading = true
@@ -164,6 +173,10 @@ class ProfileDraftPoster: MDDraftPoster<AddressProfile> {
 }
 
 class NowDraftPoster: MDDraftPoster<NowModel> {
+    override var navigationTitle: String {
+        "/now"
+    }
+    
     override func throwingRequest() async throws {
         let _ = try await interface.saveAddressNow(
             address,
@@ -189,6 +202,13 @@ class NowDraftPoster: MDDraftPoster<NowModel> {
 }
 
 class PasteDraftPoster: NamedDraftPoster<PasteModel> {
+    override var navigationTitle: String {
+        if originalContent.isEmpty {
+            return "new paste"
+        }
+        return "edit"
+    }
+    
     override func throwingRequest() async throws {
         let _ = try await interface.savePaste(draft, to: address, credential: credential)
         threadSafeSendUpdate()
@@ -207,6 +227,12 @@ class PasteDraftPoster: NamedDraftPoster<PasteModel> {
 }
 
 class PURLDraftPoster: NamedDraftPoster<PURLModel> {
+    override var navigationTitle: String {
+        if originalContent.isEmpty {
+            return "new PURL"
+        }
+        return "edit"
+    }
     override func throwingRequest() async throws {
         let _ = try await interface.savePURL(draft, to: address, credential: credential)
         threadSafeSendUpdate()
@@ -225,6 +251,16 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel> {
 }
 
 class StatusDraftPoster: DraftPoster<StatusModel> {
+    override var navigationTitle: String {
+        if originalContent.isEmpty {
+            if address != .autoUpdatingAddress {
+                return address.addressDisplayString
+            }
+            return "new status"
+        }
+        return "edit"
+    }
+    
     override func throwingRequest() async throws {
         let posted = try await interface.saveStatusDraft(draft, to: address, credential: credential)
         
@@ -237,7 +273,7 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
             return
         }
         if let status = try? await interface.fetchAddressStatus(id, from: address) {
-            draft.emoji = status.emoji
+            draft.emoji = status.emoji ?? ""
             draft.content = status.status
             draft.externalUrl = status.link?.absoluteString
             threadSafeSendUpdate()
@@ -277,6 +313,37 @@ class DataFetcher: Request {
             return
         }
         await perform()
+    }
+}
+
+@MainActor
+class AddressIconDataFetcher: DataFetcher {
+    private var cancellables = Set<AnyCancellable>()
+
+    let address: AddressName
+    
+    @Published
+    var iconData: Data?
+    
+    init(address: AddressName, interface: DataInterface) {
+        self.address = address
+        super.init(interface: interface)
+    }
+    
+    override func throwingRequest() async throws {
+        guard let url = address.addressIconURL else {
+            return
+        }
+        URLSession.shared.dataTaskPublisher(for: url)
+            .map{ $0.data }
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                print("Some")
+            } receiveValue: { [weak self] value in
+                self?.iconData = value
+            }
+            .store(in: &cancellables)
+
     }
 }
 
@@ -499,8 +566,10 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
         let newValue = Array(Set(self.listItems.map({ $0.name }) + [toFollow]))
         let newContent = newValue.joined(separator: "\n")
         let draft = PasteModel.Draft(
+            address: address,
             name: "app.lol.following",
-            content: newContent
+            content: newContent,
+            listed: true
         )
         Task {
             let _ = try await self.interface.savePaste(draft, to: address, credential: credential)
@@ -512,8 +581,10 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
         let newValue = listItems.map({ $0.name }).filter({ $0 != toRemove })
         let newContent = newValue.joined(separator: "\n")
         let draft = PasteModel.Draft(
+            address: address,
             name: "app.lol.following",
-            content: newContent
+            content: newContent,
+            listed: true
         )
         Task {
             let _ = try await self.interface.savePaste(draft, to: address, credential: credential)
@@ -729,8 +800,10 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
         let newValue = Array(Set(self.listItems.map({ $0.name }) + [toBlock]))
         let newContent = newValue.joined(separator: "\n")
         let draft = PasteModel.Draft(
+            address: address,
             name: "app.lol.blocked",
-            content: newContent
+            content: newContent,
+            listed: false
         )
         Task {
             let _ = try await self.interface.savePaste(draft, to: address, credential: credential)
@@ -743,8 +816,10 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
         let newValue = listItems.map({ $0.name }).filter({ $0 != toUnblock })
         let newContent = newValue.joined(separator: "\n")
         let draft = PasteModel.Draft(
+            address: address,
             name: "app.lol.blocked",
-            content: newContent
+            content: newContent,
+            listed: false
         )
         Task {
             let _ = try await self.interface.savePaste(draft, to: address, credential: credential)
@@ -1065,8 +1140,26 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
     ) {
         self.blockedFetcher = .init(address: name, credential: credential, interface: interface)
         
-        self.profilePoster = .init(name, draftItem: .init(content: "", publish: true), interface: interface, credential: credential)!
-        self.nowPoster = .init(name, draftItem: .init(content: "", listed: true), interface: interface, credential: credential)!
+        self.profilePoster = .init(
+            name, 
+            draftItem: .init(
+                address: name,
+                content: "",
+                publish: true
+            ),
+            interface: interface, 
+            credential: credential
+        )!
+        self.nowPoster = .init(
+            name,
+            draftItem: .init(
+                address: name,
+                content: "",
+                listed: true
+            ),
+            interface: interface,
+            credential: credential
+        )!
         
         super.init(name: name, interface: interface)
         
@@ -1098,6 +1191,7 @@ class AddressSummaryDataFetcher: DataFetcher {
         addressName.addressIconURL
     }
     
+    var iconFetcher: AddressIconDataFetcher
     var profileFetcher: AddressProfileDataFetcher
     var nowFetcher: AddressNowDataFetcher
     var purlFetcher: AddressPURLsDataFetcher
@@ -1112,6 +1206,7 @@ class AddressSummaryDataFetcher: DataFetcher {
         interface: DataInterface
     ) {
         self.addressName = name
+        self.iconFetcher = .init(address: name, interface: interface)
         self.profileFetcher = .init(name: name, credential: nil, interface: interface)
         self.nowFetcher = .init(name: name, interface: interface)
         self.purlFetcher = .init(name: name, interface: interface, credential: nil)
@@ -1130,8 +1225,9 @@ class AddressSummaryDataFetcher: DataFetcher {
         }
         await super.perform()
         
-//        await profileFetcher.updateIfNeeded()
-//        await nowFetcher.updateIfNeeded()
+        await iconFetcher.updateIfNeeded()
+        await profileFetcher.updateIfNeeded()
+        await nowFetcher.updateIfNeeded()
         await purlFetcher.updateIfNeeded()
         await pasteFetcher.updateIfNeeded()
         await statusFetcher.updateIfNeeded()

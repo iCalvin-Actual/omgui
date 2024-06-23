@@ -77,18 +77,8 @@ struct GardenItemView: View {
                     .font(.title3)
                     .bold()
                     .foregroundColor(.black)
-                if let icon = model.iconURL {
-                    Spacer()
-                    
-                    AsyncImage(url: icon) { image in
-                        image.resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Color.lolRandom(model.addressName)
-                    }
-                    .frame(width: 55, height: 55)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
+                Spacer()
+                AddressIconView(address: model.addressName)
             }
             
             let subtitle = model.listSubtitle

@@ -57,9 +57,8 @@ struct ListRow<T: Listable>: View {
                 Text(model.listTitle)
                     .font(.title3)
                     .bold()
+                Spacer()
                 if let icon = model.iconURL {
-                    Spacer()
-                    
                     AsyncImage(url: icon) { image in
                         image.resizable()
                             .aspectRatio(contentMode: .fill)
@@ -68,6 +67,8 @@ struct ListRow<T: Listable>: View {
                     }
                     .frame(width: 55, height: 55)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                } else if !model.hideIcon {
+                    AddressIconView(address: model.addressName)
                 }
             }
             .padding(.vertical, verticalPadding)

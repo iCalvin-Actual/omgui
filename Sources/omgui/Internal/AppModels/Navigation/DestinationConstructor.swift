@@ -96,7 +96,7 @@ struct DestinationConstructor {
 //            }
         case .editStatus(let address, id: let id):
             if address == .autoUpdatingAddress && id.isEmpty {
-                StatusDraftView(draftPoster: fetchConstructor.draftStatusPoster(for: id, credential: accountModel.authKey))
+                StatusDraftView(draftPoster: fetchConstructor.draftStatusPoster(for: address, credential: accountModel.authKey))
             } else if let credential = accountModel.credential(for: address, in: addressBook) {
                 StatusDraftView(draftPoster: fetchConstructor.draftStatusPoster(id, for: address, credential: credential))
             } else {

@@ -94,7 +94,7 @@ struct Sidebar: View {
                 HStack(spacing: 4) {
                     IconView()
                         .frame(height: 34)
-                    ThemedTextView(text: "app.lol")
+                    ThemedTextView(text: "app.lol", font: .title)
                 }
             }
         }

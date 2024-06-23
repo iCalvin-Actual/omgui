@@ -12,7 +12,7 @@ struct ThemedTextView: View {
     let font: Font
     let design: Font.Design
     
-    init(text: String, font: Font = .title, design: Font.Design = .serif) {
+    init(text: String, font: Font = .title3, design: Font.Design = .serif) {
         self.text = text
         self.font = font
         self.design = design

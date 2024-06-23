@@ -27,15 +27,7 @@ struct PURLView: View {
                     Menu {
                         AddressModel(name: fetcher.addressName).contextMenu(in: sceneModel)
                     } label: {
-                        AsyncImage(url: fetcher.addressName.addressIconURL) { image in
-                            image.resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Color.lolRandom(fetcher.addressName)
-                        }
-                        .frame(width: 44, height: 44)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-    //                    .padding(.vertical, 8)
+                        AddressIconView(address: fetcher.addressName)
                     }
                     .padding(.trailing)
                 }
