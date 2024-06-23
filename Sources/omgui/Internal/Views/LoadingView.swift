@@ -17,6 +17,7 @@ struct LoadingView: View {
             ThemedTextView(text: "loading...")
         }
         .padding()
+        .listRowSeparator(.hidden)
     }
 }
 

@@ -8,11 +8,50 @@
 import SwiftUI
 
 struct StatusDraftView: View {
+    @Environment(SceneModel.self)
+    var sceneModel: SceneModel
     @ObservedObject
     var draftPoster: StatusDraftPoster
+    @SceneStorage("app.lol.address")
+    var actingAddress: AddressName = ""
+    
+    @State
+    var expandAddresses: Bool = false
+    
+    var draftId: String {
+        draftPoster.draft.id ?? ""
+    }
     
     var body: some View {
-        VStack {
+        VStack(alignment: .trailing) {
+            if draftId.isEmpty {
+                Button {
+                    withAnimation{
+                        expandAddresses.toggle()
+                    }
+                } label: {
+                    AddressNameView(actingAddress)
+                        .padding(.horizontal)
+                }
+                if expandAddresses {
+                    ForEach(sceneModel.accountModel.myAddresses) { address in
+                        if address != actingAddress {
+                            Button {
+                                withAnimation {
+                                    actingAddress = address
+                                    expandAddresses = false
+                                }
+                            } label: {
+                                AddressNameView(address)
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                }
+            } else {
+                // Show Address
+                AddressNameView(draftPoster.address)
+            }
             HStack(alignment: .top) {
                 VStack {
                     Button {
@@ -26,23 +65,27 @@ struct StatusDraftView: View {
                         .font(.caption2)
                 }
                 
-                VStack(alignment: .leading) {
+                VStack(alignment: .trailing) {
                     TextEditor(text: $draftPoster.draft.content)
-                        .frame(maxHeight: 125)
+                        .frame(idealHeight: 125, maxHeight: .infinity)
                     
                     Button {
                         Task {
+                            if draftId.isEmpty {
+                                draftPoster.address = actingAddress
+                            }
                             await draftPoster.perform()
                         }
                     } label: {
                         Text("Save")
                             .padding()
-                            .background(Color.lolBlue)
-                            .cornerRadius(4)
                     }
-
                 }
             }
+            .background(Material.regular)
+//            .ignoresSafeArea(.
+            Spacer()
         }
+        .background(Color.lolBackground)
     }
 }

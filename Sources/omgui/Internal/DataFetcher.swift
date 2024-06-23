@@ -62,14 +62,16 @@ class Request: NSObject, ObservableObject {
 }
 
 @MainActor
-class DraftPoster<D: DraftItem>: Request {
-    let address: AddressName
+class DraftPoster<D: SomeDraftable>: Request {
+    var address: AddressName
     let credential: APICredential
     
-    var draft: D
+    var draft: D.Draft
     var originalContent: String
     
-    init(_ address: AddressName, draft: D, interface: DataInterface, credential: APICredential) {
+    var result: D?
+    
+    init(_ address: AddressName, draft: D.Draft, interface: DataInterface, credential: APICredential) {
         self.address = address
         self.credential = credential
         self.draft = draft
@@ -84,19 +86,48 @@ class DraftPoster<D: DraftItem>: Request {
     }
 }
 
-class MDDraftPoster<D: MDDraft>: DraftPoster<D> {
-    override init(_ address: AddressName, draft: D, interface: DataInterface, credential: APICredential) {
-        super.init(address, draft: draft, interface: interface, credential: credential)
+class MDDraftPoster<D: MDDraftable>: DraftPoster<D> {
+    
+    var mdDraft: D.MDDraftItem
+    override var draft: D.Draft {
+        get {
+            mdDraft as! D.Draft
+        }
+        set {
+            guard let md = newValue as? D.MDDraftItem else {
+                return
+            }
+            mdDraft = md
+        }
+    }
+    
+    init?(_ address: AddressName, draftItem: D.MDDraftItem, interface: DataInterface, credential: APICredential) {
+        self.mdDraft = draftItem
+        super.init(address, draft: draftItem as! D.Draft, interface: interface, credential: credential)
     }
 }
 
-class NamedDraftPoster<D: NamedDraft>: DraftPoster<D> {
+class NamedDraftPoster<D: NamedDraftable>: DraftPoster<D> {
     let title: String
+    
+    var namedDraft: D.NamedDraftItem
+    override var draft: D.Draft {
+        get {
+            namedDraft as! D.Draft
+        }
+        set {
+            guard let named = newValue as? D.NamedDraftItem else {
+                return
+            }
+            namedDraft = named
+        }
+    }
     
     init(_ address: AddressName, title: String, interface: DataInterface, credential: APICredential) {
         self.title = title
-        let draft: D = .init(name: title, content: "", listed: false)
-        super.init(address, draft: draft, interface: interface, credential: credential)
+        self.namedDraft = D.NamedDraftItem(name: title, content: "", listed: false)
+        let d = namedDraft as! D.Draft
+        super.init(address, draft: d, interface: interface, credential: credential)
     }
     
     override func fetchCurrentValue() async {
@@ -105,7 +136,7 @@ class NamedDraftPoster<D: NamedDraft>: DraftPoster<D> {
     }
 }
 
-class ProfileDraftPoster: MDDraftPoster<AddressProfile.Draft> {
+class ProfileDraftPoster: MDDraftPoster<AddressProfile> {
     @MainActor
     override func throwingRequest() async throws {
         loading = true
@@ -132,7 +163,7 @@ class ProfileDraftPoster: MDDraftPoster<AddressProfile.Draft> {
     }
 }
 
-class NowDraftPoster: MDDraftPoster<NowModel.Draft> {
+class NowDraftPoster: MDDraftPoster<NowModel> {
     override func throwingRequest() async throws {
         let _ = try await interface.saveAddressNow(
             address,
@@ -157,7 +188,7 @@ class NowDraftPoster: MDDraftPoster<NowModel.Draft> {
     }
 }
 
-class PasteDraftPoster: NamedDraftPoster<PasteModel.Draft> {
+class PasteDraftPoster: NamedDraftPoster<PasteModel> {
     override func throwingRequest() async throws {
         let _ = try await interface.savePaste(draft, to: address, credential: credential)
         threadSafeSendUpdate()
@@ -175,7 +206,7 @@ class PasteDraftPoster: NamedDraftPoster<PasteModel.Draft> {
     }
 }
 
-class PURLDraftPoster: NamedDraftPoster<PURLModel.Draft> {
+class PURLDraftPoster: NamedDraftPoster<PURLModel> {
     override func throwingRequest() async throws {
         let _ = try await interface.savePURL(draft, to: address, credential: credential)
         threadSafeSendUpdate()
@@ -193,8 +224,10 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel.Draft> {
     }
 }
 
-class StatusDraftPoster: DraftPoster<StatusModel.Draft> {
+class StatusDraftPoster: DraftPoster<StatusModel> {
     override func throwingRequest() async throws {
+        let posted = try await interface.saveStatusDraft(draft, to: address, credential: credential)
+        
         threadSafeSendUpdate()
     }
     
@@ -1017,9 +1050,12 @@ class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
 
 @MainActor
 class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
+    @ObservedObject
     var blockedFetcher: AddressBlockListDataFetcher
     
+    @ObservedObject
     var profilePoster: ProfileDraftPoster
+    @ObservedObject
     var nowPoster: NowDraftPoster
     
     init(
@@ -1029,8 +1065,8 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
     ) {
         self.blockedFetcher = .init(address: name, credential: credential, interface: interface)
         
-        self.profilePoster = .init(name, draft: .init(content: "", publish: true), interface: interface, credential: credential)
-        self.nowPoster = .init(name, draft: .init(content: "", listed: true), interface: interface, credential: credential)
+        self.profilePoster = .init(name, draftItem: .init(content: "", publish: true), interface: interface, credential: credential)!
+        self.nowPoster = .init(name, draftItem: .init(content: "", listed: true), interface: interface, credential: credential)!
         
         super.init(name: name, interface: interface)
         

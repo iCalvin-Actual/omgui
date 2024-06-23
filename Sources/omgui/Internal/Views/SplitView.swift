@@ -22,7 +22,7 @@ struct SplitView: View {
     var visibility: NavigationSplitViewVisibility = .all
     
     var preferredColumn: NavigationSplitViewColumn {
-        guard let selected else {
+        guard selected != nil else {
             return .sidebar
         }
         return .detail

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct EditPageView<D: MDDraft>: View {
+struct EditPageView<D: MDDraftable>: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     

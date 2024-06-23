@@ -7,6 +7,10 @@
 
 import Foundation
 
+extension AddressName {
+    static let autoUpdatingAddress = "|_app.omg.lol.current_|"
+}
+
 extension Optional<String> {
     var boolValue: Bool {
         self?.boolValue ?? false

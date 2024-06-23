@@ -7,22 +7,33 @@
 
 import Foundation
 
-protocol DraftItem: Sendable {
-    var content: String { get set }
+
+public protocol SomeDraftable: Sendable {
+    associatedtype Draft: DraftItem
+}
+public protocol NamedDraftable: SomeDraftable {
+    associatedtype NamedDraftItem: NamedDraft
+}
+public protocol MDDraftable: SomeDraftable {
+    associatedtype MDDraftItem: MDDraft
 }
 
-protocol MDDraft: DraftItem {
-}
-protocol NamedDraft: DraftItem {
-    var name: String { get set }
+public protocol DraftItem: Sendable {
     var content: String { get set }
+}
+public protocol MDDraft: DraftItem {
+}
+public protocol NamedDraft: DraftItem {
+    var name: String { get set }
     var listed: Bool { get set }
     
     init(name: String, content: String, listed: Bool)
 }
 
-public extension StatusModel {
-    struct Draft: MDDraft {
+extension StatusModel: MDDraftable {
+    public typealias MDDraftItem = Draft
+    
+    public struct Draft: MDDraft {
         public var id: String?
         public var content: String
         public var emoji: String?
@@ -30,8 +41,10 @@ public extension StatusModel {
     }
 }
 
-public extension NowModel {
-    struct Draft: MDDraft {
+extension NowModel: MDDraftable {
+    public typealias MDDraftItem = Draft
+    
+    public struct Draft: MDDraft {
         public var content: String
         public var listed: Bool
         
@@ -42,20 +55,24 @@ public extension NowModel {
     }
 }
 
-public extension AddressProfile {
-    struct Draft: MDDraft {
+extension AddressProfile: MDDraftable {
+    public typealias MDDraftItem = Draft
+    
+    public struct Draft: MDDraft {
         public var content: String
         public var publish: Bool
     }
 }
 
-public extension PasteModel {
-    struct Draft: NamedDraft {
+extension PasteModel: NamedDraftable {
+    public typealias NamedDraftItem = Draft
+    
+    public struct Draft: NamedDraft {
         public var name: String
         public var content: String
         public var listed: Bool
         
-        init(name: String, content: String = "", listed: Bool = false) {
+        public init(name: String, content: String = "", listed: Bool = false) {
             self.name = name
             self.content = content
             self.listed = listed
@@ -63,13 +80,14 @@ public extension PasteModel {
     }
 }
 
-public extension PURLModel {
-    struct Draft: NamedDraft {
+extension PURLModel: NamedDraftable {
+    public typealias NamedDraftItem = Draft
+    public struct Draft: NamedDraft {
         public var name: String
         public var content: String
         public var listed: Bool
         
-        init(name: String, content: String = "", listed: Bool = false) {
+        public init(name: String, content: String = "", listed: Bool = false) {
             self.name = name
             self.content = content
             self.listed = listed

@@ -183,6 +183,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return .blocked
         case .myStatuses:
             return .myStatuses
+        case .newStatus:
+            return .editStatus(.autoUpdatingAddress, id: "")
         default:
             return .account
         }

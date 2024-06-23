@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NamedItemDraftView<D: NamedDraft>: View {
+struct NamedItemDraftView<D: NamedDraftable>: View {
     @ObservedObject
     var fetcher: NamedDraftPoster<D>
     
@@ -21,12 +21,12 @@ struct NamedItemDraftView<D: NamedDraft>: View {
             HStack {
                 Text("Title")
                     .font(.callout)
-                TextField("Title", text: $fetcher.draft.name)
+                TextField("Title", text: $fetcher.namedDraft.name)
             }
             
-            Toggle("Public", isOn: $fetcher.draft.listed)
+            Toggle("Public", isOn: $fetcher.namedDraft.listed)
                 
-            TextEditor(text: $fetcher.draft.content)
+            TextEditor(text: $fetcher.namedDraft.content)
         }
         .toolbar {
             ToolbarItem {
