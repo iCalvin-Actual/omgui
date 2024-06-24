@@ -135,6 +135,13 @@ public protocol DataInterface: Sendable {
     )
     async throws -> StatusModel?
     
+    func deleteAddressStatus(
+        _ draft: StatusModel.Draft,
+        from address: AddressName,
+        credential: APICredential
+    )
+    async throws -> StatusModel?
+    
     func saveStatusDraft(
         _ draft: StatusModel.Draft,
         to address: AddressName,

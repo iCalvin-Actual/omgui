@@ -150,6 +150,14 @@ public final class SampleData: DataInterface {
         return StatusModel.sample(with: address, id: id)
     }
     
+    public func deleteAddressStatus(_ draft: StatusModel.Draft, from address: AddressName, credential: APICredential) async throws -> StatusModel? {
+        guard let id = draft.id else {
+            return nil
+        }
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return StatusModel.sample(with: address, id: id)
+    }
+    
     public func saveStatusDraft(_ draft: StatusModel.Draft, to address: AddressName, credential: APICredential) async throws -> StatusModel? {
         try await Task.sleep(nanoseconds: artificalDelay)
         return try await fetchAddressStatus(draft.id ?? UUID().uuidString, from: address)

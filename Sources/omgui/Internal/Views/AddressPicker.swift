@@ -109,9 +109,9 @@ struct AddressPicker: View {
                         .padding(.vertical, 2)
                     }
                 }
-            } else {
-                Spacer()
             }
+            
+            Spacer()
         
             Button {
                 withAnimation {

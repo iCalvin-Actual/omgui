@@ -70,6 +70,7 @@ class DraftPoster<D: SomeDraftable>: Request {
     var draft: D.Draft
     var originalContent: String
     
+    @Published
     var result: D?
     
     var navigationTitle: String {
@@ -262,7 +263,10 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
     }
     
     override func throwingRequest() async throws {
-        let posted = try await interface.saveStatusDraft(draft, to: address, credential: credential)
+        if let posted = try await interface.saveStatusDraft(draft, to: address, credential: credential) {
+            result = posted
+            draft = .init(model: posted, id: posted.id)
+        }
         
         threadSafeSendUpdate()
     }
@@ -337,9 +341,7 @@ class AddressIconDataFetcher: DataFetcher {
         URLSession.shared.dataTaskPublisher(for: url)
             .map{ $0.data }
             .receive(on: DispatchQueue.main)
-            .sink { completion in
-                print("Some")
-            } receiveValue: { [weak self] value in
+            .sink { _ in } receiveValue: { [weak self] value in
                 self?.iconData = value
             }
             .store(in: &cancellables)

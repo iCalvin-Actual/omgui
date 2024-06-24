@@ -24,10 +24,18 @@ public protocol DraftItem: Sendable {
     var publishable: Bool { get }
     
     var content: String { get set }
+    
+    mutating
+    func clear()
 }
 extension DraftItem {
     var publishable: Bool {
         !content.isEmpty
+    }
+    
+    mutating
+    public func clear() {
+        content = ""
     }
 }
 public protocol MDDraft: DraftItem {
@@ -37,6 +45,14 @@ public protocol NamedDraft: DraftItem {
     var listed: Bool { get set }
     
     init(address: AddressName, name: String, content: String, listed: Bool)
+}
+extension NamedDraft {
+    mutating
+    public func clear() {
+        content = ""
+        name = ""
+        listed = false
+    }
 }
 
 extension StatusModel: MDDraftable {
@@ -59,6 +75,21 @@ extension StatusModel: MDDraftable {
         
         public var displayEmoji: String {
             emoji.isEmpty ? "💗" : emoji
+        }
+        
+        mutating
+        public func clear() {
+            id = nil
+            content = ""
+            emoji = ""
+            externalUrl = ""
+        }
+        
+        init(model: StatusModel, id: String? = nil) {
+            self.address = model.address
+            self.id = id
+            self.content = model.status
+            self.emoji = model.emoji ?? ""
         }
         
         init(address: AddressName, id: String? = nil, content: String, emoji: String, externalUrl: String? = nil) {
@@ -207,9 +238,9 @@ extension StatusRowView {
             Button(action: post) {
                 Label {
                     if draft.id == nil {
-                        Text("Publish")
+                        Text("publish")
                     } else {
-                        Text("Edit")
+                        Text("update")
                     }
                 } icon: {
                     Image(systemName: "arrow.up.circle.fill")

@@ -71,6 +71,14 @@ struct StatusRowView: View {
                 .padding(.bottom, 2)
                 .asCard(backgroundColor: .lolRandom(model.displayEmoji), radius: 6)
         
+            if let caption = model.listCaption {
+                Text(caption)
+                    .frame(alignment: .trailing)
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.gray)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+        
             if let text = model.link?.absoluteString {
                 Button(action: {
                     print("Show Link")
@@ -160,44 +168,34 @@ struct StatusRowView: View {
     var headerContent: some View {
         HStack(alignment: .bottom) {
             if context != .profile {
-                Menu {
-                    AddressModel(name: model.address).contextMenu(in: sceneModel)
-                } label: {
-                    AsyncImage(url: model.address.addressIconURL) { image in
-                        image.resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Color.lolRandom(model.address)
-                    }
-                    .frame(width: 42, height: 42)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .padding(.vertical, 4)
-                }
-            }
-            HStack(alignment: .lastTextBaseline) {
-                Text(model.displayEmoji)
-                    .font(.system(size: 42))
-                Spacer()
-                VStack(alignment: .trailing, spacing: -2) {
-                    if let caption = model.listCaption {
-                        Text(caption)
-                            .frame(alignment: .trailing)
-                            .font(.system(size: 10))
-                            .foregroundStyle(Color.gray)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                    if context != .profile {
-                        AddressNameView(model.address, font: .title3)
-                            .multilineTextAlignment(.trailing)
-                            .lineLimit(3)
-                            .foregroundColor(.black)
+                if context != .profile {
+                    Menu {
+                        AddressModel(name: model.address).contextMenu(in: sceneModel)
+                    } label: {
+                        AsyncImage(url: model.address.addressIconURL) { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Color.lolRandom(model.address)
+                        }
+                        .frame(width: 42, height: 42)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .padding(.vertical, 4)
                     }
                 }
-                .padding(.vertical, 4)
+                HStack(alignment: .lastTextBaseline) {
+                    Text(model.displayEmoji)
+                        .font(.system(size: 42))
+                    Spacer()
+                    AddressNameView(model.address, font: .title3)
+                        .multilineTextAlignment(.trailing)
+                        .lineLimit(3)
+                        .foregroundColor(.black)
+                        .padding(.vertical, 4)
+                }
+                .padding(.horizontal, 2)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-            .padding(.horizontal, 2)
         }
-        .background(Material.regular)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
