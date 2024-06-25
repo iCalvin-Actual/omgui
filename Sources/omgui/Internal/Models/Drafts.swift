@@ -20,6 +20,8 @@ public protocol MDDraftable: SomeDraftable {
 }
 
 public protocol DraftItem: Sendable {
+    static var contentPlaceholder: String { get }
+    
     var address: AddressName { get }
     var publishable: Bool { get }
     
@@ -59,6 +61,10 @@ extension StatusModel: MDDraftable {
     public typealias MDDraftItem = Draft
     
     public struct Draft: MDDraft {
+        static public var contentPlaceholder: String {
+            "what's new?"
+        }
+        
         public var address: AddressName
         
         public var id: String?
@@ -106,6 +112,10 @@ extension NowModel: MDDraftable {
     public typealias MDDraftItem = Draft
     
     public struct Draft: MDDraft {
+        static public var contentPlaceholder: String {
+            "what's the latest?"
+        }
+        
         public var address: AddressName
         
         public var content: String
@@ -119,6 +129,10 @@ extension AddressProfile: MDDraftable {
     public typealias MDDraftItem = Draft
     
     public struct Draft: MDDraft {
+        static public var contentPlaceholder: String {
+            "from the top"
+        }
+        
         public var address: AddressName
         
         public var content: String
@@ -132,6 +146,10 @@ extension PasteModel: NamedDraftable {
     public typealias NamedDraftItem = Draft
     
     public struct Draft: NamedDraft {
+        static public var contentPlaceholder: String {
+            "what do you have?"
+        }
+        
         public var address: AddressName
         
         public var name: String
@@ -154,6 +172,10 @@ extension PasteModel: NamedDraftable {
 extension PURLModel: NamedDraftable {
     public typealias NamedDraftItem = Draft
     public struct Draft: NamedDraft {
+        static public var contentPlaceholder: String {
+            "where are we going?"
+        }
+        
         public var address: AddressName
         
         public var name: String
@@ -181,26 +203,26 @@ extension StatusRowView {
         @Environment(\.viewContext)
         var context: ViewContext
         
-        let draft: StatusModel.Draft
-        var post: () -> Void
+        let draftPoster: StatusDraftPoster
         
         var address: AddressName {
-            if draft.address == .autoUpdatingAddress {
+            if draftPoster.draft.address == .autoUpdatingAddress {
                 return actingAddress
             }
-            return draft.address
+            return draftPoster.draft.address
         }
         
         var body: some View {
             VStack(alignment: .trailing, spacing: 0) {
-                HStack(alignment: .bottom) {
+                HStack {
                     AddressIconView(address: address)
-                    Text(draft.displayEmoji)
+                    
+                    Text(draftPoster.draft.displayEmoji)
                         .font(.system(size: 42))
+                    
                     Spacer()
                     postButton
                 }
-                .padding(.vertical)
                 /*
                  This was tricky to set up
                  so I'm leaving it here
@@ -211,9 +233,9 @@ extension StatusRowView {
                  */
                 rowBody
                     .padding(.bottom, 2)
-                    .asCard(backgroundColor: .lolRandom(draft.displayEmoji), radius: 6)
+                    .asCard(backgroundColor: .lolRandom(draftPoster.draft.displayEmoji), radius: 6)
             }
-            .lineLimit(5)
+            .lineLimit(3)
             .multilineTextAlignment(.leading)
         }
         
@@ -225,19 +247,35 @@ extension StatusRowView {
                 .fontDesign(.rounded)
                 .environment(\.colorScheme, .light)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .foregroundColor(.black)
         }
         
         @ViewBuilder
         var appropriateMarkdown: some View {
-            Markdown(draft.content)
+            if draftPoster.draft.content.isEmpty {
+                Text("")
+                    .padding(.vertical, 4)
+            } else {
+                Markdown(draftPoster.draft.content)
+                    .foregroundColor(.black)
+            }
         }
         
         @ViewBuilder
         var postButton: some View {
-            Button(action: post) {
+            Button(action: {
+                guard draftPoster.draft.publishable else {
+                    return
+                }
+                if draftPoster.draft.id?.isEmpty ?? true {
+                    draftPoster.address = actingAddress
+                }
+                Task {
+                    await draftPoster.perform()
+                    draftPoster.draft.clear()
+                }
+            }) {
                 Label {
-                    if draft.id == nil {
+                    if draftPoster.draft.id == nil {
                         Text("publish")
                     } else {
                         Text("update")
@@ -247,6 +285,7 @@ extension StatusRowView {
                 }
                 .font(.headline)
             }
+            .disabled(!draftPoster.draft.publishable)
         }
     }
 }

@@ -264,8 +264,13 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
     
     override func throwingRequest() async throws {
         if let posted = try await interface.saveStatusDraft(draft, to: address, credential: credential) {
-            result = posted
-            draft = .init(model: posted, id: posted.id)
+            withAnimation { [weak self] in
+                guard let self else {
+                    return
+                }
+                result = posted
+                draft = .init(address: address, content: "", emoji: "")
+            }
         }
         
         threadSafeSendUpdate()
@@ -283,6 +288,23 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
             threadSafeSendUpdate()
         } else {
             loading = false
+        }
+    }
+    
+    func deletePresented() {
+        guard let presented = result else {
+            return
+        }
+        let patchDraft = StatusModel.Draft(model: presented, id: presented.id)
+        Task { [weak self] in
+            guard let self else { return }
+            let backup = try await interface.deleteAddressStatus(patchDraft, from: address, credential: credential)
+            withAnimation {
+                if let backup {
+                    self.draft = .init(model: backup)
+                }
+                self.result = nil
+            }
         }
     }
 }

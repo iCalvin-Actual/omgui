@@ -13,15 +13,6 @@ struct StatusDraftView: View {
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
     
-    @State
-    var expandAddresses: Bool = false
-    @State
-    var showPlaceholder: Bool = true
-    @State
-    var showConfirmation: Bool = true
-    @State
-    var clearResult: Bool = true
-    
     enum FocusField: Hashable {
         case emoji
         case content
@@ -29,19 +20,21 @@ struct StatusDraftView: View {
     @FocusState
     private var focusedField: FocusField?
     
-    @ObservedObject
+    @StateObject
     var draftPoster: StatusDraftPoster
     
     @State
-    var innerConfirmDelete: Bool = false
+    var showPlaceholder: Bool = true
+    @State
+    var expandAddresses: Bool = false
+    @State
+    var clearResult: Bool = true
     @State
     var confirmDelete: Bool = false
     @State
     var velocity: CGSize = .zero
     @State
-    var previewResult: StatusModel? = nil
-    @State
-    var presentedPreview: StatusModel? = nil
+    var presentResult: Bool = false
     
     var bindingEmoji: Binding<String> {
         .init {
@@ -57,78 +50,77 @@ struct StatusDraftView: View {
     }
     
     init(draftPoster: StatusDraftPoster) {
-        self.draftPoster = draftPoster
+        self._draftPoster = .init(wrappedValue:  draftPoster)
         self.showPlaceholder = draftPoster.originalContent.isEmpty
     }
     
     var body: some View {
-        VStack(alignment: .trailing) {
-            if focusedField == nil && draftPoster.draft.publishable {
-                StatusRowView.Preview(draft: draftPoster.draft, post: {
-                    Task {
-                        if draftId.isEmpty {
-                            draftPoster.address = actingAddress
-                        }
-                        await draftPoster.perform()
-                        draftPoster.draft.clear()
-                        focusedField = .emoji
-                        previewResult = draftPoster.result
-                    }
-                })
-                .padding()
-                .transition(.slide)
-                Divider()
-            }
-            emojiField(bindingEmoji)
+        VStack(alignment: .trailing, spacing: 8) {
+            StatusRowView.Preview(draftPoster: draftPoster)
+                .padding(.horizontal)
+            
+            Divider()
+            
+            EmojiPicker(text: $draftPoster.draft.emoji, placeholder: "💗")
+                .focused($focusedField, equals: .emoji)
+                .frame(width: 66, height: 66)
+                .padding(2)
+                .background(Color(UIColor.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.horizontal)
             
             editorView
-                .sheet(item: $presentedPreview, onDismiss: {
+                .sheet(isPresented: $presentResult, onDismiss: {
                     withAnimation {
                         if clearResult {
                             draftPoster.draft.clear()
                             focusedField = .emoji
                         } else {
                             focusedField = .content
-                            previewResult = nil
+                            draftPoster.result = nil
                             clearResult = true
                         }
                     }
-                }) { result in
-                    NavigationStack {
-                        sceneModel.destinationConstructor.appliedDestination(.status(result.address, id: result.id))
-                            .toolbar {
-                                ToolbarItem(placement: .topBarTrailing) {
-                                    Button {
-                                        withAnimation {
-                                            clearResult = false
-                                            if let presented = presentedPreview {
-                                                draftPoster.result = presented
-                                                draftPoster.draft = .init(model: presented, id: presented.id)
+                }) {
+                    if let result = draftPoster.result {
+                        NavigationStack {
+                            @State var innerConfirmDelete: Bool = false
+                            sceneModel.destinationConstructor.appliedDestination(.status(result.address, id: result.id))
+                                .toolbar {
+                                    ToolbarItem(placement: .topBarTrailing) {
+                                        Button {
+                                            withAnimation {
+                                                clearResult = false
+                                                if let presented = draftPoster.result {
+                                                    draftPoster.result = presented
+                                                    draftPoster.draft = .init(model: presented, id: presented.id)
+                                                }
+                                                draftPoster.result = nil
+                                                presentResult = false
                                             }
-                                            presentedPreview = nil
+                                        } label: {
+                                            Text("edit")
                                         }
-                                    } label: {
-                                        Text("edit")
+                                    }
+                                    ToolbarItem(placement: .topBarLeading) {
+                                        Button {
+                                            innerConfirmDelete = true
+                                        } label: {
+                                            Image(systemName: "trash")
+                                        }
                                     }
                                 }
-                                ToolbarItem(placement: .topBarLeading) {
-                                    Button {
-                                        innerConfirmDelete = true
-                                    } label: {
-                                        Image(systemName: "trash")
-                                    }
-                                }
-                            }
-                            .alert("Are you sure?", isPresented: $innerConfirmDelete, actions: {
-                                Button("Cancel", role: .cancel) { }
-                                Button(
-                                    "Yes",
-                                    role: .destructive,
-                                    action: deletePresented
-                                )
-                            }, message: {
-                                Text("Are you sure you want to delete this status?")
-                            })
+                                .alert("Are you sure?", isPresented: $innerConfirmDelete, actions: {
+                                    Button("Cancel", role: .cancel) { }
+                                    Button(
+                                        "Yes",
+                                        role: .destructive,
+                                        action: draftPoster.deletePresented
+                                    )
+                                }, message: {
+                                    Text("Are you sure you want to delete this status?")
+                                })
+                        }
                     }
                 }
         }
@@ -171,37 +163,10 @@ struct StatusDraftView: View {
         let toDelete = draftPoster.draft
         Task {
             let _ = try await sceneModel.accountModel.interface.deleteAddressStatus(toDelete, from: draftPoster.address, credential: credential)
-            draftPoster.draft.clear()
             
             withAnimation {
-                previewResult = nil
-                presentedPreview = nil
+                draftPoster.draft.clear()
             }
-        }
-    }
-    
-    func deletePresented() {
-        guard let credential = sceneModel.accountModel.credential(for: draftPoster.address, in: sceneModel.addressBook), let presented = presentedPreview else {
-            return
-        }
-        let draft = StatusModel.Draft(model: presented, id: presented.id)
-        Task {
-            if let backup = try await sceneModel.accountModel.interface.deleteAddressStatus(draft, from: draftPoster.address, credential: credential) {
-                let newDraft: StatusModel.Draft = .init(model: backup)
-                draftPoster.draft = newDraft
-            }
-            
-            withAnimation {
-                previewResult = nil
-                presentedPreview = nil
-            }
-        }
-    }
-    
-    func hideConfirmation() async {
-        try? await Task.sleep(nanoseconds: 20_100_000_000)
-        withAnimation {
-            showConfirmation = false
         }
     }
     
@@ -211,15 +176,10 @@ struct StatusDraftView: View {
         case (.content, _):
             EmptyView()
         case (_, true):
-            Text("what's new?")
+            Text(StatusModel.Draft.contentPlaceholder)
         default:
             EmptyView()
         }
-//        if focusedField != .content && draftPoster.draft.content.isEmpty {
-//            Text("What I'm up to")
-//                .padding(4)
-//                .padding(.vertical, 4)
-//        }
     }
     
     @ViewBuilder
@@ -249,22 +209,10 @@ struct StatusDraftView: View {
     }
     
     @ViewBuilder
-    private func emojiField(_ binding: Binding<String>) -> some View {
-        EmojiPicker(text: binding, placeholder: "🫥")
-            .focused($focusedField, equals: .emoji)
-            .frame(width: 66, height: 66)
-            .padding(2)
-            .background(Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .padding(.trailing)
-    }
-    
-    @ViewBuilder
     private var editorView: some View {
         TextEditor(text: $draftPoster.draft.content)
             .padding(.horizontal, 4)
             .background(Color(UIColor.systemBackground))
-            .padding(.bottom)
             .toolbar {
                 ToolbarItem(placement: .keyboard) {
                     Button {
@@ -291,9 +239,10 @@ struct StatusDraftView: View {
             .background(Material.regular)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .padding(.horizontal)
+            .padding(.bottom)
             .frame(maxHeight: focusedField == .content ? .infinity : nil)
             .overlay(alignment: .bottom) {
-                if let result = previewResult {
+                if let result = draftPoster.result {
                     StatusRowView(model: result)
                         .task {
                             await delayText()
@@ -305,8 +254,17 @@ struct StatusDraftView: View {
                         }
                         .padding([.bottom, .horizontal], 8)
                         .onTapGesture {
-                            draftPoster.draft = .init(model: result, id: result.id)
+                            withAnimation {
+                                focusedField = .emoji
+                                draftPoster.draft = .init(model: result, id: result.id)
+                                draftPoster.result = nil
+                            }
                         }
+                        .onLongPressGesture(perform: {
+                            withAnimation {
+                                presentResult = true
+                            }
+                        })
                         .gesture(
                             simpleDrag
                         )
@@ -316,9 +274,9 @@ struct StatusDraftView: View {
     }
     
     private func delayText() async {
-        try? await Task.sleep(nanoseconds: 27_100_000_000)
+        try? await Task.sleep(nanoseconds: 10_000_000_000)
         withAnimation {
-            previewResult = nil
+            draftPoster.result = nil
         }
     }
     
@@ -331,7 +289,7 @@ struct StatusDraftView: View {
                 if horizontal > 500 || vertical > 700 {
                     velocity = value.velocity
                     withAnimation {
-                        previewResult = nil
+                        draftPoster.result = nil
                     }
                 }
             }
