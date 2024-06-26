@@ -6,6 +6,8 @@ struct MyStatusesView: View {
     
     @SceneStorage("app.lol.addresses.mine.filter")
     var filter: FilterOption = .none
+    @SceneStorage("app.lol.address")
+    var actingAddress: AddressName = ""
     
     @ObservedObject
     var account: AccountModel
@@ -32,22 +34,36 @@ struct MyStatusesView: View {
     
     var body: some View {
         StatusList(fetcher: activeFetcher)
-//            .safeAreaPadding(.bottom, 63)
             .safeAreaInset(edge: .bottom, content: {
-                Button(action: toggleFilter) {
-                    ZStack(alignment: .bottom) {
-                        Image(systemName: "person.3")
-                            .opacity(filter != .mine ? 1 : 0)
-                        Image(systemName: "person.fill")
-                            .scaleEffect(filter == .mine ? 1 : 1.1)
+                HStack {
+                    Button(action: toggleFilter) {
+                        ZStack(alignment: .bottom) {
+                            Image(systemName: "person.3")
+                                .opacity(filter != .mine ? 1 : 0)
+                            Image(systemName: "person.fill")
+                                .scaleEffect(filter == .mine ? 1 : 1)
+                                .padding(.bottom, 2)
+                        }
+                        .bold()
+                        .foregroundStyle(Color.white)
+                        .frame(width: 44, height: 44)
+                        .padding(8)
+                        .background(Color.lolAccent)
+                        .mask(Circle())
                     }
-                    .bold()
-                    .foregroundStyle(Color.white)
-                    .padding()
-                    .background(Color.lolAccent)
-                    .mask(Circle())
+                    Spacer()
+                    NavigationLink(value: NavigationDestination.editStatus(actingAddress, id: "")) {
+                        Image(systemName: "pencil.and.scribble")
+                            .bold()
+                            .foregroundStyle(Color.white)
+                            .frame(width: 44, height: 44)
+                            .padding(8)
+                            .background(Color.lolAccent)
+                            .mask(Circle())
+                    }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .font(.headline)
+                .padding(.horizontal)
             })
     }
     
