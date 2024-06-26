@@ -1034,6 +1034,77 @@ class AddressNowDataFetcher: DataFetcher {
     }
 }
 
+class AccountPastesDataFetcher: ListDataFetcher<PasteModel> {
+    let addresses: [AddressName]
+    let credential: APICredential
+    
+    var lists: [AddressName: [PasteModel]] = [:]
+    override var listItems: [PasteModel] {
+        get {
+            lists.reduce([], { $0 + $1.value })
+        }
+        set {
+            let oldValue = listItems
+            var toInsert: Set<PasteModel> = []
+            var toRemove: Set<PasteModel> = []
+            Array(Set<PasteModel>(oldValue + newValue)).forEach({ model in
+                if oldValue.contains(model) && !newValue.contains(model) {
+                    toRemove.insert(model)
+                } else if !oldValue.contains(model) && newValue.contains(model) {
+                    toInsert.insert(model)
+                }
+            })
+            
+            toRemove.forEach { model in
+                var items = lists[model.addressName] ?? []
+                if let index = items.firstIndex(of: model) {
+                    items.remove(at: index)
+                }
+                lists[model.addressName] = items
+            }
+            toInsert.forEach { model in
+                var items = lists[model.addressName] ?? []
+                items.append(model)
+                lists[model.addressName] = items
+            }
+        }
+    }
+    
+    override var title: String {
+        "@/pastes"
+    }
+    
+    init(addresses: [AddressName], interface: DataInterface, credential: APICredential) {
+        self.addresses = addresses
+        self.credential = credential
+        super.init(interface: interface)
+    }
+    
+    override func throwingRequest() async throws {
+        self.listItems = []
+        guard !addresses.isEmpty else { return fetchFinished() }
+        Task {
+            for address in addresses {
+                do {
+                    let pastes = try await interface.fetchAddressPastes(address, credential: credential)
+                    self.lists[address] = pastes
+                    self.fetchFinished()
+                } catch {
+                    // Check error
+                    throw error
+                }
+            }
+        }
+    }
+    
+    override func fetchFinished() {
+        guard addresses.count == lists.count else {
+            return
+        }
+        super.fetchFinished()
+    }
+}
+
 class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
     let addressName: AddressName
     let credential: APICredential?

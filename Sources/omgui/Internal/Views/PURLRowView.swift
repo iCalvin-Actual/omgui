@@ -14,14 +14,14 @@ struct PURLRowView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
+            HStack(alignment: .bottom) {
                 if context != .profile {
                     AddressNameView(model.owner, font: .title3)
-                        .padding(2)
                 }
                 Spacer()
                 AddressIconView(address: model.owner)
             }
+            .padding(2)
             
             VStack(alignment: .leading, spacing: 12) {
                 HStack {

@@ -75,6 +75,8 @@ struct DestinationConstructor {
                 // Unauthorized
                 EmptyView()
             }
+        case .myPastes:
+            MyPastesView(addressBook: addressBook, accountModel: accountModel)
 //        case .editPaste(let address, title: let title):
 //            if let credential = accountModel.credential(for: address, in: addressBook) {
 //                NamedItemDraftView(fetcher: fetchConstructor.draftPastePoster(title, for: address, credential: credential))

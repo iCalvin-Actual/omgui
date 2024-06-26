@@ -199,6 +199,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return .editStatus(.autoUpdatingAddress, id: "")
         case .myPURLs:
             return .myPURLs
+        case .myPastes:
+            return .myPastes
         default:
             return .account
         }

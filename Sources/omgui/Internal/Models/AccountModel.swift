@@ -38,6 +38,8 @@ class AccountModel: ObservableObject {
     public var accountStatusesFetcher: StatusLogDataFetcher
     @Published
     public var accountPURLsFetcher: AccountPURLsDataFetcher
+    @Published
+    public var accountPastesFetcher: AccountPastesDataFetcher
     
     public let globalBlocklistFetcher: AddressBlockListDataFetcher
     public let localBloclistFetcher: LocalBlockListDataFetcher
@@ -92,6 +94,7 @@ class AccountModel: ObservableObject {
         self.localBloclistFetcher = LocalBlockListDataFetcher(interface: interface)
         self.accountStatusesFetcher = .init(title: "@/statuses", interface: interface)
         self.accountPURLsFetcher = AccountPURLsDataFetcher(addresses: [], interface: interface, credential: "")
+        self.accountPastesFetcher = AccountPastesDataFetcher(addresses: [], interface: interface, credential: "")
         
         subscribe()
         
@@ -183,6 +186,7 @@ class AccountModel: ObservableObject {
         }
         accountStatusesFetcher = .init(title: "@/statuses", addresses: incomingAddresses, interface: interface)
         accountPURLsFetcher = .init(addresses: incomingAddresses, interface: interface, credential: authKey)
+        accountPastesFetcher = .init(addresses: incomingAddresses, interface: interface, credential: authKey)
         threadSafeSendUpdate()
     }
     
