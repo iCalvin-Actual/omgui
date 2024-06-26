@@ -20,6 +20,7 @@ class SidebarModel: ObservableObject {
         case saved
         case weblog
         case comingSoon
+        case more
         case new
         
         var displayName: String {
@@ -38,6 +39,8 @@ class SidebarModel: ObservableObject {
                 return "blog.app.lol"
             case .comingSoon:
                 return "Coming Soon"
+            case .more:
+                return "/more"
             case .new:
                 return "New"
             }
@@ -68,7 +71,7 @@ class SidebarModel: ObservableObject {
         var sections: [Section] = [.status, .directory, .now]
         
         if addressBook.accountModel.signedIn {
-            sections.append(.new)
+            sections.append(.more)
         }
         
         return sections
@@ -87,9 +90,6 @@ class SidebarModel: ObservableObject {
             }
             destinations.append(contentsOf: addressBook.pinned.sorted().map({ .pinnedAddress($0) }))
             return destinations
-        case .account:
-            return [
-            ]
         case .now:
             var destinations = [
                 NavigationItem.nowGarden
@@ -107,6 +107,11 @@ class SidebarModel: ObservableObject {
                 destinations.insert(contentsOf: [.newStatus, .myStatuses, .following], at: 0)
             }
             return destinations
+        case .more:
+            return [
+                .myPURLs,
+                .myPastes
+            ]
         default:
             return []
         }

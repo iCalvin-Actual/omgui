@@ -1113,7 +1113,7 @@ class AddressPURLDataFetcher: DataFetcher {
                 purl = addressPurls.first(where: { $0.value == title })
             }
             purlContent = try await interface.fetchPURLContent(title, from: addressName, credential: credential)
-            threadSafeSendUpdate()
+            fetchFinished()
         }
     }
     
@@ -1139,11 +1139,80 @@ class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
     override func throwingRequest() async throws {
         Task {
             let purls = try await interface.fetchAddressPURLs(addressName, credential: credential)
-            DispatchQueue.main.async {
-                self.listItems = purls
-                self.fetchFinished()
+            self.listItems = purls
+            self.fetchFinished()
+        }
+    }
+}
+
+class AccountPURLsDataFetcher: ListDataFetcher<PURLModel> {
+    let addresses: [AddressName]
+    let credential: APICredential
+    
+    var lists: [AddressName: [PURLModel]] = [:]
+    override var listItems: [PURLModel] {
+        get {
+            lists.reduce([], { $0 + $1.value })
+        }
+        set {
+            let oldValue = listItems
+            var toInsert: Set<PURLModel> = []
+            var toRemove: Set<PURLModel> = []
+            Array(Set<PURLModel>(oldValue + newValue)).forEach({ model in
+                if oldValue.contains(model) && !newValue.contains(model) {
+                    toRemove.insert(model)
+                } else if !oldValue.contains(model) && newValue.contains(model) {
+                    toInsert.insert(model)
+                }
+            })
+            
+            toRemove.forEach { model in
+                var items = lists[model.addressName] ?? []
+                if let index = items.firstIndex(of: model) {
+                    items.remove(at: index)
+                }
+                lists[model.addressName] = items
+            }
+            toInsert.forEach { model in
+                var items = lists[model.addressName] ?? []
+                items.append(model)
+                lists[model.addressName] = items
             }
         }
+    }
+    
+    override var title: String {
+        "@/PURLs"
+    }
+    
+    init(addresses: [AddressName], interface: DataInterface, credential: APICredential) {
+        self.addresses = addresses
+        self.credential = credential
+        super.init(interface: interface)
+    }
+    
+    override func throwingRequest() async throws {
+        self.listItems = []
+        guard !addresses.isEmpty else { return fetchFinished() }
+        Task {
+            for address in addresses {
+                do {
+                    let purls = try await interface.fetchAddressPURLs(address, credential: credential)
+                    self.lists[address] = purls
+                    self.fetchFinished()
+                } catch {
+                    // Check error
+                    throw error
+                }
+            }
+        }
+    }
+    
+    override func fetchFinished() {
+        guard addresses.count == lists.count else {
+            return
+        }
+        super.fetchFinished()
     }
 }
 

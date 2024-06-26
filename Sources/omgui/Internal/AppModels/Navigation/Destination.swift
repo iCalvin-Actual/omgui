@@ -36,6 +36,8 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     case editPaste(_ name: AddressName, title: String)
     case editPURL(_ name: AddressName, title: String)
     case myStatuses
+    case myPURLs
+    case myPastes
     
     var rawValue: String {
         switch self {
@@ -65,6 +67,8 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         case .editPURL(let address, let purl):      return "purl.\(address).\(purl).edit"
         case .editPaste(let paste, let address):    return "paste.\(address).\(paste).edit"
         case .myStatuses:                           return "myStatuses"
+        case .myPURLs:                              return "myPURLs"
+        case .myPastes:                             return "myPastes"
         }
     }
     
@@ -170,6 +174,10 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
             }
         case "myStatuses":
             self = .myStatuses
+        case "myPURLs":
+            self = .myPURLs
+        case "myPastes":
+            self = .myPastes
         default:
             return nil
         }

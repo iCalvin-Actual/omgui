@@ -24,7 +24,9 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     case editNow
     case myStatuses
     case newStatus
+    case myPURLs
     case newPURL
+    case myPastes
     case newPaste
     
     case pinnedAddress(_ address: AddressName)
@@ -45,7 +47,9 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         case .editNow:                  return "my now"
         case .myStatuses:               return "my statuses"
         case .newStatus:                return "new status"
+        case .myPURLs:                  return "my PURLs"
         case .newPURL:                  return "new PURL"
+        case .myPastes:                 return "my pastes"
         case .newPaste:                 return "new paste"
         }
     }
@@ -85,8 +89,12 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             self = .myStatuses
         case "new status":
             self = .newStatus
+        case "my purls":
+            self = .myPURLs
         case "new PURL":
             self = .newPURL
+        case "my pastes":
+            self = .myPastes
         case "new paste":
             self = .newPaste
         default:
@@ -99,27 +107,31 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         case .account:
             return "Account"
         case .community:
-            return "Community"
+            return "/status.log"
         case .following, .followingStatuses, .followingAddresses:
-            return "Following"
+            return "/following"
         case .nowGarden:
-            return "Now Garden"
+            return "/nowGarden"
         case .pinnedAddress(let address):
             return address.addressDisplayString
         case .search:
-            return "Search"
+            return "/search"
         case .blocked:
-            return "Blocked"
+            return "/blocked"
         case .editProfile:
-            return "My Profie"
+            return "/profile"
         case .editNow:
-            return "My Now"
+            return "/now"
         case .myStatuses:
-            return "My Statuses"
+            return "/statuses"
         case .newStatus:
-            return "New Status"
+            return "/new"
+        case .myPURLs:
+            return "/purls"
         case .newPURL:
             return "New PURL"
+        case .myPastes:
+            return "/pastes"
         case .newPaste:
             return "New Paste"
         }
@@ -141,9 +153,9 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return "pin"
         case .blocked:
             return "hand.raised"
-        case .newStatus:
+        case .newStatus, .newPURL, .newPaste:
             return "pencil.and.scribble"
-        case .editProfile, .editNow, .myStatuses, .newPaste, .newPURL:
+        case .editProfile, .editNow, .myStatuses, .myPURLs, .myPastes:
             return "at"
         }
     }
@@ -185,6 +197,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return .myStatuses
         case .newStatus:
             return .editStatus(.autoUpdatingAddress, id: "")
+        case .myPURLs:
+            return .myPURLs
         default:
             return .account
         }

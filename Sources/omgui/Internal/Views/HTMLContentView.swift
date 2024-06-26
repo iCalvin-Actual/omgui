@@ -30,7 +30,7 @@ struct HTMLContentView: UIViewRepresentable {
         
         nonisolated
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
-            switch (navigationAction.navigationType, navigationAction.request.url?.host() == nil) {
+            switch await (navigationAction.navigationType, navigationAction.request.url?.host() == nil) {
             /// This... isn't a great experience.
             /// Hold onto the code until we're ready to handle these links natively
             /*
@@ -47,7 +47,7 @@ struct HTMLContentView: UIViewRepresentable {
                 return .cancel
              */
             case (.linkActivated, _):
-                let url = navigationAction.request.url
+                let url = await navigationAction.request.url
                 Task { @MainActor in
                     handleURL?(url)
                 }
@@ -147,9 +147,9 @@ struct RemoteHTMLContentView: UIViewRepresentable {
         
         nonisolated
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
-            switch (navigationAction.navigationType, navigationAction.request.url?.host() == nil) {
+            switch await (navigationAction.navigationType, navigationAction.request.url?.host() == nil) {
             case (.linkActivated, _):
-                let url = navigationAction.request.url
+                let url = await navigationAction.request.url
                 Task { @MainActor in
                     handleURL?(url)
                 }

@@ -66,13 +66,15 @@ struct DestinationConstructor {
             AccountView(addressBook: addressBook, accountModel: accountModel)
         case .myStatuses:
             MyStatusesView(addressBook: addressBook, accountModel: accountModel)
-//        case .editPURL(let address, title: let title):
-//            if let credential = accountModel.credential(for: address, in: addressBook) {
-//                NamedItemDraftView(fetcher: fetchConstructor.draftPurlPoster(title, for: address, credential: credential))
-//            } else {
-//                // Unauthorized
-//                EmptyView()
-//            }
+        case .myPURLs:
+            MyPURLsView(addressBook: addressBook, accountModel: accountModel)
+        case .editPURL(let address, title: let title):
+            if let credential = accountModel.credential(for: address, in: addressBook) {
+                NamedItemDraftView(fetcher: fetchConstructor.draftPurlPoster(title, for: address, credential: credential))
+            } else {
+                // Unauthorized
+                EmptyView()
+            }
 //        case .editPaste(let address, title: let title):
 //            if let credential = accountModel.credential(for: address, in: addressBook) {
 //                NamedItemDraftView(fetcher: fetchConstructor.draftPastePoster(title, for: address, credential: credential))
