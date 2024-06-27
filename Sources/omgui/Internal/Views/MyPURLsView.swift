@@ -14,6 +14,8 @@ struct MyPURLsView: View {
     @ObservedObject
     var addressFetcher: AddressPURLsDataFetcher
     
+    let singleAddressMode: Bool
+    
     var accountFetcher: AccountPURLsDataFetcher {
         account.accountPURLsFetcher
     }
@@ -27,7 +29,8 @@ struct MyPURLsView: View {
         }
     }
     
-    init(addressBook: AddressBook, accountModel: AccountModel) {
+    init(singleAddress: Bool, addressBook: AddressBook, accountModel: AccountModel) {
+        singleAddressMode = singleAddress
         account = accountModel
         addressFetcher = addressBook.fetchConstructor.addressPURLsFetcher(addressBook.actingAddress, credential: accountModel.credential(for: addressBook.actingAddress, in: addressBook))
     }

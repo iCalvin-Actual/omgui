@@ -38,6 +38,9 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     case myStatuses
     case myPURLs
     case myPastes
+    case addressStatuses
+    case addressPURLs
+    case addressPastes
     
     var rawValue: String {
         switch self {
@@ -69,6 +72,9 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         case .myStatuses:                           return "myStatuses"
         case .myPURLs:                              return "myPURLs"
         case .myPastes:                             return "myPastes"
+        case .addressStatuses:                      return "addressStatuses"
+        case .addressPURLs:                         return "addressPURLs"
+        case .addressPastes:                        return "addressPastes"
         }
     }
     
@@ -178,6 +184,12 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
             self = .myPURLs
         case "myPastes":
             self = .myPastes
+        case "addressStatuses":
+            self = .addressStatuses
+        case "addressPURLs":
+            self = .addressPURLs
+        case "addressPastes":
+            self = .addressPastes
         default:
             return nil
         }

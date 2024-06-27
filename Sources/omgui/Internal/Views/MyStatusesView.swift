@@ -14,6 +14,8 @@ struct MyStatusesView: View {
     @ObservedObject
     var addressFetcher: StatusLogDataFetcher
     
+    let singleAddressMode: Bool
+    
     var accountFetcher: StatusLogDataFetcher {
         account.accountStatusesFetcher
     }
@@ -27,7 +29,8 @@ struct MyStatusesView: View {
         }
     }
     
-    init(addressBook: AddressBook, accountModel: AccountModel) {
+    init(singleAddress: Bool, addressBook: AddressBook, accountModel: AccountModel) {
+        singleAddressMode = singleAddress
         account = accountModel
         addressFetcher = addressBook.fetchConstructor.statusLog(for: [addressBook.actingAddress])
     }

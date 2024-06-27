@@ -65,9 +65,9 @@ struct DestinationConstructor {
         case .account:
             AccountView(addressBook: addressBook, accountModel: accountModel)
         case .myStatuses:
-            MyStatusesView(addressBook: addressBook, accountModel: accountModel)
+            MyStatusesView(singleAddress: false, addressBook: addressBook, accountModel: accountModel)
         case .myPURLs:
-            MyPURLsView(addressBook: addressBook, accountModel: accountModel)
+            MyPURLsView(singleAddress: false, addressBook: addressBook, accountModel: accountModel)
         case .editPURL(let address, title: let title):
             if let credential = accountModel.credential(for: address, in: addressBook) {
                 NamedItemDraftView(fetcher: fetchConstructor.draftPurlPoster(title, for: address, credential: credential))
@@ -76,14 +76,14 @@ struct DestinationConstructor {
                 EmptyView()
             }
         case .myPastes:
-            MyPastesView(addressBook: addressBook, accountModel: accountModel)
-//        case .editPaste(let address, title: let title):
-//            if let credential = accountModel.credential(for: address, in: addressBook) {
-//                NamedItemDraftView(fetcher: fetchConstructor.draftPastePoster(title, for: address, credential: credential))
-//            } else {
-//                // Unauthorized
-//                EmptyView()
-//            }
+            MyPastesView(singleAddress: false, addressBook: addressBook, accountModel: accountModel)
+        case .editPaste(let address, title: let title):
+            if let credential = accountModel.credential(for: address, in: addressBook) {
+                NamedItemDraftView(fetcher: fetchConstructor.draftPastePoster(title, for: address, credential: credential))
+            } else {
+                // Unauthorized
+                EmptyView()
+            }
 //        case .editWebpage(let name):
 //            if let poster = addressBook.profilePoster(for: name) {
 //                EditPageView(poster: poster)
@@ -107,6 +107,12 @@ struct DestinationConstructor {
                 // Unauthenticated
                 EmptyView()
             }
+        case .addressStatuses:
+            MyStatusesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
+        case .addressPURLs:
+            MyPURLsView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
+        case .addressPastes:
+            MyPastesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
         default:
             EmptyView()
         }

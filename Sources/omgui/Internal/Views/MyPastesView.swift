@@ -14,11 +14,16 @@ struct MyPastesView: View {
     @ObservedObject
     var addressFetcher: AddressPasteBinDataFetcher
     
+    let singleAddressMode: Bool
+    
     var accountFetcher: AccountPastesDataFetcher {
         account.accountPastesFetcher
     }
     
     var activeFetcher: ListDataFetcher<PasteModel> {
+        guard !singleAddressMode else {
+            return addressFetcher
+        }
         switch filter {
         case .mine:
             return addressFetcher
@@ -27,7 +32,12 @@ struct MyPastesView: View {
         }
     }
     
-    init(addressBook: AddressBook, accountModel: AccountModel) {
+    init(
+        singleAddress: Bool,
+        addressBook: AddressBook,
+        accountModel: AccountModel
+    ) {
+        singleAddressMode = singleAddress
         account = accountModel
         addressFetcher = addressBook.fetchConstructor.addressPastesFetcher(addressBook.actingAddress, credential: accountModel.credential(for: addressBook.actingAddress, in: addressBook))
     }
@@ -36,23 +46,25 @@ struct MyPastesView: View {
         ListView<PasteModel, PasteRowView, EmptyView>(dataFetcher: activeFetcher, rowBuilder: { .init(model: $0) })
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
-                    Button(action: toggleFilter) {
-                        ZStack(alignment: .bottom) {
-                            Image(systemName: "person.3")
-                                .opacity(filter != .mine ? 1 : 0)
-                            Image(systemName: "person.fill")
-                                .scaleEffect(filter == .mine ? 1 : 1.1)
-                                .padding(.bottom, 2)
+                    if !singleAddressMode {
+                        Button(action: toggleFilter) {
+                            ZStack(alignment: .bottom) {
+                                Image(systemName: "person.3")
+                                    .opacity(filter != .mine ? 1 : 0)
+                                Image(systemName: "person.fill")
+                                    .scaleEffect(filter == .mine ? 1 : 1.1)
+                                    .padding(.bottom, 2)
+                            }
+                            .bold()
+                            .foregroundStyle(Color.white)
+                            .frame(width: 44, height: 44)
+                            .padding(8)
+                            .background(Color.lolAccent)
+                            .mask(Circle())
                         }
-                        .bold()
-                        .foregroundStyle(Color.white)
-                        .frame(width: 44, height: 44)
-                        .padding(8)
-                        .background(Color.lolAccent)
-                        .mask(Circle())
                     }
                     Spacer()
-                    NavigationLink(value: NavigationDestination.editPURL(actingAddress, title: "")) {
+                    NavigationLink(value: NavigationDestination.editPaste(actingAddress, title: "")) {
                         Image(systemName: "pencil.and.scribble")
                             .bold()
                             .foregroundStyle(Color.white)
