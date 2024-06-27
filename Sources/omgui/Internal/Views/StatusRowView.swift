@@ -27,42 +27,6 @@ struct StatusRowView: View {
     @Environment(\.viewContext)
     var context: ViewContext
     
-    var imageLinks: [SharePacket] {
-        func extractImageNamesAndURLs(from markdown: String) -> [(name: String, url: URL)] {
-            var results = [(name: String, url: URL)]()
-            
-            do {
-                let regex = try NSRegularExpression(pattern: "!\\[(.*?)\\]\\(([^)]+)\\)", options: [])
-                let nsString = NSString(string: markdown)
-                let matches = regex.matches(in: markdown, options: [], range: NSRange(location: 0, length: nsString.length))
-                
-                for set in matches.enumerated() {
-                    let match = set.element
-                    guard match.numberOfRanges == 3 else { continue }
-                    let nameRange = match.range(at: 1)
-                    let urlRange = match.range(at: 2)
-                    let matchingName = nsString.substring(with: nameRange)
-                    let name: String
-                    if matchingName.isEmpty {
-                        name = "Image \(set.offset + 1)"
-                    } else {
-                        name = matchingName
-                    }
-                    let urlString = nsString.substring(with: urlRange)
-                    guard let url = URL(string: urlString) else {
-                        continue
-                    }
-                    results.append((name, url))
-                }
-            } catch {
-                print("Error while processing regex: \(error)")
-            }
-            
-            return results
-        }
-        return extractImageNamesAndURLs(from: model.status).map({ SharePacket(name: $0.name, content: $0.url) })
-    }
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             buttonIfNeeded
@@ -93,7 +57,7 @@ struct StatusRowView: View {
             }
         })
         .confirmationDialog("Open Image", isPresented: $showURLs, actions: {
-            ForEach(imageLinks) { link in
+            ForEach(model.imageLinks) { link in
                 Button {
                     presentUrl = link.content
                 } label: {

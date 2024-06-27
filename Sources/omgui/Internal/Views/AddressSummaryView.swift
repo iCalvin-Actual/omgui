@@ -55,13 +55,14 @@ struct AddressSummaryView: View {
     var sizeAppropriateBody: some View {
         VStack(spacing: 0) {
             HStack(alignment: .top) {
-                AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
-                Spacer()
                 Menu {
                     AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
                 } label: {
                     AddressIconView(address: addressSummaryFetcher.addressName)
                 }
+                .frame(width: 44)
+                AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding()
             

@@ -8,7 +8,7 @@
 import CoreTransferable
 import Foundation
 
-struct SharePacket: Identifiable {
+struct SharePacket: Identifiable, Hashable {
     
     var id: String { [name, content.absoluteString].joined() }
     

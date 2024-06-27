@@ -900,6 +900,8 @@ class StatusDataFetcher: DataFetcher {
     
     var status: StatusModel?
     
+    var linkFetchers: [URLContentDataFetcher] = []
+    
     init(id: String, from address: String, interface: DataInterface) {
         self.address = address
         self.id = id
@@ -908,7 +910,14 @@ class StatusDataFetcher: DataFetcher {
     
     override func throwingRequest() async throws {
         status = try await interface.fetchAddressStatus(id, from: address)
-        threadSafeSendUpdate()
+        status?.webLinks.forEach { link in
+            linkFetchers.append(.init(url: link.content, interface: interface))
+        }
+        fetchFinished()
+    }
+    
+    func fetcher(for url: URL) -> URLContentDataFetcher? {
+        linkFetchers.first(where: { $0.url == url })
     }
 }
 
@@ -984,6 +993,32 @@ class AddressProfileDataFetcher: DataFetcher {
             return super.summaryString
         }
         return DateFormatter.short.string(from: Date())
+    }
+}
+
+@MainActor
+class URLContentDataFetcher: DataFetcher {
+    let url: URL
+    
+    @Published
+    var html: String?
+    
+    init(url: URL, html: String? = nil, interface: DataInterface) {
+        self.url = url
+        self.html = html
+        super.init(interface: interface)
+    }
+    
+    override func throwingRequest() async throws {
+        URLSession.shared.dataTaskPublisher(for: url)
+          .map(\.data)
+          .eraseToAnyPublisher()
+          .receive(on: DispatchQueue.main)
+          .sink(receiveCompletion: { _ in }) { [weak self] newValue in
+              self?.html = String(data: newValue, encoding: .utf8)
+              self?.fetchFinished()
+          }
+          .store(in: &requests)
     }
 }
 
