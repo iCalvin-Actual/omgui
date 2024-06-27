@@ -239,12 +239,7 @@ public struct StatusModel: Hashable, Identifiable, Sendable {
                     let nameRange = match.range(at: 1)
                     let urlRange = match.range(at: 2)
                     let matchingName = nsString.substring(with: nameRange)
-                    let name: String
-                    if matchingName.isEmpty {
-                        name = "Image \(set.offset + 1)"
-                    } else {
-                        name = matchingName
-                    }
+                    let name: String = matchingName
                     let urlString = nsString.substring(with: urlRange)
                     guard let url = URL(string: urlString) else {
                         continue
@@ -253,7 +248,7 @@ public struct StatusModel: Hashable, Identifiable, Sendable {
                 }
                 
                 let dataDetector: NSDataDetector = try .init(types: NSTextCheckingResult.CheckingType.link.rawValue)
-                matches = dataDetector.matches(in: markdown, range: NSMakeRange(0, markdown.count))
+                matches = dataDetector.matches(in: markdown, range: NSMakeRange(0, nsString.length))
                 matches.forEach({ match in
                     let matchString = nsString.substring(with: match.range)
                     guard let urlMatch = URL(string: matchString), !results.contains(where: { $0.url == urlMatch }) else {

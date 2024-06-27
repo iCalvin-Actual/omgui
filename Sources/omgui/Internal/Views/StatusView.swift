@@ -37,6 +37,10 @@ struct StatusView: View {
                 } else if fetcher.loading {
                     LoadingView()
                 }
+                if let items = fetcher.status?.imageLinks, !items.isEmpty {
+                    imageSection(items)
+                        .padding(.horizontal)
+                }
                 if let items = fetcher.status?.linkedItems, !items.isEmpty {
                     linksSection(items)
                         .padding(.horizontal)
@@ -62,24 +66,26 @@ struct StatusView: View {
     }
     
     @ViewBuilder
+    private func imageSection(_ items: [SharePacket]) -> some View {
+        Text("images")
+            .font(.title2)
+        LazyVStack {
+            ForEach(items) { item in
+                linkPreviewBuilder(item)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+    }
+    
+    @ViewBuilder
     private func linksSection(_ items: [SharePacket]) -> some View {
         Text("links")
             .font(.title2)
         
-        GeometryReader { proxy in
-            Grid {
-                GridRow {
-                    ForEach(items.enumerated().filter({ !$0.offset.isMultiple(of: 2) }).map({ $0.element })) { item in
-                        linkPreviewBuilder(item)
-                    }
-                }
-                .frame(maxWidth: proxy.percentageWidth(0.5))
-                GridRow {
-                    ForEach(items.enumerated().filter({ $0.offset.isMultiple(of: 2) }).map({ $0.element })) { item in
-                        linkPreviewBuilder(item)
-                    }
-                }
-                .frame(maxWidth: proxy.percentageWidth(0.5))
+        LazyVStack {
+            ForEach(items) { item in
+                linkPreviewBuilder(item)
+                    .frame(maxWidth: .infinity)
             }
         }
     }
@@ -87,36 +93,49 @@ struct StatusView: View {
     @ViewBuilder
     private func linkPreviewBuilder(_ item: SharePacket) -> some View {
         Button {
+            guard item.content.scheme?.contains("http") ?? false else {
+                UIApplication.shared.open(item.content)
+                return
+            }
             withAnimation {
                 presentURL = item.content
             }
         } label: {
-            VStack(alignment: .leading) {
-                if !item.name.isEmpty {
-                    Text(item.name)
-                        .font(.headline)
-                        .fontDesign(.rounded)
+            HStack {
+                VStack(alignment: .leading) {
+                    if !item.name.isEmpty {
+                        Text(item.name)
+                            .font(.subheadline)
+                            .bold()
+                            .fontDesign(.rounded)
+                    }
+                    
+                    Text(item.content.absoluteString)
+                        .font(.caption)
+                        .fontDesign(.monospaced)
                 }
+                .multilineTextAlignment(.leading)
+                .lineLimit(3)
                 
-                Text(item.content.absoluteString)
-                    .font(.caption)
-                    .fontDesign(.monospaced)
-                    .multilineTextAlignment(.leading)
+                Spacer()
                 
-                ZStack {
-                    RemoteHTMLContentView(activeAddress: fetcher.address, startingURL: item.content, activeURL: $presentURL)
-                    LinearGradient(
-                        stops: [
-                            .init(color: .lolBackground, location: 0.1),
-                            .init(color: .clear, location: 0.5)
-                        ],
-                        startPoint: .bottom,
-                        endPoint: .top
-                    )
-                }
-                .frame(height: 144)
-                .mask {
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                if item.content.scheme?.contains("http") ?? false {
+                    ZStack {
+                        RemoteHTMLContentView(activeAddress: fetcher.address, startingURL: item.content, activeURL: $presentURL)
+                            
+                        LinearGradient(
+                            stops: [
+                                .init(color: .lolBackground, location: 0.1),
+                                .init(color: .clear, location: 0.5)
+                            ],
+                            startPoint: .bottom,
+                            endPoint: .top
+                        )
+                    }
+                    .frame(width: 144, height: 144)
+                    .mask {
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    }
                 }
             }
             .foregroundColor(.primary)

@@ -1010,6 +1010,11 @@ class URLContentDataFetcher: DataFetcher {
     }
     
     override func throwingRequest() async throws {
+        guard url.scheme?.contains("http") ?? false else {
+            
+            self.fetchFinished()
+            return
+        }
         URLSession.shared.dataTaskPublisher(for: url)
           .map(\.data)
           .eraseToAnyPublisher()

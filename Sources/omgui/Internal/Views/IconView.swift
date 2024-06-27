@@ -77,7 +77,9 @@ fileprivate struct Heart: View {
 
 extension GeometryProxy {
     func percentageWidth(_ percentage: CGFloat) -> CGFloat {
-        size.width * percentage
+        
+        print("size: \(size)")
+        return size.width * percentage
     }
     func percentageHeight(_ percentage: CGFloat) -> CGFloat {
         size.height * percentage

@@ -159,6 +159,17 @@ struct RemoteHTMLContentView: UIViewRepresentable {
             }
         }
         
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            let contentSize = webView.scrollView.contentSize
+            let viewSize = webView.bounds.size
+
+            let rw = Float(viewSize.width / contentSize.width)
+
+            webView.scrollView.minimumZoomScale = CGFloat(rw)
+            webView.scrollView.maximumZoomScale = CGFloat(rw)
+            webView.scrollView.zoomScale = CGFloat(rw)
+        }
+        
         func load(url: URL, webView: WKWebView) {
             let request = URLRequest(url: url)
             webView.load(request)
@@ -183,12 +194,12 @@ struct RemoteHTMLContentView: UIViewRepresentable {
         view.allowsLinkPreview = true
         view.allowsBackForwardNavigationGestures = true
         view.scrollView.isScrollEnabled = false
+        view.navigationDelegate = context.coordinator
         
         return view
     }
     
     func updateUIView(_ uiView: WKWebView, context: RemoteHTMLContentView.Context) {
-        uiView.scrollView.setZoomScale(1, animated: true)
                                        
         context.coordinator.load(url: startingURL, webView: uiView)
 //        context.coordinator.showContent(htmlContent, in: uiView)
