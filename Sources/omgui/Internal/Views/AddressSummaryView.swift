@@ -21,6 +21,8 @@ struct AddressSummaryView: View {
     
     @State
     var sidebarVisibility: NavigationSplitViewVisibility = .all
+    @State
+    var expandBio: Bool = false
     
     @SceneStorage("app.lol.address.page")
     var selectedPage: AddressContent = .profile
@@ -51,41 +53,44 @@ struct AddressSummaryView: View {
     
     @ViewBuilder
     var sizeAppropriateBody: some View {
-        VStack(spacing: -3) {
-            HStack(alignment: .bottom) {
-                ScrollView(.horizontal) {
-                    HStack(alignment: .bottom, spacing: 0) {
-                        ForEach(allPages) { page in
-                            Button(action: {
-                                withAnimation {
-                                    selectedPage = page
-                                }
-                            }) {
-                                Text(page.displayString)
-                                    .font(.subheadline)
-                                    .fontDesign(.rounded)
-                                    .bold()
-                                    .padding(8)
-                                    .padding(.bottom, 6)
-                                    .frame(minWidth: 44, maxHeight: .infinity, alignment: .bottom)
-                                    .background(selectedPage == page ? Color.accentColor : Color.clear)
-                                    .clipShape(UnevenRoundedRectangle(cornerRadii: .init(topLeading: 12, topTrailing: 12), style: .circular))
-                            }
-                            .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
-                        }
-                        .padding(.horizontal, 6)
-                    }
-                }
+        VStack(spacing: 0) {
+            HStack(alignment: .top) {
+                AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
+                Spacer()
                 Menu {
                     AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
                 } label: {
                     AddressIconView(address: addressSummaryFetcher.addressName)
                 }
-                .padding([.trailing, .bottom], 6)
             }
-            .frame(height: 50)
+            .padding()
             
-            destination(selectedPage)
+            VStack(spacing: 0) {
+                HStack(alignment: .top) {
+                    ScrollView(.horizontal) {
+                        HStack(alignment: .bottom, spacing: 0) {
+                            ForEach(allPages) { page in
+                                Button(action: {
+                                    withAnimation {
+                                        expandBio = false
+                                        selectedPage = page
+                                    }
+                                }) {
+                                    Text(page.displayString)
+                                }
+                                .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
+                                .background(Color.lolBackground)
+                            }
+                        }
+                    }
+                }
+                .frame(height: 50)
+                .ignoresSafeArea(.container, edges: [.bottom])
+                
+                
+                destination(selectedPage)
+                    .frame(maxHeight: expandBio ? 0 : .infinity)
+            }
         }
     }
     
@@ -110,6 +115,43 @@ struct AddressSummaryView: View {
             return addressSummaryFetcher.profileFetcher
         case .statuslog:
             return addressSummaryFetcher.statusFetcher
+        }
+    }
+}
+
+struct AddressBioLabel: View {
+    @Binding
+    var expanded: Bool
+    
+    @ObservedObject
+    var addressBioFetcher: AddressBioDataFetcher
+    
+    var body: some View {
+        if addressBioFetcher.loading {
+            LoadingView(.horizontal)
+        } else if let bio = addressBioFetcher.bio?.bio {
+            contentView(bio)
+                .onTapGesture {
+                    withAnimation {
+                        expanded.toggle()
+                    }
+                }
+        } else {
+            EmptyView()
+        }
+    }
+    
+    @ViewBuilder
+    func contentView(_ bio: String) -> some View {
+        if expanded {
+            ScrollView {
+                MarkdownContentView(content: bio)
+            }
+        } else {
+            Text(bio)
+                .lineLimit(3)
+                .font(.caption)
+                .fontDesign(.monospaced)
         }
     }
 }

@@ -12,6 +12,15 @@ struct AddressTabStyle: ButtonStyle {
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .font(.subheadline)
+            .fontDesign(.rounded)
+            .bold()
+            .padding(8)
+            .padding(.bottom, 6)
+            .frame(minWidth: 44, maxHeight: .infinity, alignment: .bottom)
+            .background(isActive ? Color.accentColor : Color.clear)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .padding(6)
             .foregroundColor(isActive ? .white : .primary)
             .bold(isActive)
     }

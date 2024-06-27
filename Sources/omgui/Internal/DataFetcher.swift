@@ -548,7 +548,7 @@ class AddressBioDataFetcher: DataFetcher {
         Task {
             let bio = try await interface.fetchAddressBio(address)
             self.bio = bio
-            self.threadSafeSendUpdate()
+            self.fetchFinished()
         }
     }
 }
