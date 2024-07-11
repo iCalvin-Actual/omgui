@@ -87,6 +87,9 @@ public final class SampleData: DataInterface {
         return .sample(with: address)
     }
     
+    public func deletePURL(_ id: String, from address: AddressName, credential: APICredential) async throws {
+    }
+    
     public func fetchPURLContent(_ id: String, from address: AddressName, credential: APICredential?) async throws -> String? {
         try await Task.sleep(nanoseconds: artificalDelay)
         let content = String.htmlContent

@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct CardViewModifier: ViewModifier {
+    @Environment(\.colorScheme) 
+    var colorScheme
+    
     let color: Color
     let background: Color?
     let padding: CGFloat
@@ -21,14 +24,16 @@ struct CardViewModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
+        Group {
             content
                 .frame(maxWidth: .infinity)
                 .padding(padding)
-                .background(background ?? Color.clear)
-                .background(Material.regular)
-                .foregroundStyle(color)
-                .cornerRadius(radius)
-                .shadow(radius: 4, y: 2)
+                .background(color)
+                .foregroundStyle(Color.primary)
+                .cornerRadius(4)
+                .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black, radius: 0, x: 8, y: 8)
+        }
+        .padding(2)
     }
 }
 
@@ -64,5 +69,7 @@ struct CardViewModifier_Previews: PreviewProvider {
         }
         .asCard(color: .lolPink)
         .padding()
+        .frame(maxHeight: .infinity, alignment: .top)
+        .background(Color.lolBackground)
     }
 }

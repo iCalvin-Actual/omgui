@@ -97,12 +97,12 @@ struct HTMLContentView: UIViewRepresentable {
     }
     
     func makeUIView(context: HTMLContentView.Context) -> WKWebView {
-        let view = WKWebView()
-        view.allowsLinkPreview = true
-        view.allowsBackForwardNavigationGestures = true
-        view.scrollView.contentInsetAdjustmentBehavior = .never
-        
-        return view
+        let wkWebView = WKWebView()
+        wkWebView.allowsLinkPreview = true
+        wkWebView.allowsBackForwardNavigationGestures = true
+        wkWebView.scrollView.contentInsetAdjustmentBehavior = .never
+        wkWebView.scrollView.contentInset = .init(top: 0, left: 0, bottom: 100, right: 0)
+        return wkWebView
     }
     
     func updateUIView(_ uiView: WKWebView, context: HTMLContentView.Context) {

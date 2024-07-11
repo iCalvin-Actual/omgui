@@ -13,7 +13,7 @@ struct StatusDraftView: View {
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
     
-    enum FocusField: Hashable {
+    private enum FocusField: Hashable {
         case emoji
         case content
     }
@@ -36,22 +36,13 @@ struct StatusDraftView: View {
     @State
     var presentResult: Bool = false
     
-    var bindingEmoji: Binding<String> {
-        .init {
-            draftPoster.draft.emoji
-        } set: { newValue in
-            draftPoster.draft.emoji = newValue
-        }
-
-    }
-    
     var draftId: String {
         draftPoster.draft.id ?? ""
     }
     
     init(draftPoster: StatusDraftPoster) {
         self._draftPoster = .init(wrappedValue:  draftPoster)
-        self.showPlaceholder = draftPoster.originalContent.isEmpty
+        self.showPlaceholder = draftPoster.originalDraft == nil
     }
     
     var body: some View {

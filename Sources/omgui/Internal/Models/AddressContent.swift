@@ -49,9 +49,9 @@ enum AddressContent: String, Identifiable {
     var editText: String {
         switch self {
         case .profile, .now:
-            return "Edit"
+            return "edit"
         default:
-            return "New"
+            return "new"
         }
     }
     

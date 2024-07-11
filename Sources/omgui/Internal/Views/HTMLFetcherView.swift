@@ -25,6 +25,23 @@ struct HTMLFetcherView: View {
             baseURL: baseURL,
             activeURL: $presentedURL
         )
+        .ignoresSafeArea(.container, edges: .bottom)
+        .safeAreaInset(edge: .bottom) {
+            if let url = baseURL {
+                Link(destination: url) {
+                    Label {
+                        Text("Open URL")
+                    } icon: {
+                        Image(systemName: "link")
+                    }
+                    .padding()
+                    .background(Material.thin)
+                    .cornerRadius(16)
+                }
+                .frame(maxWidth: .infinity)
+                .background(Color.clear)
+            }
+        }
         .overlay(content: {
             if fetcher.loading {
                 LoadingView()

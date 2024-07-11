@@ -93,7 +93,7 @@ class FetchConstructor {
     }
     
     func draftPurlPoster(_ title: String, for address: AddressName, credential: APICredential) -> PURLDraftPoster {
-        PURLDraftPoster(address, title: title, interface: interface, credential: credential)
+        PURLDraftPoster(address, title: title, value: "", interface: interface, credential: credential, onPost: { _ in })
     }
     
     func statusFetcher(_ id: String, from address: AddressName) -> StatusDataFetcher {

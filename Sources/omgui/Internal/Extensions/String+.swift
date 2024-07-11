@@ -185,3 +185,20 @@ extension AddressName {
         URL(string: "https://profiles.cache.lol/\(self)/picture")
     }
 }
+
+extension String {
+    func clearWhitespace() -> String {
+        filter { !$0.isWhitespace }
+    }
+    
+    public var urlString: String {
+        var newText = self
+        if !newText.contains("://") {
+            newText = "https://" + newText
+        }
+        if !newText.contains(".") {
+            newText = newText + ".com"
+        }
+        return newText
+    }
+}

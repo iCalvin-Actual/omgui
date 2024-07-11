@@ -151,7 +151,7 @@ public struct PURLModel: Hashable, Identifiable, RawRepresentable, Codable, Send
         return URL(string: string)
     }
     
-    public init(owner: AddressName, value: String, destination: String? = nil, listed: Bool) {
+    public init(owner: AddressName, value: String, destination: String? = nil, listed: Bool = true) {
         self.owner = owner
         self.destination = destination
         self.value = value

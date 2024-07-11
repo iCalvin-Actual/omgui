@@ -36,3 +36,14 @@ extension DateFormatter {
         return formatter
     }()
 }
+
+extension RelativeDateTimeFormatter {
+    @MainActor 
+    static let standard: RelativeDateTimeFormatter = {
+        var formatter = RelativeDateTimeFormatter()
+        
+        formatter.unitsStyle = .short
+        
+        return formatter
+    }()
+}

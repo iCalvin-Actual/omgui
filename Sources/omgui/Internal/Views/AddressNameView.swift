@@ -10,14 +10,16 @@ import SwiftUI
 struct AddressNameView: View {
     let name: AddressName
     let font: Font
+    let path: String?
     
-    init(_ name: AddressName, font: Font = .title) {
+    init(_ name: AddressName, font: Font = .title, path: String? = nil) {
         self.name = name
         self.font = font
+        self.path = path
     }
     
     var body: some View {
-        ThemedTextView(text: name.addressDisplayString, font: font)
+        ThemedTextView(text: name.addressDisplayString, font: font, suffix: path)
     }
 }
 

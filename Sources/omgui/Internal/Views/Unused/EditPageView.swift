@@ -30,7 +30,7 @@ struct EditPageView<D: MDDraftable>: View {
                 await poster.perform()
             }
         } label: {
-            Text("Save")
+            Text("save")
         }
     }
 }

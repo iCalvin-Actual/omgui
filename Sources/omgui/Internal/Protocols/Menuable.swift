@@ -39,14 +39,12 @@ protocol Menuable {
 extension Menuable {
     @ViewBuilder
     func editingSection(in scene: SceneModel) -> some View {
-        if self is Editable, let name = (self as? Editable)?.addressToActOn, scene.addressBook.myAddresses.contains(name) {
-            Button(action: {
-                withAnimation {
-                    scene.editingModel = self as? Editable
-                }
-            }, label: {
-                Label("Edit", systemImage: "pencil.line")
-            })
+        if let editable = self as? Editable, scene.addressBook.myAddresses.contains(editable.addressToActOn) {
+            NavigationLink {
+                scene.destinationConstructor.destination(editable.editingDestination)
+            } label: {
+                Label("edit", systemImage: "pencil.line")
+            }
             Divider()
         }
     }

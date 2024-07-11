@@ -94,6 +94,13 @@ public protocol DataInterface: Sendable {
     )
     async throws -> String?
     
+    func deletePURL(
+        _ id: String,
+        from address: AddressName,
+        credential: APICredential
+    )
+    async throws
+    
     func savePURL(
         _ draft: PURLModel.Draft,
         to address: AddressName,

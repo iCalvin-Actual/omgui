@@ -19,7 +19,7 @@ public protocol MDDraftable: SomeDraftable {
     associatedtype MDDraftItem: MDDraft
 }
 
-public protocol DraftItem: Sendable {
+public protocol DraftItem: Sendable, Identifiable {
     static var contentPlaceholder: String { get }
     
     var address: AddressName { get }
@@ -31,6 +31,9 @@ public protocol DraftItem: Sendable {
     func clear()
 }
 extension DraftItem {
+    public var id: String {
+        address
+    }
     var publishable: Bool {
         !content.isEmpty
     }
@@ -40,8 +43,7 @@ extension DraftItem {
         content = ""
     }
 }
-public protocol MDDraft: DraftItem {
-}
+public protocol MDDraft: DraftItem { }
 public protocol NamedDraft: DraftItem {
     var name: String { get set }
     var listed: Bool { get set }
@@ -49,6 +51,10 @@ public protocol NamedDraft: DraftItem {
     init(address: AddressName, name: String, content: String, listed: Bool)
 }
 extension NamedDraft {
+    public var id: String {
+        address + name
+    }
+    
     mutating
     public func clear() {
         content = ""
@@ -160,7 +166,7 @@ extension PasteModel: NamedDraftable {
             !name.isEmpty && !content.isEmpty
         }
         
-        public init(address: AddressName, name: String, content: String, listed: Bool) {
+        public init(address: AddressName, name: String, content: String, listed: Bool = true) {
             self.address = address
             self.name = name
             self.content = content
@@ -186,11 +192,96 @@ extension PURLModel: NamedDraftable {
             !name.isEmpty && !content.isEmpty
         }
         
-        public init(address: AddressName, name: String, content: String = "", listed: Bool = false) {
+        public init(_ model: PURLModel, name: String? = nil) {
+            self.init(
+                address: model.addressName,
+                name: name ?? "",
+                content: model.destination ?? "",
+                listed: model.listed
+            )
+        }
+        
+        public init(address: AddressName, name: String, content: String = "", listed: Bool = true) {
             self.address = address
             self.name = name
             self.content = content
             self.listed = listed
+        }
+    }
+}
+
+extension PURLRowView {
+    struct Preview: View {
+        @SceneStorage("app.lol.address")
+        var actingAddress: AddressName = ""
+        
+        @Environment(\.viewContext)
+        var context: ViewContext
+        
+        let draftPoster: PURLDraftPoster
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .bottom) {
+                    if context != .profile {
+                        AddressNameView(draftPoster.address, font: .title3)
+                    }
+                    Spacer()
+                    postButton
+                }
+                .padding(2)
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("/\(draftPoster.namedDraft.name)")
+                            .font(.title2)
+                            .bold()
+                            .fontDesign(.serif)
+                            .lineLimit(2)
+                        Spacer()
+                    }
+                    
+                    if !draftPoster.namedDraft.content.isEmpty {
+                        Text(draftPoster.namedDraft.content)
+                            .font(.subheadline)
+                            .fontDesign(.monospaced)
+                            .lineLimit(5)
+                    }
+                }
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity)
+                .padding(12)
+                .foregroundColor(.black)
+                .background(Color.lolRandom(draftPoster.draft.name))
+                .cornerRadius(12, antialiased: true)
+                .padding(.vertical, 4)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        
+        @ViewBuilder
+        var postButton: some View {
+            Button(action: {
+                guard draftPoster.draft.publishable else {
+                    return
+                }
+                Task {
+                    await draftPoster.perform()
+                    draftPoster.draft.clear()
+                }
+            }) {
+                Label {
+                    if draftPoster.result?.id == nil {
+                        Text("publish")
+                    } else {
+                        Text("update")
+                    }
+                } icon: {
+                    Image(systemName: "arrow.up.circle.fill")
+                }
+                .font(.headline)
+            }
+            .disabled(!draftPoster.draft.publishable)
         }
     }
 }
