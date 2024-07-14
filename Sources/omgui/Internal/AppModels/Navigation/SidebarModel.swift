@@ -9,6 +9,7 @@ import Combine
 import Foundation
 import SwiftUI
 
+@MainActor
 class SidebarModel: ObservableObject {
     enum Section: String, Identifiable {
         var id: String { rawValue }
