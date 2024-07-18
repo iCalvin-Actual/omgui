@@ -345,8 +345,6 @@ class DataFetcher: Request {
 
 @MainActor
 class AddressIconDataFetcher: DataFetcher {
-    private var cancellables = Set<AnyCancellable>()
-
     let address: AddressName
     
     @Published
@@ -362,13 +360,13 @@ class AddressIconDataFetcher: DataFetcher {
             return
         }
         URLSession.shared.dataTaskPublisher(for: url)
-            .map{ $0.data }
             .receive(on: DispatchQueue.main)
+            .map{ $0.data }
             .sink { _ in } receiveValue: { [weak self] value in
                 self?.iconData = value
+                self?.fetchFinished()
             }
-            .store(in: &cancellables)
-
+            .store(in: &requests)
     }
 }
 
