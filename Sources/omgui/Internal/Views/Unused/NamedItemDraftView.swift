@@ -17,7 +17,6 @@ struct NamedItemDraftView<D: NamedDraftable>: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            
             HStack {
                 Text("Title")
                     .font(.callout)

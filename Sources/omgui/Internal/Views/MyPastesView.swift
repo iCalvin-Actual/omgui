@@ -64,7 +64,7 @@ struct MyPastesView: View {
                         }
                     }
                     Spacer()
-                    NavigationLink(value: NavigationDestination.editPaste(actingAddress, title: "")) {
+                    NavigationLink(value: NavigationDestination.paste(actingAddress, title: "")) {
                         Image(systemName: "pencil.and.scribble")
                             .bold()
                             .foregroundStyle(Color.white)

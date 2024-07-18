@@ -84,6 +84,10 @@ class DraftPoster<D: SomeDraftable>: Request {
         self.originalDraft = draft
         super.init(interface: interface)
     }
+    
+    func deletePresented() {
+        // Override
+    }
 }
 
 class MDDraftPoster<D: MDDraftable>: DraftPoster<D> {
@@ -279,7 +283,7 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
         }
     }
     
-    func deletePresented() {
+    override func deletePresented() {
         guard let presented = result else {
             return
         }
@@ -1161,12 +1165,17 @@ class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
     }
 }
 
-class AddressPasteDataFetcher: DataFetcher {
+class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
     let addressName: AddressName
     let title: String
     let credential: APICredential?
     
-    var paste: PasteModel?
+    @Published
+    var model: N?
+    
+    var draftPoster: NamedDraftPoster<N>? {
+        return nil
+    }
     
     init(name: AddressName, title: String, interface: DataInterface, credential: APICredential? = nil) {
         self.addressName = name
@@ -1175,80 +1184,91 @@ class AddressPasteDataFetcher: DataFetcher {
         super.init(interface: interface)
     }
     
-    override func throwingRequest() async throws {
-        Task {
-            paste = try await interface.fetchPaste(title, from: addressName, credential: credential)
-            threadSafeSendUpdate()
-        }
+    override var noContent: Bool {
+        !loading && model == nil
     }
     
-    override var noContent: Bool {
-        !loading && paste == nil
+    private func handlePosted(_ model: N) {
+        self.model = model
+    }
+    
+    public func deleteIfPossible() {
+        guard let credential else {
+            return
+        }
+        
     }
 }
 
-class AddressPURLDataFetcher: DataFetcher {
-    let addressName: AddressName
-    let title: String
-    let credential: APICredential?
-    
-    @Published
-    var purlContent: String?
-    
-    @Published
-    var purl: PURLModel?
-    var draftPoster: PURLDraftPoster? {
+class AddressPasteDataFetcher: NamedItemDataFetcher<PasteModel> {
+    override var draftPoster: PasteDraftPoster? {
         guard let credential else {
-            return nil
+            return super.draftPoster as? PasteDraftPoster
         }
-        if let purl {
+        if let model {
             return .init(
                 addressName,
-                title: purl.value,
-                value: purl.destination ?? "",
+                title: model.name,
+                content: model.content ?? "",
                 interface: interface,
                 credential: credential
             )
         } else {
             return .init(
                 addressName,
+                title: "",
                 interface: interface,
                 credential: credential
             )
         }
     }
     
-    init(
-        name: AddressName = .autoUpdatingAddress,
-        title: String = "",
-        interface: DataInterface,
-        credential: APICredential? = nil
-    ) {
-        self.addressName = name
-        self.title = title
-        self.credential = credential
-        super.init(interface: interface)
+    override func throwingRequest() async throws {
+        Task {
+            model = try await interface.fetchPaste(title, from: addressName, credential: credential)
+            threadSafeSendUpdate()
+        }
+    }
+}
+
+class AddressPURLDataFetcher: NamedItemDataFetcher<PURLModel> {
+    
+    @Published
+    var purlContent: String?
+    
+    override var draftPoster: PURLDraftPoster? {
+        guard let credential else {
+            return super.draftPoster as? PURLDraftPoster
+        }
+        if let model {
+            return PURLDraftPoster(
+                addressName,
+                title: model.value,
+                value: model.destination ?? "",
+                interface: interface,
+                credential: credential
+            )
+        } else {
+            return .init(
+                addressName,
+                title: title,
+                interface: interface,
+                credential: credential
+            )
+        }
     }
     
     override func throwingRequest() async throws {
         Task {
             if let credential = credential {
-                purl = try await interface.fetchPURL(title, from: addressName, credential: credential)
+                model = try await interface.fetchPURL(title, from: addressName, credential: credential)
             } else {
                 let addressPurls = try await interface.fetchAddressPURLs(addressName, credential: nil)
-                purl = addressPurls.first(where: { $0.value == title })
+                model = addressPurls.first(where: { $0.value == title })
             }
             purlContent = try await interface.fetchPURLContent(title, from: addressName, credential: credential)
             fetchFinished()
         }
-    }
-    
-    override var noContent: Bool {
-        !loading && purl == nil
-    }
-    
-    private func handlePosted(_ model: PURLModel) {
-        self.purl = model
     }
 }
 

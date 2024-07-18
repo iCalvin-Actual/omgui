@@ -12,8 +12,10 @@ import SwiftUI
 public protocol SomeDraftable: Sendable {
     associatedtype Draft: DraftItem
 }
-public protocol NamedDraftable: SomeDraftable {
+public protocol NamedDraftable: SomeDraftable, Equatable {
     associatedtype NamedDraftItem: NamedDraft
+    
+    var asDraft: Draft? { get }
 }
 public protocol MDDraftable: SomeDraftable {
     associatedtype MDDraftItem: MDDraft
@@ -173,6 +175,10 @@ extension PasteModel: NamedDraftable {
             self.listed = listed
         }
     }
+    
+    public var asDraft: Draft? {
+        .init(address: addressName, name: name, content: content ?? "", listed: listed)
+    }
 }
 
 extension PURLModel: NamedDraftable {
@@ -207,6 +213,10 @@ extension PURLModel: NamedDraftable {
             self.content = content
             self.listed = listed
         }
+    }
+    
+    public var asDraft: Draft? {
+        .init(address: addressName, name: self.value, content: destination ?? "", listed: listed)
     }
 }
 

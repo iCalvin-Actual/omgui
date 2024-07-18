@@ -2,7 +2,7 @@
 import SwiftUI
 
 
-struct PURLDraftView: View {
+struct PasteDraftView: View {
     
     @Environment(\.viewContext)
     var context: ViewContext
@@ -15,9 +15,9 @@ struct PURLDraftView: View {
     private var focusedField: FocusField?
     
     @StateObject
-    var draftFetcher: PURLDraftPoster
+    var draftFetcher: PasteDraftPoster
     
-    init(focusedField: FocusField? = nil, draftFetcher: PURLDraftPoster) {
+    init(focusedField: FocusField? = nil, draftFetcher: PasteDraftPoster) {
         self._draftFetcher = .init(wrappedValue: draftFetcher)
         self.focusedField = focusedField
     }
@@ -26,7 +26,7 @@ struct PURLDraftView: View {
         VStack {
             HStack(alignment: .lastTextBaseline) {
                 if context != .profile {
-                    AddressNameView(draftFetcher.address, font: .title3, path: ".url.lol")
+                    AddressNameView(draftFetcher.address, font: .title3, path: ".paste.lol")
                 }
                 Spacer()
                 postButton
@@ -35,9 +35,21 @@ struct PURLDraftView: View {
             
             VStack {
                 PathField(text: $draftFetcher.namedDraft.name, placeholder: "path")
-                URLField(text: $draftFetcher.namedDraft.content)
+                    .padding(.horizontal, 12)
+                ZStack(alignment: .topLeading) {
+                    if draftFetcher.namedDraft.content.isEmpty {
+                    Text("Placeholder")
+                        .padding(.top, 6)
+                        .padding(.leading, 4)
+                        .foregroundStyle(Color(uiColor: .lightGray))
+                    }
+                    TextEditor(text: $draftFetcher.namedDraft.content)
+                        .scrollContentBackground(.hidden)
+                }
+                .padding(.horizontal, 4)
+                .fontDesign(.monospaced)
             }
-            .padding(12)
+            .padding(.vertical, 12)
             .foregroundColor(.black)
             .background(Color.lolRandom(draftFetcher.draft.name))
             .cornerRadius(12, antialiased: true)
