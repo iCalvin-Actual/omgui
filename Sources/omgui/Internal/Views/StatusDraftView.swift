@@ -153,7 +153,8 @@ struct StatusDraftView: View {
         }
         let toDelete = draftPoster.draft
         Task {
-            let _ = try await sceneModel.accountModel.interface.deleteAddressStatus(toDelete, from: draftPoster.address, credential: credential)
+            let draftedAddress = draftPoster.address
+            let _ = try await sceneModel.accountModel.interface.deleteAddressStatus(toDelete, from: draftedAddress, credential: credential)
             
             withAnimation {
                 draftPoster.draft.clear()

@@ -145,8 +145,9 @@ class ProfileDraftPoster: MDDraftPoster<AddressProfile> {
     @MainActor
     override func throwingRequest() async throws {
         loading = true
+        let draftedAddress = address
         let _ = try await interface.saveAddressProfile(
-            address,
+            draftedAddress,
             content: draft.content,
             credential: credential
         )
@@ -161,8 +162,9 @@ class NowDraftPoster: MDDraftPoster<NowModel> {
     }
     
     override func throwingRequest() async throws {
+        let draftedAddress = address
         let _ = try await interface.saveAddressNow(
-            address,
+            draftedAddress,
             content: draft.content,
             credential: credential
         )
@@ -179,8 +181,10 @@ class PasteDraftPoster: NamedDraftPoster<PasteModel> {
         return "edit"
     }
     
+    @MainActor
     override func throwingRequest() async throws {
-        let _ = try await interface.savePaste(draft, to: address, credential: credential)
+        let draftedAddress = draft.address
+        let _ = try await interface.savePaste(draft, to: draftedAddress, credential: credential)
         threadSafeSendUpdate()
     }
 }
@@ -194,10 +198,11 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel> {
     }
     override func throwingRequest() async throws {
         do {
+            let draftedAddress = draft.address
             if let originalName = originalDraft?.name, !originalName.isEmpty, draft.name != originalName {
-                try await interface.deletePURL(originalName, from: address, credential: credential)
+                try await interface.deletePURL(originalName, from: draftedAddress, credential: credential)
             }
-            if let result = try await interface.savePURL(draft, to: address, credential: credential) {
+            if let result = try await interface.savePURL(draft, to: draftedAddress, credential: credential) {
                 self.result = result
                 onPost(result)
             }
@@ -242,6 +247,7 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel> {
     }
 }
 
+@MainActor
 class StatusDraftPoster: DraftPoster<StatusModel> {
     override var navigationTitle: String {
         if originalDraft == nil {
@@ -254,7 +260,8 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
     }
     
     override func throwingRequest() async throws {
-        if let posted = try await interface.saveStatusDraft(draft, to: address, credential: credential) {
+        let draftedAddress = draft.address
+        if let posted = try await interface.saveStatusDraft(draft, to: draftedAddress, credential: credential) {
             withAnimation { [weak self] in
                 guard let self else {
                     return
@@ -272,7 +279,8 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
             loading = false
             return
         }
-        if let status = try? await interface.fetchAddressStatus(id, from: address) {
+        let draftedAddress = address
+        if let status = try? await interface.fetchAddressStatus(id, from: draftedAddress) {
             draft.emoji = status.emoji ?? ""
             draft.content = status.status
             draft.externalUrl = status.link?.absoluteString
@@ -290,7 +298,8 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
         let patchDraft = StatusModel.Draft(model: presented, id: presented.id)
         Task { [weak self] in
             guard let self else { return }
-            let backup = try await interface.deleteAddressStatus(patchDraft, from: address, credential: credential)
+            let draftedAddress = draft.address
+            let backup = try await interface.deleteAddressStatus(patchDraft, from: draftedAddress, credential: credential)
             withAnimation {
                 if let backup {
                     self.draft = .init(model: backup)
@@ -1196,7 +1205,6 @@ class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
         guard let credential else {
             return
         }
-        
     }
 }
 
