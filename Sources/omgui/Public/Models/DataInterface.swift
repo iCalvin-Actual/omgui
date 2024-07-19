@@ -121,6 +121,13 @@ public protocol DataInterface: Sendable {
     )
     async throws -> PasteModel?
     
+    func deletePaste(
+        _ id: String,
+        from address: AddressName,
+        credential: APICredential
+    )
+    async throws
+    
     func savePaste(
         _ draft: PasteModel.Draft,
         to address: AddressName,

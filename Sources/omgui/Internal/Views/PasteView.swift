@@ -36,7 +36,7 @@ struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
         mainContent
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    if let draftPoster = fetcher.draftPoster {
+                    if fetcher.draftPoster != nil {
                         Menu {
                             Button {
                                 withAnimation {
@@ -57,7 +57,9 @@ struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
                             }
                             Menu {
                                 Button(role: .destructive) {
-                                    draftPoster.deletePresented()
+                                    Task {
+                                        try await fetcher.deleteIfPossible()
+                                    }
                                 } label: {
                                     Text("confirm")
                                 }
@@ -75,7 +77,7 @@ struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
                 }
             }
             .onReceive(fetcher.$model, perform: { model in
-                withAnimation(nil) {
+                withAnimation {
                     let address = fetcher.addressName
                     guard sceneModel.accountModel.myAddresses.contains(address) else {
                         showDraft = false
@@ -87,6 +89,8 @@ struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
                     } else if model != nil {
                         detent = .draftDrawer
                         showDraft = true
+                    } else {
+                        print("Stop")
                     }
                 }
             })

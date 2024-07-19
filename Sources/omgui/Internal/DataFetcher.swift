@@ -114,6 +114,8 @@ class MDDraftPoster<D: MDDraftable>: DraftPoster<D> {
 class NamedDraftPoster<D: NamedDraftable>: DraftPoster<D> {
     let title: String
     
+    let onPost: (D) -> Void
+    
     @Published
     var namedDraft: D.NamedDraftItem
     
@@ -129,11 +131,28 @@ class NamedDraftPoster<D: NamedDraftable>: DraftPoster<D> {
         }
     }
     
-    init(_ address: AddressName, title: String, content: String = "", interface: DataInterface, credential: APICredential) {
+    init(
+        _ address: AddressName,
+        title: String,
+        content: String = "",
+        interface: DataInterface,
+        credential: APICredential,
+        onPost: ((D) -> Void)? = nil
+    ) {
         self.title = title
         let namedDraft = D.NamedDraftItem(address: address, name: title, content: content, listed: true)
         self.namedDraft = namedDraft
-        super.init(address, draft: namedDraft as! D.Draft, interface: interface, credential: credential)
+        self.onPost = onPost ?? { _ in }
+        super.init(
+            address,
+            draft: namedDraft as! D.Draft,
+            interface: interface,
+            credential: credential
+        )
+    }
+    
+    override func deletePresented() {
+        print("Delete")
     }
 }
 
@@ -184,7 +203,13 @@ class PasteDraftPoster: NamedDraftPoster<PasteModel> {
     @MainActor
     override func throwingRequest() async throws {
         let draftedAddress = draft.address
-        let _ = try await interface.savePaste(draft, to: draftedAddress, credential: credential)
+        if let originalName = originalDraft?.name, !originalName.isEmpty, draft.name != originalName {
+            try await interface.deletePaste(originalName, from: draftedAddress, credential: credential)
+        }
+        if let result = try await interface.savePaste(draft, to: draftedAddress, credential: credential) {
+            self.result = result
+            onPost(result)
+        }
         threadSafeSendUpdate()
     }
 }
@@ -197,24 +222,18 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel> {
         return "edit"
     }
     override func throwingRequest() async throws {
-        do {
-            let draftedAddress = draft.address
-            if let originalName = originalDraft?.name, !originalName.isEmpty, draft.name != originalName {
-                try await interface.deletePURL(originalName, from: draftedAddress, credential: credential)
-            }
-            if let result = try await interface.savePURL(draft, to: draftedAddress, credential: credential) {
-                self.result = result
-                onPost(result)
-            }
-            threadSafeSendUpdate()
-        } catch {
-            print("STOP")
+        let draftedAddress = draft.address
+        if let originalName = originalDraft?.name, !originalName.isEmpty, draft.name != originalName {
+            try await interface.deletePURL(originalName, from: draftedAddress, credential: credential)
         }
+        if let result = try await interface.savePURL(draft, to: draftedAddress, credential: credential) {
+            self.result = result
+            onPost(result)
+        }
+        threadSafeSendUpdate()
     }
     
     var destination: String
-    
-    let onPost: (PURLModel) -> Void
     
     init(
         _ address: AddressName = .autoUpdatingAddress,
@@ -225,13 +244,13 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel> {
         onPost: ((PURLModel) -> Void)? = nil
     ) {
         destination = value
-        self.onPost = onPost ?? { _ in }
         super.init(
             address,
             title: title,
             content: value,
             interface: interface,
-            credential: credential
+            credential: credential,
+            onPost: onPost
         )
     }
     
@@ -1199,10 +1218,8 @@ class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
         self.model = model
     }
     
-    public func deleteIfPossible() {
-        guard let credential else {
-            return
-        }
+    public func deleteIfPossible() async throws {
+        // override
     }
 }
 
@@ -1234,6 +1251,15 @@ class AddressPasteDataFetcher: NamedItemDataFetcher<PasteModel> {
             model = try await interface.fetchPaste(title, from: addressName, credential: credential)
             threadSafeSendUpdate()
         }
+    }
+    
+    override func deleteIfPossible() async throws {
+        guard let credential else {
+            return
+        }
+        let _ = try await interface.deletePaste(title, from: addressName, credential: credential)
+        model = PasteModel(owner: addressName, name: "")
+        threadSafeSendUpdate()
     }
 }
 
@@ -1275,6 +1301,15 @@ class AddressPURLDataFetcher: NamedItemDataFetcher<PURLModel> {
             purlContent = try await interface.fetchPURLContent(title, from: addressName, credential: credential)
             fetchFinished()
         }
+    }
+    
+    override func deleteIfPossible() async throws {
+        guard let credential else {
+            return
+        }
+        let _ = try await interface.deletePURL(title, from: addressName, credential: credential)
+        model = PURLModel(owner: addressName, value: "")
+        threadSafeSendUpdate()
     }
 }
 

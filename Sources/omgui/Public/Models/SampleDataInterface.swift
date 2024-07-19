@@ -120,6 +120,13 @@ public final class SampleData: DataInterface {
         return .sample(with: address)
     }
     
+    public func deletePaste(
+        _ id: String,
+        from address: AddressName,
+        credential: APICredential
+    ) async throws {
+    }
+    
     public func savePaste(
         _ draft: PasteModel.Draft,
         to address: AddressName,
