@@ -123,8 +123,6 @@ struct AddressSummaryView: View {
     
     func fetcherForContent(_ content: AddressContent) -> DataFetcher {
         switch content {
-        case .now:
-            return addressSummaryFetcher.nowFetcher
         case .pastebin:
             return addressSummaryFetcher.pasteFetcher
         case .purl:

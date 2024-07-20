@@ -68,4 +68,11 @@ class SceneModel {
             context.insert(model)
         }
     }
+    
+    func fetchNow(_ address: AddressName) async throws {
+        if let nowResponse: NowModel = try await fetchConstructor.interface.fetchAddressNow(address) {
+            let model: AddressNowModel = .init(nowResponse)
+            context.insert(model)
+        }
+    }
 }

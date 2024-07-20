@@ -5,44 +5,58 @@
 //  Created by Calvin Chestnut on 3/8/23.
 //
 
+import SwiftData
 import SwiftUI
 
 struct AddressNowView: View {
-    @ObservedObject
-    var fetcher: AddressNowDataFetcher
+    @Environment(SceneModel.self)
+    var sceneModel
+    
+    let address: AddressName
+    
+    @Query
+    var nows: [AddressNowModel]
+    var now: AddressNowModel? {
+        nows.first(where: { $0.owner == address })
+    }
     
     var body: some View {
         htmlBody
+            .onAppear {
+                Task {
+                    try await sceneModel.fetchNow(address)
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    ThemedTextView(text: fetcher.addressName.addressDisplayString + ".now")
+                    ThemedTextView(text: address.addressDisplayString + ".now")
                 }
             }
     }
     
     @ViewBuilder
     var htmlBody: some View {
-        if let html = fetcher.html {
-            HTMLFetcherView(
-                activeAddress: fetcher.address,
-                htmlContent: html,
-                baseURL: nil
-            )
+        if let html = now?.html {
+            if html.isEmpty {
+                ThemedTextView(text: "no /now page")
+                    .padding()
+            } else {
+                HTMLFetcherView(
+                    activeAddress: address,
+                    htmlContent: html,
+                    baseURL: nil
+                )
+            }
         } else {
             VStack {
-                if fetcher.loading {
-                    LoadingView()
-                } else {
-                    ThemedTextView(text: "no /now page")
-                        .padding()
-                }
+                LoadingView()
                 Spacer()
             }
         }
     }
     
     @ViewBuilder
-    var markdowyBody: some View {
-        MarkdownContentView(source: fetcher, content: fetcher.content)
+    var markdownBody: some View {
+        MarkdownContentView(content: now?.content ?? "")
     }
 }

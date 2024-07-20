@@ -68,10 +68,6 @@ class FetchConstructor {
         AddressPrivateSummaryDataFetcher(name: address, interface: interface, credential: credential)
     }
     
-    func addresNowFetcher(_ address: AddressName) -> AddressNowDataFetcher {
-        AddressNowDataFetcher(name: address, interface: interface)
-    }
-    
     func addressPastesFetcher(_ address: AddressName, credential: APICredential?) -> AddressPasteBinDataFetcher {
         AddressPasteBinDataFetcher(name: address, interface: interface, credential: credential)
     }

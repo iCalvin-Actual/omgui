@@ -33,7 +33,7 @@ struct DestinationConstructor {
         case .webpage(let name):
             AddressProfileView(address: name)
         case .now(let name):
-            AddressNowView(fetcher: addressBook.addressSummary(name).nowFetcher)
+            AddressNowView(address: name)
         case .blocked:
             ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: addressBook.constructBlocklist(), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .following:

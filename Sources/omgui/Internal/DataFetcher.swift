@@ -968,53 +968,6 @@ class URLContentDataFetcher: DataFetcher {
     }
 }
 
-@MainActor
-class AddressNowDataFetcher: DataFetcher {
-    let addressName: AddressName
-    
-    var content: String?
-    var updated: Date?
-    
-    var listed: Bool?
-    
-    var html: String?
-    
-    init(name: AddressName, interface: DataInterface) {
-        self.addressName = name
-        super.init(interface: interface)
-    }
-    
-    override func throwingRequest() async throws {
-        guard !addressName.isEmpty else {
-            return
-        }
-        Task {
-            do {
-                let now = try await interface.fetchAddressNow(addressName)
-                self.content = now?.content
-                self.html = now?.html
-                self.updated = now?.updated
-                self.listed = now?.listed
-            } catch {
-                handle(error)
-            }
-            self.fetchFinished()
-        }
-    }
-    
-    override var noContent: Bool {
-        !loading && (content ?? "").isEmpty
-    }
-    
-    override var summaryString: String? {
-        let supe = super.summaryString
-        if supe != nil {
-            return supe
-        }
-        return ""
-    }
-}
-
 class AccountPastesDataFetcher: ListDataFetcher<PasteModel> {
     let addresses: [AddressName]
     let credential: APICredential
@@ -1398,7 +1351,6 @@ class AddressSummaryDataFetcher: DataFetcher {
     }
     
     var iconFetcher: AddressIconDataFetcher
-    var nowFetcher: AddressNowDataFetcher
     var purlFetcher: AddressPURLsDataFetcher
     var pasteFetcher: AddressPasteBinDataFetcher
     var statusFetcher: StatusLogDataFetcher
@@ -1411,7 +1363,6 @@ class AddressSummaryDataFetcher: DataFetcher {
     ) {
         self.addressName = name
         self.iconFetcher = .init(address: name, interface: interface)
-        self.nowFetcher = .init(name: name, interface: interface)
         self.purlFetcher = .init(name: name, interface: interface, credential: nil)
         self.pasteFetcher = .init(name: name, interface: interface, credential: nil)
         self.statusFetcher = .init(addresses: [name], interface: interface)
@@ -1428,7 +1379,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         await super.perform()
         
         await iconFetcher.updateIfNeeded()
-        await nowFetcher.updateIfNeeded()
         await purlFetcher.updateIfNeeded()
         await pasteFetcher.updateIfNeeded()
         await statusFetcher.updateIfNeeded()

@@ -62,6 +62,28 @@ final class AddressWebpageModel {
 }
 
 @Model
+final class AddressNowModel {
+    var owner: AddressName
+    
+    var content: String?
+    var html: String?
+    var updated: Date?
+    var listed: Bool?
+    
+    convenience init(_ model: NowModel) {
+        self.init(owner: model.owner, content: model.content, html: model.html, updated: model.updated, listed: model.listed)
+    }
+    
+    public init(owner: AddressName, content: String? = nil, html: String? = nil, updated: Date? = nil, listed: Bool? = nil) {
+        self.owner = owner
+        self.content = content
+        self.html = html
+        self.updated = updated
+        self.listed = listed
+    }
+}
+
+@Model
 final class AddressProfileModel {
     var owner: AddressName
     var content: String
@@ -82,7 +104,8 @@ extension DataInterface {
             AddressBioModel.self,
             StatusModel.self,
             AddressWebpageModel.self,
-            AddressProfileModel.self
+            AddressProfileModel.self,
+            AddressNowModel.self
         ]
     }
 }
