@@ -20,7 +20,7 @@ struct MyPURLsView: View {
         account.accountPURLsFetcher
     }
     
-    var activeFetcher: ListDataFetcher<PURLModel> {
+    var activeFetcher: ListDataFetcher<PURLResponse> {
         switch filter {
         case .mine:
             return addressFetcher
@@ -36,7 +36,7 @@ struct MyPURLsView: View {
     }
     
     var body: some View {
-        ListView<PURLModel, PURLRowView, EmptyView>(dataFetcher: activeFetcher, rowBuilder: { .init(model: $0) })
+        ListView<PURLResponse, PURLRowView, EmptyView>(dataFetcher: activeFetcher, rowBuilder: { .init(model: $0) })
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     Button(action: toggleFilter) {

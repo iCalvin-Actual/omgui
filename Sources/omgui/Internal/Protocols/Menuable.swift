@@ -21,7 +21,7 @@ extension NowListing: AddressManagable {
 extension StatusResponse: AddressManagable {
     var addressToActOn: AddressName { address }
 }
-extension PURLModel: AddressManagable {
+extension PURLResponse: AddressManagable {
     var addressToActOn: AddressName { owner }
 }
 extension PasteModel: AddressManagable {
@@ -226,7 +226,7 @@ extension NowListing: Menuable {
     }
 }
 
-extension PURLModel: Menuable {
+extension PURLResponse: Menuable {
     @ViewBuilder
     func contextMenu(in scene: SceneModel) -> some View {
         Group {

@@ -12,7 +12,7 @@ protocol Editable: AddressManagable {
     var editingDestination: NavigationDestination { get }
 }
 
-extension PURLModel: Editable {
+extension PURLResponse: Editable {
     var editingDestination: NavigationDestination {
         .editPURL(addressName, title: value)
     }

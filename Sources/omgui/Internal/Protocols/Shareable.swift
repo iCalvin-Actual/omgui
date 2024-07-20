@@ -121,7 +121,7 @@ extension StatusResponse: Sharable {
     }
 }
 
-extension PURLModel: Sharable {
+extension PURLResponse: Sharable {
     private var address: CopyPacket {
         .init(name: "Address", content: owner)
     }

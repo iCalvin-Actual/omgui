@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PURLRowView: View {
-    let model: PURLModel
+    let model: PURLResponse
     @Environment(\.viewContext)
     var context: ViewContext
     

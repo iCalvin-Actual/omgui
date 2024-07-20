@@ -121,7 +121,7 @@ public struct PasteModel: Hashable, Identifiable, RawRepresentable, Codable, Sen
     }
 }
 
-public struct PURLModel: Hashable, Identifiable, RawRepresentable, Codable, Sendable {
+public struct PURLResponse: Hashable, Identifiable, RawRepresentable, Codable, Sendable {
     public var id: String { rawValue }
     static var separator: String { "{PURL}" }
     
@@ -143,13 +143,6 @@ public struct PURLModel: Hashable, Identifiable, RawRepresentable, Codable, Send
     let value: String
     var destination: String?
     let listed: Bool
-    
-    var destinationURL: URL? {
-        guard let string = destination else {
-            return nil
-        }
-        return URL(string: string)
-    }
     
     public init(owner: AddressName, value: String, destination: String? = nil, listed: Bool = true) {
         self.owner = owner

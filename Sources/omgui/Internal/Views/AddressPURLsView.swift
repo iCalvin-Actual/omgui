@@ -12,14 +12,14 @@ struct AddressPURLsView: View {
     var fetcher: AddressPURLsDataFetcher
     
     var body: some View {
-        ListView<PURLModel, PURLRowView, EmptyView>(
+        ListView<PURLResponse, PURLRowView, EmptyView>(
             filters: .everyone,
             dataFetcher: fetcher,
             rowBuilder: purlView(_:)
         )
     }
     
-    func purlView(_ model: PURLModel) -> PURLRowView {
+    func purlView(_ model: PURLResponse) -> PURLRowView {
         PURLRowView(model: model)
     }
 }

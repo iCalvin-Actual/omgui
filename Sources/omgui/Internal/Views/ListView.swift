@@ -260,7 +260,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
 //                return .editPaste(pasteModel.addressName, title: pasteModel.name)
 //            }
             return .paste(pasteModel.addressName, title: pasteModel.name)
-        case let purlModel as PURLModel:
+        case let purlModel as PURLResponse:
 //            if sceneModel.accountModel.myAddresses.contains(purlModel.addressName) {
 //                return .editPURL(purlModel.addressName, title: purlModel.value)
 //            }

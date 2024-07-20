@@ -75,4 +75,13 @@ class SceneModel {
             context.insert(model)
         }
     }
+    
+    func fetchPURL(_ address: AddressName, title: String) async throws {
+        let credential = accountModel.credential(for: address, in: addressBook)
+        
+        if let purlResponse = try await fetchConstructor.interface.fetchPURL(title, from: address, credential: credential) {
+            let model = AddressPURLModel(purlResponse)
+            context.insert(model)
+        }
+    }
 }

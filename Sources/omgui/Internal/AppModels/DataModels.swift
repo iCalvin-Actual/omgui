@@ -98,6 +98,30 @@ final class AddressProfileModel {
     }
 }
 
+@Model
+final class AddressPURLModel {
+    var owner: AddressName
+    var title: String
+    var destination: String
+    
+    var listed: Bool
+    
+    convenience init(_ purl: PURLResponse) {
+        self.init(owner: purl.owner, title: purl.value, destination: purl.destination ?? "", listed: purl.listed)
+    }
+    
+    init(owner: AddressName, title: String, destination: String, listed: Bool) {
+        self.owner = owner
+        self.title = title
+        self.destination = destination
+        self.listed = listed
+    }
+    
+    var destinationURL: URL? {
+        return URL(string: destination)
+    }
+}
+
 extension DataInterface {
     var swiftModels: [any PersistentModel.Type] {
         [
@@ -105,7 +129,8 @@ extension DataInterface {
             StatusModel.self,
             AddressWebpageModel.self,
             AddressProfileModel.self,
-            AddressNowModel.self
+            AddressNowModel.self,
+            AddressPURLModel.self
         ]
     }
 }

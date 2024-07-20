@@ -50,7 +50,7 @@ extension PasteModel: Listable     {
     var listSubtitle: String  { String(content?.prefix(42) ?? "") }
     var listCaption: String?  { owner.addressDisplayString }
 }
-extension PURLModel: Listable     {
+extension PURLResponse: Listable     {
     var listTitle: String     { value }
     var listSubtitle: String  { destination ?? "" }
     var listCaption: String?  { owner.addressDisplayString }

@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 4/26/23.
 //
 
+import SwiftData
 import SwiftUI
 
 struct PURLView: View {
@@ -15,22 +16,29 @@ struct PURLView: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    @ObservedObject
-    var fetcher: AddressPURLDataFetcher
+    @State
+    var active: URL?
+    
+    let address: AddressName
+    let title: String
+    
+    @Query
+    var purls: [AddressPURLModel]
+    var purl: AddressPURLModel? {
+        purls.first(where: { $0.owner == address && $0.title == title })
+    }
     
     var body: some View {
-        NamedItemView(fetcher: fetcher, mainContent: content, draftContent: draftView)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    if fetcher.title.isEmpty {
-                        ThemedTextView(text: "/draft")
-                    } else {
-                        ThemedTextView(text: "/\(fetcher.title)")
-                    }
+        content
+            .onAppear(perform: {
+                Task {
+                    try await sceneModel.fetchPURL(address, title: title)
                 }
+            })
+            .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        if let purlURL = URL(string: "https://\(fetcher.addressName).url.lol/\(fetcher.title)") {
+                        if let purlURL = URL(string: "https://\(address).url.lol/\(title)") {
                             ShareLink(item: purlURL)
                             Button(action: {
                                 // Copy Content
@@ -42,7 +50,7 @@ struct PURLView: View {
                             })
                         }
                         Divider()
-                        if let shareURL = fetcher.model?.destinationURL {
+                        if let shareURL = purl?.destination {
                             ShareLink("Share destination URL", item: shareURL)
                             Button(action: {
                                 // Copy URL
@@ -62,9 +70,7 @@ struct PURLView: View {
     
     @ViewBuilder
     var draftView: some View {
-        if let poster = fetcher.draftPoster {
-            PURLDraftView(draftFetcher: poster)
-        }
+        EmptyView()
     }
     
     @ViewBuilder
@@ -89,23 +95,12 @@ struct PURLView: View {
     
     @ViewBuilder
     var preview: some View {
-        if let content = fetcher.purlContent {
-            HTMLFetcherView(
-                activeAddress: fetcher.addressName,
-                htmlContent: content,
-                baseURL: {
-                    guard let destination = fetcher.model?.destinationURL else {
-                        return nil
-                    }
-                    guard let scheme = destination.scheme, let host = destination.host() else {
-                        return nil
-                    }
-                    return URL(string: "\(scheme)://\(host)")
-                }()
-            )
-        } else {
-            Spacer()
-        }
+        HTMLContentView(
+            activeAddress: address,
+            htmlContent: nil,
+            baseURL: purl?.destinationURL,
+            activeURL: $active
+        )
     }
     
     @ViewBuilder
@@ -114,11 +109,11 @@ struct PURLView: View {
             if context != .profile {
                 HStack(alignment: .top) {
                     Spacer()
-                    ThemedTextView(text: fetcher.addressName.addressDisplayString)
+                    ThemedTextView(text: address.addressDisplayString)
                     Menu {
-                        AddressModel(name: fetcher.addressName).contextMenu(in: sceneModel)
+                        AddressModel(name: address).contextMenu(in: sceneModel)
                     } label: {
-                        AddressIconView(address: fetcher.addressName)
+                        AddressIconView(address: address)
                     }
                     .padding(.trailing)
                 }
@@ -127,18 +122,18 @@ struct PURLView: View {
                 Group {
                     switch sizeClass {
                     case .compact:
-                        if !(fetcher.model?.value.isEmpty ?? false) {
-                            Text("/\(fetcher.model?.value ?? fetcher.title)")
+                        if !title.isEmpty {
+                            Text("/\(title)")
                                 .font(.title3)
                                 .foregroundStyle(Color.primary)
                         }
                     default:
-                        Text("\(fetcher.addressName).purl.lol/")
+                        Text("\(address).purl.lol/")
                             .font(.title2)
                             .bold()
                             .foregroundStyle(Color.accentColor)
                         +
-                        Text(fetcher.model?.value ?? fetcher.title)
+                        Text(title)
                             .font(.title3)
                             .foregroundStyle(Color.primary)
                     }
@@ -150,7 +145,7 @@ struct PURLView: View {
                 .fontDesign(.monospaced)
                 .lineLimit(2)
                 
-                if let destination = fetcher.model?.destination {
+                if let destination = purl?.destination {
                     Text(destination)
                         .textSelection(.enabled)
                         .font(.caption)

@@ -181,7 +181,7 @@ extension PasteModel: NamedDraftable {
     }
 }
 
-extension PURLModel: NamedDraftable {
+extension PURLResponse: NamedDraftable {
     public typealias NamedDraftItem = Draft
     public struct Draft: NamedDraft {
         static public var contentPlaceholder: String {
@@ -198,7 +198,7 @@ extension PURLModel: NamedDraftable {
             !name.isEmpty && !content.isEmpty
         }
         
-        public init(_ model: PURLModel, name: String? = nil) {
+        public init(_ model: PURLResponse, name: String? = nil) {
             self.init(
                 address: model.addressName,
                 name: name ?? "",

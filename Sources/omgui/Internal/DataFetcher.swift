@@ -214,7 +214,7 @@ class PasteDraftPoster: NamedDraftPoster<PasteModel> {
     }
 }
 
-class PURLDraftPoster: NamedDraftPoster<PURLModel> {
+class PURLDraftPoster: NamedDraftPoster<PURLResponse> {
     override var navigationTitle: String {
         if originalDraft == nil {
             return "new PURL"
@@ -241,7 +241,7 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel> {
         value: String = "",
         interface: DataInterface,
         credential: APICredential = "",
-        onPost: ((PURLModel) -> Void)? = nil
+        onPost: ((PURLResponse) -> Void)? = nil
     ) {
         destination = value
         super.init(
@@ -1139,57 +1139,7 @@ class AddressPasteDataFetcher: NamedItemDataFetcher<PasteModel> {
     }
 }
 
-class AddressPURLDataFetcher: NamedItemDataFetcher<PURLModel> {
-    
-    @Published
-    var purlContent: String?
-    
-    override var draftPoster: PURLDraftPoster? {
-        guard let credential else {
-            return super.draftPoster as? PURLDraftPoster
-        }
-        if let model {
-            return PURLDraftPoster(
-                addressName,
-                title: model.value,
-                value: model.destination ?? "",
-                interface: interface,
-                credential: credential
-            )
-        } else {
-            return .init(
-                addressName,
-                title: title,
-                interface: interface,
-                credential: credential
-            )
-        }
-    }
-    
-    override func throwingRequest() async throws {
-        Task {
-            if let credential = credential {
-                model = try await interface.fetchPURL(title, from: addressName, credential: credential)
-            } else {
-                let addressPurls = try await interface.fetchAddressPURLs(addressName, credential: nil)
-                model = addressPurls.first(where: { $0.value == title })
-            }
-            purlContent = try await interface.fetchPURLContent(title, from: addressName, credential: credential)
-            fetchFinished()
-        }
-    }
-    
-    override func deleteIfPossible() async throws {
-        guard let credential else {
-            return
-        }
-        let _ = try await interface.deletePURL(title, from: addressName, credential: credential)
-        model = PURLModel(owner: addressName, value: "")
-        threadSafeSendUpdate()
-    }
-}
-
-class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
+class AddressPURLsDataFetcher: ListDataFetcher<PURLResponse> {
     let addressName: AddressName
     let credential: APICredential?
     
@@ -1197,7 +1147,7 @@ class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
         "\(addressName.addressDisplayString).PURLs"
     }
     
-    init(name: AddressName, purls: [PURLModel] = [], interface: DataInterface, credential: APICredential?) {
+    init(name: AddressName, purls: [PURLResponse] = [], interface: DataInterface, credential: APICredential?) {
         self.addressName = name
         self.credential = credential
         super.init(items: purls, interface: interface)
@@ -1212,20 +1162,20 @@ class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
     }
 }
 
-class AccountPURLsDataFetcher: ListDataFetcher<PURLModel> {
+class AccountPURLsDataFetcher: ListDataFetcher<PURLResponse> {
     let addresses: [AddressName]
     let credential: APICredential
     
-    var lists: [AddressName: [PURLModel]] = [:]
-    override var listItems: [PURLModel] {
+    var lists: [AddressName: [PURLResponse]] = [:]
+    override var listItems: [PURLResponse] {
         get {
             lists.reduce([], { $0 + $1.value })
         }
         set {
             let oldValue = listItems
-            var toInsert: Set<PURLModel> = []
-            var toRemove: Set<PURLModel> = []
-            Array(Set<PURLModel>(oldValue + newValue)).forEach({ model in
+            var toInsert: Set<PURLResponse> = []
+            var toRemove: Set<PURLResponse> = []
+            Array(Set<PURLResponse>(oldValue + newValue)).forEach({ model in
                 if oldValue.contains(model) && !newValue.contains(model) {
                     toRemove.insert(model)
                 } else if !oldValue.contains(model) && newValue.contains(model) {

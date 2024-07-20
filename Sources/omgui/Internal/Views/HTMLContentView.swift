@@ -71,6 +71,8 @@ struct HTMLContentView: UIViewRepresentable {
                 pendingContent = newContent
             } else if let newContent = newContent {
                 webView.loadHTMLString(newContent, baseURL: baseURL)
+            } else if let baseURL {
+                webView.load(URLRequest(url: baseURL))
             }
         }
         

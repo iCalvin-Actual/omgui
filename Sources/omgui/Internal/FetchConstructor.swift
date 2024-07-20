@@ -76,10 +76,6 @@ class FetchConstructor {
         AddressPasteDataFetcher(name: address, title: title, interface: interface, credential: credential)
     }
     
-    func addressPURLFetcher(_ address: AddressName, title: String, credential: APICredential?) -> AddressPURLDataFetcher {
-        AddressPURLDataFetcher(name: address, title: title, interface: interface, credential: credential)
-    }
-    
     func draftPastePoster(_ title: String, for address: AddressName, credential: APICredential) -> PasteDraftPoster {
         PasteDraftPoster(address, title: title, interface: interface, credential: credential)
     }

@@ -124,7 +124,7 @@ extension PasteModel: StringSortable {
     }
 }
 
-extension PURLModel: StringSortable {
+extension PURLResponse: StringSortable {
     var primarySortValue: String { value }
     
     static let defaultSort: Sort = .alphabet

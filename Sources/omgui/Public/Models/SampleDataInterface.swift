@@ -73,7 +73,7 @@ public final class SampleData: DataInterface {
         return .sample(with: name)
     }
     
-    public func fetchAddressPURLs(_ name: AddressName, credential: APICredential?) async throws -> [PURLModel] {
+    public func fetchAddressPURLs(_ name: AddressName, credential: APICredential?) async throws -> [PURLResponse] {
         try await Task.sleep(nanoseconds: artificalDelay)
         return [
             .sample(with: name),
@@ -82,7 +82,7 @@ public final class SampleData: DataInterface {
         ]
     }
     
-    public func fetchPURL(_ id: String, from address: AddressName, credential: APICredential?) async throws -> PURLModel? {
+    public func fetchPURL(_ id: String, from address: AddressName, credential: APICredential?) async throws -> PURLResponse? {
         try await Task.sleep(nanoseconds: artificalDelay)
         return .sample(with: address)
     }
@@ -96,9 +96,9 @@ public final class SampleData: DataInterface {
         return content
     }
     
-    public func savePURL(_ draft: PURLModel.Draft, to address: AddressName, credential: APICredential) async throws -> PURLModel? {
+    public func savePURL(_ draft: PURLResponse.Draft, to address: AddressName, credential: APICredential) async throws -> PURLResponse? {
         try await Task.sleep(nanoseconds: artificalDelay)
-        return PURLModel(owner: address, value: draft.name, destination: draft.content, listed: true)
+        return PURLResponse(owner: address, value: draft.name, destination: draft.content, listed: true)
     }
     
     public func fetchAddressPastes(_ name: AddressName, credential: APICredential?) async throws -> [PasteModel] {
@@ -385,11 +385,11 @@ fileprivate extension NowModel {
     }
 }
 
-fileprivate extension PURLModel {
-    static func sample(with address: AddressName) -> PURLModel {
+fileprivate extension PURLResponse {
+    static func sample(with address: AddressName) -> PURLResponse {
         let contentItems = ["https://daringfireball.net", "https://atp.fm", "https://relay.fm"]
         let content = contentItems.randomElement()!
-        return PURLModel(
+        return PURLResponse(
             owner: address,
             value: String(UUID().uuidString.prefix(5)),
             destination: content,

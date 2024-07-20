@@ -55,7 +55,7 @@ struct DestinationConstructor {
         case .purls(let address):
             AddressPURLsView(fetcher: addressBook.addressSummary(address).purlFetcher)
         case .purl(let address, title: let title):
-            PURLView(fetcher: fetchConstructor.addressPURLFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
+            PURLView(address: address, title: title)
         case .paste(let address, title: let title):
             PasteView(fetcher: fetchConstructor.addressPasteFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
         case .statusLog(let address):

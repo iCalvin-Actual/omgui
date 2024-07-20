@@ -79,14 +79,14 @@ public protocol DataInterface: Sendable {
         _ name: AddressName,
         credential: APICredential?
     )
-    async throws -> [PURLModel]
+    async throws -> [PURLResponse]
     
     func fetchPURL(
         _ id: String,
         from address: AddressName,
         credential: APICredential?
     )
-    async throws -> PURLModel?
+    async throws -> PURLResponse?
     
     func fetchPURLContent(
         _ id: String,
@@ -103,11 +103,11 @@ public protocol DataInterface: Sendable {
     async throws
     
     func savePURL(
-        _ draft: PURLModel.Draft,
+        _ draft: PURLResponse.Draft,
         to address: AddressName,
         credential: APICredential
     )
-    async throws -> PURLModel?
+    async throws -> PURLResponse?
     
     func fetchAddressPastes(
         _ name: AddressName,
