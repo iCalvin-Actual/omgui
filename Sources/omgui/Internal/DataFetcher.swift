@@ -1072,100 +1072,6 @@ class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
     }
 }
 
-class AddressPURLsDataFetcher: ListDataFetcher<PURLResponse> {
-    let addressName: AddressName
-    let credential: APICredential?
-    
-    override var title: String {
-        "\(addressName.addressDisplayString).PURLs"
-    }
-    
-    init(name: AddressName, purls: [PURLResponse] = [], interface: DataInterface, credential: APICredential?) {
-        self.addressName = name
-        self.credential = credential
-        super.init(items: purls, interface: interface)
-    }
-    
-    override func throwingRequest() async throws {
-        Task {
-            let purls = try await interface.fetchAddressPURLs(addressName, credential: credential)
-            self.listItems = purls
-            self.fetchFinished()
-        }
-    }
-}
-
-class AccountPURLsDataFetcher: ListDataFetcher<PURLResponse> {
-    let addresses: [AddressName]
-    let credential: APICredential
-    
-    var lists: [AddressName: [PURLResponse]] = [:]
-    override var listItems: [PURLResponse] {
-        get {
-            lists.reduce([], { $0 + $1.value })
-        }
-        set {
-            let oldValue = listItems
-            var toInsert: Set<PURLResponse> = []
-            var toRemove: Set<PURLResponse> = []
-            Array(Set<PURLResponse>(oldValue + newValue)).forEach({ model in
-                if oldValue.contains(model) && !newValue.contains(model) {
-                    toRemove.insert(model)
-                } else if !oldValue.contains(model) && newValue.contains(model) {
-                    toInsert.insert(model)
-                }
-            })
-            
-            toRemove.forEach { model in
-                var items = lists[model.addressName] ?? []
-                if let index = items.firstIndex(of: model) {
-                    items.remove(at: index)
-                }
-                lists[model.addressName] = items
-            }
-            toInsert.forEach { model in
-                var items = lists[model.addressName] ?? []
-                items.append(model)
-                lists[model.addressName] = items
-            }
-        }
-    }
-    
-    override var title: String {
-        "@/PURLs"
-    }
-    
-    init(addresses: [AddressName], interface: DataInterface, credential: APICredential) {
-        self.addresses = addresses
-        self.credential = credential
-        super.init(interface: interface)
-    }
-    
-    override func throwingRequest() async throws {
-        self.listItems = []
-        guard !addresses.isEmpty else { return fetchFinished() }
-        Task {
-            for address in addresses {
-                do {
-                    let purls = try await interface.fetchAddressPURLs(address, credential: credential)
-                    self.lists[address] = purls
-                    self.fetchFinished()
-                } catch {
-                    // Check error
-                    throw error
-                }
-            }
-        }
-    }
-    
-    override func fetchFinished() {
-        guard addresses.count == lists.count else {
-            return
-        }
-        super.fetchFinished()
-    }
-}
-
 @MainActor
 class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
     @ObservedObject
@@ -1208,7 +1114,6 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
         
         self.followingFetcher = .init(address: addressName, credential: credential, interface: interface)
         
-        self.purlFetcher = .init(name: addressName, interface: interface, credential: credential)
         self.pasteFetcher = .init(name: addressName, interface: interface, credential: credential)
     }
     
@@ -1233,7 +1138,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         addressName.addressIconURL
     }
     
-    var purlFetcher: AddressPURLsDataFetcher
     var pasteFetcher: AddressPasteBinDataFetcher
     var statusFetcher: StatusLogDataFetcher
     
@@ -1244,7 +1148,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         interface: DataInterface
     ) {
         self.addressName = name
-        self.purlFetcher = .init(name: name, interface: interface, credential: nil)
         self.pasteFetcher = .init(name: name, interface: interface, credential: nil)
         self.statusFetcher = .init(addresses: [name], interface: interface)
         
@@ -1259,7 +1162,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         }
         await super.perform()
         
-        await purlFetcher.updateIfNeeded()
         await pasteFetcher.updateIfNeeded()
         await statusFetcher.updateIfNeeded()
         await followingFetcher.updateIfNeeded()

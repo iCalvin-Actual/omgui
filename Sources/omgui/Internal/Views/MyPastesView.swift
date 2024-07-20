@@ -43,7 +43,7 @@ struct MyPastesView: View {
     }
     
     var body: some View {
-        ListView<PasteResponse, PasteRowView, EmptyView>(dataFetcher: activeFetcher, rowBuilder: { .init(model: $0) })
+        ListView<PasteResponse, PasteRowView, EmptyView>(data: activeFetcher.listItems, rowBuilder: { .init(model: $0) })
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     if !singleAddressMode {

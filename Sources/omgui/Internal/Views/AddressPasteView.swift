@@ -17,7 +17,7 @@ struct AddressPasteView: View {
     var body: some View {
         ListView<PasteResponse, PasteRowView, EmptyView>(
             filters: .everyone,
-            dataFetcher: fetcher,
+            data: fetcher.listItems,
             rowBuilder: pasteView(_:)
         )
     }

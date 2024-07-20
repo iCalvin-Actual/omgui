@@ -35,25 +35,25 @@ struct DestinationConstructor {
         case .now(let name):
             AddressNowView(address: name)
         case .blocked:
-            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: addressBook.constructBlocklist(), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, data: addressBook.constructBlocklist().listItems, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .following:
             FollowingView(addressBook)
         case .followingAddresses:
             if let fetcher = addressBook.followingFetcher {
-                ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+                ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, data: fetcher.listItems, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
             }
         case .followingStatuses:
             if let fetcher = addressBook.followingStatusLogFetcher {
                 StatusList(fetcher: fetcher, addresses: fetcher.addresses)
             }
         case .addressFollowing(let name):
-            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetchConstructor.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, data: fetchConstructor.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)).listItems, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .nowGarden:
             GardenView(fetcher: addressBook.gardenFetcher)
         case .pastebin(let address):
             AddressPasteView(fetcher: addressBook.addressSummary(address).pasteFetcher)
         case .purls(let address):
-            AddressPURLsView(fetcher: addressBook.addressSummary(address).purlFetcher)
+            AddressPURLsView(address: address)
         case .purl(let address, title: let title):
             PURLView(address: address, title: title)
         case .paste(let address, title: let title):

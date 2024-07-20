@@ -178,9 +178,9 @@ extension StatusResponse: QueryFilterable {
     }
 }
 
-extension PURLResponse: QueryFilterable {
+extension AddressPURLModel: QueryFilterable {
     var queryCheckStrings: [String] {
-        [addressName, destination, value]
+        [addressName, destination, title]
             .compactMap({ $0 })
     }
     

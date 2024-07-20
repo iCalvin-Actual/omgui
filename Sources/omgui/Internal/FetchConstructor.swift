@@ -88,8 +88,4 @@ class FetchConstructor {
         let draft = StatusResponse.Draft(address: address, id: id, content: "", emoji: "")
         return StatusDraftPoster(address, draft: draft, interface: interface, credential: credential)
     }
-    
-    func addressPURLsFetcher(_ address: AddressName, credential: APICredential?) -> AddressPURLsDataFetcher {
-        AddressPURLsDataFetcher(name: address, interface: interface, credential: credential)
-    }
 }

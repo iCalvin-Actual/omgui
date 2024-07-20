@@ -14,7 +14,7 @@ struct DirectoryView: View {
     var body: some View {
         ListView<AddressModel, ListRow, EmptyView>(
             filters: .everyone,
-            dataFetcher: fetcher,
+            data: fetcher.listItems,
             rowBuilder: { _ in return nil as ListRow<AddressModel>?}
         )
     }

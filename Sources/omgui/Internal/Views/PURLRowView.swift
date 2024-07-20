@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct PURLRowView: View {
-    let model: PURLResponse
     @Environment(\.viewContext)
     var context: ViewContext
+    
+    let model: AddressPURLModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -25,7 +26,7 @@ struct PURLRowView: View {
             
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("/\(model.value)")
+                    Text("/\(model.title)")
                         .font(.title2)
                         .bold()
                         .fontDesign(.serif)
@@ -33,18 +34,16 @@ struct PURLRowView: View {
                     Spacer()
                 }
                 
-                if let destination = model.destination {
-                    Text(destination)
-                        .font(.subheadline)
-                        .fontDesign(.monospaced)
-                        .lineLimit(5)
-                }
+                Text(model.destination)
+                    .font(.subheadline)
+                    .fontDesign(.monospaced)
+                    .lineLimit(5)
             }
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity)
             .padding(12)
             .foregroundColor(.black)
-            .background(Color.lolRandom(model.value))
+            .background(Color.lolRandom(model.title))
             .cornerRadius(12, antialiased: true)
             .padding(.vertical, 4)
         }

@@ -200,7 +200,7 @@ extension PURLResponse: NamedDraftable {
         
         public init(_ model: PURLResponse, name: String? = nil) {
             self.init(
-                address: model.addressName,
+                address: model.owner,
                 name: name ?? "",
                 content: model.destination ?? "",
                 listed: model.listed
@@ -216,7 +216,7 @@ extension PURLResponse: NamedDraftable {
     }
     
     public var asDraft: Draft? {
-        .init(address: addressName, name: self.value, content: destination ?? "", listed: listed)
+        .init(address: owner, name: self.value, content: destination ?? "", listed: listed)
     }
 }
 

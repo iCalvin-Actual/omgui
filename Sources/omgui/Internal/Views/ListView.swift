@@ -21,8 +21,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
     let allowSearch: Bool
     let allowFilter: Bool
     
-    @ObservedObject
-    var dataFetcher: ListDataFetcher<T>
+    let data: [T]
     
     @ViewBuilder
     let rowBuilder: ((T) -> V?)
@@ -39,20 +38,24 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     var menuBuilder: ContextMenuBuilder<T> = .init()
     
+    let refresh: () -> Void
+    
     init(
         filters: [FilterOption] = .everyone,
         allowSearch: Bool = true,
         allowFilter: Bool = true,
-        dataFetcher: ListDataFetcher<T>,
+        data: [T],
         rowBuilder: @escaping (T) -> V?,
-        headerBuilder: (() -> H)? = nil
+        headerBuilder: (() -> H)? = nil,
+        refresh: @escaping () -> Void = {}
     ) {
         self.filters = filters
         self.allowSearch = allowSearch
         self.allowFilter = allowFilter
-        self.dataFetcher = dataFetcher
+        self.data = data
         self.rowBuilder = rowBuilder
         self.headerBuilder = headerBuilder
+        self.refresh = refresh
     }
     
     var items: [T] {
@@ -61,32 +64,19 @@ struct ListView<T: Listable, V: View, H: View>: View {
             filters.append(.query(queryString))
         }
         return filters
-            .applyFilters(to: dataFetcher.listItems, addressBook: sceneModel.addressBook)
+            .applyFilters(to: data, addressBook: sceneModel.addressBook)
             .sorted(with: sort)
     }
     
     var body: some View {
         toolbarAwareBody
-            .onAppear(perform: {
-                if !dataFetcher.loading {
-                    Task {
-                        await dataFetcher.updateIfNeeded()
-                    }
-                }
-            })
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("")
             .toolbar {
                 let sortOptions = T.sortOptions
-                if sortOptions.count > 1, dataFetcher.listItems.count > 1, allowFilter {
+                if sortOptions.count > 1, data.count > 1, allowFilter {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         SortOrderMenu(sort: $sort, options: T.sortOptions)
-                    }
-                }
-                
-                if headerBuilder == nil {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        ThemedTextView(text: dataFetcher.title)
                     }
                 }
             }
@@ -104,7 +94,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     @ViewBuilder
     var sizeAppropriateBody: some View {
-        if sizeClass == .compact || dataFetcher.noContent {
+        if sizeClass == .compact || data.isEmpty {
             compactBody
         } else {
             GeometryReader { proxy in
@@ -167,14 +157,14 @@ struct ListView<T: Listable, V: View, H: View>: View {
                 .padding(.vertical, 4)
         }
         .refreshable(action: {
-            await dataFetcher.perform()
+            refresh()
         })
         .listStyle(.plain)
         .onAppear(perform: {
-            guard sizeClass == .regular, dataFetcher.loaded, selected == nil else {
+            guard sizeClass == .regular, selected == nil else {
                 return
             }
-            selected = dataFetcher.listItems.first
+            selected = items.first
         })
     }
     
@@ -185,7 +175,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
                 headerBuilder()
                     .listRowSeparator(.hidden)
             }
-            Section(dataFetcher.title) {
+            Section("items") {
                 listContent
                     .padding(.horizontal)
             }
@@ -199,9 +189,6 @@ struct ListView<T: Listable, V: View, H: View>: View {
     var listContent: some View {
         if !items.isEmpty {
             ForEach(items, content: rowView(_:) )
-        } else if dataFetcher.loading {
-            LoadingView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             emptyRowView()
         }
@@ -264,7 +251,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
 //            if sceneModel.accountModel.myAddresses.contains(purlModel.addressName) {
 //                return .editPURL(purlModel.addressName, title: purlModel.value)
 //            }
-            return .purl(purlModel.addressName, title: purlModel.value)
+            return .purl(purlModel.owner, title: purlModel.value)
         case let StatusResponse as StatusResponse:
             if sceneModel.accountModel.myAddresses.contains(StatusResponse.address) {
 //                return .editStatus(StatusResponse.address, id: StatusResponse.id)

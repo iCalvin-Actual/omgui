@@ -10,7 +10,9 @@ import SwiftData
 
 @Model
 final class StatusModel {
+    @Attribute(.unique)
     var id: String
+    
     var address: AddressName
     var posted: Date
     
@@ -126,6 +128,7 @@ final class StatusModel {
 
 @Model
 final class AddressBioModel {
+    @Attribute(.unique)
     var address: AddressName
     var bio: String
     
@@ -141,6 +144,7 @@ final class AddressBioModel {
 
 @Model
 final class AddressWebpageModel {
+    @Attribute(.unique)
     var owner: AddressName
     var content: String
     
@@ -156,6 +160,7 @@ final class AddressWebpageModel {
 
 @Model
 final class AddressNowModel {
+    @Attribute(.unique)
     var owner: AddressName
     
     var content: String?
@@ -178,6 +183,7 @@ final class AddressNowModel {
 
 @Model
 final class AddressProfileModel {
+    @Attribute(.unique)
     var owner: AddressName
     var content: String
     
@@ -193,6 +199,9 @@ final class AddressProfileModel {
 
 @Model
 final class AddressPURLModel {
+    @Attribute(.unique)
+    var id: String
+    
     var owner: AddressName
     var title: String
     var destination: String
@@ -208,6 +217,7 @@ final class AddressPURLModel {
         self.title = title
         self.destination = destination
         self.listed = listed
+        self.id = "\(owner)/\(title)"
     }
     
     var destinationURL: URL? {
@@ -217,25 +227,29 @@ final class AddressPURLModel {
 
 @Model
 final class AddressPasteModel {
+    @Attribute(.unique)
+    var id: String
     var owner: AddressName
-    var name: String
+    var title: String
     var content: String?
     var listed: Bool
     
     convenience init(_ paste: PasteResponse) {
-        self.init(owner: paste.owner, name: paste.name, content: paste.content, listed: paste.listed)
+        self.init(owner: paste.owner, title: paste.name, content: paste.content, listed: paste.listed)
     }
     
-    init(owner: AddressName, name: String, content: String? = nil, listed: Bool = true) {
+    init(owner: AddressName, title: String, content: String? = nil, listed: Bool = true) {
         self.owner = owner
-        self.name = name
+        self.title = title
         self.content = content
         self.listed = listed
+        self.id = "\(owner)/\(title)"
     }
 }
 
 @Model
 final class AddressIconModel {
+    @Attribute(.unique)
     var owner: AddressName
     var data: Data?
     

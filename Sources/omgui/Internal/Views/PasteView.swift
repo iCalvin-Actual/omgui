@@ -18,7 +18,7 @@ struct PasteView: View {
     @Query
     var pastes: [AddressPasteModel]
     var paste: AddressPasteModel? {
-        pastes.first(where: { $0.owner == address && $0.name == title })
+        pastes.first(where: { $0.owner == address && $0.title == title })
     }
     
     var body: some View {
@@ -30,7 +30,7 @@ struct PasteView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    if let name = paste?.name {
+                    if let name = paste?.title {
                         ThemedTextView(text: "/\(name)")
                     }
                 }
@@ -75,7 +75,7 @@ struct PasteView: View {
                     .bold()
                     .foregroundStyle(Color.accentColor)
                 +
-                Text(paste?.name ?? title)
+                Text(paste?.title ?? title)
                     .font(.title3)
                     .foregroundStyle(Color.primary)
             }

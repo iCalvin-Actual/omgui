@@ -44,19 +44,19 @@ class SceneModel {
     func fetchBio(_ address: AddressName) async throws {
         let bioResponse: AddressBioResponse = try await fetchConstructor.interface.fetchAddressBio(address)
         let model = AddressBioModel(bioResponse)
-        context.insert(model)
+        insertModels([model])
     }
     
     func fetchStatuses(_ addresses: [AddressName]) async throws {
         let addressResponses = try await fetchConstructor.interface.fetchAddressStatuses(addresses: addresses)
         let models = addressResponses.map { StatusModel($0) }
-        models.forEach({ context.insert($0) })
+        insertModels(models)
     }
     
     func fetchProfile(_ address: AddressName) async throws {
         if let profileResponse: AddressProfile = try await fetchConstructor.interface.fetchAddressProfile(address, credential: nil) {
             let model: AddressProfileModel = .init(profileResponse)
-            context.insert(model)
+            insertModels([model])
         }
     }
     
@@ -65,14 +65,27 @@ class SceneModel {
         
         if let profileResponse: AddressProfile = try await fetchConstructor.interface.fetchAddressProfile(address, credential: credential) {
             let model: AddressProfileModel = .init(profileResponse)
-            context.insert(model)
+            insertModels([model])
         }
     }
     
     func fetchNow(_ address: AddressName) async throws {
         if let nowResponse: NowModel = try await fetchConstructor.interface.fetchAddressNow(address) {
             let model: AddressNowModel = .init(nowResponse)
-            context.insert(model)
+            insertModels([model])
+        }
+    }
+    
+    func fetchPURLS(_ address: AddressName) async throws {
+        try await fetchPURLS([address])
+    }
+    
+    func fetchPURLS(_ addresses: [AddressName]) async throws {
+        for address in addresses {
+            let credential = accountModel.credential(for: address, in: addressBook)
+            async let purlsResponse = try fetchConstructor.interface.fetchAddressPURLs(address, credential: credential)
+            let models = try await purlsResponse.map({ AddressPURLModel($0) })
+            insertModels(models)
         }
     }
     
@@ -81,20 +94,16 @@ class SceneModel {
         
         if let purlResponse = try await fetchConstructor.interface.fetchPURL(title, from: address, credential: credential) {
             let model = AddressPURLModel(purlResponse)
-            context.insert(model)
+            insertModels([model])
         }
     }
     
     func fetchPaste(_ address: AddressName, title: String) async throws {
         let credential = accountModel.credential(for: address, in: addressBook)
         
-        do {
-            if let purlResponse = try await fetchConstructor.interface.fetchPaste(title, from: address, credential: credential) {
-                let model = AddressPasteModel(purlResponse)
-                context.insert(model)
-            }
-        } catch {
-            throw error
+        if let purlResponse = try await fetchConstructor.interface.fetchPaste(title, from: address, credential: credential) {
+            let model = AddressPasteModel(purlResponse)
+            insertModels([model])
         }
     }
     
@@ -105,6 +114,15 @@ class SceneModel {
         let request = URLRequest(url: url)
         let (data, _) = try await URLSession.shared.data(for: request)
         let iconModel = AddressIconModel(owner: address, data: data)
-        context.insert(iconModel)
+        insertModels([iconModel])
+    }
+    
+    private func insertModels(_ models: [any PersistentModel]) {
+        Task { @MainActor in
+            models.forEach {
+                context.insert($0)
+            }
+            try? context.save()
+        }
     }
 }

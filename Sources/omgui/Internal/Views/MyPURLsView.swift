@@ -1,5 +1,5 @@
 
-
+import SwiftData
 import SwiftUI
 
 struct MyPURLsView: View {
@@ -11,32 +11,29 @@ struct MyPURLsView: View {
     
     @ObservedObject
     var account: AccountModel
-    @ObservedObject
-    var addressFetcher: AddressPURLsDataFetcher
     
-    let singleAddressMode: Bool
-    
-    var accountFetcher: AccountPURLsDataFetcher {
-        account.accountPURLsFetcher
-    }
-    
-    var activeFetcher: ListDataFetcher<PURLResponse> {
-        switch filter {
-        case .mine:
-            return addressFetcher
-        default:
-            return accountFetcher
+    @Query
+    var purls: [AddressPURLModel]
+    var filteredPURLS: [AddressPURLModel] {
+        purls.filter { model in
+            switch filter {
+            case .mine:
+                return model.owner == actingAddress
+            default:
+                return account.myAddresses.contains(model.owner)
+            }
         }
     }
+    
+    let singleAddressMode: Bool
     
     init(singleAddress: Bool, addressBook: AddressBook, accountModel: AccountModel) {
         singleAddressMode = singleAddress
         account = accountModel
-        addressFetcher = addressBook.fetchConstructor.addressPURLsFetcher(addressBook.actingAddress, credential: accountModel.credential(for: addressBook.actingAddress, in: addressBook))
     }
     
     var body: some View {
-        ListView<PURLResponse, PURLRowView, EmptyView>(dataFetcher: activeFetcher, rowBuilder: { .init(model: $0) })
+        ListView<AddressPURLModel, PURLRowView, EmptyView>(data: filteredPURLS, rowBuilder: { .init(model: $0) })
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     Button(action: toggleFilter) {
