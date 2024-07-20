@@ -29,16 +29,7 @@ struct FollowingView: View {
     
     @ViewBuilder
     var followingView: some View {
-        if let followingFetcher = addressBook.followingStatusLogFetcher {
-            StatusList(fetcher: followingFetcher, addresses: followingFetcher.addresses)
-        } else {
-            signedOutView
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        ThemedTextView(text: "following")
-                    }
-                }
-        }
+        StatusList(addresses: addressBook.following)
     }
     
     @ViewBuilder

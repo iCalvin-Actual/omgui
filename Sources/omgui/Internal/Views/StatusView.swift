@@ -15,9 +15,6 @@ struct StatusView: View {
     
     var status: StatusResponse?
     
-    @ObservedObject
-    var feedFetcher: StatusLogDataFetcher
-    
     @State
     var shareURL: URL?
     @State
@@ -25,14 +22,13 @@ struct StatusView: View {
     
     init(fetcher: StatusDataFetcher, status: StatusResponse? = nil) {
         self.fetcher = fetcher
-        self.feedFetcher = StatusLogDataFetcher(addresses: [fetcher.address], interface: fetcher.interface)
     }
     
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading) {
                 if let model = fetcher.status ?? status {
-                    StatusRowView(model: model)
+                    StatusRowView(model)
                         .padding()
                 } else if fetcher.loading {
                     LoadingView()

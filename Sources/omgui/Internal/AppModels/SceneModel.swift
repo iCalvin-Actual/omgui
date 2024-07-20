@@ -47,6 +47,12 @@ class SceneModel {
         insertModels([model])
     }
     
+    func fetchStatusLog() async throws {
+        let addressResponses = try await fetchConstructor.interface.fetchStatusLog()
+        let models = addressResponses.map { StatusModel($0) }
+        insertModels(models)
+    }
+    
     func fetchStatuses(_ addresses: [AddressName]) async throws {
         let addressResponses = try await fetchConstructor.interface.fetchAddressStatuses(addresses: addresses)
         let models = addressResponses.map { StatusModel($0) }

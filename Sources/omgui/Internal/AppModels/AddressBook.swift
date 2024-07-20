@@ -18,8 +18,6 @@ class AddressBook: ListDataFetcher<AddressModel> {
     
     public let directoryFetcher: AddressDirectoryDataFetcher
     public let gardenFetcher: NowGardenDataFetcher
-    public let statusLogFetcher: StatusLogDataFetcher
-    public var followingStatusLogFetcher: StatusLogDataFetcher?
     public var followingFetcher: AddressFollowingDataFetcher?
     public var blocklistFetcher: BlockListDataFetcher
     
@@ -33,7 +31,6 @@ class AddressBook: ListDataFetcher<AddressModel> {
         
         self.directoryFetcher = fetchConstructor.addressDirectoryDataFetcher()
         self.gardenFetcher = fetchConstructor.nowGardenFetcher()
-        self.statusLogFetcher = fetchConstructor.generalStatusLog()
         
         self.blocklistFetcher = BlockListDataFetcher(
             globalFetcher: accountModel.globalBlocklistFetcher,
@@ -61,16 +58,7 @@ class AddressBook: ListDataFetcher<AddressModel> {
         .store(in: &requests)
         
         followingFetcher = nil
-        followingStatusLogFetcher = nil
         let followingFetcher = addressSummary(actingAddress).followingFetcher
-        followingFetcher.objectWillChange.sink { [weak self] _ in
-            guard let self = self else { return }
-            if self.following.sorted() != self.followingStatusLogFetcher?.addresses.sorted() ?? [] {
-                self.followingStatusLogFetcher = self.fetchConstructor.statusLog(for: self.following)
-                self.threadSafeSendUpdate()
-            }
-        }
-        .store(in: &requests)
         self.followingFetcher = followingFetcher
         
         Task {

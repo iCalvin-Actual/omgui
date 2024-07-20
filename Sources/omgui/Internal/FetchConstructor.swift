@@ -48,14 +48,6 @@ class FetchConstructor {
         AccountAddressDataFetcher(interface: interface, credential: credential)
     }
     
-    func statusLog(for addresses: [AddressName]) -> StatusLogDataFetcher {
-        StatusLogDataFetcher(addresses: addresses, interface: interface)
-    }
-    
-    func generalStatusLog() -> StatusLogDataFetcher {
-        StatusLogDataFetcher(title: "statusLog", interface: interface)
-    }
-    
     func nowGardenFetcher() -> NowGardenDataFetcher {
         NowGardenDataFetcher(interface: interface)
     }

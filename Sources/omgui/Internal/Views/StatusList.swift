@@ -5,12 +5,10 @@
 //  Created by Calvin Chestnut on 3/8/23.
 //
 
-import Combine
+import SwiftData
 import SwiftUI
 
 struct StatusList: View {
-    @ObservedObject
-    var fetcher: StatusLogDataFetcher
     
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
@@ -22,18 +20,33 @@ struct StatusList: View {
     @State
     var sort: Sort = .alphabet
     
+    @Query
+    var statuses: [StatusModel]
+    var filteredStatuses: [StatusModel] {
+        guard let addresses else {
+            return statuses
+        }
+        return statuses.filter { model in
+            addresses.contains(model.address)
+        }
+    }
+    
     let filters: [FilterOption] = []
     
-    let addresses: [AddressName]
+    let addresses: [AddressName]?
     
     var menuBuilder: ContextMenuBuilder<StatusResponse>?
     
     var body: some View {
-        ListView<StatusResponse, StatusRowView, EmptyView>(data: fetcher.listItems, rowBuilder: { StatusRowView(model: $0) })
+        ListView<StatusModel, StatusRowView, EmptyView>(data: filteredStatuses, rowBuilder: { StatusRowView(model: $0) })
             .toolbarRole(.editor)
             .onAppear {
                 Task {
-                    try await sceneModel.fetchStatuses(addresses)
+                    if let addresses {
+                        try await sceneModel.fetchStatuses(addresses)
+                    } else {
+                        try await sceneModel.fetchStatusLog()
+                    }
                 }
             }
     }

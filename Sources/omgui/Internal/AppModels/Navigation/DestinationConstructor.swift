@@ -43,9 +43,7 @@ struct DestinationConstructor {
                 ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, data: fetcher.listItems, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
             }
         case .followingStatuses:
-            if let fetcher = addressBook.followingStatusLogFetcher {
-                StatusList(fetcher: fetcher, addresses: fetcher.addresses)
-            }
+            StatusList(addresses: addressBook.following)
         case .addressFollowing(let name):
             ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, data: fetchConstructor.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)).listItems, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .nowGarden:
@@ -59,7 +57,7 @@ struct DestinationConstructor {
         case .paste(let address, title: let title):
             PasteView(address: address, title: title)
         case .statusLog(let address):
-            StatusList(fetcher: addressBook.addressSummary(address).statusFetcher, addresses: [address])
+            StatusList(addresses: [address])
         case .status(let address, id: let id):
             StatusView(fetcher: fetchConstructor.statusFetcher(id, from: address))
         case .account:

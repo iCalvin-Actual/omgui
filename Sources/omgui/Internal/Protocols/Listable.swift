@@ -38,7 +38,7 @@ extension AddressModel: Listable {
     var listSubtitle: String { url?.absoluteString ?? "" }
     var displayDate: Date? { registered }
 }
-extension StatusResponse: Listable     {
+extension StatusModel: Listable     {
     var listTitle: String     { status }
     var listSubtitle: String  { address.addressDisplayString }
     var displayDate: Date?    { posted }

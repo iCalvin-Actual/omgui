@@ -831,41 +831,6 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
-class StatusLogDataFetcher: ListDataFetcher<StatusResponse> {
-    let displayTitle: String
-    let addresses: [AddressName]
-    
-    override var title: String { displayTitle }
-    
-    init(title: String? = nil, addresses: [AddressName] = [], statuses: [StatusResponse] = [], interface: DataInterface) {
-        self.displayTitle = title ?? {
-            switch addresses.count {
-            case 0:
-                return "status"
-            case 1:
-                return "@/statuses"
-            default:
-                return "statuses"
-            }
-        }()
-        self.addresses = addresses
-        super.init(items: statuses, interface: interface)
-    }
-    
-    override func throwingRequest() async throws {
-        Task {
-            if addresses.isEmpty {
-                let statuses = try await interface.fetchStatusLog()
-                self.listItems = statuses
-            } else {
-                let statuses = try await interface.fetchAddressStatuses(addresses: addresses)
-                self.listItems = statuses
-            }
-            self.fetchFinished()
-        }
-    }
-}
-
 class StatusDataFetcher: DataFetcher {
     let address: AddressName
     let id: String
@@ -1037,8 +1002,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         addressName.addressIconURL
     }
     
-    var statusFetcher: StatusLogDataFetcher
-    
     var followingFetcher: AddressFollowingDataFetcher
     
     init(
@@ -1046,7 +1009,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         interface: DataInterface
     ) {
         self.addressName = name
-        self.statusFetcher = .init(addresses: [name], interface: interface)
         
         self.followingFetcher = .init(address: name, credential: nil, interface: interface)
         
@@ -1059,7 +1021,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         }
         await super.perform()
         
-        await statusFetcher.updateIfNeeded()
         await followingFetcher.updateIfNeeded()
     }
     

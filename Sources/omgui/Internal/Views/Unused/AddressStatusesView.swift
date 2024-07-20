@@ -9,8 +9,6 @@ import SwiftData
 import SwiftUI
 
 struct AddressStatusesView: View {
-    @ObservedObject
-    var fetcher: StatusLogDataFetcher
     
     @Query
     var models: [AddressBioModel]
@@ -25,7 +23,7 @@ struct AddressStatusesView: View {
             if let bio {
                 AddressBioView(bio: bio)
             }
-            StatusList(fetcher: fetcher, addresses: [address])
+            StatusList(addresses: [address])
         }
         .toolbar {       
             ToolbarItem(placement: .topBarLeading) {

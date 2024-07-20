@@ -82,8 +82,14 @@ struct MarkdownContentView: View {
     }
 }
 
-extension StatusResponse: MarkdownSourceProvider {
+extension StatusModel: MarkdownSourceProvider {
     var updated: Date? {
         dateValue
+    }
+}
+
+extension StatusResponse: MarkdownSourceProvider {
+    var updated: Date? {
+        posted
     }
 }

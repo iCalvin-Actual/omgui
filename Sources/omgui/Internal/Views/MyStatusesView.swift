@@ -1,5 +1,6 @@
 
 
+import SwiftData
 import SwiftUI
 
 struct MyStatusesView: View {
@@ -11,32 +12,16 @@ struct MyStatusesView: View {
     
     @ObservedObject
     var account: AccountModel
-    @ObservedObject
-    var addressFetcher: StatusLogDataFetcher
     
     let singleAddressMode: Bool
-    
-    var accountFetcher: StatusLogDataFetcher {
-        account.accountStatusesFetcher
-    }
-    
-    var activeFetcher: StatusLogDataFetcher {
-        switch filter {
-        case .mine:
-            return addressFetcher
-        default:
-            return accountFetcher
-        }
-    }
     
     init(singleAddress: Bool, addressBook: AddressBook, accountModel: AccountModel) {
         singleAddressMode = singleAddress
         account = accountModel
-        addressFetcher = addressBook.fetchConstructor.statusLog(for: [addressBook.actingAddress])
     }
     
     var body: some View {
-        StatusList(fetcher: activeFetcher, addresses: singleAddressMode ? addressFetcher.addresses : accountFetcher.addresses)
+        StatusList(addresses: filter == .mine ? [actingAddress] : account.myAddresses)
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     Button(action: toggleFilter) {

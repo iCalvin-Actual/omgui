@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 4/30/23.
 //
 
+import SwiftData
 import SwiftUI
 
 @MainActor
@@ -12,24 +13,11 @@ struct CommunityView: View {
     
     let addressBook: AddressBook
     
-    let communityFetcher: StatusLogDataFetcher
-    var myFetcher: StatusLogDataFetcher
+    @Query
+    var models: [StatusModel]
     
     init(addressBook: AddressBook) {
         self.addressBook = addressBook
-        self.communityFetcher = addressBook.statusLogFetcher
-        self.myFetcher = addressBook.fetchConstructor.statusLog(for: addressBook.myAddresses)
-    }
-    
-    var activeFethcer: StatusLogDataFetcher {
-        switch active {
-        case .community:
-            return communityFetcher
-        case .following:
-            return addressBook.fetchConstructor.statusLog(for: addressBook.following)
-        case .me:
-            return myFetcher
-        }
     }
     
     @State
@@ -58,7 +46,7 @@ struct CommunityView: View {
     }
     
     var body: some View {
-        StatusList(fetcher: communityFetcher, addresses: communityFetcher.addresses)
+        StatusList(addresses: nil)
             .environment(\.viewContext, .column)
     }
 }

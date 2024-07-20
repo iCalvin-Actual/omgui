@@ -86,7 +86,7 @@ extension AddressModel: AllSortable {
     }
 }
 
-extension StatusResponse: AllSortable {
+extension StatusModel: AllSortable {
     var primarySortValue: String { address }
     var dateValue: Date? { posted }
     

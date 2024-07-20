@@ -34,8 +34,6 @@ class AccountModel: ObservableObject {
     
     @Published
     public var myAddressesFetcher: AccountAddressDataFetcher?
-    @Published
-    public var accountStatusesFetcher: StatusLogDataFetcher
     
     public let globalBlocklistFetcher: AddressBlockListDataFetcher
     public let localBloclistFetcher: LocalBlockListDataFetcher
@@ -88,7 +86,6 @@ class AccountModel: ObservableObject {
         self.pinnedAddressFetcher = PinnedListDataFetcher(interface: interface)
         self.globalBlocklistFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: interface)
         self.localBloclistFetcher = LocalBlockListDataFetcher(interface: interface)
-        self.accountStatusesFetcher = .init(title: "@/statuses", interface: interface)
         
         subscribe()
         
@@ -178,7 +175,6 @@ class AccountModel: ObservableObject {
         incomingAddresses.forEach { address in
             publicProfileCache[address] = AddressSummaryDataFetcher(name: address, interface: interface)
         }
-        accountStatusesFetcher = .init(title: "@/statuses", addresses: incomingAddresses, interface: interface)
         threadSafeSendUpdate()
     }
     

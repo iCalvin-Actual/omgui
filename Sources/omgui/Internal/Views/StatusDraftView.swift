@@ -235,7 +235,7 @@ struct StatusDraftView: View {
             .frame(maxHeight: focusedField == .content ? .infinity : nil)
             .overlay(alignment: .bottom) {
                 if let result = draftPoster.result {
-                    StatusRowView(model: result)
+                    StatusRowView(result)
                         .task {
                             await delayText()
                         }

@@ -13,19 +13,29 @@ import Ink
 struct StatusRowView: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
+    @Environment(\.viewContext)
+    var context: ViewContext
+    
     @State
     var showURLs: Bool = false
     @State
-    var presentUrl: URL?
+    var presentUrl: URL? = nil
     
     @State
-    var destination: NavigationDestination?
-    @GestureState 
+    var destination: NavigationDestination? = nil
+    
+    @GestureState
     private var zoom = 1.0
     
-    let model: StatusResponse
-    @Environment(\.viewContext)
-    var context: ViewContext
+    let model: StatusModel
+    
+    init(model: StatusModel) {
+        self.model = model
+    }
+    
+    init(_ response: StatusResponse) {
+        self.init(model: .init(response))
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -41,14 +51,6 @@ struct StatusRowView: View {
                     .font(.system(size: 10))
                     .foregroundStyle(Color.gray)
                     .frame(maxWidth: .infinity, alignment: .trailing)
-            }
-        
-            if let text = model.link?.absoluteString {
-                Button(action: {
-                    print("Show Link")
-                }, label: {
-                    Label(text, systemImage: "link")
-                })
             }
         }
         .sheet(item: $destination, content: { destination in
