@@ -101,7 +101,7 @@ public final class SampleData: DataInterface {
         return PURLResponse(owner: address, value: draft.name, destination: draft.content, listed: true)
     }
     
-    public func fetchAddressPastes(_ name: AddressName, credential: APICredential?) async throws -> [PasteModel] {
+    public func fetchAddressPastes(_ name: AddressName, credential: APICredential?) async throws -> [PasteResponse] {
         try await Task.sleep(nanoseconds: artificalDelay)
         return [
             .sample(with: name),
@@ -110,7 +110,7 @@ public final class SampleData: DataInterface {
         ]
     }
     
-    public func fetchPaste(_ id: String, from address: AddressName, credential: APICredential? = nil) async throws -> PasteModel? {
+    public func fetchPaste(_ id: String, from address: AddressName, credential: APICredential? = nil) async throws -> PasteResponse? {
         try await Task.sleep(nanoseconds: artificalDelay)
         if id == "app.lol.following" {
             return .followed(with: address)
@@ -128,10 +128,10 @@ public final class SampleData: DataInterface {
     }
     
     public func savePaste(
-        _ draft: PasteModel.Draft,
+        _ draft: PasteResponse.Draft,
         to address: AddressName,
         credential: APICredential
-    ) async throws -> PasteModel? {
+    ) async throws -> PasteResponse? {
         try await fetchPaste(draft.name, from: address, credential: credential)
     }
     
@@ -398,32 +398,32 @@ fileprivate extension PURLResponse {
     }
 }
 
-fileprivate extension PasteModel {
-    static func blocked(with address: AddressName) -> PasteModel {
+fileprivate extension PasteResponse {
+    static func blocked(with address: AddressName) -> PasteResponse {
         let content = """
 appstoreappreview
 """
-        return PasteModel(
+        return PasteResponse(
             owner: address,
             name: String(UUID().uuidString.prefix(5)),
             content: content
         )
     }
-    static func followed(with address: AddressName) -> PasteModel {
+    static func followed(with address: AddressName) -> PasteResponse {
         let content = """
 app
 calvin
 """
-        return PasteModel(
+        return PasteResponse(
             owner: address,
             name: String(UUID().uuidString.prefix(5)),
             content: content
         )
     }
-    static func sample(with address: AddressName) -> PasteModel {
+    static func sample(with address: AddressName) -> PasteResponse {
         let contentItems = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat", "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.", "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."]
         let content = contentItems.randomElement()!
-        return PasteModel(
+        return PasteResponse(
             owner: address,
             name: String(UUID().uuidString.prefix(5)),
             content: content

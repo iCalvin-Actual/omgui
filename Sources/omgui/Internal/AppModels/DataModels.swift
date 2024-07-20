@@ -29,6 +29,99 @@ final class StatusModel {
         self.status = status
         self.emoji = emoji
     }
+    
+    var displayEmoji: String {
+        emoji ?? "✨"
+    }
+    
+    var urlString: String {
+        "https://\(address).status.lol/\(id)"
+    }
+    
+    var primaryDestination: NavigationDestination {
+        .statusLog(address)
+    }
+    
+    var webLinks: [SharePacket] {
+        func extractImageNamesAndURLs(from markdown: String) -> [(name: String, url: URL)] {
+            var results = [(name: String, url: URL)]()
+            
+            do {
+                let markdownRegex = try NSRegularExpression(pattern: "\\[(.*?)\\]\\(([^)]+)\\)", options: [])
+                let nsString = NSString(string: markdown)
+                var matches = markdownRegex.matches(in: markdown, options: [], range: NSRange(location: 0, length: nsString.length))
+                
+                for set in matches.enumerated() {
+                    let match = set.element
+                    guard match.numberOfRanges == 3 else { continue }
+                    let nameRange = match.range(at: 1)
+                    let urlRange = match.range(at: 2)
+                    let matchingName = nsString.substring(with: nameRange)
+                    let name: String = matchingName
+                    let urlString = nsString.substring(with: urlRange)
+                    guard let url = URL(string: urlString) else {
+                        continue
+                    }
+                    results.append((name, url))
+                }
+                
+                let dataDetector: NSDataDetector = try .init(types: NSTextCheckingResult.CheckingType.link.rawValue)
+                matches = dataDetector.matches(in: markdown, range: NSMakeRange(0, nsString.length))
+                matches.forEach({ match in
+                    let matchString = nsString.substring(with: match.range)
+                    guard let urlMatch = URL(string: matchString), !results.contains(where: { $0.url == urlMatch }) else {
+                        return
+                    }
+                    results.append(("", urlMatch))
+                })
+            } catch {
+                print("Error while processing regex: \(error)")
+            }
+            
+            return results
+        }
+        return extractImageNamesAndURLs(from: status).map({ SharePacket(name: $0.name, content: $0.url) })
+    }
+    
+    var imageLinks: [SharePacket] {
+        func extractImageNamesAndURLs(from markdown: String) -> [(name: String, url: URL)] {
+            var results = [(name: String, url: URL)]()
+            
+            do {
+                let regex = try NSRegularExpression(pattern: "!\\[(.*?)\\]\\(([^)]+)\\)", options: [])
+                let nsString = NSString(string: markdown)
+                let matches = regex.matches(in: markdown, options: [], range: NSRange(location: 0, length: nsString.length))
+                
+                for set in matches.enumerated() {
+                    let match = set.element
+                    guard match.numberOfRanges == 3 else { continue }
+                    let nameRange = match.range(at: 1)
+                    let urlRange = match.range(at: 2)
+                    let matchingName = nsString.substring(with: nameRange)
+                    let name: String
+                    if matchingName.isEmpty {
+                        name = "Image \(set.offset + 1)"
+                    } else {
+                        name = matchingName
+                    }
+                    let urlString = nsString.substring(with: urlRange)
+                    guard let url = URL(string: urlString) else {
+                        continue
+                    }
+                    results.append((name, url))
+                }
+            } catch {
+                print("Error while processing regex: \(error)")
+            }
+            
+            return results
+        }
+        return extractImageNamesAndURLs(from: status).map({ SharePacket(name: $0.name, content: $0.url) })
+    }
+    
+    var linkedItems: [SharePacket] {
+        webLinks.filter({ !imageLinks.contains($0) })
+    }
 }
 
 @Model
@@ -122,6 +215,25 @@ final class AddressPURLModel {
     }
 }
 
+@Model
+final class AddressPasteModel {
+    var owner: AddressName
+    var name: String
+    var content: String?
+    var listed: Bool
+    
+    convenience init(_ paste: PasteResponse) {
+        self.init(owner: paste.owner, name: paste.name, content: paste.content, listed: paste.listed)
+    }
+    
+    init(owner: AddressName, name: String, content: String? = nil, listed: Bool = true) {
+        self.owner = owner
+        self.name = name
+        self.content = content
+        self.listed = listed
+    }
+}
+
 extension DataInterface {
     var swiftModels: [any PersistentModel.Type] {
         [
@@ -130,7 +242,8 @@ extension DataInterface {
             AddressWebpageModel.self,
             AddressProfileModel.self,
             AddressNowModel.self,
-            AddressPURLModel.self
+            AddressPURLModel.self,
+            AddressPasteModel.self
         ]
     }
 }

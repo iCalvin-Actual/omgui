@@ -15,14 +15,14 @@ struct AddressPasteView: View {
     var sort: Sort = .alphabet
     
     var body: some View {
-        ListView<PasteModel, PasteRowView, EmptyView>(
+        ListView<PasteResponse, PasteRowView, EmptyView>(
             filters: .everyone,
             dataFetcher: fetcher,
             rowBuilder: pasteView(_:)
         )
     }
     
-    func pasteView(_ model: PasteModel) -> PasteRowView {
+    func pasteView(_ model: PasteResponse) -> PasteRowView {
         PasteRowView(model: model)
     }
 }

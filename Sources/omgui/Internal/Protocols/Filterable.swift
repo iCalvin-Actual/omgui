@@ -193,7 +193,7 @@ extension PURLResponse: QueryFilterable {
     }
 }
 
-extension PasteModel: QueryFilterable {
+extension PasteResponse: QueryFilterable {
     var queryCheckStrings: [String] {
         [addressName, name, content]
             .compactMap({ $0 })

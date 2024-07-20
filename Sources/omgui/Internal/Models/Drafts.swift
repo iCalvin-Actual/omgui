@@ -150,7 +150,7 @@ extension AddressProfile: MDDraftable {
     }
 }
 
-extension PasteModel: NamedDraftable {
+extension PasteResponse: NamedDraftable {
     public typealias NamedDraftItem = Draft
     
     public struct Draft: NamedDraft {

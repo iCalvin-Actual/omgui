@@ -45,7 +45,7 @@ extension StatusResponse: Listable     {
     var displayDate: Date?    { posted }
     var listCaption: String?  { DateFormatter.short.string(from: posted) }
 }
-extension PasteModel: Listable     {
+extension PasteResponse: Listable     {
     var listTitle: String     { name }
     var listSubtitle: String  { String(content?.prefix(42) ?? "") }
     var listCaption: String?  { owner.addressDisplayString }

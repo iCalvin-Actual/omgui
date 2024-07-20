@@ -97,7 +97,7 @@ extension NowListing: Sharable {
     }
 }
 
-extension StatusResponse: Sharable {
+extension StatusModel: Sharable {
     var primaryCopy: CopyPacket? {
         .init(name: "Status text", content: status)
     }
@@ -121,41 +121,32 @@ extension StatusResponse: Sharable {
     }
 }
 
-extension PURLResponse: Sharable {
-    private var address: CopyPacket {
+extension AddressPURLModel: Sharable {
+    private var addressCopyPacket: CopyPacket {
         .init(name: "Address", content: owner)
     }
     var primaryCopy: CopyPacket? {
-        guard let destination = destination else {
-            return address
-        }
-        return .init(name: "Copy URL", content: destination)
+        return addressCopyPacket
     }
     var copyText: [CopyPacket] {
-        if destination == nil {
-            return [
-                address
-            ]
-        } else {
-            return []
-        }
+        return []
     }
     
     var primaryURL: SharePacket? {
-        guard let destination = destination, let url = URL(string: destination) else {
+        guard let destinationURL else {
             return nil
         }
-        return .init(name: "URL", content: url)
+        return .init(name: "URL", content: destinationURL)
     }
     var shareURLs: [SharePacket] {
         [
-            .init(name: "PURL", content: URL(string: "https://\(owner).url.lol/\(value)")!),
+            .init(name: "PURL", content: URL(string: "https://\(owner).url.lol/\(title)")!),
             .init(name: "Profile", content: URL(string: "https://\(owner).omg.lol")!)
         ]
     }
 }
 
-extension PasteModel: Sharable {
+extension PasteResponse: Sharable {
     private var address: CopyPacket {
         .init(name: "Address", content: owner)
     }

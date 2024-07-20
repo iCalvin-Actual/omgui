@@ -5,146 +5,38 @@
 //  Created by Calvin Chestnut on 4/26/23.
 //
 
+import SwiftData
 import SwiftUI
 
-struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
-    @Environment(\.dismiss)
-    var dismiss
-    @Environment(\.horizontalSizeClass)
-    var sizeClass
-    
-    @Environment(\.viewContext)
-    var context: ViewContext
+struct PasteView: View {
     @Environment(SceneModel.self)
-    var sceneModel: SceneModel
+    var sceneModel
     
-    @StateObject
-    var fetcher: NamedItemDataFetcher<N>
+    let address: AddressName
+    let title: String
     
-    @State
-    var showDraft: Bool = false
-    @State
-    var detent: PresentationDetent = .draftDrawer
-    
-    @State
-    var draftResult: N?
-    
-    let mainContent: M
-    let draftContent: D
+    @Query
+    var pastes: [AddressPasteModel]
+    var paste: AddressPasteModel? {
+        pastes.first(where: { $0.owner == address && $0.name == title })
+    }
     
     var body: some View {
         mainContent
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    if fetcher.draftPoster != nil {
-                        Menu {
-                            Button {
-                                withAnimation {
-                                    if detent == .large {
-                                        detent = .draftDrawer
-                                    } else if showDraft {
-                                        detent = .large
-                                    } else if !showDraft {
-                                        detent = .medium
-                                        showDraft = true
-                                    } else {
-                                        showDraft = false
-                                        detent = .draftDrawer
-                                    }
-                                }
-                            } label: {
-                                Text("edit")
-                            }
-                            Menu {
-                                Button(role: .destructive) {
-                                    Task {
-                                        try await fetcher.deleteIfPossible()
-                                    }
-                                } label: {
-                                    Text("confirm")
-                                }
-                            } label: {
-                                Label {
-                                    Text("delete")
-                                } icon: {
-                                    Image(systemName: "trash")
-                                }
-                            }
-                        } label: {
-                            Image(systemName: "ellipsis.circle")
-                        }
-                    }
+            .onAppear {
+                Task {
+                    try await sceneModel.fetchPaste(address, title: title)
                 }
             }
-            .onReceive(fetcher.$model, perform: { model in
-                withAnimation {
-                    let address = fetcher.addressName
-                    guard sceneModel.accountModel.myAddresses.contains(address) else {
-                        showDraft = false
-                        return
-                    }
-                    if model == nil && fetcher.title.isEmpty {
-                        detent = .large
-                        showDraft = true
-                    } else if model != nil {
-                        detent = .draftDrawer
-                        showDraft = true
-                    } else {
-                        print("Stop")
-                    }
-                }
-            })
-            .onChange(of: draftResult, { oldValue, newValue in
-                guard let newValue else {
-                    return
-                }
-                fetcher.model = newValue
-                detent = .draftDrawer
-                showDraft = true
-                Task { await fetcher.perform() }
-            })
-            .sheet(
-                isPresented: $showDraft,
-                onDismiss: {
-                    if fetcher.model == nil {
-                        dismiss()
-                    }
-                },
-                content: {
-                    draftContent
-                        .presentationDetents(
-                            fetcher.model == nil ? [
-                                .draftDrawer,
-                                .large
-                            ] : [
-                                .draftDrawer,
-                                .medium,
-                                .large
-                            ],
-                            selection: $detent
-                        )
-                        .presentationBackgroundInteraction(.enabled(upThrough: .medium))
-                }
-            )
-    }
-}
-
-struct PasteView: View {
-    
-    @ObservedObject
-    var fetcher: AddressPasteDataFetcher
-    
-    var body: some View {
-        NamedItemView(fetcher: fetcher, mainContent: mainContent, draftContent: draftContent)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    if let name = fetcher.model?.name {
+                    if let name = paste?.name {
                         ThemedTextView(text: "/\(name)")
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        if let content = fetcher.model?.content {
+                        if let content = paste?.content {
                             ShareLink(item: content)
                             Button(action: {
                                 UIPasteboard.general.string = content
@@ -155,18 +47,18 @@ struct PasteView: View {
                                 )
                             })
                         }
-                        Divider()
-                        if let shareItem = fetcher.model?.shareURLs.first {
-                            ShareLink(shareItem.name, item: shareItem.content)
-                            Button(action: {
-                                UIPasteboard.general.string = shareItem.content.absoluteString
-                            }, label: {
-                                Label(
-                                    title: { Text("Copy URL") },
-                                    icon: { Image(systemName: "link") }
-                                )
-                            })
-                        }
+//                        Divider()
+//                        if let shareItem = paste?.shareURLs.first {
+//                            ShareLink(shareItem.name, item: shareItem.content)
+//                            Button(action: {
+//                                UIPasteboard.general.string = shareItem.content.absoluteString
+//                            }, label: {
+//                                Label(
+//                                    title: { Text("Copy URL") },
+//                                    icon: { Image(systemName: "link") }
+//                                )
+//                            })
+//                        }
                     } label: {
                         Image(systemName: "square.and.arrow.up")
                     }
@@ -178,12 +70,12 @@ struct PasteView: View {
     var mainContent: some View {
         VStack(alignment: .leading) {
             Group {
-                Text("\(fetcher.addressName).paste.lol/")
+                Text("\(address).paste.lol/")
                     .font(.title2)
                     .bold()
                     .foregroundStyle(Color.accentColor)
                 +
-                Text(fetcher.model?.name ?? fetcher.title)
+                Text(paste?.name ?? title)
                     .font(.title3)
                     .foregroundStyle(Color.primary)
             }
@@ -192,7 +84,7 @@ struct PasteView: View {
             .padding(.horizontal)
             
             ScrollView {
-                Text(fetcher.model?.content ?? "")
+                Text(paste?.content ?? "")
                     .textSelection(.enabled)
                     .font(.body)
                     .fontDesign(.monospaced)
@@ -203,14 +95,5 @@ struct PasteView: View {
             .padding(4)
         }
         .frame(maxWidth: .infinity)
-    }
-    
-    @ViewBuilder
-    var draftContent: some View {
-        if let poster = fetcher.draftPoster {
-            PasteDraftView(draftFetcher: poster)
-        } else {
-            EmptyView()
-        }
     }
 }

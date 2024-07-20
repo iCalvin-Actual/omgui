@@ -255,7 +255,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
         switch item {
         case let nowModel as NowListing:
             return .now(nowModel.owner)
-        case let pasteModel as PasteModel:
+        case let pasteModel as PasteResponse:
 //            if sceneModel.accountModel.myAddresses.contains(pasteModel.addressName) {
 //                return .editPaste(pasteModel.addressName, title: pasteModel.name)
 //            }

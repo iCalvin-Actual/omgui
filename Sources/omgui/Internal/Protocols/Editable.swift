@@ -12,13 +12,13 @@ protocol Editable: AddressManagable {
     var editingDestination: NavigationDestination { get }
 }
 
-extension PURLResponse: Editable {
-    var editingDestination: NavigationDestination {
-        .editPURL(addressName, title: value)
-    }
-}
+//extension PURLResponse: Editable {
+//    var editingDestination: NavigationDestination {
+//        .editPURL(addressName, title: value)
+//    }
+//}
 
-extension PasteModel: Editable {
+extension PasteResponse: Editable {
     var editingDestination: NavigationDestination {
         .editPaste(owner, title: name)
     }

@@ -192,7 +192,7 @@ class NowDraftPoster: MDDraftPoster<NowModel> {
     }
 }
 
-class PasteDraftPoster: NamedDraftPoster<PasteModel> {
+class PasteDraftPoster: NamedDraftPoster<PasteResponse> {
     override var navigationTitle: String {
         if originalDraft == nil {
             return "new paste"
@@ -588,7 +588,7 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     func follow(_ toFollow: AddressName, credential: APICredential) {
         let newValue = Array(Set(self.listItems.map({ $0.name }) + [toFollow]))
         let newContent = newValue.joined(separator: "\n")
-        let draft = PasteModel.Draft(
+        let draft = PasteResponse.Draft(
             address: address,
             name: "app.lol.following",
             content: newContent,
@@ -603,7 +603,7 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     func unFollow(_ toRemove: AddressName, credential: APICredential) {
         let newValue = listItems.map({ $0.name }).filter({ $0 != toRemove })
         let newContent = newValue.joined(separator: "\n")
-        let draft = PasteModel.Draft(
+        let draft = PasteResponse.Draft(
             address: address,
             name: "app.lol.following",
             content: newContent,
@@ -822,7 +822,7 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     func block(_ toBlock: AddressName, credential: APICredential) {
         let newValue = Array(Set(self.listItems.map({ $0.name }) + [toBlock]))
         let newContent = newValue.joined(separator: "\n")
-        let draft = PasteModel.Draft(
+        let draft = PasteResponse.Draft(
             address: address,
             name: "app.lol.blocked",
             content: newContent,
@@ -838,7 +838,7 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     func unBlock(_ toUnblock: AddressName, credential: APICredential) {
         let newValue = listItems.map({ $0.name }).filter({ $0 != toUnblock })
         let newContent = newValue.joined(separator: "\n")
-        let draft = PasteModel.Draft(
+        let draft = PasteResponse.Draft(
             address: address,
             name: "app.lol.blocked",
             content: newContent,
@@ -968,20 +968,20 @@ class URLContentDataFetcher: DataFetcher {
     }
 }
 
-class AccountPastesDataFetcher: ListDataFetcher<PasteModel> {
+class AccountPastesDataFetcher: ListDataFetcher<PasteResponse> {
     let addresses: [AddressName]
     let credential: APICredential
     
-    var lists: [AddressName: [PasteModel]] = [:]
-    override var listItems: [PasteModel] {
+    var lists: [AddressName: [PasteResponse]] = [:]
+    override var listItems: [PasteResponse] {
         get {
             lists.reduce([], { $0 + $1.value })
         }
         set {
             let oldValue = listItems
-            var toInsert: Set<PasteModel> = []
-            var toRemove: Set<PasteModel> = []
-            Array(Set<PasteModel>(oldValue + newValue)).forEach({ model in
+            var toInsert: Set<PasteResponse> = []
+            var toRemove: Set<PasteResponse> = []
+            Array(Set<PasteResponse>(oldValue + newValue)).forEach({ model in
                 if oldValue.contains(model) && !newValue.contains(model) {
                     toRemove.insert(model)
                 } else if !oldValue.contains(model) && newValue.contains(model) {
@@ -1039,7 +1039,7 @@ class AccountPastesDataFetcher: ListDataFetcher<PasteModel> {
     }
 }
 
-class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
+class AddressPasteBinDataFetcher: ListDataFetcher<PasteResponse> {
     let addressName: AddressName
     let credential: APICredential?
     
@@ -1047,7 +1047,7 @@ class AddressPasteBinDataFetcher: ListDataFetcher<PasteModel> {
         "\(addressName.addressDisplayString).paste"
     }
     
-    init(name: AddressName, pastes: [PasteModel] = [], interface: DataInterface, credential: APICredential?) {
+    init(name: AddressName, pastes: [PasteResponse] = [], interface: DataInterface, credential: APICredential?) {
         self.addressName = name
         self.credential = credential
         super.init(items: pastes, interface: interface)
@@ -1096,46 +1096,6 @@ class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
     
     public func deleteIfPossible() async throws {
         // override
-    }
-}
-
-class AddressPasteDataFetcher: NamedItemDataFetcher<PasteModel> {
-    override var draftPoster: PasteDraftPoster? {
-        guard let credential else {
-            return super.draftPoster as? PasteDraftPoster
-        }
-        if let model {
-            return .init(
-                addressName,
-                title: model.name,
-                content: model.content ?? "",
-                interface: interface,
-                credential: credential
-            )
-        } else {
-            return .init(
-                addressName,
-                title: "",
-                interface: interface,
-                credential: credential
-            )
-        }
-    }
-    
-    override func throwingRequest() async throws {
-        Task {
-            model = try await interface.fetchPaste(title, from: addressName, credential: credential)
-            threadSafeSendUpdate()
-        }
-    }
-    
-    override func deleteIfPossible() async throws {
-        guard let credential else {
-            return
-        }
-        let _ = try await interface.deletePaste(title, from: addressName, credential: credential)
-        model = PasteModel(owner: addressName, name: "")
-        threadSafeSendUpdate()
     }
 }
 

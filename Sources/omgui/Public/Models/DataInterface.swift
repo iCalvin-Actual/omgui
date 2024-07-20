@@ -113,14 +113,14 @@ public protocol DataInterface: Sendable {
         _ name: AddressName,
         credential: APICredential?
     )
-    async throws -> [PasteModel]
+    async throws -> [PasteResponse]
     
     func fetchPaste(
         _ id: String,
         from address: AddressName,
         credential: APICredential?
     )
-    async throws -> PasteModel?
+    async throws -> PasteResponse?
     
     func deletePaste(
         _ id: String,
@@ -130,11 +130,11 @@ public protocol DataInterface: Sendable {
     async throws
     
     func savePaste(
-        _ draft: PasteModel.Draft,
+        _ draft: PasteResponse.Draft,
         to address: AddressName,
         credential: APICredential
     )
-    async throws -> PasteModel?
+    async throws -> PasteResponse?
     
     func fetchStatusLog()
     async throws -> [StatusResponse]

@@ -20,7 +20,7 @@ struct MyPastesView: View {
         account.accountPastesFetcher
     }
     
-    var activeFetcher: ListDataFetcher<PasteModel> {
+    var activeFetcher: ListDataFetcher<PasteResponse> {
         guard !singleAddressMode else {
             return addressFetcher
         }
@@ -43,7 +43,7 @@ struct MyPastesView: View {
     }
     
     var body: some View {
-        ListView<PasteModel, PasteRowView, EmptyView>(dataFetcher: activeFetcher, rowBuilder: { .init(model: $0) })
+        ListView<PasteResponse, PasteRowView, EmptyView>(dataFetcher: activeFetcher, rowBuilder: { .init(model: $0) })
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     if !singleAddressMode {

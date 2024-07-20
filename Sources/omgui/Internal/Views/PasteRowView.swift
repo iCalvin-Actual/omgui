@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PasteRowView: View {
-    let model: PasteModel
+    let model: PasteResponse
     @Environment(\.viewContext)
     var context: ViewContext
     

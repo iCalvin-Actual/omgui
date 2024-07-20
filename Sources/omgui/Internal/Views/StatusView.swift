@@ -57,11 +57,11 @@ struct StatusView: View {
 //            ToolbarItem(placement: .topBarLeading) {
 //                ThemedTextView(text: ".status")
 //            }
-            ToolbarItem(placement: .topBarTrailing) {
-                if let url = fetcher.status?.shareURLs.first?.content {
-                    ShareLink(item: url)
-                }
-            }
+//            ToolbarItem(placement: .topBarTrailing) {
+//                if let url = fetcher.status?.shareURLs.first?.content {
+//                    ShareLink(item: url)
+//                }
+//            }
         }
     }
     

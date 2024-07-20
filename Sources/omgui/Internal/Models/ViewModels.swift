@@ -90,7 +90,7 @@ public struct NowModel: Sendable {
     }
 }
 
-public struct PasteModel: Hashable, Identifiable, RawRepresentable, Codable, Sendable {
+public struct PasteResponse: Hashable, Identifiable, RawRepresentable, Codable, Sendable {
     public var id: String { rawValue }
     static var separator: String { "{PASTE}" }
     

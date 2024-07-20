@@ -84,4 +84,17 @@ class SceneModel {
             context.insert(model)
         }
     }
+    
+    func fetchPaste(_ address: AddressName, title: String) async throws {
+        let credential = accountModel.credential(for: address, in: addressBook)
+        
+        do {
+            if let purlResponse = try await fetchConstructor.interface.fetchPaste(title, from: address, credential: credential) {
+                let model = AddressPasteModel(purlResponse)
+                context.insert(model)
+            }
+        } catch {
+            throw error
+        }
+    }
 }
