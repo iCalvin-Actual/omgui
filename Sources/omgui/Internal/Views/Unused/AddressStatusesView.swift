@@ -5,23 +5,31 @@
 //  Created by Calvin Chestnut on 3/8/23.
 //
 
+import SwiftData
 import SwiftUI
 
 struct AddressStatusesView: View {
     @ObservedObject
     var fetcher: StatusLogDataFetcher
     
-    @ObservedObject
-    var bioFetcher: AddressBioDataFetcher
+    @Query
+    var models: [AddressBioModel]
+    var bio: AddressBioModel? {
+        models.first(where: { $0.address == address })
+    }
+    
+    let address: AddressName
     
     var body: some View {
         VStack(alignment: .leading) {
-            AddressBioView(fetcher: bioFetcher)
-            StatusList(fetcher: fetcher)
+            if let bio {
+                AddressBioView(bio: bio)
+            }
+            StatusList(fetcher: fetcher, addresses: [address])
         }
         .toolbar {       
             ToolbarItem(placement: .topBarLeading) {
-                ThemedTextView(text: bioFetcher.address.addressDisplayString + ".statusLog")
+                ThemedTextView(text: address.addressDisplayString + ".statusLog")
             }
         }
     }

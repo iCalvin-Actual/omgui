@@ -24,10 +24,17 @@ struct StatusList: View {
     
     let filters: [FilterOption] = []
     
-    var menuBuilder: ContextMenuBuilder<StatusModel>?
+    let addresses: [AddressName]
+    
+    var menuBuilder: ContextMenuBuilder<StatusResponse>?
     
     var body: some View {
-        ListView<StatusModel, StatusRowView, EmptyView>(dataFetcher: fetcher, rowBuilder: { StatusRowView(model: $0) })
+        ListView<StatusResponse, StatusRowView, EmptyView>(dataFetcher: fetcher, rowBuilder: { StatusRowView(model: $0) })
             .toolbarRole(.editor)
+            .onAppear {
+                Task {
+                    try await sceneModel.fetchStatuses(addresses)
+                }
+            }
     }
 }

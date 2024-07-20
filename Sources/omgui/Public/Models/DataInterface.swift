@@ -6,14 +6,12 @@
 //
 
 import Foundation
+import SwiftData
 
 public protocol DataInterface: Sendable {
     
     func authURL()
     -> URL?
-    
-    func fetchThemes() 
-    async throws -> [ThemeModel]
     
     @MainActor
     func fetchAccessToken(
@@ -23,6 +21,9 @@ public protocol DataInterface: Sendable {
         redirect: String
     )
     async throws -> String?
+    
+    func fetchThemes() 
+    async throws -> [ThemeModel]
     
     func fetchServiceInfo()
     async throws -> ServiceInfoModel
@@ -136,36 +137,35 @@ public protocol DataInterface: Sendable {
     async throws -> PasteModel?
     
     func fetchStatusLog()
-    async throws -> [StatusModel]
+    async throws -> [StatusResponse]
     
     func fetchAddressStatuses(
         addresses: [AddressName]
     )
-    async throws -> [StatusModel]
+    async throws -> [StatusResponse]
     
     func fetchAddressStatus(
         _ id: String,
         from address: AddressName
     )
-    async throws -> StatusModel?
+    async throws -> StatusResponse?
     
     func deleteAddressStatus(
-        _ draft: StatusModel.Draft,
+        _ draft: StatusResponse.Draft,
         from address: AddressName,
         credential: APICredential
     )
-    async throws -> StatusModel?
+    async throws -> StatusResponse?
     
     func saveStatusDraft(
-        _ draft: StatusModel.Draft,
+        _ draft: StatusResponse.Draft,
         to address: AddressName,
         credential: APICredential
     )
-    async throws -> StatusModel?
+    async throws -> StatusResponse?
     
     func fetchAddressBio(
         _ name: AddressName
     )
-    async throws -> AddressBioModel
-    
+    async throws -> AddressBioResponse
 }

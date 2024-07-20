@@ -191,7 +191,7 @@ public struct AddressModel: Hashable, Identifiable, RawRepresentable, Codable, S
     }
 }
 
-public struct StatusModel: Hashable, Identifiable, Sendable {
+public struct StatusResponse: Hashable, Identifiable, Sendable {
     public let id: String
     let address: AddressName
     let posted: Date
@@ -308,5 +308,5 @@ public struct StatusModel: Hashable, Identifiable, Sendable {
 
 public struct GroupStatusLogModel: Sendable {
     let displayTitle: String?
-    let statuses: [StatusModel]
+    let statuses: [StatusResponse]
 }

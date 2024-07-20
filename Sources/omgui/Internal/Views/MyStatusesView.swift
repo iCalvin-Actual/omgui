@@ -36,7 +36,7 @@ struct MyStatusesView: View {
     }
     
     var body: some View {
-        StatusList(fetcher: activeFetcher)
+        StatusList(fetcher: activeFetcher, addresses: singleAddressMode ? addressFetcher.addresses : accountFetcher.addresses)
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     Button(action: toggleFilter) {

@@ -39,7 +39,7 @@ extension AddressModel: Listable {
     var displayDate: Date? { registered }
     var iconURL: URL? { addressName.addressIconURL }
 }
-extension StatusModel: Listable     {
+extension StatusResponse: Listable     {
     var listTitle: String     { status }
     var listSubtitle: String  { address.addressDisplayString }
     var displayDate: Date?    { posted }

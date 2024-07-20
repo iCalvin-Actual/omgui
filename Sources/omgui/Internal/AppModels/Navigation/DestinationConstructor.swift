@@ -28,10 +28,10 @@ struct DestinationConstructor {
         case .community:
             CommunityView(addressBook: addressBook)
         case .address(let name):
-            AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), allowEditing: addressBook.actingAddress == name, selectedPage: .profile)
+            AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), allowEditing: addressBook.actingAddress == name, selectedPage: .profile, address: name)
                 .toolbarRole(.editor)
         case .webpage(let name):
-            AddressProfileView(fetcher: addressBook.addressSummary(name).profileFetcher)
+            AddressProfileView(address: name)
         case .now(let name):
             AddressNowView(fetcher: addressBook.addressSummary(name).nowFetcher)
         case .blocked:
@@ -44,7 +44,7 @@ struct DestinationConstructor {
             }
         case .followingStatuses:
             if let fetcher = addressBook.followingStatusLogFetcher {
-                StatusList(fetcher: fetcher)
+                StatusList(fetcher: fetcher, addresses: fetcher.addresses)
             }
         case .addressFollowing(let name):
             ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetchConstructor.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
@@ -59,7 +59,7 @@ struct DestinationConstructor {
         case .paste(let address, title: let title):
             PasteView(fetcher: fetchConstructor.addressPasteFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
         case .statusLog(let address):
-            StatusList(fetcher: addressBook.addressSummary(address).statusFetcher)
+            StatusList(fetcher: addressBook.addressSummary(address).statusFetcher, addresses: [address])
         case .status(let address, id: let id):
             StatusView(fetcher: fetchConstructor.statusFetcher(id, from: address))
         case .account:

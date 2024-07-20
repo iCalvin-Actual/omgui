@@ -65,7 +65,7 @@ extension NamedDraft {
     }
 }
 
-extension StatusModel: MDDraftable {
+extension StatusResponse: MDDraftable {
     public typealias MDDraftItem = Draft
     
     public struct Draft: MDDraft {
@@ -99,7 +99,7 @@ extension StatusModel: MDDraftable {
             externalUrl = ""
         }
         
-        init(model: StatusModel, id: String? = nil) {
+        init(model: StatusResponse, id: String? = nil) {
             self.address = model.address
             self.id = id
             self.content = model.status

@@ -13,7 +13,7 @@ struct StatusView: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    var status: StatusModel?
+    var status: StatusResponse?
     
     @ObservedObject
     var feedFetcher: StatusLogDataFetcher
@@ -23,7 +23,7 @@ struct StatusView: View {
     @State
     var presentURL: URL?
     
-    init(fetcher: StatusDataFetcher, status: StatusModel? = nil) {
+    init(fetcher: StatusDataFetcher, status: StatusResponse? = nil) {
         self.fetcher = fetcher
         self.feedFetcher = StatusLogDataFetcher(addresses: [fetcher.address], interface: fetcher.interface)
     }

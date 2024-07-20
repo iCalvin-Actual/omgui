@@ -88,7 +88,7 @@ extension AddressNowDataFetcher: MarkdownSourceProvider {
     }
 }
 
-extension StatusModel: MarkdownSourceProvider {
+extension StatusResponse: MarkdownSourceProvider {
     var updated: Date? {
         dateValue
     }

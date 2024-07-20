@@ -168,7 +168,7 @@ struct StatusDraftView: View {
         case (.content, _):
             EmptyView()
         case (_, true):
-            Text(StatusModel.Draft.contentPlaceholder)
+            Text(StatusResponse.Draft.contentPlaceholder)
         default:
             EmptyView()
         }

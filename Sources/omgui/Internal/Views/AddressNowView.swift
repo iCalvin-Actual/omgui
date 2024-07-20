@@ -24,7 +24,6 @@ struct AddressNowView: View {
     var htmlBody: some View {
         if let html = fetcher.html {
             HTMLFetcherView(
-                fetcher: fetcher,
                 activeAddress: fetcher.address,
                 htmlContent: html,
                 baseURL: nil

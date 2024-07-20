@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import SwiftData
 
-public struct AddressBioModel: Sendable {
+public struct AddressBioResponse: Sendable {
     let address: AddressName
     let bio: String?
     

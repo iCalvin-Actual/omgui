@@ -5,38 +5,51 @@
 //  Created by Calvin Chestnut on 3/8/23.
 //
 
+import SwiftData
 import SwiftUI
 
 struct AddressProfileView: View {
-    @ObservedObject
-    var fetcher: AddressProfileDataFetcher
+    @Environment(SceneModel.self)
+    var sceneModel
+    
+    let address: AddressName
+    
+    @Query
+    var profiles: [AddressProfileModel]
+    var profile: AddressProfileModel? {
+        profiles.first(where: { $0.owner == address })
+    }
     
     var body: some View {
         htmlBody
+            .onAppear {
+                Task {
+                    try await sceneModel.fetchProfile(address)
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    ThemedTextView(text: fetcher.addressName.addressDisplayString)
+                    ThemedTextView(text: address.addressDisplayString)
                 }
             }
     }
     
     @ViewBuilder
     var htmlBody: some View {
-        if let html = fetcher.html {
-            HTMLFetcherView(
-                fetcher: fetcher,
-                activeAddress: fetcher.addressName,
-                htmlContent: html,
-                baseURL: nil
-            )
+        if let html = profile?.content {
+            if html.isEmpty {
+                ThemedTextView(text: "no public profile")
+                    .padding()
+            } else {
+                HTMLFetcherView(
+                    activeAddress: address,
+                    htmlContent: html,
+                    baseURL: nil
+                )
+            }
         } else {
             VStack {
-                if fetcher.loading {
-                    LoadingView()
-                } else {
-                    ThemedTextView(text: "no public profile")
-                        .padding()
-                }
+                LoadingView()
                 Spacer()
             }
         }

@@ -23,7 +23,7 @@ struct StatusRowView: View {
     @GestureState 
     private var zoom = 1.0
     
-    let model: StatusModel
+    let model: StatusResponse
     @Environment(\.viewContext)
     var context: ViewContext
     

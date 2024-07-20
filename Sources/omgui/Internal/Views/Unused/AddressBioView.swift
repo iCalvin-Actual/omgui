@@ -5,14 +5,14 @@
 //  Created by Calvin Chestnut on 3/8/23.
 //
 
+import SwiftData
 import SwiftUI
 
 struct AddressBioView: View {
     @Environment(\.verticalSizeClass)
     var verticalSizeClass
     
-    @ObservedObject
-    var fetcher: AddressBioDataFetcher
+    var bio: AddressBioModel
     
     @State
     var expanded: Bool = false
@@ -30,17 +30,15 @@ struct AddressBioView: View {
     }
     
     var body: some View {
-        if let bio = fetcher.bio?.bio {
-            Text(bio)
-                .onTapGesture {
-                    withAnimation {
-                        self.expanded.toggle()
-                    }
+        Text(bio.bio)
+            .onTapGesture {
+                withAnimation {
+                    self.expanded.toggle()
                 }
-                .padding()
-                .lineLimit(lineLimit)
-                .frame(maxWidth: .infinity)
-                .background(Color.lolBlue)
-        }
+            }
+            .padding()
+            .lineLimit(lineLimit)
+            .frame(maxWidth: .infinity)
+            .background(Color.lolBlue)
     }
 }

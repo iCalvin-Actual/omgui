@@ -97,7 +97,7 @@ extension NowListing: Sharable {
     }
 }
 
-extension StatusModel: Sharable {
+extension StatusResponse: Sharable {
     var primaryCopy: CopyPacket? {
         .init(name: "Status text", content: status)
     }

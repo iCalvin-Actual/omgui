@@ -31,7 +31,7 @@ struct AccountView: View {
     var body: some View {
         NavigationStack {
             if accountModel.signedIn {
-                AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(addressBook.actingAddress), allowEditing: true, selectedPage: .profile)
+                AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(addressBook.actingAddress), allowEditing: true, selectedPage: .profile, address: addressBook.actingAddress)
             } else {
                 signedOutHeader
                 

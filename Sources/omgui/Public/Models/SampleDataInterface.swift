@@ -135,9 +135,9 @@ public final class SampleData: DataInterface {
         try await fetchPaste(draft.name, from: address, credential: credential)
     }
     
-    public func fetchStatusLog() async throws -> [StatusModel] {
+    public func fetchStatusLog() async throws -> [StatusResponse] {
         try await Task.sleep(nanoseconds: artificalDelay)
-        var statuses: [StatusModel] = []
+        var statuses: [StatusResponse] = []
         let directory = ["app", "appleAppStoreReview", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
         for _ in 0...50 {
             statuses.append(.sample(with: directory.randomElement()!))
@@ -145,7 +145,7 @@ public final class SampleData: DataInterface {
         return statuses
     }
     
-    public func fetchAddressStatuses(addresses: [AddressName]) async throws -> [StatusModel] {
+    public func fetchAddressStatuses(addresses: [AddressName]) async throws -> [StatusResponse] {
         return try await fetchStatusLog()
             .filter({ element in
                 guard !addresses.isEmpty else {
@@ -155,25 +155,25 @@ public final class SampleData: DataInterface {
             })
     }
     
-    public func fetchAddressStatus(_ id: String, from address: AddressName) async throws -> StatusModel? {
+    public func fetchAddressStatus(_ id: String, from address: AddressName) async throws -> StatusResponse? {
         try await Task.sleep(nanoseconds: artificalDelay)
-        return StatusModel.sample(with: address, id: id)
+        return StatusResponse.sample(with: address, id: id)
     }
     
-    public func deleteAddressStatus(_ draft: StatusModel.Draft, from address: AddressName, credential: APICredential) async throws -> StatusModel? {
+    public func deleteAddressStatus(_ draft: StatusResponse.Draft, from address: AddressName, credential: APICredential) async throws -> StatusResponse? {
         guard let id = draft.id else {
             return nil
         }
         try await Task.sleep(nanoseconds: artificalDelay)
-        return StatusModel.sample(with: address, id: id)
+        return StatusResponse.sample(with: address, id: id)
     }
     
-    public func saveStatusDraft(_ draft: StatusModel.Draft, to address: AddressName, credential: APICredential) async throws -> StatusModel? {
+    public func saveStatusDraft(_ draft: StatusResponse.Draft, to address: AddressName, credential: APICredential) async throws -> StatusResponse? {
         try await Task.sleep(nanoseconds: artificalDelay)
         return try await fetchAddressStatus(draft.id ?? UUID().uuidString, from: address)
     }
     
-    public func fetchAddressBio(_ name: AddressName) async throws -> AddressBioModel {
+    public func fetchAddressBio(_ name: AddressName) async throws -> AddressBioResponse {
         try await Task.sleep(nanoseconds: artificalDelay)
         let content = String.minimalLorum
         return .init(address: name, bio: content)
@@ -431,13 +431,13 @@ calvin
     }
 }
 
-fileprivate extension StatusModel {
-    static func sample(with address: AddressName, id: String? = nil) -> StatusModel {
+fileprivate extension StatusResponse {
+    static func sample(with address: AddressName, id: String? = nil) -> StatusResponse {
         let contentItems = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat", " Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.", "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."]
         let emojiItems = ["🙈", "🤷", "😘", "🤣", "😅", "🦖", "🤓", "🙃", "✨", "🎉", "🤔", "😍", "🙊", "😉", "🖤", "🤩"]
         let content = contentItems.randomElement()!
         let emoji = emojiItems.randomElement()!
-        return StatusModel(
+        return StatusResponse(
             id: id ?? UUID().uuidString,
             address: address,
             posted: Date(timeIntervalSince1970: .random(min: 1600000000.0, max: 1678019926.0)),

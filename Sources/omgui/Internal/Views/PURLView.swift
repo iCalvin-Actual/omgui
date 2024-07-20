@@ -91,7 +91,6 @@ struct PURLView: View {
     var preview: some View {
         if let content = fetcher.purlContent {
             HTMLFetcherView(
-                fetcher: fetcher,
                 activeAddress: fetcher.addressName,
                 htmlContent: content,
                 baseURL: {

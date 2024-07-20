@@ -163,7 +163,7 @@ extension AddressModel: QueryFilterable {
     }
 }
 
-extension StatusModel: QueryFilterable {
+extension StatusResponse: QueryFilterable {
     var queryCheckStrings: [String] {
         [addressName, emoji, status]
             .compactMap({ $0 })

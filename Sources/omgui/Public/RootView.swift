@@ -22,12 +22,15 @@ struct RootView: View {
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
     
+    @Environment(\.modelContext)
+    var modelContext
+    
     let fetchConstructor: FetchConstructor
     
     var body: some View {
         NavigationView()
             .environment(
-                SceneModel(actingAddress: actingAddress, fetchConstructor: fetchConstructor)
+                SceneModel(actingAddress: actingAddress, fetchConstructor: fetchConstructor, context: modelContext)
             )
     }
 }

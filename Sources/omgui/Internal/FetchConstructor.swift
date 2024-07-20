@@ -68,10 +68,6 @@ class FetchConstructor {
         AddressPrivateSummaryDataFetcher(name: address, interface: interface, credential: credential)
     }
     
-    func addressProfileFetcher(_ address: AddressName) -> AddressProfileDataFetcher {
-        AddressProfileDataFetcher(name: address, interface: interface)
-    }
-    
     func addresNowFetcher(_ address: AddressName) -> AddressNowDataFetcher {
         AddressNowDataFetcher(name: address, interface: interface)
     }
@@ -101,7 +97,7 @@ class FetchConstructor {
     }
     
     func draftStatusPoster(_ id: String? = nil, for address: AddressName, credential: APICredential) -> StatusDraftPoster {
-        let draft = StatusModel.Draft(address: address, id: id, content: "", emoji: "")
+        let draft = StatusResponse.Draft(address: address, id: id, content: "", emoji: "")
         return StatusDraftPoster(address, draft: draft, interface: interface, credential: credential)
     }
     

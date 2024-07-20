@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 public struct omgui: View {
@@ -10,6 +11,12 @@ public struct omgui: View {
     }
     
     public var body: some View {
-        RootView(fetchConstructor: .init(client: clientInfo, interface: dataInterface))
+        RootView(
+            fetchConstructor: .init(
+                client: clientInfo,
+                interface: dataInterface
+            )
+        )
+        .modelContainer(for: dataInterface.swiftModels)
     }
 }

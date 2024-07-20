@@ -265,11 +265,11 @@ struct ListView<T: Listable, V: View, H: View>: View {
 //                return .editPURL(purlModel.addressName, title: purlModel.value)
 //            }
             return .purl(purlModel.addressName, title: purlModel.value)
-        case let statusModel as StatusModel:
-            if sceneModel.accountModel.myAddresses.contains(statusModel.address) {
-//                return .editStatus(statusModel.address, id: statusModel.id)
+        case let StatusResponse as StatusResponse:
+            if sceneModel.accountModel.myAddresses.contains(StatusResponse.address) {
+//                return .editStatus(StatusResponse.address, id: StatusResponse.id)
             }
-            return .status(statusModel.address, id: statusModel.id)
+            return .status(StatusResponse.address, id: StatusResponse.id)
         default:
             if context == .column {
                 return .address(item.addressName)

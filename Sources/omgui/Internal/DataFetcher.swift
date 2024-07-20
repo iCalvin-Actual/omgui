@@ -267,7 +267,7 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel> {
 }
 
 @MainActor
-class StatusDraftPoster: DraftPoster<StatusModel> {
+class StatusDraftPoster: DraftPoster<StatusResponse> {
     override var navigationTitle: String {
         if originalDraft == nil {
             if address != .autoUpdatingAddress {
@@ -314,7 +314,7 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
         guard let presented = result else {
             return
         }
-        let patchDraft = StatusModel.Draft(model: presented, id: presented.id)
+        let patchDraft = StatusResponse.Draft(model: presented, id: presented.id)
         Task { [weak self] in
             guard let self else { return }
             let draftedAddress = draft.address
@@ -547,25 +547,6 @@ class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
     override func throwingRequest() async throws {
         Task {
             self.listItems = try await interface.fetchAccountAddresses(credential).map({ AddressModel(name: $0) })
-            self.fetchFinished()
-        }
-    }
-}
-
-class AddressBioDataFetcher: DataFetcher {
-    let address: AddressName
-    
-    var bio: AddressBioModel?
-    
-    init(address: AddressName, interface: DataInterface) {
-        self.address = address
-        super.init(interface: interface)
-    }
-    
-    override func throwingRequest() async throws {
-        Task {
-            let bio = try await interface.fetchAddressBio(address)
-            self.bio = bio
             self.fetchFinished()
         }
     }
@@ -877,13 +858,13 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
-class StatusLogDataFetcher: ListDataFetcher<StatusModel> {
+class StatusLogDataFetcher: ListDataFetcher<StatusResponse> {
     let displayTitle: String
     let addresses: [AddressName]
     
     override var title: String { displayTitle }
     
-    init(title: String? = nil, addresses: [AddressName] = [], statuses: [StatusModel] = [], interface: DataInterface) {
+    init(title: String? = nil, addresses: [AddressName] = [], statuses: [StatusResponse] = [], interface: DataInterface) {
         self.displayTitle = title ?? {
             switch addresses.count {
             case 0:
@@ -916,7 +897,7 @@ class StatusDataFetcher: DataFetcher {
     let address: AddressName
     let id: String
     
-    var status: StatusModel?
+    var status: StatusResponse?
     
     var linkFetchers: [URLContentDataFetcher] = []
     
@@ -953,64 +934,6 @@ class NowGardenDataFetcher: ListDataFetcher<NowListing> {
                 self.fetchFinished()
             }
         }
-    }
-}
-
-class AddressProfileDataFetcher: DataFetcher {
-    
-    let addressName: AddressName
-    let credential: APICredential?
-    
-    var html: String?
-    
-    init(name: AddressName, credential: APICredential? = nil, interface: DataInterface) {
-        self.addressName = name
-        self.credential = credential
-        super.init(interface: interface)
-    }
-    
-    override func throwingRequest() async throws {
-        guard !addressName.isEmpty else {
-            return
-        }
-        Task {
-            let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
-            self.html = profile?.content
-            self.fetchFinished()
-        }
-    }
-    
-    var theme: String {
-        return ""
-    }
-    
-    var imageURL: URL? {
-        let firstSplit = html?.split(separator: "<")
-        guard let important = firstSplit?.first(where: { line in
-            line.contains("property=\"og:image")
-        }) else {
-            return nil
-        }
-        let trimmingEnd = important.split(separator: "\">")
-        guard let almostThere = trimmingEnd.first else {
-            return nil
-        }
-        let finallyThere = almostThere.split(separator: "meta property=\"og:image\" content=\"")
-        guard let finally = finallyThere.first else {
-            return nil
-        }
-        return URL(string: String(finally))
-    }
-    
-    override var noContent: Bool {
-        !loading && (html ?? "").isEmpty
-    }
-    
-    override var summaryString: String? {
-        guard !noContent else {
-            return super.summaryString
-        }
-        return DateFormatter.short.string(from: Date())
     }
 }
 
@@ -1447,7 +1370,6 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
         
         super.init(name: name, interface: interface)
         
-        self.profileFetcher = .init(name: addressName, credential: credential, interface: interface)
         self.followingFetcher = .init(address: addressName, credential: credential, interface: interface)
         
         self.purlFetcher = .init(name: addressName, interface: interface, credential: credential)
@@ -1476,12 +1398,10 @@ class AddressSummaryDataFetcher: DataFetcher {
     }
     
     var iconFetcher: AddressIconDataFetcher
-    var profileFetcher: AddressProfileDataFetcher
     var nowFetcher: AddressNowDataFetcher
     var purlFetcher: AddressPURLsDataFetcher
     var pasteFetcher: AddressPasteBinDataFetcher
     var statusFetcher: StatusLogDataFetcher
-    var bioFetcher: AddressBioDataFetcher
     
     var followingFetcher: AddressFollowingDataFetcher
     
@@ -1491,12 +1411,10 @@ class AddressSummaryDataFetcher: DataFetcher {
     ) {
         self.addressName = name
         self.iconFetcher = .init(address: name, interface: interface)
-        self.profileFetcher = .init(name: name, credential: nil, interface: interface)
         self.nowFetcher = .init(name: name, interface: interface)
         self.purlFetcher = .init(name: name, interface: interface, credential: nil)
         self.pasteFetcher = .init(name: name, interface: interface, credential: nil)
         self.statusFetcher = .init(addresses: [name], interface: interface)
-        self.bioFetcher = .init(address: name, interface: interface)
         
         self.followingFetcher = .init(address: name, credential: nil, interface: interface)
         
@@ -1510,12 +1428,10 @@ class AddressSummaryDataFetcher: DataFetcher {
         await super.perform()
         
         await iconFetcher.updateIfNeeded()
-        await profileFetcher.updateIfNeeded()
         await nowFetcher.updateIfNeeded()
         await purlFetcher.updateIfNeeded()
         await pasteFetcher.updateIfNeeded()
         await statusFetcher.updateIfNeeded()
-        await bioFetcher.updateIfNeeded()
         await followingFetcher.updateIfNeeded()
     }
     

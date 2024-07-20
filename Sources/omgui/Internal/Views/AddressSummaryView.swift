@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/8/23.
 //
 
+import SwiftData
 import SwiftUI
 
 struct AddressSummaryView: View {
@@ -27,10 +28,17 @@ struct AddressSummaryView: View {
     @SceneStorage("app.lol.address.page")
     var selectedPage: AddressContent = .profile
     
+    let address: AddressName
+    
+    @Query
+    var models: [AddressBioModel]
+    var bio: AddressBioModel? {
+        models.first(where: { $0.address == address })
+    }
+    
     private var allPages: [AddressContent] {
         pages + more
     }
-    
     private var pages: [AddressContent] {
         [
             .profile,
@@ -49,6 +57,11 @@ struct AddressSummaryView: View {
     var body: some View {
         sizeAppropriateBody
             .background(Color.lolBackground)
+            .onAppear {
+                Task {
+                    try await sceneModel.fetchBio(address)
+                }
+            }
     }
     
     @ViewBuilder
@@ -61,8 +74,12 @@ struct AddressSummaryView: View {
                     AddressIconView(address: addressSummaryFetcher.addressName)
                 }
                 .frame(width: 44)
-                AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                if let bio {
+                    AddressBioLabel(expanded: $expandBio, bio: bio)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    Spacer()
+                }
             }
             .padding()
             
@@ -112,9 +129,7 @@ struct AddressSummaryView: View {
             return addressSummaryFetcher.pasteFetcher
         case .purl:
             return addressSummaryFetcher.purlFetcher
-        case .profile:
-            return addressSummaryFetcher.profileFetcher
-        case .statuslog:
+        default:
             return addressSummaryFetcher.statusFetcher
         }
     }
@@ -124,22 +139,15 @@ struct AddressBioLabel: View {
     @Binding
     var expanded: Bool
     
-    @ObservedObject
-    var addressBioFetcher: AddressBioDataFetcher
+    var bio: AddressBioModel
     
     var body: some View {
-        if addressBioFetcher.loading {
-            LoadingView(.horizontal)
-        } else if let bio = addressBioFetcher.bio?.bio {
-            contentView(bio)
-                .onTapGesture {
-                    withAnimation {
-                        expanded.toggle()
-                    }
+        contentView(bio.bio)
+            .onTapGesture {
+                withAnimation {
+                    expanded.toggle()
                 }
-        } else {
-            EmptyView()
-        }
+            }
     }
     
     @ViewBuilder
