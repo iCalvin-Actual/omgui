@@ -136,6 +136,30 @@ class SceneModel {
         insertModels([iconModel])
     }
     
+    func fetchBlocked(_ address: AddressName = "app") async throws -> [AddressName] {
+        let title = "app.lol.blocked"
+        try await fetchPaste(address, title: title)
+        let predicate = #Predicate<AddressPasteModel> {
+            $0.id == "\(address)/\(title)"
+        }
+        let fetchDescriptor = FetchDescriptor<AddressPasteModel>(predicate: predicate)
+        let result = try context.fetch(fetchDescriptor).first
+        let list = result?.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }) ?? []
+        return list
+    }
+    
+    func fetchFollowing(_ address: AddressName) async throws -> [AddressName] {
+        let title = "app.lol.following"
+        try await fetchPaste(address, title: title)
+        let predicate = #Predicate<AddressPasteModel> {
+            $0.id == "\(address)/\(title)"
+        }
+        let fetchDescriptor = FetchDescriptor<AddressPasteModel>(predicate: predicate)
+        let result = try context.fetch(fetchDescriptor).first
+        let list = result?.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }) ?? []
+        return list
+    }
+    
     private func insertModels(_ models: [any PersistentModel]) {
         Task { @MainActor in
             models.forEach {
