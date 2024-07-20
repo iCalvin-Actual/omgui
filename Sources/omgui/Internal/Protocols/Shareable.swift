@@ -146,7 +146,7 @@ extension AddressPURLModel: Sharable {
     }
 }
 
-extension PasteResponse: Sharable {
+extension AddressPasteModel: Sharable {
     private var address: CopyPacket {
         .init(name: "Address", content: owner)
     }
@@ -167,7 +167,7 @@ extension PasteResponse: Sharable {
     }
     
     var primaryURL: SharePacket? {
-        guard let url = URL(string: "https://\(addressName).paste.lol/\(name)") else {
+        guard let url = URL(string: "https://\(owner).paste.lol/\(title)") else {
             return nil
         }
         return .init(name: "Paste URL", content: url)

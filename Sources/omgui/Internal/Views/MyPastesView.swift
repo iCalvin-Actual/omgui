@@ -1,5 +1,6 @@
 
 
+import SwiftData
 import SwiftUI
 
 struct MyPastesView: View {
@@ -11,26 +12,21 @@ struct MyPastesView: View {
     
     @ObservedObject
     var account: AccountModel
-    @ObservedObject
-    var addressFetcher: AddressPasteBinDataFetcher
+    
+    @Query
+    var pastes: [AddressPasteModel]
+    var filteredPastes: [AddressPasteModel] {
+        pastes.filter { model in
+            switch filter {
+            case .mine:
+                return model.owner == actingAddress
+            default:
+                return account.myAddresses.contains(model.owner)
+            }
+        }
+    }
     
     let singleAddressMode: Bool
-    
-    var accountFetcher: AccountPastesDataFetcher {
-        account.accountPastesFetcher
-    }
-    
-    var activeFetcher: ListDataFetcher<PasteResponse> {
-        guard !singleAddressMode else {
-            return addressFetcher
-        }
-        switch filter {
-        case .mine:
-            return addressFetcher
-        default:
-            return accountFetcher
-        }
-    }
     
     init(
         singleAddress: Bool,
@@ -39,11 +35,10 @@ struct MyPastesView: View {
     ) {
         singleAddressMode = singleAddress
         account = accountModel
-        addressFetcher = addressBook.fetchConstructor.addressPastesFetcher(addressBook.actingAddress, credential: accountModel.credential(for: addressBook.actingAddress, in: addressBook))
     }
     
     var body: some View {
-        ListView<PasteResponse, PasteRowView, EmptyView>(data: activeFetcher.listItems, rowBuilder: { .init(model: $0) })
+        ListView<AddressPasteModel, PasteRowView, EmptyView>(data: filteredPastes, rowBuilder: { .init(model: $0) })
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     if !singleAddressMode {

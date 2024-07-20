@@ -24,7 +24,7 @@ extension StatusResponse: AddressManagable {
 extension AddressPURLModel: AddressManagable {
     var addressToActOn: AddressName { owner }
 }
-extension PasteResponse: AddressManagable {
+extension AddressPasteModel: AddressManagable {
     var addressToActOn: AddressName { owner }
 }
 
@@ -237,7 +237,7 @@ extension AddressPURLModel: Menuable {
     }
 }
 
-extension PasteResponse: Menuable {
+extension AddressPasteModel: Menuable {
     @ViewBuilder
     func contextMenu(in scene: SceneModel) -> some View {
         Group {

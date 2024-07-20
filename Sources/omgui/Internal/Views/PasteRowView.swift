@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PasteRowView: View {
-    let model: PasteResponse
+    let model: AddressPasteModel
     @Environment(\.viewContext)
     var context: ViewContext
     
@@ -25,7 +25,7 @@ struct PasteRowView: View {
             
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("/\(model.name)")
+                    Text("/\(model.title)")
                         .font(.title2)
                         .bold()
                         .fontDesign(.serif)
@@ -44,7 +44,7 @@ struct PasteRowView: View {
             .frame(maxWidth: .infinity)
             .padding(12)
             .foregroundColor(.black)
-            .background(Color.lolRandom(model.name))
+            .background(Color.lolRandom(model.title))
             .cornerRadius(12, antialiased: true)
             .padding(.vertical, 4)
         }

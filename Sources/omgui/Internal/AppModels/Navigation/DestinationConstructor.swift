@@ -51,7 +51,7 @@ struct DestinationConstructor {
         case .nowGarden:
             GardenView(fetcher: addressBook.gardenFetcher)
         case .pastebin(let address):
-            AddressPasteView(fetcher: addressBook.addressSummary(address).pasteFetcher)
+            AddressPasteView(address: address)
         case .purls(let address):
             AddressPURLsView(address: address)
         case .purl(let address, title: let title):

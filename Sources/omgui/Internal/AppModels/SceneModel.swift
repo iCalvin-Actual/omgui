@@ -98,6 +98,19 @@ class SceneModel {
         }
     }
     
+    func fetchPastes(_ address: AddressName) async throws {
+        try await fetchPURLS([address])
+    }
+    
+    func fetchPastes(_ addresses: [AddressName]) async throws {
+        for address in addresses {
+            let credential = accountModel.credential(for: address, in: addressBook)
+            async let pastesResponse = try fetchConstructor.interface.fetchAddressPastes(address, credential: credential)
+            let models = try await pastesResponse.map({ AddressPasteModel($0) })
+            insertModels(models)
+        }
+    }
+    
     func fetchPaste(_ address: AddressName, title: String) async throws {
         let credential = accountModel.credential(for: address, in: addressBook)
         

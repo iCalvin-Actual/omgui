@@ -246,7 +246,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
 //            if sceneModel.accountModel.myAddresses.contains(pasteModel.addressName) {
 //                return .editPaste(pasteModel.addressName, title: pasteModel.name)
 //            }
-            return .paste(pasteModel.addressName, title: pasteModel.name)
+            return .paste(pasteModel.owner, title: pasteModel.name)
         case let purlModel as PURLResponse:
 //            if sceneModel.accountModel.myAddresses.contains(purlModel.addressName) {
 //                return .editPURL(purlModel.addressName, title: purlModel.value)

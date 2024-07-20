@@ -193,9 +193,9 @@ extension AddressPURLModel: QueryFilterable {
     }
 }
 
-extension PasteResponse: QueryFilterable {
+extension AddressPasteModel: QueryFilterable {
     var queryCheckStrings: [String] {
-        [addressName, name, content]
+        [addressName, owner, content]
             .compactMap({ $0 })
     }
     

@@ -68,10 +68,6 @@ class FetchConstructor {
         AddressPrivateSummaryDataFetcher(name: address, interface: interface, credential: credential)
     }
     
-    func addressPastesFetcher(_ address: AddressName, credential: APICredential?) -> AddressPasteBinDataFetcher {
-        AddressPasteBinDataFetcher(name: address, interface: interface, credential: credential)
-    }
-    
     func draftPastePoster(_ title: String, for address: AddressName, credential: APICredential) -> PasteDraftPoster {
         PasteDraftPoster(address, title: title, interface: interface, credential: credential)
     }

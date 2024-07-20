@@ -941,105 +941,6 @@ class URLContentDataFetcher: DataFetcher {
     }
 }
 
-class AccountPastesDataFetcher: ListDataFetcher<PasteResponse> {
-    let addresses: [AddressName]
-    let credential: APICredential
-    
-    var lists: [AddressName: [PasteResponse]] = [:]
-    override var listItems: [PasteResponse] {
-        get {
-            lists.reduce([], { $0 + $1.value })
-        }
-        set {
-            let oldValue = listItems
-            var toInsert: Set<PasteResponse> = []
-            var toRemove: Set<PasteResponse> = []
-            Array(Set<PasteResponse>(oldValue + newValue)).forEach({ model in
-                if oldValue.contains(model) && !newValue.contains(model) {
-                    toRemove.insert(model)
-                } else if !oldValue.contains(model) && newValue.contains(model) {
-                    toInsert.insert(model)
-                }
-            })
-            
-            toRemove.forEach { model in
-                var items = lists[model.addressName] ?? []
-                if let index = items.firstIndex(of: model) {
-                    items.remove(at: index)
-                }
-                lists[model.addressName] = items
-            }
-            toInsert.forEach { model in
-                var items = lists[model.addressName] ?? []
-                items.append(model)
-                lists[model.addressName] = items
-            }
-        }
-    }
-    
-    override var title: String {
-        "@/pastes"
-    }
-    
-    init(addresses: [AddressName], interface: DataInterface, credential: APICredential) {
-        self.addresses = addresses
-        self.credential = credential
-        super.init(interface: interface)
-    }
-    
-    override func throwingRequest() async throws {
-        self.listItems = []
-        guard !addresses.isEmpty else { return fetchFinished() }
-        Task {
-            for address in addresses {
-                do {
-                    let pastes = try await interface.fetchAddressPastes(address, credential: credential)
-                    self.lists[address] = pastes
-                    self.fetchFinished()
-                } catch {
-                    // Check error
-                    throw error
-                }
-            }
-        }
-    }
-    
-    override func fetchFinished() {
-        guard addresses.count == lists.count else {
-            return
-        }
-        super.fetchFinished()
-    }
-}
-
-class AddressPasteBinDataFetcher: ListDataFetcher<PasteResponse> {
-    let addressName: AddressName
-    let credential: APICredential?
-    
-    override var title: String {
-        "\(addressName.addressDisplayString).paste"
-    }
-    
-    init(name: AddressName, pastes: [PasteResponse] = [], interface: DataInterface, credential: APICredential?) {
-        self.addressName = name
-        self.credential = credential
-        super.init(items: pastes, interface: interface)
-    }
-    
-    override func throwingRequest() async throws {
-        guard !addressName.isEmpty else {
-            return
-        }
-        Task {
-            let pastes = try await interface.fetchAddressPastes(addressName, credential: credential)
-            DispatchQueue.main.async {
-                self.listItems = pastes
-                self.fetchFinished()
-            }
-        }
-    }
-}
-
 class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
     let addressName: AddressName
     let title: String
@@ -1113,8 +1014,6 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
         super.init(name: name, interface: interface)
         
         self.followingFetcher = .init(address: addressName, credential: credential, interface: interface)
-        
-        self.pasteFetcher = .init(name: addressName, interface: interface, credential: credential)
     }
     
     override func perform() async {
@@ -1138,7 +1037,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         addressName.addressIconURL
     }
     
-    var pasteFetcher: AddressPasteBinDataFetcher
     var statusFetcher: StatusLogDataFetcher
     
     var followingFetcher: AddressFollowingDataFetcher
@@ -1148,7 +1046,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         interface: DataInterface
     ) {
         self.addressName = name
-        self.pasteFetcher = .init(name: name, interface: interface, credential: nil)
         self.statusFetcher = .init(addresses: [name], interface: interface)
         
         self.followingFetcher = .init(address: name, credential: nil, interface: interface)
@@ -1162,7 +1059,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         }
         await super.perform()
         
-        await pasteFetcher.updateIfNeeded()
         await statusFetcher.updateIfNeeded()
         await followingFetcher.updateIfNeeded()
     }

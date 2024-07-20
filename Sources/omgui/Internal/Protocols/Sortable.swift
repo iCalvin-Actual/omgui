@@ -112,8 +112,8 @@ extension NowListing: AllSortable {
     }
 }
 
-extension PasteResponse: StringSortable {
-    var primarySortValue: String { name }
+extension AddressPasteModel: StringSortable {
+    var primarySortValue: String { title }
     
     static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
