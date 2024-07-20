@@ -58,17 +58,19 @@ struct ListRow<T: Listable>: View {
                     .font(.title3)
                     .bold()
                 Spacer()
-                if let icon = model.iconURL {
-                    AsyncImage(url: icon) { image in
-                        image.resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Color.lolRandom(model.addressName)
+                if !model.hideIcon {
+                    if let icon = model.iconURL {
+                        AsyncImage(url: icon) { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Color.lolRandom(model.addressName)
+                        }
+                        .frame(width: 55, height: 55)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    } else {
+                        AddressIconView(address: model.addressName)
                     }
-                    .frame(width: 55, height: 55)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                } else if !model.hideIcon {
-                    AddressIconView(address: model.addressName)
                 }
             }
             .padding(.vertical, verticalPadding)

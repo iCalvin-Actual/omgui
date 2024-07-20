@@ -17,7 +17,7 @@ protocol Listable: Filterable, Sortable, Menuable, Hashable, Identifiable {
 
 extension Listable {
     var hideIcon: Bool {
-        iconURL == nil && !addressName.isEmpty
+        iconURL == nil && addressName.isEmpty
     }
 }
 
@@ -37,7 +37,6 @@ extension AddressModel: Listable {
     var listTitle: String { addressName.addressDisplayString }
     var listSubtitle: String { url?.absoluteString ?? "" }
     var displayDate: Date? { registered }
-    var iconURL: URL? { addressName.addressIconURL }
 }
 extension StatusResponse: Listable     {
     var listTitle: String     { status }

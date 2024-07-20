@@ -363,33 +363,6 @@ class DataFetcher: Request {
 }
 
 @MainActor
-class AddressIconDataFetcher: DataFetcher {
-    let address: AddressName
-    
-    @Published
-    var iconData: Data?
-    
-    init(address: AddressName, interface: DataInterface) {
-        self.address = address
-        super.init(interface: interface)
-    }
-    
-    override func throwingRequest() async throws {
-        guard let url = address.addressIconURL else {
-            return
-        }
-        URLSession.shared.dataTaskPublisher(for: url)
-            .receive(on: DispatchQueue.main)
-            .map{ $0.data }
-            .sink { _ in } receiveValue: { [weak self] value in
-                self?.iconData = value
-                self?.fetchFinished()
-            }
-            .store(in: &requests)
-    }
-}
-
-@MainActor
 final class AccountAuthDataFetcher: NSObject, ObservableObject, Sendable {
     private var webSession: ASWebAuthenticationSession?
     
@@ -1260,7 +1233,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         addressName.addressIconURL
     }
     
-    var iconFetcher: AddressIconDataFetcher
     var purlFetcher: AddressPURLsDataFetcher
     var pasteFetcher: AddressPasteBinDataFetcher
     var statusFetcher: StatusLogDataFetcher
@@ -1272,7 +1244,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         interface: DataInterface
     ) {
         self.addressName = name
-        self.iconFetcher = .init(address: name, interface: interface)
         self.purlFetcher = .init(name: name, interface: interface, credential: nil)
         self.pasteFetcher = .init(name: name, interface: interface, credential: nil)
         self.statusFetcher = .init(addresses: [name], interface: interface)
@@ -1288,7 +1259,6 @@ class AddressSummaryDataFetcher: DataFetcher {
         }
         await super.perform()
         
-        await iconFetcher.updateIfNeeded()
         await purlFetcher.updateIfNeeded()
         await pasteFetcher.updateIfNeeded()
         await statusFetcher.updateIfNeeded()

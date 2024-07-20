@@ -234,6 +234,17 @@ final class AddressPasteModel {
     }
 }
 
+@Model
+final class AddressIconModel {
+    var owner: AddressName
+    var data: Data?
+    
+    init(owner: AddressName, data: Data? = nil) {
+        self.owner = owner
+        self.data = data
+    }
+}
+
 extension DataInterface {
     var swiftModels: [any PersistentModel.Type] {
         [
@@ -243,7 +254,8 @@ extension DataInterface {
             AddressProfileModel.self,
             AddressNowModel.self,
             AddressPURLModel.self,
-            AddressPasteModel.self
+            AddressPasteModel.self,
+            AddressIconModel.self
         ]
     }
 }

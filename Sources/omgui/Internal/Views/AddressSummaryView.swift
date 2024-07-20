@@ -120,17 +120,6 @@ struct AddressSummaryView: View {
             .navigationSplitViewColumnWidth(min: 250, ideal: 600)
             .navigationBarTitleDisplayMode(.inline)
     }
-    
-    func fetcherForContent(_ content: AddressContent) -> DataFetcher {
-        switch content {
-        case .pastebin:
-            return addressSummaryFetcher.pasteFetcher
-        case .purl:
-            return addressSummaryFetcher.purlFetcher
-        default:
-            return addressSummaryFetcher.statusFetcher
-        }
-    }
 }
 
 struct AddressBioLabel: View {

@@ -97,4 +97,14 @@ class SceneModel {
             throw error
         }
     }
+    
+    func fetchIcon(_ address: AddressName) async throws {
+        guard !address.isEmpty, let url = address.addressIconURL else {
+            return
+        }
+        let request = URLRequest(url: url)
+        let (data, _) = try await URLSession.shared.data(for: request)
+        let iconModel = AddressIconModel(owner: address, data: data)
+        context.insert(iconModel)
+    }
 }
