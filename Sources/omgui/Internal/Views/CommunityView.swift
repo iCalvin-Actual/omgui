@@ -10,18 +10,12 @@ import SwiftUI
 
 @MainActor
 struct CommunityView: View {
-    
-    let addressBook: AddressBook
+    @State
+    private var active: List = .community
     
     @Query
     var models: [StatusModel]
     
-    init(addressBook: AddressBook) {
-        self.addressBook = addressBook
-    }
-    
-    @State
-    private var active: List = .community
     private var timeline: Timeline = .today
     
     var listLabel: String {

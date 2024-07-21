@@ -10,18 +10,13 @@ struct MyStatusesView: View {
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
     
-    @ObservedObject
-    var account: AccountModel
+    @Environment(SceneModel.self)
+    var sceneModel
     
     let singleAddressMode: Bool
     
-    init(singleAddress: Bool, addressBook: AddressBook, accountModel: AccountModel) {
-        singleAddressMode = singleAddress
-        account = accountModel
-    }
-    
     var body: some View {
-        StatusList(addresses: filter == .mine ? [actingAddress] : account.myAddresses)
+        StatusList(addresses: filter == .mine ? [actingAddress] : sceneModel.accountModel.myAddresses)
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     Button(action: toggleFilter) {

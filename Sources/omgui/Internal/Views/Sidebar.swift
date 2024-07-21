@@ -17,8 +17,6 @@ struct Sidebar: View {
     var horizontalSize
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
-    @Environment(AddressBook.self)
-    var addressBook: AddressBook
     
     @State
     var expandAddresses: Bool = false
@@ -69,10 +67,10 @@ struct Sidebar: View {
         .environment(\.viewContext, ViewContext.column)
         .navigationDestination(for: NavigationDestination.self, destination: destinationView(_:))
         .safeAreaInset(edge: .bottom) {
-            AddressPicker(accountModel: addressBook.accountModel)
+            AddressPicker(accountModel: sceneModel.accountModel)
         }
         .safeAreaInset(edge: .top, content: {
-            if !sidebarModel.addressBook.accountModel.signedIn {
+            if !sceneModel.accountModel.signedIn {
                 Button {
                     selected = .account
                 } label: {

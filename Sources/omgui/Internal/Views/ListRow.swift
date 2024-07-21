@@ -9,6 +9,8 @@ import SwiftUI
 import Foundation
 
 struct ListRow<T: Listable>: View {
+    @Environment(SceneModel.self)
+    var sceneModel
     
     enum Style {
         case standard
@@ -58,20 +60,6 @@ struct ListRow<T: Listable>: View {
                     .font(.title3)
                     .bold()
                 Spacer()
-                if !model.hideIcon {
-                    if let icon = model.iconURL {
-                        AsyncImage(url: icon) { image in
-                            image.resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Color.lolRandom(model.addressName)
-                        }
-                        .frame(width: 55, height: 55)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                    } else {
-                        AddressIconView(address: model.addressName)
-                    }
-                }
             }
             .padding(.vertical, verticalPadding)
             .padding(.trailing, trailingPadding)
@@ -92,6 +80,9 @@ struct ListRow<T: Listable>: View {
                 }
                 .padding(.trailing, trailingPadding)
             }
+        }
+        .onAppear{
+            sceneModel.fetchIcon(model.addressName)
         }
         .asCard(color: .lolRandom(model.listTitle), padding: 4, radius: 8)
         .fontDesign(.serif)

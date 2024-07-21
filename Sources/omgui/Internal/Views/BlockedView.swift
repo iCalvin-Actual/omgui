@@ -8,12 +8,13 @@
 import SwiftData
 import SwiftUI
 
-struct FollowingView: View {
+struct BlockedView: View {
     
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
     
     let targetAddress: AddressName
+    
     var address: AddressName {
         guard targetAddress != .autoUpdatingAddress else {
             return actingAddress
@@ -21,26 +22,27 @@ struct FollowingView: View {
         return targetAddress
     }
     
+    @State
+    var needsRefresh: Bool = false
+    
     @Query
     var addresses: [AddressInfoModel]
     var targetInfo: AddressInfoModel? {
-        addresses.first(where: { $0.owner == actingAddress })
+        addresses.first(where: { $0.owner == address })
     }
-    var followedAddresses: [AddressInfoModel] {
+    
+    var blockedAddresses: [AddressInfoModel] {
         guard let targetInfo else {
             return []
         }
         
         return addresses.filter({ model in
-            targetInfo.following.contains(where: { $0 == model.owner })
+            targetInfo.blocked.contains(where: { $0 == model.owner })
         })
     }
     
-    @State
-    var needsRefresh: Bool = false
-    
     var body: some View {
-        ListView<AddressInfoModel, ListRow<AddressInfoModel>, EmptyView>(filters: .none, data: followedAddresses, rowBuilder: { _ in return nil as ListRow<AddressInfoModel>? })
+        ListView<AddressInfoModel, ListRow<AddressInfoModel>, EmptyView>(filters: .none, data: blockedAddresses, rowBuilder: { _ in return nil as ListRow<AddressInfoModel>? })
             .onAppear(perform: { needsRefresh = false })
     }
 }

@@ -35,7 +35,7 @@ struct StatusList: View {
     
     let addresses: [AddressName]?
     
-    var menuBuilder: ContextMenuBuilder<StatusResponse>?
+    var menuBuilder: ContextMenuBuilder<StatusModel>?
     
     var body: some View {
         ListView<StatusModel, StatusRowView, EmptyView>(data: filteredStatuses, rowBuilder: { StatusRowView(model: $0) })

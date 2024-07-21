@@ -24,7 +24,7 @@ extension AddressPasteModel: Editable {
     }
 }
 
-extension StatusResponse: Editable {
+extension StatusModel: Editable {
     var editingDestination: NavigationDestination {
         .editStatus(address, id: id)
     }

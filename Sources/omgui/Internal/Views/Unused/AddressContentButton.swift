@@ -39,7 +39,7 @@ struct AddressContentButton: View {
                 }
                 .disabled(knownEmpty)
                 
-                if sceneModel.addressBook.myAddresses.contains(name) && false {
+                if sceneModel.myAddresses.contains(name) && false {
                     NavigationLink(value: contentType.destination(name)) {
                         VStack {
                             Image(systemName: "pencil.line")

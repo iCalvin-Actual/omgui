@@ -12,13 +12,13 @@ protocol AddressManagable {
     var addressToActOn: AddressName { get }
 }
 
-extension AddressModel: AddressManagable {
-    var addressToActOn: AddressName { name }
-}
-extension NowListing: AddressManagable {
+extension AddressInfoModel: AddressManagable {
     var addressToActOn: AddressName { owner }
 }
-extension StatusResponse: AddressManagable {
+extension AddressNowModel: AddressManagable {
+    var addressToActOn: AddressName { owner }
+}
+extension StatusModel: AddressManagable {
     var addressToActOn: AddressName { address }
 }
 extension AddressPURLModel: AddressManagable {
@@ -39,7 +39,7 @@ protocol Menuable {
 extension Menuable {
     @ViewBuilder
     func editingSection(in scene: SceneModel) -> some View {
-        if let editable = self as? Editable, scene.addressBook.myAddresses.contains(editable.addressToActOn) {
+        if let editable = self as? Editable, scene.myAddresses.contains(editable.addressToActOn) {
             NavigationLink {
                 scene.destinationConstructor.destination(editable.editingDestination)
             } label: {
@@ -61,17 +61,17 @@ struct ContextMenuBuilder<T: Menuable> {
 extension AddressManagable where Self: Menuable {
     @MainActor
     @ViewBuilder
-    func manageSection(_ addressBook: AddressBook) -> some View {
+    func manageSection(_ scene: SceneModel) -> some View {
         let name = addressToActOn
-        let isBlocked = addressBook.isBlocked(name)
-        let isPinned = addressBook.isPinned(name)
-        let canFollow = addressBook.canFollow(name)
-        let canUnfollow = addressBook.canUnFollow(name)
+        let isBlocked = scene.isBlocked(name)
+        let isPinned = scene.isPinned(name)
+        let canFollow = scene.canFollow(name)
+        let canUnfollow = scene.canUnFollow(name)
         if !isBlocked {
             if canFollow {
                 Button(action: {
                     withAnimation {
-                        addressBook.follow(name)
+                        scene.follow(name)
                     }
                 }, label: {
                     Label("Follow \(name.addressDisplayString)", systemImage: "plus.circle")
@@ -79,7 +79,7 @@ extension AddressManagable where Self: Menuable {
             } else if canUnfollow {
                 Button(action: {
                     withAnimation {
-                        addressBook.unFollow(name)
+                        scene.unFollow(name)
                     }
                 }, label: {
                     Label("Un-follow \(name.addressDisplayString)", systemImage: "minus.circle")
@@ -89,7 +89,7 @@ extension AddressManagable where Self: Menuable {
             if isPinned {
                 Button(action: {
                     withAnimation {
-                        addressBook.removePin(name)
+                        scene.removePin(name)
                     }
                 }, label: {
                     Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
@@ -97,7 +97,7 @@ extension AddressManagable where Self: Menuable {
             } else {
                 Button(action: {
                     withAnimation {
-                        addressBook.pin(name)
+                        scene.pin(name)
                     }
                 }, label: {
                     Label("Pin \(name.addressDisplayString)", systemImage: "pin")
@@ -109,7 +109,7 @@ extension AddressManagable where Self: Menuable {
             Menu {
                 Button(role: .destructive, action: {
                     withAnimation {
-                        addressBook.block(name)
+                        scene.block(name)
                     }
                 }, label: {
                     Label("Block", systemImage: "eye.slash.circle")
@@ -120,10 +120,10 @@ extension AddressManagable where Self: Menuable {
                 Label("Safety", systemImage: "hand.raised")
             }
         } else {
-            if addressBook.canUnblock(name) {
+            if scene.canUnblock(name) {
                 Button(action: {
                     withAnimation {
-                        addressBook.unblock(name)
+                        scene.unblock(name)
                     }
                 }, label: {
                     Label("Un-block", systemImage: "eye.circle")
@@ -192,7 +192,7 @@ extension NavigationItem: Menuable {
         case .pinnedAddress(let name):
             Button(action: {
                 Task { @MainActor in
-                    scene.addressBook.removePin(name)
+                    scene.removePin(name)
                 }
             }, label: {
                 Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
@@ -203,25 +203,25 @@ extension NavigationItem: Menuable {
     }
 }
 
-extension AddressModel: Menuable {
+extension AddressInfoModel: Menuable {
     @ViewBuilder
     @MainActor
     func contextMenu(in scene: SceneModel) -> some View {
         Group {
             self.shareSection()
             self.editingSection(in: scene)
-            self.manageSection(scene.addressBook)
+            self.manageSection(scene)
         }
     }
 }
 
-extension NowListing: Menuable {
+extension AddressNowModel: Menuable {
     @ViewBuilder
     func contextMenu(in scene: SceneModel) -> some View {
         Group {
             self.shareSection()
             self.editingSection(in: scene)
-            self.manageSection(scene.addressBook)
+            self.manageSection(scene)
         }
     }
 }
@@ -232,7 +232,7 @@ extension AddressPURLModel: Menuable {
         Group {
             self.shareSection()
             self.editingSection(in: scene)
-            self.manageSection(scene.addressBook)
+            self.manageSection(scene)
         }
     }
 }
@@ -243,18 +243,18 @@ extension AddressPasteModel: Menuable {
         Group {
             self.shareSection()
             self.editingSection(in: scene)
-            self.manageSection(scene.addressBook)
+            self.manageSection(scene)
         }
     }
 }
 
-extension StatusResponse: Menuable {
+extension StatusModel: Menuable {
     @ViewBuilder
     func contextMenu(in scene: SceneModel) -> some View {
         Group {
-//            self.shareSection()
+            self.shareSection()
             self.editingSection(in: scene)
-            self.manageSection(scene.addressBook)
+            self.manageSection(scene)
         }
     }
 }

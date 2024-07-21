@@ -136,7 +136,8 @@ struct StatusRowView: View {
             if context != .profile {
                 if context != .profile {
                     Menu {
-                        AddressModel(name: model.address).contextMenu(in: sceneModel)
+                        Text("Context menu")
+//                        AddressModel(name: model.address).contextMenu(in: sceneModel)
                     } label: {
                         AsyncImage(url: model.address.addressIconURL) { image in
                             image.resizable()

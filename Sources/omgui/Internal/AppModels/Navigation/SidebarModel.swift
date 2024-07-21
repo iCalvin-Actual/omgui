@@ -48,30 +48,18 @@ class SidebarModel: ObservableObject {
         }
     }
     
-    @ObservedObject
-    var addressBook: AddressBook
-    
     var requests: [AnyCancellable] = []
     
-    var actingAddress: AddressName {
-        addressBook.actingAddress
-    }
+    let sceneModel: SceneModel
     
-    init(_ addressBook: AddressBook) {
-        self.addressBook = addressBook
-        
-        addressBook.objectWillChange.sink { _ in
-            DispatchQueue.main.async {
-                self.objectWillChange.send()
-            }
-        }
-        .store(in: &requests)
+    init(sceneModel: SceneModel) {
+        self.sceneModel = sceneModel
     }
     
     var sections: [Section] {
         var sections: [Section] = [.status, .directory, .now]
         
-        if addressBook.accountModel.signedIn {
+        if sceneModel.accountModel.signedIn {
             sections.append(.more)
         }
         
@@ -82,20 +70,20 @@ class SidebarModel: ObservableObject {
         switch section {
         case .directory:
             var destinations: [NavigationItem] = [.search]
-            if addressBook.accountModel.signedIn {
+            if sceneModel.accountModel.signedIn {
                 destinations.append(.editProfile)
                 destinations.append(.followingAddresses)
             }
-            if !addressBook.viewableBlocklist.isEmpty {
+            if !sceneModel.viewableBlocklist.isEmpty {
                 destinations.append(.blocked)
             }
-            destinations.append(contentsOf: addressBook.pinned.sorted().map({ .pinnedAddress($0) }))
+            destinations.append(contentsOf: sceneModel.pinned.sorted().map({ .pinnedAddress($0) }))
             return destinations
         case .now:
             var destinations = [
                 NavigationItem.nowGarden
             ]
-            if addressBook.accountModel.signedIn {
+            if sceneModel.accountModel.signedIn {
                 destinations.insert(.editNow, at: 0)
             }
             // Handle pinned
@@ -104,7 +92,7 @@ class SidebarModel: ObservableObject {
             var destinations = [
                 NavigationItem.community
             ]
-            if addressBook.accountModel.signedIn {
+            if sceneModel.accountModel.signedIn {
                 destinations.insert(contentsOf: [.newStatus, .myStatuses, .following], at: 0)
             }
             return destinations

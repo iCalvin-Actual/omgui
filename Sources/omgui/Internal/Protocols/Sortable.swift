@@ -74,8 +74,8 @@ extension Array where Element: Sortable {
     }
 }
 
-extension AddressModel: AllSortable {
-    var primarySortValue: String { name }
+extension AddressInfoModel: AllSortable {
+    var primarySortValue: String { owner }
     var dateValue: Date? { registered }
     
     static let defaultSort: Sort = .alphabet
@@ -99,7 +99,7 @@ extension StatusModel: AllSortable {
     }
 }
 
-extension NowListing: AllSortable {
+extension AddressNowModel: AllSortable {
     var primarySortValue: String { owner }
     var dateValue: Date? { updated }
     

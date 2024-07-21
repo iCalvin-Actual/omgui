@@ -64,7 +64,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
             filters.append(.query(queryString))
         }
         return filters
-            .applyFilters(to: data, addressBook: sceneModel.addressBook)
+            .applyFilters(to: data, in: sceneModel)
             .sorted(with: sort)
     }
     

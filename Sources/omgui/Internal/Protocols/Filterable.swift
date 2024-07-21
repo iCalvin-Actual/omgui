@@ -75,14 +75,14 @@ protocol Filterable {
     var filterDate: Date? { get }
     
     @MainActor
-    func include(with filter: FilterOption, addressBook: AddressBook) -> Bool
+    func include(with filter: FilterOption, in scene: SceneModel) -> Bool
 }
 
 @MainActor
 extension Filterable {
-    func include(with filters: [FilterOption], addressBook: AddressBook) -> Bool {
+    func include(with filters: [FilterOption], in scene: SceneModel) -> Bool {
         for filter in filters {
-            if !include(with: filter, addressBook: addressBook) {
+            if !include(with: filter, in: scene) {
                 return false
             }
         }
@@ -115,7 +115,7 @@ extension QueryFilterable {
 
 extension Filterable {
     @MainActor
-    func include(with filter: FilterOption, addressBook: AddressBook) -> Bool {
+    func include(with filter: FilterOption, in scene: SceneModel) -> Bool {
         switch filter {
         case .none:
             return true
@@ -125,7 +125,7 @@ extension Filterable {
 //            }
         case .notBlocked:
             // Check if address is blocked
-            if addressBook.isBlocked(addressName) {
+            if scene.isBlocked(addressName) {
                 return false
             }
         case .query(let query):
@@ -143,19 +143,19 @@ extension Filterable {
                 return false
             }
         case .mine:
-            return addressBook.myAddresses.contains(addressName)
+            return scene.accountModel.myAddresses.contains(addressName)
         }
         return true
     }
 }
 
-extension AddressModel: QueryFilterable {
+extension AddressInfoModel: QueryFilterable {
     var queryCheckStrings: [String] {
-        [addressName]
+        [owner]
     }
     
     var addressName: AddressName {
-        name
+        owner
     }
     
     var filterDate: Date? {
@@ -208,7 +208,7 @@ extension AddressPasteModel: QueryFilterable {
     }
 }
 
-extension NowListing: QueryFilterable {
+extension AddressNowModel: QueryFilterable {
     var queryCheckStrings: [String] {
         [addressName]
     }

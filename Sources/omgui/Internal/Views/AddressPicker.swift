@@ -52,10 +52,7 @@ struct AddressPicker: View {
     
     @ViewBuilder
     var activeAddressLabel: some View {
-        ListRow<AddressModel>(
-            model: .init(name: actingAddress),
-            preferredStyle: .minimal
-        )
+        ThemedTextView(text: actingAddress.addressDisplayString)
         .onTapGesture {
             withAnimation {
                 expandAddresses.toggle()

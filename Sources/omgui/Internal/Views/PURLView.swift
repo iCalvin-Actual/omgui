@@ -111,7 +111,8 @@ struct PURLView: View {
                     Spacer()
                     ThemedTextView(text: address.addressDisplayString)
                     Menu {
-                        AddressModel(name: address).contextMenu(in: sceneModel)
+                        Text("Context menu")
+//                        AddressModel(name: address).contextMenu(in: sceneModel)
                     } label: {
                         AddressIconView(address: address)
                     }

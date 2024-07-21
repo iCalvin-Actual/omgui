@@ -31,7 +31,7 @@ struct AddressIconView: View {
     
     @ViewBuilder
     var imageBody: some View {
-        if let data = icon?.data, let uiImage = UIImage(data: data) {
+        if let data = icon?.imageData, let uiImage = UIImage(data: data) {
             Image(uiImage: uiImage)
                 .resizable()
                 .aspectRatio(contentMode: .fill)

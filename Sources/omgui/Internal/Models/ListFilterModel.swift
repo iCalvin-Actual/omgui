@@ -9,8 +9,8 @@ import Foundation
 
 extension Array<FilterOption> {
     @MainActor
-    func applyFilters<T: Filterable>(to inputModels: [T], addressBook: AddressBook) -> [T] {
+    func applyFilters<T: Filterable>(to inputModels: [T], in scene: SceneModel) -> [T] {
         inputModels
-            .filter({ $0.include(with: self, addressBook: addressBook) })
+            .filter({ $0.include(with: self, in: scene) })
     }
 }

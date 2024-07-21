@@ -9,26 +9,19 @@ import SwiftData
 import SwiftUI
 
 struct AddressSummaryView: View {
+    @SceneStorage("app.lol.address.page")
+    var selectedPage: AddressContent = .profile
+    
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
     
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    @ObservedObject
-    var addressSummaryFetcher: AddressSummaryDataFetcher
+    let address: AddressName
     
-    var allowEditing: Bool
-    
-    @State
-    var sidebarVisibility: NavigationSplitViewVisibility = .all
     @State
     var expandBio: Bool = false
-    
-    @SceneStorage("app.lol.address.page")
-    var selectedPage: AddressContent = .profile
-    
-    let address: AddressName
     
     @Query
     var models: [AddressBioModel]
@@ -37,17 +30,9 @@ struct AddressSummaryView: View {
     }
     
     private var allPages: [AddressContent] {
-        pages + more
-    }
-    private var pages: [AddressContent] {
         [
             .profile,
-            .now
-        ]
-    }
-    
-    private var more: [AddressContent] {
-        [
+            .now,
             .statuslog,
             .pastebin,
             .purl
@@ -69,11 +54,13 @@ struct AddressSummaryView: View {
         VStack(spacing: 0) {
             HStack(alignment: .top) {
                 Menu {
-                    AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
+                    Text("Context menu")
+//                    AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
                 } label: {
-                    AddressIconView(address: addressSummaryFetcher.addressName)
+                    AddressIconView(address: address)
                 }
                 .frame(width: 44)
+                
                 if let bio {
                     AddressBioLabel(expanded: $expandBio, bio: bio)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -84,30 +71,27 @@ struct AddressSummaryView: View {
             .padding()
             
             VStack(spacing: 0) {
-                HStack(alignment: .top) {
-                    ScrollView(.horizontal) {
-                        HStack(alignment: .bottom, spacing: 0) {
-                            ForEach(allPages) { page in
-                                Button(action: {
-                                    withAnimation {
-                                        expandBio = false
-                                        selectedPage = page
-                                    }
-                                }) {
-                                    Text(page.displayString)
+                ScrollView(.horizontal) {
+                    HStack(alignment: .bottom, spacing: 0) {
+                        ForEach(allPages) { page in
+                            Button(action: {
+                                withAnimation {
+                                    expandBio = false
+                                    selectedPage = page
                                 }
-                                .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
-                                .background(Color.lolBackground)
+                            }) {
+                                Text(page.displayString)
                             }
+                            .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
+                            .background(Color.lolBackground)
                         }
                     }
                 }
                 .frame(height: 50)
-                .ignoresSafeArea(.container, edges: [.bottom])
-                
                 
                 destination(selectedPage)
                     .frame(maxHeight: expandBio ? 0 : .infinity)
+                    .ignoresSafeArea(.container, edges: [.bottom])
             }
         }
     }
@@ -115,39 +99,9 @@ struct AddressSummaryView: View {
     @ViewBuilder
     func destination(_ item: AddressContent? = nil) -> some View {
         let workingItem = item ?? .profile
-        sceneModel.destinationConstructor.destination(workingItem.destination(addressSummaryFetcher.addressName))
+        sceneModel.destinationConstructor.destination(workingItem.destination(address))
             .ignoresSafeArea(.container, edges: [.bottom, .leading, .trailing])
             .navigationSplitViewColumnWidth(min: 250, ideal: 600)
             .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-struct AddressBioLabel: View {
-    @Binding
-    var expanded: Bool
-    
-    var bio: AddressBioModel
-    
-    var body: some View {
-        contentView(bio.bio)
-            .onTapGesture {
-                withAnimation {
-                    expanded.toggle()
-                }
-            }
-    }
-    
-    @ViewBuilder
-    func contentView(_ bio: String) -> some View {
-        if expanded {
-            ScrollView {
-                MarkdownContentView(content: bio)
-            }
-        } else {
-            Text(bio)
-                .lineLimit(3)
-                .font(.caption)
-                .fontDesign(.monospaced)
-        }
     }
 }

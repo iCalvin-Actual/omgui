@@ -24,32 +24,65 @@ class AccountModel: ObservableObject {
         }
     }
     
+    @AppStorage("app.lol.cache.pinned", store: .standard)
+    private var currentlyPinnedAddresses: String = "adam&&&app"
+    var pinnedAddresses: [AddressName] {
+        get {
+            let split = currentlyPinnedAddresses.split(separator: "&&&")
+            return split.map({ String($0) })
+        }
+        set {
+            currentlyPinnedAddresses = Array(Set(newValue)).joined(separator: "&&&")
+            Task {
+                await self.perform()
+            }
+        }
+    }
+    func isPinned(_ address: AddressName) -> Bool {
+        pinnedAddresses.contains(address)
+    }
+    func pin(_ address: AddressName) {
+        pinnedAddresses.append(address)
+    }
+    func removePin(_ address: AddressName) {
+        pinnedAddresses.removeAll(where: { $0 == address })
+    }
+    
+    // MARK: No-Account Blocklist
+    @AppStorage("app.lol.cache.blocked", store: .standard)
+    private var cachedBlockList: String = ""
+    var blockedAddresses: [AddressName] {
+        get {
+            let split = cachedBlockList.split(separator: "&&&")
+            return split.map({ String($0) })
+        }
+        set {
+            cachedBlockList = Array(Set(newValue)).joined(separator: "&&&")
+            Task {
+                await self.perform()
+            }
+        }
+    }
+    
+    func unblock(_ address: AddressName) {
+        blockedAddresses.removeAll(where: { $0 == address })
+    }
+    func block(_ address: AddressName) {
+        blockedAddresses.append(address)
+    }
+    
     @ObservedObject
     private var authenticationFetcher: AccountAuthDataFetcher
     
-    @ObservedObject
-    public var pinnedAddressFetcher: PinnedListDataFetcher
-    
-    private var accountInfoFetcher: AccountInfoDataFetcher?
+    @Published
+    var myName: String = ""
+    @Published
+    var myAddresses: [AddressName] = []
     
     @Published
-    public var myAddressesFetcher: AccountAddressDataFetcher?
-    
-    public let globalBlocklistFetcher: AddressBlockListDataFetcher
-    public let localBloclistFetcher: LocalBlockListDataFetcher
-    
-    var myAddresses: [AddressName] {
-        let fetchedAddresses = myAddressesFetcher?.listItems.map { $0.name } ?? []
-        guard !fetchedAddresses.isEmpty else {
-            return localAddresses
-        }
-        return fetchedAddresses
-    }
-    var globalBlocked: [AddressName] {
-        globalBlocklistFetcher.listItems.map { $0.name }
-    }
+    var globalBlocked: [AddressName] = []
     var localBlocked: [AddressName] {
-        localBloclistFetcher.listItems.map { $0.name }
+        blockedAddresses
     }
     
     let interface: DataInterface
@@ -61,21 +94,6 @@ class AccountModel: ObservableObject {
     
     var requests: [AnyCancellable] = []
     
-    var publicProfileCache: [AddressName: AddressSummaryDataFetcher] = [:]
-    
-    var pinned: [AddressName] {
-        pinnedAddressFetcher.listItems.map { $0.name }
-    }
-    func isPinned(_ address: AddressName) -> Bool {
-        pinned.contains(address)
-    }
-    func pin(_ address: AddressName) {
-        pinnedAddressFetcher.pin(address)
-    }
-    func removePin(_ address: AddressName) {
-        pinnedAddressFetcher.removePin(address)
-    }
-    
     init(client: ClientInfo, interface: DataInterface) {
         self.authenticationFetcher = AccountAuthDataFetcher(
             client: client,
@@ -83,9 +101,6 @@ class AccountModel: ObservableObject {
         )
         
         self.interface = interface
-        self.pinnedAddressFetcher = PinnedListDataFetcher(interface: interface)
-        self.globalBlocklistFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: interface)
-        self.localBloclistFetcher = LocalBlockListDataFetcher(interface: interface)
         
         subscribe()
         
@@ -130,32 +145,16 @@ class AccountModel: ObservableObject {
         await self.perform()
     }
     
-    func constructAccountAddressesFetcher(_ credential: APICredential) -> AccountAddressDataFetcher? {
-        return AccountAddressDataFetcher(interface: interface, credential: credential)
-    }
-    
-    func constructAccountInfoFetcher(_ name: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {
-        return AccountInfoDataFetcher(address: name, interface: interface, credential: credential)
-    }
-    
     func throwingRequest() async throws {
+        let blocked = try await interface.fetchPaste("app.lol.blocked", from: "app", credential: nil)?.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }) ?? []
+        self.globalBlocked = blocked
         guard !authKey.isEmpty else {
-            accountInfoFetcher = nil
             threadSafeSendUpdate()
             return
         }
-        myAddressesFetcher = AccountAddressDataFetcher(interface: interface, credential: authKey)
-        myAddressesFetcher?.objectWillChange.sink { [weak self] _ in
-            guard let self = self else { return }
-            self.handleAddresses(self.myAddresses)
-        }
-        .store(in: &requests)
-        
-        self.accountInfoFetcher = self.constructAccountInfoFetcher("application", credential: self.authKey)
-        self.accountInfoFetcher?.objectWillChange.sink { [self] _ in
-            self.threadSafeSendUpdate()
-        }
-        .store(in: &self.requests)
+        let credential = authKey
+        let addresses = try await interface.fetchAccountAddresses(credential)
+        try await self.handleAddresses(addresses)
     }
     
     func fetchFinished() {
@@ -171,10 +170,12 @@ class AccountModel: ObservableObject {
         threadSafeSendUpdate()
     }
     
-    func handleAddresses(_ incomingAddresses: [AddressName]) {
-        incomingAddresses.forEach { address in
-            publicProfileCache[address] = AddressSummaryDataFetcher(name: address, interface: interface)
+    func handleAddresses(_ incomingAddresses: [AddressName]) async throws {
+        let credential = authKey
+        if let first = incomingAddresses.first, let name = try await interface.fetchAccountInfo(first, credential: credential)?.name {
+            self.myName = name
         }
+        myAddresses = incomingAddresses
         threadSafeSendUpdate()
     }
     
@@ -183,14 +184,14 @@ class AccountModel: ObservableObject {
     }
     
     var welcomeText: String {
-        guard let accountName = accountInfoFetcher?.accountName else {
+        guard !myName.isEmpty else {
             return "Welcome"
         }
-        return "Welcome, \(accountName)"
+        return "Welcome, \(myName)"
     }
     
     var displayName: String {
-        accountInfoFetcher?.accountName ?? ""
+        myName
     }
     
     var signedIn: Bool {
@@ -202,15 +203,10 @@ class AccountModel: ObservableObject {
         authenticationFetcher.perform()
     }
     
-    public func credential(for address: AddressName, in addressBook: AddressBook) -> APICredential? {
-        guard !authKey.isEmpty, addressBook.myAddresses.contains(address) else {
+    public func credential(for address: AddressName) -> APICredential? {
+        guard !authKey.isEmpty, myAddresses.contains(address) else {
             return nil
         }
         return authKey
-    }
-    
-    var listItems: [AddressModel] {
-        get { myAddressesFetcher?.listItems ?? [] }
-        set { }
     }
 }

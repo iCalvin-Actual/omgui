@@ -21,43 +21,8 @@ class FetchConstructor {
         AccountModel(client: client, interface: interface)
     }
     
-    func accountInfoFetcher(for address: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {
-        guard !address.isEmpty else {
-            return nil
-        }
-        return AccountInfoDataFetcher(address: address, interface: interface, credential: credential)
-    }
-    
     func credentialFetcher() -> AccountAuthDataFetcher {
         AccountAuthDataFetcher(client: client, interface: interface)
-    }
-    
-    func blockListFetcher(for address: AddressName, credential: APICredential?) -> AddressBlockListDataFetcher {
-        AddressBlockListDataFetcher(address: address, credential: credential, interface: interface)
-    }
-    
-    func followingFetcher(for address: AddressName, credential: APICredential?) -> AddressFollowingDataFetcher {
-        AddressFollowingDataFetcher(address: address, credential: credential, interface: interface)
-    }
-    
-    func addressDirectoryDataFetcher() -> AddressDirectoryDataFetcher {
-        AddressDirectoryDataFetcher(interface: interface)
-    }
-    
-    func accountAddressesDataFetcher(_ credential: String) -> AccountAddressDataFetcher {
-        AccountAddressDataFetcher(interface: interface, credential: credential)
-    }
-    
-    func nowGardenFetcher() -> NowGardenDataFetcher {
-        NowGardenDataFetcher(interface: interface)
-    }
-    
-    func addressDetailsFetcher(_ address: AddressName) -> AddressSummaryDataFetcher {
-        AddressSummaryDataFetcher(name: address, interface: interface)
-    }
-    
-    func addressPrivateDetailsFetcher(_ address: AddressName, credential: APICredential) -> AddressPrivateSummaryDataFetcher {
-        AddressPrivateSummaryDataFetcher(name: address, interface: interface, credential: credential)
     }
     
     func draftPastePoster(_ title: String, for address: AddressName, credential: APICredential) -> PasteDraftPoster {

@@ -8,37 +8,32 @@
 import SwiftData
 import SwiftUI
 
-struct AddressBioView: View {
-    @Environment(\.verticalSizeClass)
-    var verticalSizeClass
+struct AddressBioLabel: View {
+    @Binding
+    var expanded: Bool
     
     var bio: AddressBioModel
     
-    @State
-    var expanded: Bool = false
-    
-    var lineLimit: Int? {
-        guard !expanded else {
-            return nil
-        }
-        switch verticalSizeClass {
-        case .compact:
-            return 1
-        default:
-            return 3
-        }
-    }
-    
     var body: some View {
-        Text(bio.bio)
+        contentView(bio.bio)
             .onTapGesture {
                 withAnimation {
-                    self.expanded.toggle()
+                    expanded.toggle()
                 }
             }
-            .padding()
-            .lineLimit(lineLimit)
-            .frame(maxWidth: .infinity)
-            .background(Color.lolBlue)
+    }
+    
+    @ViewBuilder
+    func contentView(_ bio: String) -> some View {
+        if expanded {
+            ScrollView {
+                MarkdownContentView(content: bio)
+            }
+        } else {
+            Text(bio)
+                .lineLimit(3)
+                .font(.caption)
+                .fontDesign(.monospaced)
+        }
     }
 }

@@ -33,9 +33,9 @@ extension Listable {
     }
 }
 
-extension AddressModel: Listable {
-    var listTitle: String { addressName.addressDisplayString }
-    var listSubtitle: String { url?.absoluteString ?? "" }
+extension AddressInfoModel: Listable {
+    var listTitle: String { owner.addressDisplayString }
+    var listSubtitle: String { url.absoluteString }
     var displayDate: Date? { registered }
 }
 extension StatusModel: Listable     {
@@ -54,7 +54,7 @@ extension AddressPURLModel: Listable     {
     var listSubtitle: String  { destination }
     var listCaption: String?  { owner.addressDisplayString }
 }
-extension NowListing: Listable     {
+extension AddressNowModel: Listable     {
     var listTitle: String     { owner.addressDisplayString }
     var listSubtitle: String  { url.replacingOccurrences(of: "https://", with: "") }
     var displayDate: Date?    { updated }

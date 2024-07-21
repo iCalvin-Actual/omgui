@@ -17,9 +17,6 @@ struct NavigationView: View {
     
     var body: some View {
         SplitView()
-            .environment(
-                sceneModel.addressBook
-            )
     }
     
     @ViewBuilder

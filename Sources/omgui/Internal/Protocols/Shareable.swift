@@ -54,7 +54,7 @@ extension Sharable {
     }
 }
 
-extension AddressModel: Sharable {
+extension AddressInfoModel: Sharable {
     var primaryCopy: CopyPacket? {
         .init(name: "Name", content: addressName)
     }
@@ -77,7 +77,7 @@ extension AddressModel: Sharable {
     }
 }
 
-extension NowListing: Sharable {
+extension AddressNowModel: Sharable {
     var primaryCopy: CopyPacket? {
         .init(name: "/Now URL", content: url)
     }

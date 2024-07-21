@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/15/23.
 //
 
+import SwiftData
 import SwiftUI
 
 @MainActor
@@ -14,9 +15,6 @@ struct GardenView: View {
     @Environment(\.horizontalSizeClass)
     var sizeClass
     
-    @ObservedObject
-    var fetcher: NowGardenDataFetcher
-    
     @State
     var selected: String?
     @State
@@ -24,10 +22,13 @@ struct GardenView: View {
     @State
     var sort: Sort = .newestFirst
     
-    var menuBuilder: ContextMenuBuilder<NowListing>?
+    @Query
+    var nowListings: [AddressNowModel]
+    
+    var menuBuilder: ContextMenuBuilder<AddressNowModel>?
     
     var body: some View {
-        ListView<NowListing, GardenItemView, EmptyView>(data: fetcher.listItems, rowBuilder: { GardenItemView(model: $0) })
+        ListView<AddressNowModel, GardenItemView, EmptyView>(data: nowListings, rowBuilder: { GardenItemView(model: $0) })
             .toolbarRole(.editor)
     }
     
@@ -63,12 +64,12 @@ struct GardenView: View {
     
     @ViewBuilder
     var listBody: some View {
-        ListView<NowListing, GardenItemView, EmptyView>(data: fetcher.listItems, rowBuilder: { GardenItemView(model: $0) })
+        ListView<AddressNowModel, GardenItemView, EmptyView>(data: nowListings, rowBuilder: { GardenItemView(model: $0) })
     }
 }
 
 struct GardenItemView: View {
-    var model: NowListing
+    var model: AddressNowModel
     
     var body: some View {
         VStack(alignment: .leading) {

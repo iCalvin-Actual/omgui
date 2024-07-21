@@ -8,16 +8,13 @@
 import SwiftUI
 
 struct AccountView: View {
+    @SceneStorage("app.lol.address")
+    var actingAddress: AddressName = ""
+    
     @Environment(\.colorScheme) var colorScheme
     
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
-    
-    @ObservedObject
-    var addressBook: AddressBook
-    
-    @ObservedObject
-    var accountModel: AccountModel
     
     @State
     var searchAddress: String = ""
@@ -30,8 +27,8 @@ struct AccountView: View {
     
     var body: some View {
         NavigationStack {
-            if accountModel.signedIn {
-                AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(addressBook.actingAddress), allowEditing: true, selectedPage: .profile, address: addressBook.actingAddress)
+            if sceneModel.accountModel.signedIn {
+                AddressSummaryView(selectedPage: .profile, address: actingAddress)
             } else {
                 signedOutHeader
                 
@@ -78,7 +75,7 @@ struct AccountView: View {
                         Button {
                             DispatchQueue.main.async {
                                 Task {
-                                    await accountModel.authenticate()
+                                    await sceneModel.accountModel.authenticate()
                                 }
                             }
                         } label: {

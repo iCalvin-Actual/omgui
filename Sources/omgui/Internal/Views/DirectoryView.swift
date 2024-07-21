@@ -5,17 +5,18 @@
 //  Created by Calvin Chestnut on 3/12/23.
 //
 
+import SwiftData
 import SwiftUI
 
 struct DirectoryView: View {
-    @ObservedObject
-    var fetcher: AddressDirectoryDataFetcher
+    @Query
+    var summaries: [AddressInfoModel]
     
     var body: some View {
-        ListView<AddressModel, ListRow, EmptyView>(
+        ListView<AddressInfoModel, ListRow, EmptyView>(
             filters: .everyone,
-            data: fetcher.listItems,
-            rowBuilder: { _ in return nil as ListRow<AddressModel>?}
+            data: summaries,
+            rowBuilder: { _ in return nil as ListRow<AddressInfoModel>?}
         )
     }
 }

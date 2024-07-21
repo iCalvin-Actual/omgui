@@ -9,8 +9,8 @@ struct MyPURLsView: View {
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
     
-    @ObservedObject
-    var account: AccountModel
+    @Environment(SceneModel.self)
+    var sceneModel
     
     @Query
     var purls: [AddressPURLModel]
@@ -20,17 +20,12 @@ struct MyPURLsView: View {
             case .mine:
                 return model.owner == actingAddress
             default:
-                return account.myAddresses.contains(model.owner)
+                return sceneModel.accountModel.myAddresses.contains(model.owner)
             }
         }
     }
     
     let singleAddressMode: Bool
-    
-    init(singleAddress: Bool, addressBook: AddressBook, accountModel: AccountModel) {
-        singleAddressMode = singleAddress
-        account = accountModel
-    }
     
     var body: some View {
         ListView<AddressPURLModel, PURLRowView, EmptyView>(data: filteredPURLS, rowBuilder: { .init(model: $0) })

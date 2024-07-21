@@ -159,6 +159,29 @@ final class AddressWebpageModel {
 }
 
 @Model
+final class AddressNowListingModel {
+    @Attribute(.unique)
+    var owner: AddressName
+    
+    var url: String
+    var updated: Date
+    
+    convenience init(_ listing: NowListing) {
+        self.init(
+            owner: listing.owner,
+            url: listing.url,
+            updated: listing.updated
+        )
+    }
+    
+    init(owner: AddressName, url: String, updated: Date) {
+        self.owner = owner
+        self.url = url
+        self.updated = updated
+    }
+}
+
+@Model
 final class AddressNowModel {
     @Attribute(.unique)
     var owner: AddressName
@@ -167,17 +190,26 @@ final class AddressNowModel {
     var html: String?
     var updated: Date?
     var listed: Bool?
+    var url: String
     
-    convenience init(_ model: NowModel) {
-        self.init(owner: model.owner, content: model.content, html: model.html, updated: model.updated, listed: model.listed)
+    convenience init(_ model: NowModel, url: String) {
+        self.init(
+            owner: model.owner,
+            content: model.content,
+            html: model.html,
+            updated: model.updated,
+            listed: model.listed,
+            url: url
+        )
     }
     
-    public init(owner: AddressName, content: String? = nil, html: String? = nil, updated: Date? = nil, listed: Bool? = nil) {
+    public init(owner: AddressName, content: String? = nil, html: String? = nil, updated: Date? = nil, listed: Bool? = nil, url: String) {
         self.owner = owner
         self.content = content
         self.html = html
         self.updated = updated
         self.listed = listed
+        self.url = url
     }
 }
 
@@ -251,11 +283,31 @@ final class AddressPasteModel {
 final class AddressIconModel {
     @Attribute(.unique)
     var owner: AddressName
-    var data: Data?
     
-    init(owner: AddressName, data: Data? = nil) {
+    var imageData: Data?
+    
+    init(owner: AddressName, imageData: Data? = nil) {
         self.owner = owner
-        self.data = data
+        self.imageData = imageData
+    }
+}
+
+@Model
+final class AddressInfoModel {
+    @Attribute(.unique)
+    var owner: AddressName
+    
+    var url: URL
+    var registered: Date
+    var following: [AddressName]
+    var blocked: [AddressName]
+    
+    init(owner: AddressName, url: URL, registered: Date, following: [AddressName], blocked: [AddressName]) {
+        self.owner = owner
+        self.url = url
+        self.registered = registered
+        self.following = following
+        self.blocked = blocked
     }
 }
 
@@ -269,6 +321,7 @@ extension DataInterface {
             AddressNowModel.self,
             AddressPURLModel.self,
             AddressPasteModel.self,
+            AddressInfoModel.self,
             AddressIconModel.self
         ]
     }
