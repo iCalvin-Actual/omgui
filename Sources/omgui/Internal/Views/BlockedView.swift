@@ -13,6 +13,9 @@ struct BlockedView: View {
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
     
+    @Environment(SceneModel.self)
+    var sceneModel
+    
     let targetAddress: AddressName
     
     var address: AddressName {
@@ -27,22 +30,12 @@ struct BlockedView: View {
     
     @Query
     var addresses: [AddressInfoModel]
-    var targetInfo: AddressInfoModel? {
-        addresses.first(where: { $0.owner == address })
-    }
-    
-    var blockedAddresses: [AddressInfoModel] {
-        guard let targetInfo else {
-            return []
-        }
-        
-        return addresses.filter({ model in
-            targetInfo.blocked.contains(where: { $0 == model.owner })
-        })
+    var blockedInfo: [AddressInfoModel] {
+        addresses.filter({ sceneModel.addressBlocked.contains($0.owner) })
     }
     
     var body: some View {
-        ListView<AddressInfoModel, ListRow<AddressInfoModel>, EmptyView>(filters: .none, data: blockedAddresses, rowBuilder: { _ in return nil as ListRow<AddressInfoModel>? })
+        ListView<AddressInfoModel, ListRow<AddressInfoModel>, EmptyView>(filters: .none, data: blockedInfo, rowBuilder: { _ in return nil as ListRow<AddressInfoModel>? })
             .onAppear(perform: { needsRefresh = false })
     }
 }

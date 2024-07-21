@@ -11,11 +11,9 @@ struct EditPageView<D: MDDraftable>: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    @StateObject
-    var poster: MDDraftPoster<D>
-    
     var body: some View {
-        TextEditor(text: $poster.draft.content)
+//        TextEditor(text: $poster.draft.content)
+        EmptyView()
             .toolbar {
                 ToolbarItem {
                     saveButton
@@ -27,7 +25,7 @@ struct EditPageView<D: MDDraftable>: View {
     var saveButton: some View {
         Button {
             Task {
-                await poster.perform()
+//                await poster.perform()
             }
         } label: {
             Text("save")

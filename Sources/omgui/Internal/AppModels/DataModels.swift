@@ -21,7 +21,6 @@ final class StatusModel {
     var emoji: String?
     
     convenience init(_ status: StatusResponse) {
-        print("log creating model for id \(status.id)")
         self.init(id: status.id, address: status.address, posted: status.posted, status: status.status, emoji: status.emoji)
     }
     
@@ -281,16 +280,15 @@ final class AddressPasteModel {
 }
 
 @Model
-final class AddressIconModel {
-    @Attribute(.unique)
-    var owner: AddressName
+final class AddressNameModel {
+    @Attribute
+    var name: AddressName
     
-    var imageData: Data?
-    
-    init(owner: AddressName, imageData: Data? = nil) {
-        self.owner = owner
-        self.imageData = imageData
+    init(name: AddressName) {
+        self.name = name
     }
+    
+    
 }
 
 @Model
@@ -323,7 +321,7 @@ extension DataInterface {
             AddressPURLModel.self,
             AddressPasteModel.self,
             AddressInfoModel.self,
-            AddressIconModel.self
+            AddressNameModel.self
         ]
     }
 }

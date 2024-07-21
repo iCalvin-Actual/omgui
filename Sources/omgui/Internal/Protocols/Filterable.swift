@@ -149,6 +149,18 @@ extension Filterable {
     }
 }
 
+extension AddressNameModel: QueryFilterable {
+    var queryCheckStrings: [String] {
+        [name]
+    }
+    var addressName: AddressName {
+        name
+    }
+    var filterDate: Date? {
+        nil
+    }
+}
+
 extension AddressInfoModel: QueryFilterable {
     var queryCheckStrings: [String] {
         [owner]

@@ -9,34 +9,14 @@ struct AddressIconView: View {
     
     let address: AddressName
     
-    @Query
-    var icons: [AddressIconModel]
-    var icon: AddressIconModel? {
-        icons.first(where: { $0.owner == address })
-    }
-    
     var body: some View {
-        imageBody
-            .frame(width: 44, height: 44)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .onAppear {
-                guard icon == nil else {
-                    return
-                }
-                Task {
-                    try await sceneModel.fetchIcon(address)
-                }
-            }
-    }
-    
-    @ViewBuilder
-    var imageBody: some View {
-        if let data = icon?.imageData, let uiImage = UIImage(data: data) {
-            Image(uiImage: uiImage)
-                .resizable()
+        AsyncImage(url: address.addressIconURL) { image in
+            image.resizable()
                 .aspectRatio(contentMode: .fill)
-        } else {
+        } placeholder: {
             Color.lolRandom(address)
         }
+        .frame(width: 66, height: 66)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

@@ -73,17 +73,17 @@ struct PURLView: View {
         EmptyView()
     }
     
-    @ViewBuilder
-    func mainContent(_ poster: PURLDraftPoster?) -> some View {
-        if let poster {
-            content
-                .onReceive(poster.$result.dropFirst(), perform: { savedResult in
-                print("Stop here")
-            })
-        } else {
-            content
-        }
-    }
+//    @ViewBuilder
+//    func mainContent(_ poster: PURLDraftPoster?) -> some View {
+//        if let poster {
+//            content
+//                .onReceive(poster.$result.dropFirst(), perform: { savedResult in
+//                print("Stop here")
+//            })
+//        } else {
+//            content
+//        }
+//    }
     
     @ViewBuilder
     var content: some View {

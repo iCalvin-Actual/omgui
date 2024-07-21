@@ -14,32 +14,28 @@ struct PURLDraftView: View {
     @FocusState
     private var focusedField: FocusField?
     
-    @StateObject
-    var draftFetcher: PURLDraftPoster
-    
-    init(focusedField: FocusField? = nil, draftFetcher: PURLDraftPoster) {
-        self._draftFetcher = .init(wrappedValue: draftFetcher)
+    init(focusedField: FocusField? = nil) {
         self.focusedField = focusedField
     }
     
     var body: some View {
         VStack {
             HStack(alignment: .lastTextBaseline) {
-                if context != .profile {
-                    AddressNameView(draftFetcher.address, font: .title3, path: ".url.lol")
-                }
+//                if context != .profile {
+//                    AddressNameView(draftFetcher.address, font: .title3, path: ".url.lol")
+//                }
                 Spacer()
                 postButton
             }
             .padding(2)
             
             VStack {
-                PathField(text: $draftFetcher.namedDraft.name, placeholder: "path")
-                URLField(text: $draftFetcher.namedDraft.content)
+//                PathField(text: $draftFetcher.namedDraft.name, placeholder: "path")
+//                URLField(text: $draftFetcher.namedDraft.content)
             }
             .padding(12)
             .foregroundColor(.black)
-            .background(Color.lolRandom(draftFetcher.draft.name))
+            .background(Color.lolRandom())
             .cornerRadius(12, antialiased: true)
             .padding(.vertical, 4)
             
@@ -50,39 +46,39 @@ struct PURLDraftView: View {
         .background(Color.lolBackground)
     }
     
-    @ViewBuilder
-    var draftBody: some View {
-        PathField(text: $draftFetcher.namedDraft.name, placeholder: "title")
-            .font(.title2)
-            .bold()
-            .fontDesign(.serif)
-            .lineLimit(2)
-            
-        TextEditor(text: $draftFetcher.namedDraft.content)
-            .frame(minHeight: 33)
-    }
+//    @ViewBuilder
+//    var draftBody: some View {
+//        PathField(text: $draftFetcher.namedDraft.name, placeholder: "title")
+//            .font(.title2)
+//            .bold()
+//            .fontDesign(.serif)
+//            .lineLimit(2)
+//            
+//        TextEditor(text: $draftFetcher.namedDraft.content)
+//            .frame(minHeight: 33)
+//    }
     
     @ViewBuilder
     var postButton: some View {
         Button(action: {
-            guard draftFetcher.draft.publishable else {
-                return
-            }
-            Task {
-                await draftFetcher.perform()
-            }
+//            guard draftFetcher.draft.publishable else {
+//                return
+//            }
+//            Task {
+//                await draftFetcher.perform()
+//            }
         }) {
             Label {
-                if draftFetcher.originalDraft == nil {
-                    Text("publish")
-                } else {
+//                if draftFetcher.originalDraft == nil {
+//                    Text("publish")
+//                } else {
                     Text("update")
-                }
+//                }
             } icon: {
                 Image(systemName: "arrow.up.circle.fill")
             }
             .font(.headline)
         }
-        .disabled(!draftFetcher.draft.publishable)
+//        .disabled(!draftFetcher.draft.publishable)
     }
 }

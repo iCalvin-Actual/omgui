@@ -49,7 +49,7 @@ struct DestinationConstructor {
         case .statusLog(let address):
             StatusList(addresses: [address])
         case .status(let address, id: let id):
-            StatusView(fetcher: fetchConstructor.statusFetcher(id, from: address))
+            StatusView(statusID: id)
         case .account:
             AccountView()
         case .myStatuses:
@@ -57,21 +57,11 @@ struct DestinationConstructor {
         case .myPURLs:
             MyPURLsView(singleAddressMode: false)
         case .editPURL(let address, title: let title):
-            if let credential = accountModel.credential(for: address) {
-                NamedItemDraftView(fetcher: fetchConstructor.draftPurlPoster(title, for: address, credential: credential))
-            } else {
-                // Unauthorized
-                EmptyView()
-            }
+            EmptyView()
         case .myPastes:
             MyPastesView(singleAddressMode: false)
         case .editPaste(let address, title: let title):
-            if let credential = accountModel.credential(for: address) {
-                NamedItemDraftView(fetcher: fetchConstructor.draftPastePoster(title, for: address, credential: credential))
-            } else {
-                // Unauthorized
-                EmptyView()
-            }
+            EmptyView()
 //        case .editWebpage(let name):
 //            if let poster = addressBook.profilePoster(for: name) {
 //                EditPageView(poster: poster)
@@ -87,14 +77,8 @@ struct DestinationConstructor {
 //                EmptyView()
 //            }
         case .editStatus(let address, id: let id):
-            if address == .autoUpdatingAddress && id.isEmpty {
-                StatusDraftView(draftPoster: fetchConstructor.draftStatusPoster(for: address, credential: accountModel.authKey))
-            } else if let credential = accountModel.credential(for: address) {
-                StatusDraftView(draftPoster: fetchConstructor.draftStatusPoster(id, for: address, credential: credential))
-            } else {
-                // Unauthenticated
-                EmptyView()
-            }
+            // Unauthenticated
+            EmptyView()
         case .addressStatuses:
             MyStatusesView(singleAddressMode: true)
         case .addressPURLs:

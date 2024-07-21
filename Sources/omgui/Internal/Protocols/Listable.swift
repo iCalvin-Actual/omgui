@@ -33,6 +33,11 @@ extension Listable {
     }
 }
 
+extension AddressNameModel: Listable {
+    var listTitle: String { name.addressDisplayString }
+    var listSubtitle: String { name.urlString }
+}
+
 extension AddressInfoModel: Listable {
     var listTitle: String { owner.addressDisplayString }
     var listSubtitle: String { url.absoluteString }

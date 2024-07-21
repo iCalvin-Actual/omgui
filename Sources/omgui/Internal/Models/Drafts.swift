@@ -228,43 +228,41 @@ extension PURLRowView {
         @Environment(\.viewContext)
         var context: ViewContext
         
-        let draftPoster: PURLDraftPoster
-        
         var body: some View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .bottom) {
                     if context != .profile {
-                        AddressNameView(draftPoster.address, font: .title3)
+                        AddressNameView(actingAddress, font: .title3)
                     }
                     Spacer()
                     postButton
                 }
                 .padding(2)
                 
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("/\(draftPoster.namedDraft.name)")
-                            .font(.title2)
-                            .bold()
-                            .fontDesign(.serif)
-                            .lineLimit(2)
-                        Spacer()
-                    }
-                    
-                    if !draftPoster.namedDraft.content.isEmpty {
-                        Text(draftPoster.namedDraft.content)
-                            .font(.subheadline)
-                            .fontDesign(.monospaced)
-                            .lineLimit(5)
-                    }
-                }
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity)
-                .padding(12)
-                .foregroundColor(.black)
-                .background(Color.lolRandom(draftPoster.draft.name))
-                .cornerRadius(12, antialiased: true)
-                .padding(.vertical, 4)
+//                VStack(alignment: .leading, spacing: 12) {
+//                    HStack {
+//                        Text("/\(draftPoster.namedDraft.name)")
+//                            .font(.title2)
+//                            .bold()
+//                            .fontDesign(.serif)
+//                            .lineLimit(2)
+//                        Spacer()
+//                    }
+//                    
+//                    if !draftPoster.namedDraft.content.isEmpty {
+//                        Text(draftPoster.namedDraft.content)
+//                            .font(.subheadline)
+//                            .fontDesign(.monospaced)
+//                            .lineLimit(5)
+//                    }
+//                }
+//                .multilineTextAlignment(.leading)
+//                .frame(maxWidth: .infinity)
+//                .padding(12)
+//                .foregroundColor(.black)
+//                .background(Color.lolRandom(draftPoster.draft.name))
+//                .cornerRadius(12, antialiased: true)
+//                .padding(.vertical, 4)
             }
             .frame(maxWidth: .infinity)
         }
@@ -272,26 +270,26 @@ extension PURLRowView {
         @ViewBuilder
         var postButton: some View {
             Button(action: {
-                guard draftPoster.draft.publishable else {
-                    return
-                }
-                Task {
-                    await draftPoster.perform()
-                    draftPoster.draft.clear()
-                }
+//                guard draftPoster.draft.publishable else {
+//                    return
+//                }
+//                Task {
+//                    await draftPoster.perform()
+//                    draftPoster.draft.clear()
+//                }
             }) {
                 Label {
-                    if draftPoster.result?.id == nil {
-                        Text("publish")
-                    } else {
+//                    if draftPoster.result?.id == nil {
+//                        Text("publish")
+//                    } else {
                         Text("update")
-                    }
+//                    }
                 } icon: {
                     Image(systemName: "arrow.up.circle.fill")
                 }
                 .font(.headline)
             }
-            .disabled(!draftPoster.draft.publishable)
+//            .disabled(!draftPoster.draft.publishable)
         }
     }
 }
@@ -304,25 +302,16 @@ extension StatusRowView {
         @Environment(\.viewContext)
         var context: ViewContext
         
-        let draftPoster: StatusDraftPoster
-        
-        var address: AddressName {
-            if draftPoster.draft.address == .autoUpdatingAddress {
-                return actingAddress
-            }
-            return draftPoster.draft.address
-        }
-        
         var body: some View {
             VStack(alignment: .trailing, spacing: 0) {
                 HStack {
-                    AddressIconView(address: address)
+                    AddressIconView(address: actingAddress)
                     
-                    Text(draftPoster.draft.displayEmoji)
-                        .font(.system(size: 42))
+//                    Text(draftPoster.draft.displayEmoji)
+//                        .font(.system(size: 42))
                     
                     Spacer()
-                    postButton
+//                    postButton
                 }
                 /*
                  This was tricky to set up
@@ -332,61 +321,60 @@ extension StatusRowView {
     //                        .font(.system(size: 44))
     //                    + Text(" ").font(.largeTitle) +
                  */
-                rowBody
-                    .padding(.bottom, 2)
-                    .asCard(backgroundColor: .lolRandom(draftPoster.draft.displayEmoji), radius: 6)
+//                rowBody
+//                    .padding(.bottom, 2)
             }
             .lineLimit(3)
             .multilineTextAlignment(.leading)
-        }
-        
-        @ViewBuilder
-        var rowBody: some View {
-            appropriateMarkdown
-                .font(.system(.body))
-                .fontWeight(.medium)
-                .fontDesign(.rounded)
-                .environment(\.colorScheme, .light)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        
-        @ViewBuilder
-        var appropriateMarkdown: some View {
-            if draftPoster.draft.content.isEmpty {
-                Text("")
-                    .padding(.vertical, 4)
-            } else {
-                Markdown(draftPoster.draft.content)
-                    .foregroundColor(.black)
-            }
-        }
-        
-        @ViewBuilder
-        var postButton: some View {
-            Button(action: {
-                guard draftPoster.draft.publishable else {
-                    return
-                }
-                if draftPoster.draft.id?.isEmpty ?? true {
-                    draftPoster.address = actingAddress
-                }
-                Task {
-                    await draftPoster.perform()
-                    draftPoster.draft.clear()
-                }
-            }) {
-                Label {
-                    if draftPoster.draft.id == nil {
-                        Text("publish")
-                    } else {
-                        Text("update")
-                    }
-                } icon: {
-                    Image(systemName: "arrow.up.circle.fill")
-                }
-                .font(.headline)
-            }
-            .disabled(!draftPoster.draft.publishable)
+//        }
+//        
+//        @ViewBuilder
+//        var rowBody: some View {
+//            appropriateMarkdown
+//                .font(.system(.body))
+//                .fontWeight(.medium)
+//                .fontDesign(.rounded)
+//                .environment(\.colorScheme, .light)
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//        }
+//        
+//        @ViewBuilder
+//        var appropriateMarkdown: some View {
+//            if draftPoster.draft.content.isEmpty {
+//                Text("")
+//                    .padding(.vertical, 4)
+//            } else {
+//                Markdown(draftPoster.draft.content)
+//                    .foregroundColor(.black)
+//            }
+//        }
+//        
+//        @ViewBuilder
+//        var postButton: some View {
+//            Button(action: {
+//                guard draftPoster.draft.publishable else {
+//                    return
+//                }
+//                if draftPoster.draft.id?.isEmpty ?? true {
+//                    draftPoster.address = actingAddress
+//                }
+//                Task {
+//                    await draftPoster.perform()
+//                    draftPoster.draft.clear()
+//                }
+//            }) {
+//                Label {
+//                    if draftPoster.draft.id == nil {
+//                        Text("publish")
+//                    } else {
+//                        Text("update")
+//                    }
+//                } icon: {
+//                    Image(systemName: "arrow.up.circle.fill")
+//                }
+//                .font(.headline)
+//            }
+//            .disabled(!draftPoster.draft.publishable)
         }
     }
 }

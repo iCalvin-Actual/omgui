@@ -54,33 +54,47 @@ struct ListRow<T: Listable>: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: verticalPadding) {
-            HStack {
+        HStack {
+            VStack(alignment: .leading, spacing: verticalPadding) {
                 Text(model.listTitle)
                     .font(.title3)
                     .bold()
                 Spacer()
-            }
-            .padding(.vertical, verticalPadding)
-            .padding(.trailing, trailingPadding)
-            
-            let subtitle = model.listSubtitle
-            let caption = model.listCaption ?? ""
-            let hasMoreText: Bool = !subtitle.isEmpty || !caption.isEmpty
-            if hasMoreText {
-                HStack(alignment: .bottom) {
-                    Text(subtitle)
-                        .font(.headline)
-                        .foregroundColor(.black.opacity(0.8))
-                        .bold()
-                    Spacer()
-                    Text(caption)
-                        .foregroundColor(.gray.opacity(0.6))
-                        .font(.subheadline)
+                let subtitle = model.listSubtitle
+                let caption = model.listCaption ?? ""
+                let hasMoreText: Bool = !subtitle.isEmpty || !caption.isEmpty
+                if hasMoreText {
+                    HStack(alignment: .bottom) {
+                        Text(subtitle)
+                            .font(.headline)
+                            .foregroundColor(.black.opacity(0.8))
+                            .bold()
+                        Spacer()
+                        Text(caption)
+                            .foregroundColor(.gray.opacity(0.6))
+                            .font(.subheadline)
+                    }
+                    .padding(.trailing, trailingPadding)
                 }
-                .padding(.trailing, trailingPadding)
+            }
+                
+            if !model.hideIcon {
+                if let icon = model.iconURL {
+                    AsyncImage(url: icon) { image in
+                        image.resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Color.lolRandom(model.addressName)
+                    }
+                    .frame(width: 88, height: 88)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                } else {
+                    AddressIconView(address: model.addressName)
+                }
             }
         }
+        .padding(.vertical, verticalPadding)
+        .padding(.trailing, trailingPadding)
         .onAppear{
             sceneModel.fetchIcon(model.addressName)
         }

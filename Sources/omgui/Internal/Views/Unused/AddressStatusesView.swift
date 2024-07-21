@@ -32,6 +32,9 @@ struct AddressStatusesView: View {
             StatusList(addresses: [address])
         }
         .onAppear {
+            guard models.isEmpty else {
+                return
+            }
             Task {
                 try await sceneModel.fetchBio(address)
                 try await sceneModel.fetchStatuses([address])

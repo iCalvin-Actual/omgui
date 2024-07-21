@@ -86,6 +86,17 @@ extension AddressInfoModel: AllSortable {
     }
 }
 
+extension AddressNameModel: StringSortable {
+    var primarySortValue: String { name }
+    
+    static let defaultSort: Sort = .alphabet
+    static var sortOptions: [Sort] {
+        [
+            .alphabet
+        ]
+    }
+}
+
 extension StatusModel: AllSortable {
     var primarySortValue: String { address }
     var dateValue: Date? { posted }

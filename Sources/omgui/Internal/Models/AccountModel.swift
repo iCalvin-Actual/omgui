@@ -146,7 +146,6 @@ class AccountModel: ObservableObject {
     }
     
     func throwingRequest() async throws {
-        print("log fetching account")
         let blocked = try await interface.fetchPaste("app.lol.blocked", from: "app", credential: nil)?.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }) ?? []
         self.globalBlocked = blocked
         guard !authKey.isEmpty else {

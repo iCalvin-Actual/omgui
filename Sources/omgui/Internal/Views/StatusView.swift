@@ -5,42 +5,41 @@
 //  Created by Calvin Chestnut on 4/27/23.
 //
 
+import SwiftData
 import SwiftUI
 
 struct StatusView: View {
-    @ObservedObject
-    var fetcher: StatusDataFetcher
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    var status: StatusResponse?
+    let statusID: String
+    
+    @Query
+    var statusModels: [StatusModel]
+    var status: StatusModel? {
+        statusModels.first(where: { $0.id == statusID })
+    }
     
     @State
     var shareURL: URL?
     @State
     var presentURL: URL?
     
-    init(fetcher: StatusDataFetcher, status: StatusResponse? = nil) {
-        self.fetcher = fetcher
-    }
-    
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading) {
-                if let model = fetcher.status ?? status {
-                    StatusRowView(model)
+                if let status {
+                    StatusRowView(model: status)
                         .padding()
-                } else if fetcher.loading {
-                    LoadingView()
                 }
-                if let items = fetcher.status?.imageLinks, !items.isEmpty {
+                if let items = status?.imageLinks, !items.isEmpty {
                     imageSection(items)
                         .padding(.horizontal)
                 }
-                if let items = fetcher.status?.linkedItems, !items.isEmpty {
-                    linksSection(items)
-                        .padding(.horizontal)
-                }
+//                if let items = fetcher.status?.linkedItems, !items.isEmpty {
+//                    linksSection(items)
+//                        .padding(.horizontal)
+//                }
                 Spacer()
             }
         }
@@ -117,7 +116,7 @@ struct StatusView: View {
                 
                 if item.content.scheme?.contains("http") ?? false {
                     ZStack {
-                        RemoteHTMLContentView(activeAddress: fetcher.address, startingURL: item.content, activeURL: $presentURL)
+                        RemoteHTMLContentView(activeAddress: status?.address ?? "", startingURL: item.content, activeURL: $presentURL)
                             
                         LinearGradient(
                             stops: [
