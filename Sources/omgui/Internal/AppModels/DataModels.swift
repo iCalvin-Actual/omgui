@@ -21,6 +21,7 @@ final class StatusModel {
     var emoji: String?
     
     convenience init(_ status: StatusResponse) {
+        print("log creating model for id \(status.id)")
         self.init(id: status.id, address: status.address, posted: status.posted, status: status.status, emoji: status.emoji)
     }
     

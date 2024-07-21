@@ -12,9 +12,6 @@ struct NavigationView: View {
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
     
-    @Environment(SceneModel.self)
-    var sceneModel
-    
     var body: some View {
         SplitView()
     }

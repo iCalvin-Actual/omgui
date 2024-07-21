@@ -12,12 +12,12 @@ struct SplitView: View {
     
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
-    
     @Environment(\.horizontalSizeClass)
     var sizeClass
     
     @SceneStorage("app.lol.sidebar")
     var selected: NavigationItem?
+    
     @State
     var visibility: NavigationSplitViewVisibility = .all
     
@@ -44,7 +44,7 @@ struct SplitView: View {
     
     @ViewBuilder
     func destinationView(_ destination: NavigationDestination? = .webpage("app")) -> some View {
-            sceneModel.destinationConstructor.destination(destination)
-                .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
+        sceneModel.destinationConstructor.destination(destination)
+            .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
     }
 }

@@ -17,6 +17,6 @@ public struct omgui: View {
                 interface: dataInterface
             )
         )
-        .modelContainer(for: dataInterface.swiftModels)
+        .modelContainer(for: dataInterface.swiftModels, inMemory: true)
     }
 }
