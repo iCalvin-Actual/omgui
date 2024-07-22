@@ -32,7 +32,7 @@ struct PURLView: View {
         content
             .onAppear(perform: {
                 Task {
-                    try await sceneModel.fetchPURL(address, title: title)
+                    try await sceneModel.fetchConstructor.fetchPURL(address, title: title)
                 }
             })
             .toolbar {

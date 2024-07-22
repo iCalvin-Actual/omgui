@@ -24,7 +24,7 @@ struct AddressProfileView: View {
         htmlBody
             .onAppear {
                 Task {
-                    try await sceneModel.fetchProfile(address)
+                    try await sceneModel.fetchConstructor.fetchProfile(address)
                 }
             }
             .toolbar {

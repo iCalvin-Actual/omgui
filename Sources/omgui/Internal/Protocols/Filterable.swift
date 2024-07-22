@@ -143,7 +143,7 @@ extension Filterable {
                 return false
             }
         case .mine:
-            return scene.accountModel.myAddresses.contains(addressName)
+            return scene.myAddresses.contains(addressName)
         }
         return true
     }

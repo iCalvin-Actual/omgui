@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/6/23.
 //
 
+import AuthenticationServices
 import Combine
 import SwiftData
 import SwiftUI
@@ -13,9 +14,35 @@ import SwiftUI
 @MainActor
 class SceneModel {
     
+    private var authenticationFetcher: AccountAuthDataFetcher?
+    
+    // App Storage
+    @Binding
+    @ObservationIgnored
+    var authKey: String
+    @Binding
+    @ObservationIgnored
+    var globalBlockedAddresses: String
+    @Binding
+    @ObservationIgnored
+    var cachedBlockList: String
+    @Binding
+    @ObservationIgnored
+    var currentlyPinnedAddresses: String
+    @Binding
+    @ObservationIgnored
+    var localAddressesCache: String
+    @Binding
+    @ObservationIgnored
+    var myName: String
+    
+    // Scene Storage
+    @Binding
+    @ObservationIgnored
+    var actingAddress: AddressName
+    
     let fetchConstructor: FetchConstructor
-    var accountModel: AccountModel
-    let actingAddress: AddressName
+    
     
     var requests: [AnyCancellable] = []
     
@@ -25,16 +52,116 @@ class SceneModel {
     
     var destinationConstructor: DestinationConstructor {
         .init(
-            accountModel: accountModel,
-            fetchConstructor: fetchConstructor
+            sceneModel: self
         )
     }
     
-    init(actingAddress: AddressName, fetchConstructor: FetchConstructor, context: ModelContext) {
+    
+    var globalBlocked: [AddressName] {
+        get {
+            let split = globalBlockedAddresses.split(separator: "&&&")
+            return split.map({ String($0) })
+        }
+        set {
+            // no op
+        }
+    }
+    
+    public var myAddresses: [String] {
+        get {
+            localAddressesCache.split(separator: "&&&").map({ String($0) })
+        }
+        set {
+            localAddressesCache = newValue.joined(separator: "&&&")
+        }
+    }
+    
+    var pinnedAddresses: [AddressName] {
+        get {
+            let split = currentlyPinnedAddresses.split(separator: "&&&")
+            return split.map({ String($0) })
+        }
+        set {
+            currentlyPinnedAddresses = Array(Set(newValue)).joined(separator: "&&&")
+        }
+    }
+    func isPinned(_ address: AddressName) -> Bool {
+        pinnedAddresses.contains(address)
+    }
+    func pin(_ address: AddressName) {
+        pinnedAddresses.append(address)
+    }
+    func removePin(_ address: AddressName) {
+        pinnedAddresses.removeAll(where: { $0 == address })
+    }
+    
+    // MARK: No-Account Blocklist
+
+    var localBlocklist: [AddressName] {
+        get {
+            let split = cachedBlockList.split(separator: "&&&")
+            return split.map({ String($0) })
+        }
+        set {
+            cachedBlockList = Array(Set(newValue)).joined(separator: "&&&")
+        }
+    }
+    
+    func unblock(_ address: AddressName) {
+        localBlocklist.removeAll(where: { $0 == address })
+    }
+    func block(_ address: AddressName) {
+        localBlocklist.append(address)
+    }
+    
+    var signedIn: Bool {
+        !authKey.isEmpty
+    }
+    
+    init(
+        fetchConstructor: FetchConstructor,
+        context: ModelContext,
+        authKey: Binding<String>,
+        globalBlocklist: Binding<String>,
+        localBlocklist: Binding<String>,
+        pinnedAddresses: Binding<String>,
+        myAddresses: Binding<String>,
+        myName: Binding<String>,
+        actingAddress: Binding<String>
+    )
+    {
+        self._authKey = authKey
+        self._globalBlockedAddresses = globalBlocklist
+        self._cachedBlockList = localBlocklist
+        self._currentlyPinnedAddresses = pinnedAddresses
+        self._localAddressesCache = myAddresses
+        self._myName = myName
+        self._actingAddress = actingAddress
         self.fetchConstructor = fetchConstructor
-        self.actingAddress = actingAddress
-        self.accountModel = fetchConstructor.constructAccountModel()
         self.context = context
+        self.authenticationFetcher = AccountAuthDataFetcher(sceneModel: self)
+    }
+    
+    public func credential(for address: AddressName) -> APICredential? {
+        guard !authKey.isEmpty, myAddresses.contains(address) else {
+            return nil
+        }
+        return authKey
+    }
+    
+    public func authenticate() {
+        // Perform auth fetcher
+        authenticationFetcher?.perform()
+    }
+    
+    func login(_ incomingAuthKey: APICredential) {
+        authKey = incomingAuthKey
+    }
+    
+    func logout() {
+        self.authKey = ""
+        // todo: 'unload' my addresses first
+        self.myAddresses = []
     }
     
     func fetchBio(_ address: AddressName) async throws {
@@ -68,7 +195,7 @@ class SceneModel {
     
     func fetchProfileContent(_ address: AddressName) async throws {
         print("LOG: fetching profile \(address)")
-        let credential = accountModel.credential(for: address)
+        let credential = credential(for: address)
         
         if let profileResponse: AddressProfile = try await fetchConstructor.interface.fetchAddressProfile(address, credential: credential) {
             let model: AddressProfileModel = .init(profileResponse)
@@ -105,7 +232,7 @@ class SceneModel {
     func fetchPURLS(_ addresses: [AddressName]) async throws {
         print("LOG: fetching batch purls \(addresses)")
         for address in addresses {
-            let credential = accountModel.credential(for: address)
+            let credential = credential(for: address)
             async let purlsResponse = try fetchConstructor.interface.fetchAddressPURLs(address, credential: credential)
             let models = try await purlsResponse.map({ AddressPURLModel($0) })
             insertProblematicModels(models)
@@ -114,7 +241,7 @@ class SceneModel {
     
     func fetchPURL(_ address: AddressName, title: String) async throws {
         print("LOG: ")
-        let credential = accountModel.credential(for: address)
+        let credential = credential(for: address)
         
         if let purlResponse = try await fetchConstructor.interface.fetchPURL(title, from: address, credential: credential) {
             let model = AddressPURLModel(purlResponse)
@@ -130,7 +257,7 @@ class SceneModel {
     func fetchPastes(_ addresses: [AddressName]) async throws {
         print("LOG: fetching batch pastes \(addresses)")
         for address in addresses {
-            let credential = accountModel.credential(for: address)
+            let credential = credential(for: address)
             async let pastesResponse = try fetchConstructor.interface.fetchAddressPastes(address, credential: credential)
             let models = try await pastesResponse.map({ AddressPasteModel($0) })
             insertModels(models)
@@ -139,7 +266,7 @@ class SceneModel {
     
     func fetchPaste(_ address: AddressName, title: String) async throws {
         print("LOG: fetching paste \(address)/\(title)")
-        let credential = accountModel.credential(for: address)
+        let credential = credential(for: address)
         
         if let purlResponse = try await fetchConstructor.interface.fetchPaste(title, from: address, credential: credential) {
             let model = AddressPasteModel(purlResponse)
@@ -155,8 +282,8 @@ class SceneModel {
         }
         let info = try await fetchConstructor.interface.fetchAddressInfo(address)
         if let url = info.url {
-            async let following = fetchFollowing(address)
-            async let blocked = fetchBlocked(address)
+            async let following = fetchConstructor.fetchFollowing(address)
+            async let blocked = fetchConstructor.fetchBlocked(address)
             let infoModel = AddressInfoModel(owner: address, url: url, registered: info.registered ?? Date(), following: try await following, blocked: try await blocked)
             insertModels([infoModel])
         }
@@ -173,55 +300,6 @@ class SceneModel {
 //            let iconModel = AddressIconModel(owner: address, imageData: data)
 //            insertModels([iconModel])
 //        }
-    }
-    
-    func fetchBlocked(_ address: AddressName = "app") async throws -> [AddressName] {
-        print("LOG: fetching blocked \(address)")
-        let title = "app.lol.blocked"
-        try await fetchPastes(address)
-        let predicate = #Predicate<AddressPasteModel> {
-            $0.id == "\(address)/\(title)"
-        }
-        let fetchDescriptor = FetchDescriptor<AddressPasteModel>(predicate: predicate)
-        let result = try context.fetch(fetchDescriptor).first
-        let list = result?.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }) ?? []
-        return list
-    }
-    
-    func saveBlocked(_ addresses: [AddressName], for address: AddressName) async throws {
-        print("LOG: updating blocked \(address): \(addresses)")
-        guard let credential = accountModel.credential(for: address) else {
-            return
-        }
-        let title = "app.lol.blocked"
-        let draft: PasteResponse.Draft = .init(address: address, name: title, content: addresses.joined(separator: "\n"))
-        let _ = try await fetchConstructor.interface.savePaste(draft, to: address, credential: credential)
-        let _ = try await fetchFollowing(address)
-    }
-    
-    func fetchFollowing(_ address: AddressName) async throws -> [AddressName] {
-        print("LOG: fetching blocked \(address)")
-        let title = "app.lol.following"
-        try await fetchPastes(address)
-        
-        let predicate = #Predicate<AddressPasteModel> {
-            $0.id == "\(address)/\(title)"
-        }
-        let fetchDescriptor = FetchDescriptor<AddressPasteModel>(predicate: predicate)
-        let result = try context.fetch(fetchDescriptor).first
-        let list = result?.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }) ?? []
-        return list
-    }
-    
-    func saveFollowing(_ addresses: [AddressName], for address: AddressName) async throws {
-        print("LOG: updating blocked \(address): \(addresses)")
-        guard let credential = accountModel.credential(for: address) else {
-            return
-        }
-        let title = "app.lol.following"
-        let draft: PasteResponse.Draft = .init(address: address, name: title, content: addresses.joined(separator: "\n"))
-        let _ = try await fetchConstructor.interface.savePaste(draft, to: address, credential: credential)
-        let _ = try await fetchFollowing(address)
     }
     
     func fetchDirectory() async throws {

@@ -96,7 +96,9 @@ struct ListRow<T: Listable>: View {
         .padding(.vertical, verticalPadding)
         .padding(.trailing, trailingPadding)
         .onAppear{
-            sceneModel.fetchIcon(model.addressName)
+            Task {
+                await sceneModel.fetchConstructor.fetchIcon(model.addressName)
+            }
         }
         .asCard(color: .lolRandom(model.listTitle), padding: 4, radius: 8)
         .fontDesign(.serif)

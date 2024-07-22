@@ -31,7 +31,8 @@ struct FollowingLogView: View {
         StatusList(addresses: myFollowing)
             .onAppear {
                 Task {
-                    try await sceneModel.fetchStatuses(myFollowing)
+                    let myFollowing = myFollowing
+                    try await sceneModel.fetchConstructor.fetchStatuses(myFollowing)
                 }
             }
             .onAppear(perform: { needsRefresh = false })

@@ -9,6 +9,8 @@ import SwiftUI
 
 @MainActor
 struct Sidebar: View {
+    @AppStorage("app.lol.auth", store: .standard)
+    var authKey: String = ""
     
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
@@ -28,7 +30,7 @@ struct Sidebar: View {
     var sidebarModel: SidebarModel
     
     private var myAddresses: [AddressName] {
-        sceneModel.accountModel.myAddresses
+        sceneModel.myAddresses
     }
     
     init(selected: Binding<NavigationItem?>, model: SidebarModel) {
@@ -67,10 +69,10 @@ struct Sidebar: View {
         .environment(\.viewContext, ViewContext.column)
         .navigationDestination(for: NavigationDestination.self, destination: destinationView(_:))
         .safeAreaInset(edge: .bottom) {
-            AddressPicker(accountModel: sceneModel.accountModel)
+            AddressPicker()
         }
         .safeAreaInset(edge: .top, content: {
-            if !sceneModel.accountModel.signedIn {
+            if !sceneModel.signedIn {
                 Button {
                     selected = .account
                 } label: {
@@ -96,7 +98,7 @@ struct Sidebar: View {
                 }
             }
         }
-        .onReceive(sceneModel.accountModel.objectWillChange, perform: { _ in
+        .onReceive(authKey.publisher, perform: { _ in
             Task { @MainActor in
                 if actingAddress.isEmpty, let first = myAddresses.first {
                     actingAddress = first

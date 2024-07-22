@@ -27,7 +27,7 @@ struct AccountView: View {
     
     var body: some View {
         NavigationStack {
-            if sceneModel.accountModel.signedIn {
+            if sceneModel.signedIn {
                 AddressSummaryView(selectedPage: .profile, address: actingAddress)
             } else {
                 signedOutHeader
@@ -73,11 +73,7 @@ struct AccountView: View {
                     
                     HStack {
                         Button {
-                            DispatchQueue.main.async {
-                                Task {
-                                    await sceneModel.accountModel.authenticate()
-                                }
-                            }
+                            sceneModel.authenticate()
                         } label: {
                             Text("Sign in with omg.lol")
                                 .bold()

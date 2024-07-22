@@ -309,19 +309,3 @@ final class AddressInfoModel {
         self.blocked = blocked
     }
 }
-
-extension DataInterface {
-    var swiftModels: [any PersistentModel.Type] {
-        [
-            AddressBioModel.self,
-            StatusModel.self,
-            AddressWebpageModel.self,
-            AddressProfileModel.self,
-            AddressNowModel.self,
-            AddressPURLModel.self,
-            AddressPasteModel.self,
-            AddressInfoModel.self,
-            AddressNameModel.self
-        ]
-    }
-}

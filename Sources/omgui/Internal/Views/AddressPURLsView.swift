@@ -34,7 +34,7 @@ struct AddressPURLsView: View {
     
     func refresh() {
         Task {
-            try await sceneModel.fetchPURLS(address)
+            try await sceneModel.fetchConstructor.fetchPURLS(address)
         }
     }
     

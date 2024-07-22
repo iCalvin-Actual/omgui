@@ -59,7 +59,7 @@ class SidebarModel: ObservableObject {
     var sections: [Section] {
         var sections: [Section] = [.status, .directory, .now]
         
-        if sceneModel.accountModel.signedIn {
+        if sceneModel.signedIn {
             sections.append(.more)
         }
         
@@ -70,20 +70,20 @@ class SidebarModel: ObservableObject {
         switch section {
         case .directory:
             var destinations: [NavigationItem] = [.search]
-            if sceneModel.accountModel.signedIn {
+            if sceneModel.signedIn {
                 destinations.append(.editProfile)
                 destinations.append(.followingAddresses)
             }
             if !sceneModel.viewableBlocklist.isEmpty {
                 destinations.append(.blocked)
             }
-            destinations.append(contentsOf: sceneModel.pinned.sorted().map({ .pinnedAddress($0) }))
+            destinations.append(contentsOf: sceneModel.pinnedAddresses.sorted().map({ .pinnedAddress($0) }))
             return destinations
         case .now:
             var destinations = [
                 NavigationItem.nowGarden
             ]
-            if sceneModel.accountModel.signedIn {
+            if sceneModel.signedIn {
                 destinations.insert(.editNow, at: 0)
             }
             // Handle pinned
@@ -92,7 +92,7 @@ class SidebarModel: ObservableObject {
             var destinations = [
                 NavigationItem.community
             ]
-            if sceneModel.accountModel.signedIn {
+            if sceneModel.signedIn {
                 destinations.insert(contentsOf: [.newStatus, .myStatuses, .following], at: 0)
             }
             return destinations

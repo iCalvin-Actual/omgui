@@ -9,8 +9,7 @@ import SwiftUI
 
 @MainActor
 struct DestinationConstructor {
-    let accountModel: AccountModel
-    let fetchConstructor: FetchConstructor
+    let sceneModel: SceneModel
 
     @ViewBuilder
     func destination(_ destination: NavigationDestination? = nil) -> some View {
@@ -33,7 +32,7 @@ struct DestinationConstructor {
         case .followingAddresses:
             FollowingView(targetAddress: .autoUpdatingAddress)
         case .followingStatuses:
-            StatusList(addresses: accountModel.myAddresses)
+            StatusList(addresses: sceneModel.myAddresses)
         case .addressFollowing(let name):
             FollowingView(targetAddress: name)
         case .nowGarden:
@@ -48,7 +47,7 @@ struct DestinationConstructor {
             PasteView(address: address, title: title)
         case .statusLog(let address):
             StatusList(addresses: [address])
-        case .status(let address, id: let id):
+        case .status(_, id: let id):
             StatusView(statusID: id)
         case .account:
             AccountView()
@@ -56,12 +55,8 @@ struct DestinationConstructor {
             MyStatusesView(singleAddressMode: false)
         case .myPURLs:
             MyPURLsView(singleAddressMode: false)
-        case .editPURL(let address, title: let title):
-            EmptyView()
         case .myPastes:
             MyPastesView(singleAddressMode: false)
-        case .editPaste(let address, title: let title):
-            EmptyView()
 //        case .editWebpage(let name):
 //            if let poster = addressBook.profilePoster(for: name) {
 //                EditPageView(poster: poster)
@@ -76,9 +71,6 @@ struct DestinationConstructor {
 //                // Unauthenticated
 //                EmptyView()
 //            }
-        case .editStatus(let address, id: let id):
-            // Unauthenticated
-            EmptyView()
         case .addressStatuses:
             MyStatusesView(singleAddressMode: true)
         case .addressPURLs:

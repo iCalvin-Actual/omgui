@@ -24,7 +24,7 @@ struct AddressNowView: View {
         htmlBody
             .onAppear {
                 Task {
-                    try await sceneModel.fetchNow(address)
+                    try await sceneModel.fetchConstructor.fetchNow(address)
                 }
             }
             .toolbar {

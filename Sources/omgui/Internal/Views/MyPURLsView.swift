@@ -20,7 +20,7 @@ struct MyPURLsView: View {
             case .mine:
                 return model.owner == actingAddress
             default:
-                return sceneModel.accountModel.myAddresses.contains(model.owner)
+                return sceneModel.myAddresses.contains(model.owner)
             }
         }
     }

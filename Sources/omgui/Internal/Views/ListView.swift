@@ -253,7 +253,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
 //            }
             return .purl(purlModel.owner, title: purlModel.value)
         case let StatusResponse as StatusResponse:
-            if sceneModel.accountModel.myAddresses.contains(StatusResponse.address) {
+            if sceneModel.myAddresses.contains(StatusResponse.address) {
 //                return .editStatus(StatusResponse.address, id: StatusResponse.id)
             }
             return .status(StatusResponse.address, id: StatusResponse.id)

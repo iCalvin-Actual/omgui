@@ -44,7 +44,7 @@ struct AddressSummaryView: View {
             .background(Color.lolBackground)
             .onAppear {
                 Task {
-                    try await sceneModel.fetchBio(address)
+                    try await sceneModel.fetchConstructor.fetchBio(address)
                 }
             }
     }

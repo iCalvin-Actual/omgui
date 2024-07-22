@@ -17,16 +17,12 @@ struct AddressSelector: View {
     
     
     var body: some View {
-        if sceneModel.accountModel.signedIn {
+        if sceneModel.signedIn {
             activeAddressRow
                 .padding()
         } else {
             Button {
-                DispatchQueue.main.async {
-                    Task {
-                        await sceneModel.accountModel.authenticate()
-                    }
-                }
+                sceneModel.authenticate()
             } label: {
                 Label {
                     Text("sgn in")

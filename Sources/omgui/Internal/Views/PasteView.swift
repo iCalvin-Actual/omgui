@@ -25,7 +25,7 @@ struct PasteView: View {
         mainContent
             .onAppear {
                 Task {
-                    try await sceneModel.fetchPaste(address, title: title)
+                    try await sceneModel.fetchConstructor.fetchPaste(address, title: title)
                 }
             }
             .toolbar {

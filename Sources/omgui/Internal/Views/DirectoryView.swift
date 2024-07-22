@@ -21,7 +21,7 @@ struct DirectoryView: View {
             rowBuilder: { _ in return nil as ListRow<AddressNameModel>?}
         ).onAppear {
             Task {
-                try await sceneModel.fetchDirectory()
+                try await sceneModel.fetchConstructor.fetchDirectory()
             }
         }
     }

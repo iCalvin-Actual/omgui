@@ -12,18 +12,20 @@ struct AddressPicker: View {
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
     
+    @Environment(SceneModel.self)
+    var sceneModel
+    
     @State
     var expandAddresses: Bool = false
     @State
     var showConfirmLogout: Bool = false
     
-    let accountModel: AccountModel
     private var myOtherAddresses: [AddressName] {
-        accountModel.myAddresses.filter({ $0 != actingAddress })
+        sceneModel.myAddresses.filter({ $0 != actingAddress })
     }
     var body: some View {
         VStack(alignment: .trailing, spacing: 8) {
-            if accountModel.signedIn {
+            if sceneModel.signedIn {
                 if expandAddresses {
                     selectionView
                 }
@@ -41,9 +43,7 @@ struct AddressPicker: View {
                 "Yes",
                 role: .destructive,
                 action: {
-                    Task {
-                        await accountModel.logout()
-                    }
+                    sceneModel.logout()
                 })
         }, message: {
             Text("Are you sure you want to sign out of omg.lol?")
@@ -63,12 +63,8 @@ struct AddressPicker: View {
     @ViewBuilder
     var signInButton: some View {
         Button {
-            DispatchQueue.main.async {
-                Task {
-                    expandAddresses = false
-                    await accountModel.authenticate()
-                }
-            }
+            expandAddresses = false
+            sceneModel.authenticate()
         } label: {
             Label {
                 Text("sign in")

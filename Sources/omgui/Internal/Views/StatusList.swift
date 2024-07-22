@@ -43,9 +43,9 @@ struct StatusList: View {
             .onAppear {
                 Task {
                     if let addresses {
-                        try await sceneModel.fetchStatuses(addresses)
+                        try await sceneModel.fetchConstructor.fetchStatuses(addresses)
                     } else {
-                        try await sceneModel.fetchStatusLog()
+                        try await sceneModel.fetchConstructor.fetchStatusLog()
                     }
                 }
             }

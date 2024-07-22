@@ -36,8 +36,8 @@ struct AddressStatusesView: View {
                 return
             }
             Task {
-                try await sceneModel.fetchBio(address)
-                try await sceneModel.fetchStatuses([address])
+                try await sceneModel.fetchConstructor.fetchBio(address)
+                try await sceneModel.fetchConstructor.fetchStatuses([address])
             }
         }
         .toolbar {

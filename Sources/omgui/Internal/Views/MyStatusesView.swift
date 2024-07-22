@@ -16,7 +16,7 @@ struct MyStatusesView: View {
     let singleAddressMode: Bool
     
     var body: some View {
-        StatusList(addresses: filter == .mine ? [actingAddress] : sceneModel.accountModel.myAddresses)
+        StatusList(addresses: filter == .mine ? [actingAddress] : sceneModel.myAddresses)
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     Button(action: toggleFilter) {
