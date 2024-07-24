@@ -7,12 +7,14 @@
 
 import AuthenticationServices
 import Combine
+import SwiftData
 import SwiftUI
 import Foundation
 
-@MainActor
 class Request: NSObject, ObservableObject {
-    let interface: DataInterface
+    let fetchConstructor: FetchConstructor
+    
+    var interface: DataInterface { fetchConstructor.interface }
     
     var loaded: Bool = false
     var loading: Bool = false
@@ -25,8 +27,8 @@ class Request: NSObject, ObservableObject {
         !loading
     }
     
-    init(interface: DataInterface) {
-        self.interface = interface
+    init(fetcher: FetchConstructor) {
+        self.fetchConstructor = fetcher
         super.init()
     }
     
@@ -35,6 +37,7 @@ class Request: NSObject, ObservableObject {
         threadSafeSendUpdate()
         do {
             try await throwingRequest()
+            loading = false
         } catch {
             handle(error)
         }
@@ -61,7 +64,6 @@ class Request: NSObject, ObservableObject {
     }
 }
 
-@MainActor
 class DataFetcher: Request {
     struct AutomationPreferences {
         var autoLoad: Bool
@@ -77,13 +79,8 @@ class DataFetcher: Request {
         "Loading"
     }
     
-    init(interface: DataInterface, automation: AutomationPreferences = .init()) {
-        super.init(interface: interface)
-        if automation.autoLoad {
-            Task {
-                await perform()
-            }
-        }
+    override init(fetcher: FetchConstructor) {
+        super.init(fetcher: fetcher)
     }
     
     func updateIfNeeded() async {
@@ -91,6 +88,35 @@ class DataFetcher: Request {
             return
         }
         await perform()
+    }
+}
+
+class URLContentDataFetcher: DataFetcher {
+    let url: URL
+    
+    @Published
+    var html: String?
+    
+    init(url: URL, html: String? = nil, fetcher: FetchConstructor) {
+        self.url = url
+        self.html = html
+        super.init(fetcher: fetcher)
+    }
+    
+    override func throwingRequest() async throws {
+        guard url.scheme?.contains("http") ?? false else {
+            self.fetchFinished()
+            return
+        }
+        URLSession.shared.dataTaskPublisher(for: url)
+          .map(\.data)
+          .eraseToAnyPublisher()
+          .receive(on: DispatchQueue.main)
+          .sink(receiveCompletion: { _ in }) { [weak self] newValue in
+              self?.html = String(data: newValue, encoding: .utf8)
+              self?.fetchFinished()
+          }
+          .store(in: &requests)
     }
 }
 
@@ -182,33 +208,67 @@ extension AccountAuthDataFetcher: ASWebAuthenticationPresentationContextProvidin
     }
 }
 
-@MainActor
-class URLContentDataFetcher: DataFetcher {
-    let url: URL
+class DataBackedDataFetcher<T: PersistentModel>: DataFetcher {
+    let predicate: Predicate<T>?
+    let context: ModelContext
     
     @Published
-    var html: String?
+    var results: [T] = []
     
-    init(url: URL, html: String? = nil, interface: DataInterface) {
-        self.url = url
-        self.html = html
-        super.init(interface: interface)
+    init(predicate: Predicate<T>?, context: ModelContext, fetcher: FetchConstructor, automation: DataFetcher.AutomationPreferences = .init()) {
+        self.predicate = predicate
+        self.context = context
+        super.init(fetcher: fetcher)
+    }
+    
+    override var noContent: Bool {
+        (!loaded && !loading) && results.isEmpty
     }
     
     override func throwingRequest() async throws {
-        guard url.scheme?.contains("http") ?? false else {
-            
-            self.fetchFinished()
-            return
+        try await fetchRequest()
+        if shouldFetch() {
+            try await remoteRequest()
+            try await fetchRequest()
         }
-        URLSession.shared.dataTaskPublisher(for: url)
-          .map(\.data)
-          .eraseToAnyPublisher()
-          .receive(on: DispatchQueue.main)
-          .sink(receiveCompletion: { _ in }) { [weak self] newValue in
-              self?.html = String(data: newValue, encoding: .utf8)
-              self?.fetchFinished()
-          }
-          .store(in: &requests)
+    }
+    
+    // Override for best results
+    func shouldFetch() -> Bool {
+        results.isEmpty
+    }
+    
+    func fetchRequest() async throws {
+        let fetchDescriptor = FetchDescriptor<T>(predicate: predicate)
+        self.results = try context.fetch(fetchDescriptor)
+    }
+    
+    func remoteRequest() async throws {
+        // Override to implement
+    }
+}
+
+class DataBackedListDataFetcher<L: Listable & PersistentModel>: DataBackedDataFetcher<L> {
+    var listItems: [L] {
+        results
+    }
+    
+    var title: String { "" }
+    
+    override var noContent: Bool {
+        (!loaded && !loading) && listItems.isEmpty
+    }
+    
+    var items: Int { listItems.count }
+}
+
+class DirectoryFetcher: DataBackedListDataFetcher<AddressNameModel> {
+    init(context: ModelContext, fetcher: FetchConstructor) {
+        super.init(predicate: nil, context: context, fetcher: fetcher)
+    }
+    
+    override func remoteRequest() async throws {
+        try await fetchConstructor.fetchDirectory()
+        try await fetchRequest()
     }
 }

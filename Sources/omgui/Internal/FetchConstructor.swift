@@ -27,6 +27,14 @@ actor FetchConstructor {
         authKey
     }
     
+    func fetchDirectory() async throws {
+        print("LOG: fetching directory")
+        let addresses = try await interface.fetchAddressDirectory()
+        let models = addresses.map({ AddressNameModel(name: $0) })
+        models.forEach{( context.insert($0) )}
+        try? context.save()
+    }
+    
     func fetchBio(_ address: AddressName) async throws {
         print("LOG: Fetching bio: \(address)")
         let bioResponse: AddressBioResponse = try await interface.fetchAddressBio(address)
@@ -157,7 +165,7 @@ actor FetchConstructor {
     }
     
     func fetchIcon(_ address: AddressName) {
-        print("LOG: fetching icon (but not really) \(address)")
+//        print("LOG: fetching icon (but not really) \(address)")
 //        Task { [weak self] in
 //            guard let self, !address.isEmpty, let url = address.addressIconURL else {
 //                return
@@ -216,14 +224,6 @@ actor FetchConstructor {
         let draft: PasteResponse.Draft = .init(address: address, name: title, content: addresses.joined(separator: "\n"))
         let _ = try await interface.savePaste(draft, to: address, credential: credential)
         let _ = try await fetchFollowing(address)
-    }
-    
-    func fetchDirectory() async throws {
-        print("LOG: fetching directory")
-        let addresses = try await interface.fetchAddressDirectory()
-        let models = addresses.map({ AddressNameModel(name: $0) })
-        models.forEach{( context.insert($0) )}
-        try? context.save()
     }
     
     func insertModels(models: [any PersistentModel], autoSave: Bool = false) {

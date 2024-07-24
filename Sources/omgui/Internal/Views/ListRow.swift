@@ -89,7 +89,10 @@ struct ListRow<T: Listable>: View {
                     .frame(width: 88, height: 88)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 } else {
-                    AddressIconView(address: model.addressName)
+//                    AddressIconView(address: model.addressName)
+                    Color.lolRandom(model.addressName)
+                        .frame(width: 88, height: 88)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }
         }

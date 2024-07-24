@@ -287,8 +287,6 @@ final class AddressNameModel {
     init(name: AddressName) {
         self.name = name
     }
-    
-    
 }
 
 @Model
