@@ -75,7 +75,7 @@ extension Array where Element: Sortable {
 }
 
 extension AddressModel: AllSortable {
-    var primarySortValue: String { name }
+    var primarySortValue: String { addressName }
     var dateValue: Date? { registered }
     
     static let defaultSort: Sort = .alphabet

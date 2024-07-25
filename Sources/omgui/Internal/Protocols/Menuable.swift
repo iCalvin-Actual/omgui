@@ -13,7 +13,7 @@ protocol AddressManagable {
 }
 
 extension AddressModel: AddressManagable {
-    var addressToActOn: AddressName { name }
+    var addressToActOn: AddressName { addressName }
 }
 extension NowListing: AddressManagable {
     var addressToActOn: AddressName { owner }

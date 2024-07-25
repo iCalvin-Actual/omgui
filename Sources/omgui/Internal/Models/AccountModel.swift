@@ -45,17 +45,17 @@ class AccountModel: ObservableObject {
     public let localBloclistFetcher: LocalBlockListDataFetcher
     
     var myAddresses: [AddressName] {
-        let fetchedAddresses = myAddressesFetcher?.listItems.map { $0.name } ?? []
+        let fetchedAddresses = myAddressesFetcher?.listItems.map { $0.addressName } ?? []
         guard !fetchedAddresses.isEmpty else {
             return localAddresses
         }
         return fetchedAddresses
     }
     var globalBlocked: [AddressName] {
-        globalBlocklistFetcher.listItems.map { $0.name }
+        globalBlocklistFetcher.listItems.map { $0.addressName }
     }
     var localBlocked: [AddressName] {
-        localBloclistFetcher.listItems.map { $0.name }
+        localBloclistFetcher.listItems.map { $0.addressName }
     }
     
     let interface: DataInterface
@@ -70,7 +70,7 @@ class AccountModel: ObservableObject {
     var publicProfileCache: [AddressName: AddressSummaryDataFetcher] = [:]
     
     var pinned: [AddressName] {
-        pinnedAddressFetcher.listItems.map { $0.name }
+        pinnedAddressFetcher.listItems.map { $0.addressName }
     }
     func isPinned(_ address: AddressName) -> Bool {
         pinned.contains(address)

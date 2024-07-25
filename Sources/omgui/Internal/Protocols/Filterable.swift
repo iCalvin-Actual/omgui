@@ -155,7 +155,7 @@ extension AddressModel: QueryFilterable {
     }
     
     var addressName: AddressName {
-        name
+        id
     }
     
     var filterDate: Date? {

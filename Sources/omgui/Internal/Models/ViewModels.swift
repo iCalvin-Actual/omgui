@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/5/23.
 //
 
+import Blackbird
 import Foundation
 
 public struct ServiceInfoModel: Sendable {
@@ -172,20 +173,39 @@ public struct NowListing: Hashable, Identifiable, Sendable {
     }
 }
 
-public struct AddressModel: Hashable, Identifiable, RawRepresentable, Codable, Sendable {
+public struct AddressModel: BlackbirdModel, Hashable, Identifiable, RawRepresentable, Codable, Sendable {
     public init?(rawValue: String) {
         self = AddressModel(name: rawValue)
     }
     
-    public var rawValue: String { name }
-    public var id: String { rawValue }
+    public var rawValue: String { id }
     
-    let name: AddressName
+    @BlackbirdColumn
+    public var id: AddressName
+    @BlackbirdColumn
     var url: URL?
+    @BlackbirdColumn
     var registered: Date?
     
+    enum CodingKeys: String, BlackbirdCodingKey {
+        case id
+        case url
+        case registered
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(AddressName.self, forKey: .id)
+        url = try container.decodeIfPresent(URL.self, forKey: .url)
+        registered = try container.decodeIfPresent(Date.self, forKey: .registered)
+    }
+    
+    public init(from row: Blackbird.ModelRow<AddressModel>) {
+        self = .init(name: row[\.$id], url: row[\.$url], registered: row[\.$registered])
+    }
+    
     public init(name: AddressName, url: URL? = nil, registered: Date? = nil) {
-        self.name = name
+        self.id = name
         self.url = url
         self.registered = registered
     }

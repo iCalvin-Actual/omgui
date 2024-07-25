@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/5/23.
 //
 
+import Blackbird
 import Foundation
 
 protocol Listable: Filterable, Sortable, Menuable, Hashable, Identifiable {

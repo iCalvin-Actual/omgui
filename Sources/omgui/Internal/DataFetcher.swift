@@ -6,6 +6,7 @@
 //
 
 import AuthenticationServices
+import Blackbird
 import Combine
 import SwiftUI
 import Foundation
@@ -499,11 +500,32 @@ class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
         "omg.lol"
     }
     
+    let db: Blackbird.Database
+    
+    init(interface: DataInterface, db: Blackbird.Database) {
+        self.db = db
+        super.init(interface: interface)
+    }
+    
+    func fetchModels() async throws {
+        self.listItems = try await AddressModel.query(in: db, columns: [\.$id]).map({ AddressModel(from: $0) })
+    }
+    
     override func throwingRequest() async throws {
         Task {
+            try await fetchModels()
             let directory = try await interface.fetchAddressDirectory()
-            DispatchQueue.main.async {
-                self.listItems = directory.map({ AddressModel(name: $0) })
+            let listItems = directory.map({ AddressModel(name: $0) })
+            
+            listItems.forEach({ model in
+                Task {
+                    try await model.write(to: db)
+                }
+            })
+            
+            try await fetchModels()
+            
+            Task { @MainActor in
                 self.fetchFinished()
             }
         }
@@ -605,7 +627,7 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     }
     
     func follow(_ toFollow: AddressName, credential: APICredential) {
-        let newValue = Array(Set(self.listItems.map({ $0.name }) + [toFollow]))
+        let newValue = Array(Set(self.listItems.map({ $0.addressName }) + [toFollow]))
         let newContent = newValue.joined(separator: "\n")
         let draft = PasteModel.Draft(
             address: address,
@@ -620,7 +642,7 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     }
     
     func unFollow(_ toRemove: AddressName, credential: APICredential) {
-        let newValue = listItems.map({ $0.name }).filter({ $0 != toRemove })
+        let newValue = listItems.map({ $0.addressName }).filter({ $0 != toRemove })
         let newContent = newValue.joined(separator: "\n")
         let draft = PasteModel.Draft(
             address: address,
@@ -839,7 +861,7 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     }
     
     func block(_ toBlock: AddressName, credential: APICredential) {
-        let newValue = Array(Set(self.listItems.map({ $0.name }) + [toBlock]))
+        let newValue = Array(Set(self.listItems.map({ $0.addressName }) + [toBlock]))
         let newContent = newValue.joined(separator: "\n")
         let draft = PasteModel.Draft(
             address: address,
@@ -855,7 +877,7 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     }
     
     func unBlock(_ toUnblock: AddressName, credential: APICredential) {
-        let newValue = listItems.map({ $0.name }).filter({ $0 != toUnblock })
+        let newValue = listItems.map({ $0.addressName }).filter({ $0 != toUnblock })
         let newContent = newValue.joined(separator: "\n")
         let draft = PasteModel.Draft(
             address: address,

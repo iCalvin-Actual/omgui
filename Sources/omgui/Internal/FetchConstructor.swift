@@ -5,16 +5,22 @@
 //  Created by Calvin Chestnut on 3/5/23.
 //
 
+import Blackbird
 import Foundation
+import SwiftUI
 
 @MainActor
 class FetchConstructor {
     let client: ClientInfo
     let interface: DataInterface
     
-    init(client: ClientInfo, interface: DataInterface) {
+    @ObservedObject
+    var database: Blackbird.Database
+    
+    init(client: ClientInfo, interface: DataInterface, database: Blackbird.Database) {
         self.client = client
         self.interface = interface
+        self.database = database
     }
     
     func constructAccountModel() -> AccountModel {
@@ -41,7 +47,7 @@ class FetchConstructor {
     }
     
     func addressDirectoryDataFetcher() -> AddressDirectoryDataFetcher {
-        AddressDirectoryDataFetcher(interface: interface)
+        AddressDirectoryDataFetcher(interface: interface, db: database)
     }
     
     func accountAddressesDataFetcher(_ credential: String) -> AccountAddressDataFetcher {
