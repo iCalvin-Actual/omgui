@@ -363,6 +363,15 @@ class DataFetcher: Request {
     }
 }
 
+class ModelBackedDataFetcher<M: BlackbirdModel>: Request {
+    let db: Blackbird.Database
+    
+    init(interface: DataInterface, db: Blackbird.Database) {
+        self.db = db
+        super.init(interface: interface)
+    }
+}
+
 @MainActor
 class AddressIconDataFetcher: DataFetcher {
     let address: AddressName
@@ -495,10 +504,7 @@ class ListDataFetcher<T: Listable>: DataFetcher, Observable {
     var items: Int { listItems.count }
 }
 
-class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
-    override var title: String {
-        "omg.lol"
-    }
+class ModelBackedListDataFetcher<M: BlackbirdModel & Listable>: ListDataFetcher<M> {
     
     let db: Blackbird.Database
     
@@ -507,28 +513,65 @@ class AddressDirectoryDataFetcher: ListDataFetcher<AddressModel> {
         super.init(interface: interface)
     }
     
-    func fetchModels() async throws {
-        self.listItems = try await AddressModel.query(in: db, columns: [\.$id]).map({ AddressModel(from: $0) })
-    }
     
     override func throwingRequest() async throws {
         Task {
             try await fetchModels()
-            let directory = try await interface.fetchAddressDirectory()
-            let listItems = directory.map({ AddressModel(name: $0) })
-            
-            listItems.forEach({ model in
-                Task {
-                    try await model.write(to: db)
-                }
-            })
+            try await fetchRemote()
             
             try await fetchModels()
             
-            Task { @MainActor in
-                self.fetchFinished()
-            }
+            fetchFinished()
         }
+    }
+    
+    func fetchModels() async throws {
+    }
+    
+    func fetchRemote() async throws {
+    }
+}
+
+class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
+    override var title: String {
+        "omg.lol"
+    }
+    
+    override func fetchModels() async throws {
+        self.listItems = try await AddressModel.query(in: db, columns: [\.$id]).map({ AddressModel($0) })
+    }
+    
+    override func fetchRemote() async throws {
+        let directory = try await interface.fetchAddressDirectory()
+        let listItems = directory.map({ AddressModel(name: $0) })
+        
+        listItems.forEach({ model in
+            Task {
+                try await model.write(to: db)
+            }
+        })
+    }
+}
+
+class AccountAddressDataFetcher: ModelBackedListDataFetcher<AddressModel> {
+    override var title: String {
+        "my addresses"
+    }
+    private let credential: String
+    
+    init(credential: APICredential, interface: DataInterface, db: Blackbird.Database) {
+        self.credential = credential
+        super.init(interface: interface, db: db)
+    }
+    
+    override func fetchRemote() async throws {
+        self.listItems = try await interface.fetchAccountAddresses(credential).map({ AddressModel(name: $0) })
+        
+        self.listItems.forEach({ model in
+            Task {
+                try await model.write(to: db)
+            }
+        })
     }
 }
 
@@ -552,25 +595,6 @@ class AccountInfoDataFetcher: DataFetcher {
     
     override var noContent: Bool {
         !loading && name.isEmpty
-    }
-}
-
-class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
-    override var title: String {
-        "my addresses"
-    }
-    private let credential: String
-    
-    init(interface: DataInterface, credential: APICredential) {
-        self.credential = credential
-        super.init(items: [], interface: interface)
-    }
-    
-    override func throwingRequest() async throws {
-        Task {
-            self.listItems = try await interface.fetchAccountAddresses(credential).map({ AddressModel(name: $0) })
-            self.fetchFinished()
-        }
     }
 }
 

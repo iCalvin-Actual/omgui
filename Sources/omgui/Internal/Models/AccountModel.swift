@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/5/23.
 //
 
+import Blackbird
 import Combine
 import SwiftUI
 
@@ -59,6 +60,7 @@ class AccountModel: ObservableObject {
     }
     
     let interface: DataInterface
+    let database: Blackbird.Database
     
     var loaded: Bool = false
     var loading: Bool = false
@@ -82,13 +84,14 @@ class AccountModel: ObservableObject {
         pinnedAddressFetcher.removePin(address)
     }
     
-    init(client: ClientInfo, interface: DataInterface) {
+    init(client: ClientInfo, interface: DataInterface, database: Blackbird.Database) {
         self.authenticationFetcher = AccountAuthDataFetcher(
             client: client,
             interface: interface
         )
         
         self.interface = interface
+        self.database = database
         self.pinnedAddressFetcher = PinnedListDataFetcher(interface: interface)
         self.globalBlocklistFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: interface)
         self.localBloclistFetcher = LocalBlockListDataFetcher(interface: interface)
@@ -139,28 +142,20 @@ class AccountModel: ObservableObject {
         await self.perform()
     }
     
-    func constructAccountAddressesFetcher(_ credential: APICredential) -> AccountAddressDataFetcher? {
-        return AccountAddressDataFetcher(interface: interface, credential: credential)
-    }
-    
-    func constructAccountInfoFetcher(_ name: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {
-        return AccountInfoDataFetcher(address: name, interface: interface, credential: credential)
-    }
-    
     func throwingRequest() async throws {
         guard !authKey.isEmpty else {
             accountInfoFetcher = nil
             threadSafeSendUpdate()
             return
         }
-        myAddressesFetcher = AccountAddressDataFetcher(interface: interface, credential: authKey)
+        myAddressesFetcher = AccountAddressDataFetcher(credential: authKey, interface: interface, db: database)
         myAddressesFetcher?.objectWillChange.sink { [weak self] _ in
             guard let self = self else { return }
             self.handleAddresses(self.myAddresses)
         }
         .store(in: &requests)
         
-        self.accountInfoFetcher = self.constructAccountInfoFetcher("application", credential: self.authKey)
+        self.accountInfoFetcher = AccountInfoDataFetcher(address: "application", interface: interface, credential: authKey)
         self.accountInfoFetcher?.objectWillChange.sink { [self] _ in
             self.threadSafeSendUpdate()
         }

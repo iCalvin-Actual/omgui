@@ -200,8 +200,12 @@ public struct AddressModel: BlackbirdModel, Hashable, Identifiable, RawRepresent
         registered = try container.decodeIfPresent(Date.self, forKey: .registered)
     }
     
-    public init(from row: Blackbird.ModelRow<AddressModel>) {
-        self = .init(name: row[\.$id], url: row[\.$url], registered: row[\.$registered])
+    public init(_ row: Blackbird.ModelRow<AddressModel>) {
+        self = .init(
+            name: row[\.$id],
+            url: row[\.$url],
+            registered: row[\.$registered]
+        )
     }
     
     public init(name: AddressName, url: URL? = nil, registered: Date? = nil) {

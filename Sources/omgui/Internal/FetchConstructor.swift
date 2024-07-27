@@ -24,7 +24,7 @@ class FetchConstructor {
     }
     
     func constructAccountModel() -> AccountModel {
-        AccountModel(client: client, interface: interface)
+        AccountModel(client: client, interface: interface, database: database)
     }
     
     func accountInfoFetcher(for address: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {
@@ -51,7 +51,7 @@ class FetchConstructor {
     }
     
     func accountAddressesDataFetcher(_ credential: String) -> AccountAddressDataFetcher {
-        AccountAddressDataFetcher(interface: interface, credential: credential)
+        AccountAddressDataFetcher(credential: credential, interface: interface, db: database)
     }
     
     func statusLog(for addresses: [AddressName]) -> StatusLogDataFetcher {
