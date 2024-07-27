@@ -93,7 +93,7 @@ class AccountModel: ObservableObject {
         self.interface = interface
         self.database = database
         self.pinnedAddressFetcher = PinnedListDataFetcher(interface: interface)
-        self.globalBlocklistFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: interface)
+        self.globalBlocklistFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: interface, db: database)
         self.localBloclistFetcher = LocalBlockListDataFetcher(interface: interface)
         self.accountStatusesFetcher = .init(title: "@/statuses", interface: interface)
         self.accountPURLsFetcher = AccountPURLsDataFetcher(addresses: [], interface: interface, credential: "")
@@ -177,7 +177,7 @@ class AccountModel: ObservableObject {
     
     func handleAddresses(_ incomingAddresses: [AddressName]) {
         incomingAddresses.forEach { address in
-            publicProfileCache[address] = AddressSummaryDataFetcher(name: address, interface: interface)
+            publicProfileCache[address] = AddressSummaryDataFetcher(name: address, interface: interface, database: database)
         }
         accountStatusesFetcher = .init(title: "@/statuses", addresses: incomingAddresses, interface: interface)
         accountPURLsFetcher = .init(addresses: incomingAddresses, interface: interface, credential: authKey)

@@ -91,15 +91,28 @@ public struct NowModel: Sendable {
     }
 }
 
-public struct PasteModel: Hashable, Identifiable, RawRepresentable, Codable, Sendable {
-    public var id: String { rawValue }
+public struct PasteModel: BlackbirdModel, Hashable, Identifiable, RawRepresentable, Codable, Sendable {
+    @BlackbirdColumn
+    public var id: String
+    
     static var separator: String { "{PASTE}" }
+    
+    public init(_ row: Blackbird.ModelRow<PasteModel>) {
+        self.init(
+            id: row[\.$id],
+            owner: row[\.$owner],
+            name: row[\.$name],
+            content: row[\.$content],
+            listed: row[\.$listed]
+        )
+    }
     
     public init?(rawValue: String) {
         let split = rawValue.split(separator: Self.separator)
         guard split.count == 3 else {
             return nil
         }
+        self.id = rawValue
         self.owner = String(split[0])
         self.name = String(split[1])
         self.content = String(split[2])
@@ -107,14 +120,19 @@ public struct PasteModel: Hashable, Identifiable, RawRepresentable, Codable, Sen
     }
     
     public var rawValue: String {
-        owner+Self.separator+name+Self.separator+(content ?? "")
+        [owner, name].joined(separator: Self.separator)
     }
-    public let owner: AddressName
-    public let name: String
+    @BlackbirdColumn
+    public var owner: AddressName
+    @BlackbirdColumn
+    public var name: String
+    @BlackbirdColumn
     public var content: String?
+    @BlackbirdColumn
     public var listed: Bool
     
-    public init(owner: AddressName, name: String, content: String? = nil, listed: Bool = true) {
+    public init(id: String? = nil, owner: AddressName, name: String, content: String? = nil, listed: Bool = true) {
+        self.id = id ?? [owner, name].joined(separator: Self.separator)
         self.owner = owner
         self.name = name
         self.content = content

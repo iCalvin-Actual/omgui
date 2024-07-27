@@ -504,6 +504,57 @@ class ListDataFetcher<T: Listable>: DataFetcher, Observable {
     var items: Int { listItems.count }
 }
 
+class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
+    @AppStorage("app.lol.cache.pinned.history", store: .standard)
+    private var pinnedAddressesHistory: String = "app"
+    var previouslyPinnedAddresses: Set<AddressName> {
+        get {
+            let split = pinnedAddressesHistory.split(separator: "&&&")
+            return Set(split.map({ String($0) }))
+        }
+        set {
+            pinnedAddressesHistory = newValue.sorted().joined(separator: "&&&")
+        }
+    }
+    
+    @AppStorage("app.lol.cache.pinned", store: .standard)
+    private var currentlyPinnedAddresses: String = "adam&&&app"
+    
+    var pinnedAddresses: [AddressName] {
+        get {
+            let split = currentlyPinnedAddresses.split(separator: "&&&")
+            return split.map({ String($0) })
+        }
+        set {
+            currentlyPinnedAddresses = Array(Set(newValue)).joined(separator: "&&&")
+            Task {
+                await self.perform()
+            }
+        }
+    }
+    
+    override var title: String {
+        "pinned"
+    }
+    
+    override func throwingRequest() async throws {
+        self.listItems = self.pinnedAddresses.map({ AddressModel.init(name: $0) })
+        self.fetchFinished()
+    }
+    
+    func isPinned(_ address: AddressName) -> Bool {
+        pinnedAddresses.contains(address)
+    }
+    
+    func pin(_ address: AddressName) {
+        pinnedAddresses.append(address)
+    }
+    
+    func removePin(_ address: AddressName) {
+        pinnedAddresses.removeAll(where: { $0 == address })
+    }
+}
+
 class ModelBackedListDataFetcher<M: BlackbirdModel & Listable>: ListDataFetcher<M> {
     
     let db: Blackbird.Database
@@ -617,7 +668,7 @@ class AddressBioDataFetcher: DataFetcher {
     }
 }
 
-class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
+class AddressFollowingDataFetcher: ModelBackedListDataFetcher<AddressModel> {
     let address: AddressName
     let credential: APICredential?
     
@@ -625,29 +676,44 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
         "following"
     }
     
-    init(address: AddressName, credential: APICredential?, interface: DataInterface) {
+    init(address: AddressName, credential: APICredential?, interface: DataInterface, db: Blackbird.Database) {
         self.address = address
         self.credential = credential
-        super.init(interface: interface)
+        super.init(interface: interface, db: db)
     }
     
     override func throwingRequest() async throws {
-        Task {
-            guard let content = try await interface.fetchPaste("app.lol.following", from: address, credential: credential)?.content else {
-                self.fetchFinished()
-                return
-            }
-            let list = content.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty })
-            self.handleItems(list)
+        guard !address.isEmpty else {
+            fetchFinished()
+            return
         }
+        let pastes = try await interface.fetchAddressPastes(address, credential: credential)
+        
+        pastes.forEach({ model in
+            Task {
+                try await model.write(to: db)
+            }
+        })
+        guard let following = pastes.first(where: { $0.name == "app.lol.following" }) else {
+            self.fetchFinished()
+            return
+        }
+        self.listItems = following.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) }) ?? []
     }
     
     private func handleItems(_ addresses: [AddressName]) {
-        DispatchQueue.main.async {
-            self.listItems = addresses.map({ AddressModel(name: $0) })
-            self.fetchFinished()
-            self.threadSafeSendUpdate()
+        let paste = PasteModel(
+            owner: address,
+            name: "app.lol.following",
+            content: addresses.joined(separator: "\n"),
+            listed: true
+        )
+        self.listItems = addresses.map({ AddressModel(name: $0) })
+        Task {
+            try await paste.write(to: db)
         }
+        self.fetchFinished()
+        self.threadSafeSendUpdate()
     }
     
     func follow(_ toFollow: AddressName, credential: APICredential) {
@@ -765,59 +831,6 @@ class BlockListDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
-class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
-    @AppStorage("app.lol.cache.pinned.history", store: .standard)
-    private var pinnedAddressesHistory: String = "app"
-    var previouslyPinnedAddresses: Set<AddressName> {
-        get {
-            let split = pinnedAddressesHistory.split(separator: "&&&")
-            return Set(split.map({ String($0) }))
-        }
-        set {
-            pinnedAddressesHistory = newValue.sorted().joined(separator: "&&&")
-        }
-    }
-    
-    @AppStorage("app.lol.cache.pinned", store: .standard)
-    private var currentlyPinnedAddresses: String = "adam&&&app"
-    
-    var pinnedAddresses: [AddressName] {
-        get {
-            let split = currentlyPinnedAddresses.split(separator: "&&&")
-            return split.map({ String($0) })
-        }
-        set {
-            currentlyPinnedAddresses = Array(Set(newValue)).joined(separator: "&&&")
-            Task {
-                await self.perform()
-            }
-        }
-    }
-    
-    override var title: String {
-        "pinned"
-    }
-    
-    override func throwingRequest() async throws {
-        DispatchQueue.main.async {
-            self.listItems = self.pinnedAddresses.map({ AddressModel.init(name: $0) })
-            self.fetchFinished()
-        }
-    }
-    
-    func isPinned(_ address: AddressName) -> Bool {
-        pinnedAddresses.contains(address)
-    }
-    
-    func pin(_ address: AddressName) {
-        pinnedAddresses.append(address)
-    }
-    
-    func removePin(_ address: AddressName) {
-        pinnedAddresses.removeAll(where: { $0 == address })
-    }
-}
-
 class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
     
     // MARK: No-Account Blocklist
@@ -859,7 +872,7 @@ class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
-class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
+class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
     let address: AddressName
     let credential: APICredential?
     
@@ -867,21 +880,29 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
         "blocked from \(address)"
     }
     
-    init(address: AddressName, credential: APICredential? = nil, interface: DataInterface) {
+    init(address: AddressName, credential: APICredential?, interface: DataInterface, db: Blackbird.Database) {
         self.address = address
         self.credential = credential
-        super.init(interface: interface)
+        super.init(interface: interface, db: db)
     }
     
     override func throwingRequest() async throws {
+        defer {
+            fetchFinished()
+        }
         guard !address.isEmpty else {
-            threadSafeSendUpdate()
             return
         }
-        let paste = try await interface.fetchPaste("app.lol.blocked", from: address, credential: credential)
-        let list = paste?.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }) ?? []
-        self.listItems = list.map({ AddressModel(name: $0) })
-        self.fetchFinished()
+        let pastes = try await interface.fetchAddressPastes(address, credential: credential)
+        pastes.forEach({ model in
+            Task {
+                try await model.write(to: db)
+            }
+        })
+        guard let blocked = pastes.first(where: { $0.name == "app.lol.blocked" }) else {
+            return
+        }
+        self.listItems = blocked.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) }) ?? []
     }
     
     func block(_ toBlock: AddressName, credential: APICredential) {
@@ -916,10 +937,18 @@ class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     }
     
     private func handleItems(_ addresses: [AddressName]) {
+        let paste = PasteModel(
+            owner: address,
+            name: "app.lol.blocked",
+            content: addresses.joined(separator: "\n"),
+            listed: true
+        )
         self.listItems = addresses.map({ AddressModel(name: $0) })
         Task {
-            await self.perform()
+            try await paste.write(to: db)
         }
+        self.fetchFinished()
+        self.threadSafeSendUpdate()
     }
 }
 
@@ -1466,9 +1495,10 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
     init(
         name: AddressName,
         interface: DataInterface,
-        credential: APICredential
+        credential: APICredential,
+        database: Blackbird.Database
     ) {
-        self.blockedFetcher = .init(address: name, credential: credential, interface: interface)
+        self.blockedFetcher = .init(address: name, credential: credential, interface: interface, db: database)
         
         self.profilePoster = .init(
             name, 
@@ -1491,10 +1521,10 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
             credential: credential
         )!
         
-        super.init(name: name, interface: interface)
+        super.init(name: name, interface: interface, database: database)
         
         self.profileFetcher = .init(name: addressName, credential: credential, interface: interface)
-        self.followingFetcher = .init(address: addressName, credential: credential, interface: interface)
+        self.followingFetcher = .init(address: addressName, credential: credential, interface: interface, db: database)
         
         self.purlFetcher = .init(name: addressName, interface: interface, credential: credential)
         self.pasteFetcher = .init(name: addressName, interface: interface, credential: credential)
@@ -1533,7 +1563,8 @@ class AddressSummaryDataFetcher: DataFetcher {
     
     init(
         name: AddressName,
-        interface: DataInterface
+        interface: DataInterface,
+        database: Blackbird.Database
     ) {
         self.addressName = name
         self.iconFetcher = .init(address: name, interface: interface)
@@ -1544,7 +1575,7 @@ class AddressSummaryDataFetcher: DataFetcher {
         self.statusFetcher = .init(addresses: [name], interface: interface)
         self.bioFetcher = .init(address: name, interface: interface)
         
-        self.followingFetcher = .init(address: name, credential: nil, interface: interface)
+        self.followingFetcher = .init(address: name, credential: nil, interface: interface, db: database)
         
         super.init(interface: interface)
     }

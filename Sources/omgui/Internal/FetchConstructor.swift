@@ -39,11 +39,11 @@ class FetchConstructor {
     }
     
     func blockListFetcher(for address: AddressName, credential: APICredential?) -> AddressBlockListDataFetcher {
-        AddressBlockListDataFetcher(address: address, credential: credential, interface: interface)
+        AddressBlockListDataFetcher(address: address, credential: credential, interface: interface, db: database)
     }
     
     func followingFetcher(for address: AddressName, credential: APICredential?) -> AddressFollowingDataFetcher {
-        AddressFollowingDataFetcher(address: address, credential: credential, interface: interface)
+        AddressFollowingDataFetcher(address: address, credential: credential, interface: interface, db: database)
     }
     
     func addressDirectoryDataFetcher() -> AddressDirectoryDataFetcher {
@@ -67,11 +67,11 @@ class FetchConstructor {
     }
     
     func addressDetailsFetcher(_ address: AddressName) -> AddressSummaryDataFetcher {
-        AddressSummaryDataFetcher(name: address, interface: interface)
+        AddressSummaryDataFetcher(name: address, interface: interface, database: database)
     }
     
     func addressPrivateDetailsFetcher(_ address: AddressName, credential: APICredential) -> AddressPrivateSummaryDataFetcher {
-        AddressPrivateSummaryDataFetcher(name: address, interface: interface, credential: credential)
+        AddressPrivateSummaryDataFetcher(name: address, interface: interface, credential: credential, database: database)
     }
     
     func addressProfileFetcher(_ address: AddressName) -> AddressProfileDataFetcher {
