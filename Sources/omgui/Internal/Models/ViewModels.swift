@@ -92,10 +92,40 @@ public struct NowModel: Sendable {
 }
 
 public struct PasteModel: BlackbirdModel, Hashable, Identifiable, RawRepresentable, Codable, Sendable {
-    @BlackbirdColumn
-    public var id: String
     
     static var separator: String { "{PASTE}" }
+    
+    public var rawValue: String {
+        [owner, name].joined(separator: Self.separator)
+    }
+    
+    @BlackbirdColumn
+    public var id: String
+    @BlackbirdColumn
+    public var owner: AddressName
+    @BlackbirdColumn
+    public var name: String
+    @BlackbirdColumn
+    public var content: String?
+    @BlackbirdColumn
+    public var listed: Bool
+    
+    enum CodingKeys: String, BlackbirdCodingKey {
+        case id
+        case owner
+        case name
+        case content
+        case listed
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        owner = try container.decode(AddressName.self, forKey: .owner)
+        name = try container.decode(String.self, forKey: .name)
+        content = try container.decode(String?.self, forKey: .content)
+        listed = try container.decode(Bool.self, forKey: .listed)
+    }
     
     public init(_ row: Blackbird.ModelRow<PasteModel>) {
         self.init(
@@ -118,18 +148,6 @@ public struct PasteModel: BlackbirdModel, Hashable, Identifiable, RawRepresentab
         self.content = String(split[2])
         self.listed = true
     }
-    
-    public var rawValue: String {
-        [owner, name].joined(separator: Self.separator)
-    }
-    @BlackbirdColumn
-    public var owner: AddressName
-    @BlackbirdColumn
-    public var name: String
-    @BlackbirdColumn
-    public var content: String?
-    @BlackbirdColumn
-    public var listed: Bool
     
     public init(id: String? = nil, owner: AddressName, name: String, content: String? = nil, listed: Bool = true) {
         self.id = id ?? [owner, name].joined(separator: Self.separator)
