@@ -264,7 +264,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
 //            if sceneModel.accountModel.myAddresses.contains(purlModel.addressName) {
 //                return .editPURL(purlModel.addressName, title: purlModel.value)
 //            }
-            return .purl(purlModel.addressName, title: purlModel.value)
+            return .purl(purlModel.addressName, title: purlModel.name)
         case let statusModel as StatusModel:
             if sceneModel.accountModel.myAddresses.contains(statusModel.address) {
 //                return .editStatus(statusModel.address, id: statusModel.id)
@@ -519,7 +519,7 @@ struct ListItemView<T: Listable, V: View, H: View>: View {
 //            if sceneModel.accountModel.myAddresses.contains(purlModel.addressName) {
 //                return .editPURL(purlModel.addressName, title: purlModel.value)
 //            }
-            return .purl(purlModel.addressName, title: purlModel.value)
+            return .purl(purlModel.addressName, title: purlModel.name)
         case let statusModel as StatusModel:
             if sceneModel.accountModel.myAddresses.contains(statusModel.address) {
 //                return .editStatus(statusModel.address, id: statusModel.id)

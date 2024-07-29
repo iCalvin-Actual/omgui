@@ -1282,8 +1282,8 @@ class AddressPURLDataFetcher: NamedItemDataFetcher<PURLModel> {
         if let model {
             return PURLDraftPoster(
                 addressName,
-                title: model.value,
-                value: model.destination ?? "",
+                title: model.name,
+                value: model.content?.absoluteString ?? "",
                 interface: interface,
                 credential: credential
             )
@@ -1303,7 +1303,7 @@ class AddressPURLDataFetcher: NamedItemDataFetcher<PURLModel> {
                 model = try await interface.fetchPURL(title, from: addressName, credential: credential)
             } else {
                 let addressPurls = try await interface.fetchAddressPURLs(addressName, credential: nil)
-                model = addressPurls.first(where: { $0.value == title })
+                model = addressPurls.first(where: { $0.name == title })
             }
             purlContent = try await interface.fetchPURLContent(title, from: addressName, credential: credential)
             fetchFinished()
@@ -1315,12 +1315,12 @@ class AddressPURLDataFetcher: NamedItemDataFetcher<PURLModel> {
             return
         }
         let _ = try await interface.deletePURL(title, from: addressName, credential: credential)
-        model = PURLModel(owner: addressName, value: "")
+        model = PURLModel(owner: addressName, name: "")
         threadSafeSendUpdate()
     }
 }
 
-class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
+class AddressPURLsDataFetcher: ModelBackedListDataFetcher<PURLModel> {
     let addressName: AddressName
     let credential: APICredential?
     
@@ -1328,18 +1328,26 @@ class AddressPURLsDataFetcher: ListDataFetcher<PURLModel> {
         "\(addressName.addressDisplayString).PURLs"
     }
     
-    init(name: AddressName, purls: [PURLModel] = [], interface: DataInterface, credential: APICredential?) {
+    init(name: AddressName, purls: [PURLModel] = [], interface: DataInterface, credential: APICredential?, db: Blackbird.Database) {
         self.addressName = name
         self.credential = credential
-        super.init(items: purls, interface: interface)
+        super.init(interface: interface, db: db)
     }
     
-    override func throwingRequest() async throws {
-        Task {
-            let purls = try await interface.fetchAddressPURLs(addressName, credential: credential)
-            self.listItems = purls
-            self.fetchFinished()
+    override func fetchModels() async throws {
+        self.listItems = try await PURLModel.read(from: db, matching: \.$owner == addressName)
+    }
+    
+    override func fetchRemote() async throws {
+        guard !addressName.isEmpty else {
+            return
         }
+        let purls = try await interface.fetchAddressPURLs(addressName, credential: credential)
+        purls.forEach({ model in
+            Task {
+                try await model.write(to: db)
+            }
+        })
     }
 }
 
@@ -1387,7 +1395,7 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
         self.profileFetcher = .init(name: addressName, credential: credential, interface: interface)
         self.followingFetcher = .init(address: addressName, credential: credential, interface: interface, db: database)
         
-        self.purlFetcher = .init(name: addressName, interface: interface, credential: credential)
+        self.purlFetcher = .init(name: addressName, interface: interface, credential: credential, db: database)
         self.pasteFetcher = .init(name: addressName, interface: interface, credential: credential, db: database)
     }
     
@@ -1431,7 +1439,7 @@ class AddressSummaryDataFetcher: DataFetcher {
         self.iconFetcher = .init(address: name, interface: interface)
         self.profileFetcher = .init(name: name, credential: nil, interface: interface)
         self.nowFetcher = .init(name: name, interface: interface)
-        self.purlFetcher = .init(name: name, interface: interface, credential: nil)
+        self.purlFetcher = .init(name: name, interface: interface, credential: nil, db: database)
         self.pasteFetcher = .init(name: name, interface: interface, credential: nil, db: database)
         self.statusFetcher = .init(addresses: [name], interface: interface)
         self.bioFetcher = .init(address: name, interface: interface)

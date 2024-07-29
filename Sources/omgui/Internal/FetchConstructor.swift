@@ -112,6 +112,6 @@ class FetchConstructor {
     }
     
     func addressPURLsFetcher(_ address: AddressName, credential: APICredential?) -> AddressPURLsDataFetcher {
-        AddressPURLsDataFetcher(name: address, interface: interface, credential: credential)
+        AddressPURLsDataFetcher(name: address, interface: interface, credential: credential, db: database)
     }
 }

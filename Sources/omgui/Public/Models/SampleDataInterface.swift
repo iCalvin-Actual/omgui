@@ -98,7 +98,7 @@ public final class SampleData: DataInterface {
     
     public func savePURL(_ draft: PURLModel.Draft, to address: AddressName, credential: APICredential) async throws -> PURLModel? {
         try await Task.sleep(nanoseconds: artificalDelay)
-        return PURLModel(owner: address, value: draft.name, destination: draft.content, listed: true)
+        return PURLModel(owner: address, name: draft.name, content: URL(string: draft.content), listed: true)
     }
     
     public func fetchAddressPastes(_ name: AddressName, credential: APICredential?) async throws -> [PasteModel] {
@@ -391,8 +391,8 @@ fileprivate extension PURLModel {
         let content = contentItems.randomElement()!
         return PURLModel(
             owner: address,
-            value: String(UUID().uuidString.prefix(5)),
-            destination: content,
+            name: String(UUID().uuidString.prefix(5)),
+            content: URL(string: content),
             listed: true
         )
     }

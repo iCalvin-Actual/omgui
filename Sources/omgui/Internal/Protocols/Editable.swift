@@ -14,7 +14,7 @@ protocol Editable: AddressManagable {
 
 extension PURLModel: Editable {
     var editingDestination: NavigationDestination {
-        .editPURL(addressName, title: value)
+        .editPURL(addressName, title: name)
     }
 }
 

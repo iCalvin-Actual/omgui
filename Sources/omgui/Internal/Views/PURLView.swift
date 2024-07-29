@@ -42,7 +42,7 @@ struct PURLView: View {
                             })
                         }
                         Divider()
-                        if let shareURL = fetcher.model?.destinationURL {
+                        if let shareURL = fetcher.model?.content {
                             ShareLink("Share destination URL", item: shareURL)
                             Button(action: {
                                 // Copy URL
@@ -95,7 +95,7 @@ struct PURLView: View {
                 activeAddress: fetcher.addressName,
                 htmlContent: content,
                 baseURL: {
-                    guard let destination = fetcher.model?.destinationURL else {
+                    guard let destination = fetcher.model?.content else {
                         return nil
                     }
                     guard let scheme = destination.scheme, let host = destination.host() else {
@@ -128,8 +128,8 @@ struct PURLView: View {
                 Group {
                     switch sizeClass {
                     case .compact:
-                        if !(fetcher.model?.value.isEmpty ?? false) {
-                            Text("/\(fetcher.model?.value ?? fetcher.title)")
+                        if !(fetcher.model?.name.isEmpty ?? false) {
+                            Text("/\(fetcher.model?.name ?? fetcher.title)")
                                 .font(.title3)
                                 .foregroundStyle(Color.primary)
                         }
@@ -139,7 +139,7 @@ struct PURLView: View {
                             .bold()
                             .foregroundStyle(Color.accentColor)
                         +
-                        Text(fetcher.model?.value ?? fetcher.title)
+                        Text(fetcher.model?.name ?? fetcher.title)
                             .font(.title3)
                             .foregroundStyle(Color.primary)
                     }
@@ -151,8 +151,8 @@ struct PURLView: View {
                 .fontDesign(.monospaced)
                 .lineLimit(2)
                 
-                if let destination = fetcher.model?.destination {
-                    Text(destination)
+                if let destination = fetcher.model?.content {
+                    Text(destination.absoluteString)
                         .textSelection(.enabled)
                         .font(.caption)
                         .fontDesign(.serif)

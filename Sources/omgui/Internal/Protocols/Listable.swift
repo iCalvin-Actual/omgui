@@ -52,8 +52,8 @@ extension PasteModel: Listable     {
     var listCaption: String?  { owner.addressDisplayString }
 }
 extension PURLModel: Listable     {
-    var listTitle: String     { value }
-    var listSubtitle: String  { destination ?? "" }
+    var listTitle: String     { name }
+    var listSubtitle: String  { content?.absoluteString ?? "" }
     var listCaption: String?  { owner.addressDisplayString }
 }
 extension NowListing: Listable     {

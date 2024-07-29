@@ -139,13 +139,12 @@ public struct PasteModel: BlackbirdModel, Hashable, Identifiable, RawRepresentab
     
     public init?(rawValue: String) {
         let split = rawValue.split(separator: Self.separator)
-        guard split.count == 3 else {
+        guard split.count > 1 else {
             return nil
         }
         self.id = rawValue
         self.owner = String(split[0])
         self.name = String(split[1])
-        self.content = String(split[2])
         self.listed = true
     }
     
@@ -158,40 +157,67 @@ public struct PasteModel: BlackbirdModel, Hashable, Identifiable, RawRepresentab
     }
 }
 
-public struct PURLModel: Hashable, Identifiable, RawRepresentable, Codable, Sendable {
-    public var id: String { rawValue }
+public struct PURLModel: BlackbirdModel, Hashable, Identifiable, RawRepresentable, Codable, Sendable {
     static var separator: String { "{PURL}" }
+    
+    public var rawValue: String {
+        [owner, name].joined(separator: Self.separator)
+    }
+    
+    @BlackbirdColumn
+    public var id: String
+    @BlackbirdColumn
+    public var owner: AddressName
+    @BlackbirdColumn
+    public var name: String
+    @BlackbirdColumn
+    public var content: URL?
+    @BlackbirdColumn
+    public var listed: Bool
+    
+    enum CodingKeys: String, BlackbirdCodingKey {
+        case id
+        case owner
+        case name
+        case content
+        case listed
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        owner = try container.decode(AddressName.self, forKey: .owner)
+        name = try container.decode(String.self, forKey: .name)
+        content = try container.decode(URL?.self, forKey: .content)
+        listed = try container.decode(Bool.self, forKey: .listed)
+    }
+    
+    public init(_ row: Blackbird.ModelRow<PURLModel>) {
+        self.init(
+            id: row[\.$id],
+            owner: row[\.$owner],
+            name: row[\.$name],
+            content: row[\.$content],
+            listed: row[\.$listed]
+        )
+    }
     
     public init?(rawValue: String) {
         let split = rawValue.split(separator: Self.separator)
-        guard split.count == 2 else {
+        guard split.count > 1 else {
             return nil
         }
+        self.id = rawValue
         self.owner = String(split[0])
-        self.value = String(split[1])
+        self.name = String(split[1])
         self.listed = true
     }
     
-    public var rawValue: String {
-        owner+Self.separator+value
-    }
-    
-    let owner: AddressName
-    let value: String
-    var destination: String?
-    let listed: Bool
-    
-    var destinationURL: URL? {
-        guard let string = destination else {
-            return nil
-        }
-        return URL(string: string)
-    }
-    
-    public init(owner: AddressName, value: String, destination: String? = nil, listed: Bool = true) {
+    public init(id: String? = nil, owner: AddressName, name: String, content: URL? = nil, listed: Bool = true) {
+        self.id = id ?? [owner, name].joined(separator: Self.separator)
         self.owner = owner
-        self.destination = destination
-        self.value = value
+        self.name = name
+        self.content = content
         self.listed = listed
     }
 }

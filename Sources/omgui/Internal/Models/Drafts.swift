@@ -202,7 +202,7 @@ extension PURLModel: NamedDraftable {
             self.init(
                 address: model.addressName,
                 name: name ?? "",
-                content: model.destination ?? "",
+                content: model.content?.absoluteString ?? "",
                 listed: model.listed
             )
         }
@@ -216,7 +216,7 @@ extension PURLModel: NamedDraftable {
     }
     
     public var asDraft: Draft? {
-        .init(address: addressName, name: self.value, content: destination ?? "", listed: listed)
+        .init(address: addressName, name: self.name, content: content?.absoluteString ?? "", listed: listed)
     }
 }
 
