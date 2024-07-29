@@ -35,12 +35,6 @@ class AccountModel: ObservableObject {
     
     @Published
     public var myAddressesFetcher: AccountAddressDataFetcher?
-    @Published
-    public var accountStatusesFetcher: StatusLogDataFetcher
-    @Published
-    public var accountPURLsFetcher: AccountPURLsDataFetcher
-    @Published
-    public var accountPastesFetcher: AccountPastesDataFetcher
     
     public let globalBlocklistFetcher: AddressBlockListDataFetcher
     public let localBloclistFetcher: LocalBlockListDataFetcher
@@ -95,9 +89,6 @@ class AccountModel: ObservableObject {
         self.pinnedAddressFetcher = PinnedListDataFetcher(interface: interface)
         self.globalBlocklistFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: interface, db: database)
         self.localBloclistFetcher = LocalBlockListDataFetcher(interface: interface)
-        self.accountStatusesFetcher = .init(title: "@/statuses", interface: interface)
-        self.accountPURLsFetcher = AccountPURLsDataFetcher(addresses: [], interface: interface, credential: "")
-        self.accountPastesFetcher = AccountPastesDataFetcher(addresses: [], interface: interface, credential: "")
         
         subscribe()
         
@@ -179,9 +170,6 @@ class AccountModel: ObservableObject {
         incomingAddresses.forEach { address in
             publicProfileCache[address] = AddressSummaryDataFetcher(name: address, interface: interface, database: database)
         }
-        accountStatusesFetcher = .init(title: "@/statuses", addresses: incomingAddresses, interface: interface)
-        accountPURLsFetcher = .init(addresses: incomingAddresses, interface: interface, credential: authKey)
-        accountPastesFetcher = .init(addresses: incomingAddresses, interface: interface, credential: authKey)
         threadSafeSendUpdate()
     }
     
