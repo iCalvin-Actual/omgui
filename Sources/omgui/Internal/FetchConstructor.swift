@@ -63,7 +63,7 @@ class FetchConstructor {
     }
     
     func nowGardenFetcher() -> NowGardenDataFetcher {
-        NowGardenDataFetcher(interface: interface)
+        NowGardenDataFetcher(interface: interface, db: database)
     }
     
     func addressDetailsFetcher(_ address: AddressName) -> AddressSummaryDataFetcher {

@@ -262,14 +262,34 @@ public struct PURLModel: BlackbirdModel, Hashable, Identifiable, RawRepresentabl
     }
 }
 
-public struct NowListing: Hashable, Identifiable, Sendable {
-    public var id: String { owner+url }
-    let owner: AddressName
-    let url: String
-    let updated: Date
+public struct NowListing: BlackbirdModel, Hashable, Identifiable, Sendable {
+    var owner: AddressName { id }
+    @BlackbirdColumn
+    public var id: AddressName
+    @BlackbirdColumn
+    var url: String
+    @BlackbirdColumn
+    var updated: Date
+    
+    enum CodingKeys: String, BlackbirdCodingKey {
+        case id
+        case url
+        case updated
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self._id = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .id)
+        self._url = try container.decode(BlackbirdColumn<String>.self, forKey: .url)
+        self._updated = try container.decode(BlackbirdColumn<Date>.self, forKey: .updated)
+    }
+    
+    public init(_ row: Blackbird.ModelRow<NowListing>) {
+        self.init(owner: row[\.$id], url: row[\.$url], updated: row[\.$updated])
+    }
     
     public init(owner: AddressName, url: String, updated: Date) {
-        self.owner = owner
+        self.id = owner
         self.url = url
         self.updated = updated
     }

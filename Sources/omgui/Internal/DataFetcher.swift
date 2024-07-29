@@ -1039,16 +1039,18 @@ class StatusDataFetcher: DataFetcher {
 
 
 
-class NowGardenDataFetcher: ListDataFetcher<NowListing> {
+class NowGardenDataFetcher: ModelBackedListDataFetcher<NowListing> {
     override var title: String {
         "now.garden🌷"
     }
-    override func throwingRequest() async throws {
-        Task {
-            let garden = try await interface.fetchNowGarden()
-            DispatchQueue.main.async {
-                self.results = garden
-                self.fetchFinished()
+    override func fetchModels() async throws {
+        results = try await NowListing.read(from: db, orderBy: .ascending(\.$id))
+    }
+    override func fetchRemote() async throws {
+        let garden = try await interface.fetchNowGarden()
+        garden.forEach { model in
+            Task {
+                try await model.write(to: db)
             }
         }
     }
