@@ -1056,61 +1056,27 @@ class NowGardenDataFetcher: ModelBackedListDataFetcher<NowListing> {
     }
 }
 
-class AddressProfileDataFetcher: DataFetcher {
+class AddressProfileDataFetcher: ModelBackedDataFetcher<AddressProfile> {
     
     let addressName: AddressName
     let credential: APICredential?
     
-    var html: String?
-    
-    init(name: AddressName, credential: APICredential? = nil, interface: DataInterface) {
+    init(name: AddressName, credential: APICredential? = nil, interface: DataInterface, db: Blackbird.Database) {
         self.addressName = name
         self.credential = credential
-        super.init(interface: interface)
+        super.init(interface: interface, db: db)
     }
     
-    override func throwingRequest() async throws {
-        guard !addressName.isEmpty else {
+    override func fetchModels() async throws {
+        result = try await AddressProfile.read(from: db, id: addressName)
+    }
+    
+    override func fetchRemote() async throws {
+        guard !addressName.isEmpty, result == nil else {
             return
         }
-        Task {
-            let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
-            self.html = profile?.content
-            self.fetchFinished()
-        }
-    }
-    
-    var theme: String {
-        return ""
-    }
-    
-    var imageURL: URL? {
-        let firstSplit = html?.split(separator: "<")
-        guard let important = firstSplit?.first(where: { line in
-            line.contains("property=\"og:image")
-        }) else {
-            return nil
-        }
-        let trimmingEnd = important.split(separator: "\">")
-        guard let almostThere = trimmingEnd.first else {
-            return nil
-        }
-        let finallyThere = almostThere.split(separator: "meta property=\"og:image\" content=\"")
-        guard let finally = finallyThere.first else {
-            return nil
-        }
-        return URL(string: String(finally))
-    }
-    
-    override var noContent: Bool {
-        !loading && (html ?? "").isEmpty
-    }
-    
-    override var summaryString: String? {
-        guard !noContent else {
-            return super.summaryString
-        }
-        return DateFormatter.short.string(from: Date())
+        let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
+        try await profile?.write(to: db)
     }
 }
 
@@ -1129,7 +1095,6 @@ class URLContentDataFetcher: DataFetcher {
     
     override func throwingRequest() async throws {
         guard url.scheme?.contains("http") ?? false else {
-            
             self.fetchFinished()
             return
         }
@@ -1392,7 +1357,7 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
         
         super.init(name: name, interface: interface, database: database)
         
-        self.profileFetcher = .init(name: addressName, credential: credential, interface: interface)
+        self.profileFetcher = .init(name: addressName, credential: credential, interface: interface, db: database)
         self.followingFetcher = .init(address: addressName, credential: credential, interface: interface, db: database)
         
         self.purlFetcher = .init(name: addressName, interface: interface, credential: credential, db: database)
@@ -1437,7 +1402,7 @@ class AddressSummaryDataFetcher: DataFetcher {
     ) {
         self.addressName = name
         self.iconFetcher = .init(address: name, interface: interface)
-        self.profileFetcher = .init(name: name, credential: nil, interface: interface)
+        self.profileFetcher = .init(name: name, credential: nil, interface: interface, db: database)
         self.nowFetcher = .init(name: name, interface: interface, db: database)
         self.purlFetcher = .init(name: name, interface: interface, credential: nil, db: database)
         self.pasteFetcher = .init(name: name, interface: interface, credential: nil, db: database)

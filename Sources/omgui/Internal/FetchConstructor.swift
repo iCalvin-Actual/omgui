@@ -75,7 +75,7 @@ class FetchConstructor {
     }
     
     func addressProfileFetcher(_ address: AddressName) -> AddressProfileDataFetcher {
-        AddressProfileDataFetcher(name: address, interface: interface)
+        AddressProfileDataFetcher(name: address, interface: interface, db: database)
     }
     
     func addresNowFetcher(_ address: AddressName) -> AddressNowDataFetcher {

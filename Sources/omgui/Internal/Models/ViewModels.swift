@@ -64,12 +64,30 @@ public struct ThemeModel: Codable, Sendable {
     }
 }
 
-public struct AddressProfile: Sendable {
-    let owner: AddressName
-    let content: String
+public struct AddressProfile: BlackbirdModel, Sendable {
+    var owner: AddressName { id }
+    @BlackbirdColumn
+    public var id: AddressName
+    @BlackbirdColumn
+    var content: String
+    
+    enum CodingKeys: String, BlackbirdCodingKey {
+        case id
+        case content
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self._id = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .id)
+        self._content = try container.decode(BlackbirdColumn<String>.self, forKey: .content)
+    }
+    
+    public init(_ row: Blackbird.ModelRow<AddressProfile>) {
+        self.init(owner: row[\.$id], content: row[\.$content])
+    }
     
     public init(owner: AddressName, content: String) {
-        self.owner = owner
+        self.id = owner
         self.content = content
     }
 }

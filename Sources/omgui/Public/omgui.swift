@@ -3,7 +3,7 @@ import SwiftUI
 
 public struct omgui: View {
     @StateObject
-    var database = try! Blackbird.Database.inMemoryDatabase()
+    var database = try! Blackbird.Database.inMemoryDatabase(options: [.debugPrintEveryQuery, .debugPrintCacheActivity, .debugPrintEveryReportedChange])
     
     let clientInfo: ClientInfo
     let dataInterface: DataInterface
