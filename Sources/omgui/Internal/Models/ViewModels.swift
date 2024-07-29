@@ -74,16 +74,56 @@ public struct AddressProfile: Sendable {
     }
 }
 
-public struct NowModel: Sendable {
-    let owner: AddressName
+public struct NowModel: BlackbirdModel, Sendable {
     
-    let content: String?
-    let html: String?
-    let updated: Date?
-    let listed: Bool?
+    @BlackbirdColumn
+    public var id: AddressName
+    @BlackbirdColumn
+    var content: String?
+    @BlackbirdColumn
+    var html: String?
+    @BlackbirdColumn
+    var updated: Date?
+    @BlackbirdColumn
+    var listed: Bool?
     
-    public init(owner: AddressName, content: String? = nil, html: String? = nil, updated: Date? = nil, listed: Bool? = nil) {
-        self.owner = owner
+    var owner: AddressName { id }
+    
+    enum CodingKeys: String, BlackbirdCodingKey {
+        case id
+        case content
+        case html
+        case updated
+        case listed
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(AddressName.self, forKey: .id)
+        self.content = try container.decodeIfPresent(String.self, forKey: .content)
+        self.html = try container.decodeIfPresent(String.self, forKey: .html)
+        self.updated = try container.decodeIfPresent(Date.self, forKey: .updated)
+        self.listed = try container.decodeIfPresent(Bool.self, forKey: .listed)
+    }
+    
+    public init(_ row: Blackbird.ModelRow<NowModel>) {
+        self.init(
+            owner: row[\.$id],
+            content: row[\.$content],
+            html: row[\.$html],
+            updated: row[\.$updated],
+            listed: row[\.$listed]
+        )
+    }
+    
+    public init(
+        owner: AddressName,
+        content: String? = nil,
+        html: String? = nil,
+        updated: Date? = nil,
+        listed: Bool? = nil
+    ) {
+        self.id = owner
         self.content = content
         self.html = html
         self.updated = updated

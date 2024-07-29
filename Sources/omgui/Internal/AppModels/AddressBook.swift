@@ -129,7 +129,7 @@ class AddressBook: ListDataFetcher<AddressModel> {
     }
     
     public var following: [AddressName] {
-        followingFetcher?.listItems.map({ $0.addressName }) ?? []
+        followingFetcher?.results.map({ $0.addressName }) ?? []
     }
     public func isFollowing(_ address: AddressName) -> Bool {
         guard accountModel.signedIn else {
@@ -163,14 +163,14 @@ class AddressBook: ListDataFetcher<AddressModel> {
     }
     
     private var globalBlocked: [AddressName] {
-        accountModel.globalBlocklistFetcher.listItems.map { $0.addressName }
+        accountModel.globalBlocklistFetcher.results.map { $0.addressName }
     }
     private var localBlocked: [AddressName] {
-        accountModel.localBloclistFetcher.listItems.map { $0.addressName }
+        accountModel.localBloclistFetcher.results.map { $0.addressName }
     }
     
     private var addressBlocked: [AddressName] {
-        blocklistFetcher.addressBlocklistFetcher?.listItems.map { $0.addressName } ?? []
+        blocklistFetcher.addressBlocklistFetcher?.results.map { $0.addressName } ?? []
     }
     
     public func constructBlocklist() -> BlockListDataFetcher {
@@ -213,11 +213,11 @@ class AddressBook: ListDataFetcher<AddressModel> {
     }
     
     var pinned: [AddressName] {
-        accountModel.pinnedAddressFetcher.listItems.map { $0.addressName }
+        accountModel.pinnedAddressFetcher.results.map { $0.addressName }
     }
     
     var myAddresses: [AddressName] {
-        let fetchedAddresses = accountModel.myAddressesFetcher?.listItems.map { $0.addressName } ?? []
+        let fetchedAddresses = accountModel.myAddressesFetcher?.results.map { $0.addressName } ?? []
         guard !fetchedAddresses.isEmpty else {
             return accountModel.localAddresses
         }
@@ -234,8 +234,8 @@ class AddressBook: ListDataFetcher<AddressModel> {
         accountModel.pinnedAddressFetcher.removePin(address)
     }
     
-    override var listItems: [AddressModel] {
-        get { accountModel.myAddressesFetcher?.listItems ?? [] }
+    override var results: [AddressModel] {
+        get { accountModel.myAddressesFetcher?.results ?? [] }
         set { }
     }
 }

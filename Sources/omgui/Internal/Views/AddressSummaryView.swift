@@ -104,7 +104,7 @@ struct AddressSummaryView: View {
             .navigationBarTitleDisplayMode(.inline)
     }
     
-    func fetcherForContent(_ content: AddressContent) -> DataFetcher {
+    func fetcherForContent(_ content: AddressContent) -> Request {
         switch content {
         case .now:
             return addressSummaryFetcher.nowFetcher

@@ -79,7 +79,7 @@ class FetchConstructor {
     }
     
     func addresNowFetcher(_ address: AddressName) -> AddressNowDataFetcher {
-        AddressNowDataFetcher(name: address, interface: interface)
+        AddressNowDataFetcher(name: address, interface: interface, db: database)
     }
     
     func addressPastesFetcher(_ address: AddressName, credential: APICredential?) -> AddressPasteBinDataFetcher {

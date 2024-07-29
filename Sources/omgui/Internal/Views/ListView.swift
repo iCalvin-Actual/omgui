@@ -61,7 +61,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
             filters.append(.query(queryString))
         }
         return filters
-            .applyFilters(to: dataFetcher.listItems, addressBook: sceneModel.addressBook)
+            .applyFilters(to: dataFetcher.results, addressBook: sceneModel.addressBook)
             .sorted(with: sort)
     }
     
@@ -78,7 +78,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
             .navigationTitle("")
             .toolbar {
                 let sortOptions = T.sortOptions
-                if sortOptions.count > 1, dataFetcher.listItems.count > 1, allowFilter {
+                if sortOptions.count > 1, dataFetcher.results.count > 1, allowFilter {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         SortOrderMenu(sort: $sort, options: T.sortOptions)
                     }
@@ -174,7 +174,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
             guard sizeClass == .regular, dataFetcher.loaded, selected == nil else {
                 return
             }
-            selected = dataFetcher.listItems.first
+            selected = dataFetcher.results.first
         })
     }
     
