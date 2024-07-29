@@ -23,7 +23,7 @@ struct MyPURLsView: View {
     }
     
     var body: some View {
-        ListView<PURLModel, PURLRowView, EmptyView>(dataFetcher: addressFetcher, rowBuilder: { .init(model: $0) })
+        ModelBackedListView<PURLModel, PURLRowView, EmptyView>(dataFetcher: addressFetcher, rowBuilder: { .init(model: $0) })
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     Button(action: toggleFilter) {

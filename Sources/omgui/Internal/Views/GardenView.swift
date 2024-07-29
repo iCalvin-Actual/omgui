@@ -27,7 +27,7 @@ struct GardenView: View {
     var menuBuilder: ContextMenuBuilder<NowListing>?
     
     var body: some View {
-        ListView<NowListing, GardenItemView, EmptyView>(dataFetcher: fetcher, rowBuilder: { GardenItemView(model: $0) })
+        ModelBackedListView<NowListing, GardenItemView, EmptyView>(dataFetcher: fetcher, rowBuilder: { GardenItemView(model: $0) })
             .toolbarRole(.editor)
     }
     
@@ -63,7 +63,7 @@ struct GardenView: View {
     
     @ViewBuilder
     var listBody: some View {
-        ListView<NowListing, GardenItemView, EmptyView>(dataFetcher: fetcher, rowBuilder: { GardenItemView(model: $0) })
+        ModelBackedListView<NowListing, GardenItemView, EmptyView>(dataFetcher: fetcher, rowBuilder: { GardenItemView(model: $0) })
     }
 }
 

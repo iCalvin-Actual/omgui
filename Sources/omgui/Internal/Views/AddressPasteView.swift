@@ -15,7 +15,7 @@ struct AddressPasteView: View {
     var sort: Sort = .alphabet
     
     var body: some View {
-        ListView<PasteModel, PasteRowView, EmptyView>(
+        ModelBackedListView<PasteModel, PasteRowView, EmptyView>(
             filters: .everyone,
             dataFetcher: fetcher,
             rowBuilder: pasteView(_:)
