@@ -355,16 +355,57 @@ public struct AddressModel: BlackbirdModel, Hashable, Identifiable, RawRepresent
     }
 }
 
-public struct StatusModel: Hashable, Identifiable, Sendable {
-    public let id: String
-    let address: AddressName
-    let posted: Date
+public struct StatusModel: BlackbirdModel, Hashable, Identifiable, Sendable {
     
-    let status: String
+    @BlackbirdColumn
+    public var id: String
+    @BlackbirdColumn
+    var address: AddressName
+    @BlackbirdColumn
+    var posted: Date
     
-    let emoji: String?
-    let linkText: String?
-    let link: URL?
+    @BlackbirdColumn
+    var status: String
+    
+    @BlackbirdColumn
+    var emoji: String?
+    @BlackbirdColumn
+    var linkText: String?
+    @BlackbirdColumn
+    var link: URL?
+    
+    enum CodingKeys: String, BlackbirdCodingKey {
+        case id
+        case address
+        case posted
+        case status
+        case emoji
+        case linkText
+        case link
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self._id = try container.decode(BlackbirdColumn<String>.self, forKey: .id)
+        self._address = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .address)
+        self._posted = try container.decode(BlackbirdColumn<Date>.self, forKey: .posted)
+        self._status = try container.decode(BlackbirdColumn<String>.self, forKey: .status)
+        self._emoji = try container.decode(BlackbirdColumn<String?>.self, forKey: .emoji)
+        self._linkText = try container.decode(BlackbirdColumn<String?>.self, forKey: .linkText)
+        self._link = try container.decode(BlackbirdColumn<URL?>.self, forKey: .link)
+    }
+    
+    public init(_ row: Blackbird.ModelRow<StatusModel>) {
+        self.init(
+            id: row[\.$id],
+            address: row[\.$address],
+            posted: row[\.$posted],
+            status: row[\.$status],
+            emoji: row[\.$emoji],
+            linkText: row[\.$linkText],
+            link: row[\.$link]
+        )
+    }
     
     public init(id: String, address: AddressName, posted: Date, status: String, emoji: String? = nil, linkText: String? = nil, link: URL? = nil) {
         self.id = id

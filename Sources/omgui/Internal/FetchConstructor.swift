@@ -55,11 +55,11 @@ class FetchConstructor {
     }
     
     func statusLog(for addresses: [AddressName]) -> StatusLogDataFetcher {
-        StatusLogDataFetcher(addresses: addresses, interface: interface)
+        StatusLogDataFetcher(addresses: addresses, interface: interface, db: database)
     }
     
     func generalStatusLog() -> StatusLogDataFetcher {
-        StatusLogDataFetcher(title: "statusLog", interface: interface)
+        StatusLogDataFetcher(title: "statusLog", interface: interface, db: database)
     }
     
     func nowGardenFetcher() -> NowGardenDataFetcher {
@@ -103,7 +103,7 @@ class FetchConstructor {
     }
     
     func statusFetcher(_ id: String, from address: AddressName) -> StatusDataFetcher {
-        return StatusDataFetcher(id: id, from: address, interface: interface)
+        return StatusDataFetcher(id: id, from: address, interface: interface, db: database)
     }
     
     func draftStatusPoster(_ id: String? = nil, for address: AddressName, credential: APICredential) -> StatusDraftPoster {
