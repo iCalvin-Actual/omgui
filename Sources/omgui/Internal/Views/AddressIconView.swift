@@ -7,12 +7,13 @@ struct AddressIconView: View {
     var sceneModel: SceneModel
     
     let address: AddressName
+    
     var body: some View {
         AsyncImage(url: address.addressIconURL) { image in
             image.resizable()
                 .aspectRatio(contentMode: .fill)
         } placeholder: {
-            if let data = sceneModel.addressBook.addressSummary(address).iconFetcher.iconData, let uiImage = UIImage(data: data) {
+            if let data = sceneModel.addressBook.addressSummary(address).iconFetcher.result?.data, let uiImage = UIImage(data: data) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .aspectRatio(contentMode: .fill)

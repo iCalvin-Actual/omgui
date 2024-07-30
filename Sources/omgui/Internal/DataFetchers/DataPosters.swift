@@ -119,7 +119,7 @@ class ProfileDraftPoster: MDDraftPoster<AddressProfile> {
             credential: credential
         )
         originalDraft = draft
-        threadSafeSendUpdate()
+        fetchFinished()
     }
 }
 
@@ -136,7 +136,7 @@ class NowDraftPoster: MDDraftPoster<NowModel> {
             credential: credential
         )
         originalDraft = draft
-        threadSafeSendUpdate()
+        fetchFinished()
     }
 }
 
@@ -158,7 +158,7 @@ class PasteDraftPoster: NamedDraftPoster<PasteModel> {
             self.result = result
             onPost(result)
         }
-        threadSafeSendUpdate()
+        fetchFinished()
     }
 }
 
@@ -178,7 +178,7 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel> {
             self.result = result
             onPost(result)
         }
-        threadSafeSendUpdate()
+        fetchFinished()
     }
     
     var destination: String
@@ -238,7 +238,7 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
             }
         }
         
-        threadSafeSendUpdate()
+        fetchFinished()
     }
     
     func fetchCurrentValue() async {

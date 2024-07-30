@@ -64,6 +64,38 @@ public struct ThemeModel: Codable, Sendable {
     }
 }
 
+struct AddressIconModel: BlackbirdModel {
+    
+    var addressName: AddressName { id }
+    
+    @BlackbirdColumn
+    var id: AddressName
+    @BlackbirdColumn
+    var data: Data?
+    
+    enum CodingKeys: String, BlackbirdCodingKey {
+        case id
+        case data
+    }
+    
+    init(_ row: Blackbird.ModelRow<AddressIconModel>) {
+        self.init(id: row[\.$id], data: row[\.$data])
+    }
+    
+    init (from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(AddressName.self, forKey: .id)
+        if let data = try container.decodeIfPresent(Data.self, forKey: .data) {
+            self.data = data
+        }
+    }
+    
+    init(id: AddressName, data: Data? = nil) {
+        self.id = id
+        self.data = data
+    }
+}
+
 public struct AddressProfile: BlackbirdModel, Sendable {
     var owner: AddressName { id }
     @BlackbirdColumn

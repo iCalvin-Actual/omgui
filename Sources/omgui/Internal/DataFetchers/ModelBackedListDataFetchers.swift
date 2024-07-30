@@ -318,7 +318,7 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
         results = try await StatusModel.read(from: db, orderBy: .descending(\.$posted))
     }
     
-    override func throwingRequest() async throws {
+    override func fetchRemote() async throws {
         if addresses.isEmpty {
             let statuses = try await interface.fetchStatusLog()
             statuses.forEach({ model in
@@ -328,7 +328,11 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
             })
         } else {
             let statuses = try await interface.fetchAddressStatuses(addresses: addresses)
-            self.results = statuses
+            statuses.forEach({ model in
+                Task {
+                    try await model.write(to: db)
+                }
+            })
         }
     }
 }

@@ -40,28 +40,24 @@ class URLContentDataFetcher: DataFetcher {
 }
 
 @MainActor
-class AddressIconDataFetcher: DataFetcher {
+class AddressIconDataFetcher: ModelBackedDataFetcher<AddressIconModel> {
     let address: AddressName
     
-    @Published
-    var iconData: Data?
-    
-    init(address: AddressName, interface: DataInterface) {
+    init(address: AddressName, interface: DataInterface, db: Blackbird.Database) {
         self.address = address
-        super.init(interface: interface)
+        super.init(interface: interface, db: db)
     }
     
-    override func throwingRequest() async throws {
+    override func fetchModels() async throws {
+        result = try await AddressIconModel.read(from: db, id: address)
+    }
+    
+    override func fetchRemote() async throws {
         guard let url = address.addressIconURL else {
             return
         }
-        URLSession.shared.dataTaskPublisher(for: url)
-            .receive(on: DispatchQueue.main)
-            .map{ $0.data }
-            .sink { _ in } receiveValue: { [weak self] value in
-                self?.iconData = value
-                self?.fetchFinished()
-            }
-            .store(in: &requests)
+        let response = try await URLSession.shared.data(from: url)
+        let model = AddressIconModel(id: address, data: response.0)
+        try await model.write(to: db)
     }
 }

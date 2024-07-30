@@ -80,7 +80,7 @@ class AccountInfoDataFetcher: DataFetcher {
     override func throwingRequest() async throws {
         let info = try await interface.fetchAccountInfo(name, credential: credential)
         self.accountName = info?.name
-        self.threadSafeSendUpdate()
+        self.fetchFinished()
     }
     
     override var noContent: Bool {

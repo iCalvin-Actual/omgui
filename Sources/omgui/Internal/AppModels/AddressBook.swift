@@ -75,6 +75,7 @@ class AddressBook: ListDataFetcher<AddressModel> {
         
         Task {
             await followingFetcher.perform()
+            fetchFinished()
         }
     }
     
@@ -84,13 +85,13 @@ class AddressBook: ListDataFetcher<AddressModel> {
         }
     }
     
-    public func profilePoster(for address: AddressName) -> ProfileDraftPoster? {
-        try? addressPrivateSummary(address).profilePoster
-    }
-    
-    public func nowPoster(for address: AddressName) -> NowDraftPoster? {
-        try? addressPrivateSummary(address).nowPoster
-    }
+//    public func profilePoster(for address: AddressName) -> ProfileDraftPoster? {
+//        try? addressPrivateSummary(address).profilePoster
+//    }
+//    
+//    public func nowPoster(for address: AddressName) -> NowDraftPoster? {
+//        try? addressPrivateSummary(address).nowPoster
+//    }
     
     private func constructFetcher(for address: AddressName) -> AddressSummaryDataFetcher {
         fetchConstructor.addressDetailsFetcher(address)

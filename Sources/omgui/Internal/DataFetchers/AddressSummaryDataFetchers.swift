@@ -10,63 +10,6 @@ import Combine
 import Foundation
 import SwiftUI
 
-@MainActor
-class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
-    @ObservedObject
-    var blockedFetcher: AddressBlockListDataFetcher
-    
-    @ObservedObject
-    var profilePoster: ProfileDraftPoster
-    @ObservedObject
-    var nowPoster: NowDraftPoster
-    
-    init(
-        name: AddressName,
-        interface: DataInterface,
-        credential: APICredential,
-        database: Blackbird.Database
-    ) {
-        self.blockedFetcher = .init(address: name, credential: credential, interface: interface, db: database)
-        
-        self.profilePoster = .init(
-            name,
-            draftItem: .init(
-                address: name,
-                content: "",
-                publish: true
-            ),
-            interface: interface,
-            credential: credential
-        )!
-        self.nowPoster = .init(
-            name,
-            draftItem: .init(
-                address: name,
-                content: "",
-                listed: true
-            ),
-            interface: interface,
-            credential: credential
-        )!
-        
-        super.init(name: name, interface: interface, database: database)
-        
-        self.profileFetcher = .init(name: addressName, credential: credential, interface: interface, db: database)
-        self.followingFetcher = .init(address: addressName, credential: credential, interface: interface, db: database)
-        
-        self.purlFetcher = .init(name: addressName, interface: interface, credential: credential, db: database)
-        self.pasteFetcher = .init(name: addressName, interface: interface, credential: credential, db: database)
-    }
-    
-    override func perform() async {
-        guard !addressName.isEmpty else {
-            return
-        }
-        await super.perform()
-        await blockedFetcher.perform()
-    }
-}
-
 class AddressSummaryDataFetcher: DataFetcher {
     
     let addressName: AddressName
@@ -95,7 +38,7 @@ class AddressSummaryDataFetcher: DataFetcher {
         database: Blackbird.Database
     ) {
         self.addressName = name
-        self.iconFetcher = .init(address: name, interface: interface)
+        self.iconFetcher = .init(address: name, interface: interface, db: database)
         self.profileFetcher = .init(name: name, credential: nil, interface: interface, db: database)
         self.nowFetcher = .init(name: name, interface: interface, db: database)
         self.purlFetcher = .init(name: name, interface: interface, credential: nil, db: database)
@@ -137,6 +80,63 @@ class AddressSummaryDataFetcher: DataFetcher {
             
             self.fetchFinished()
         }
+    }
+}
+
+@MainActor
+class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
+    @ObservedObject
+    var blockedFetcher: AddressBlockListDataFetcher
+    
+//    @ObservedObject
+//    var profilePoster: ProfileDraftPoster
+//    @ObservedObject
+//    var nowPoster: NowDraftPoster
+    
+    init(
+        name: AddressName,
+        interface: DataInterface,
+        credential: APICredential,
+        database: Blackbird.Database
+    ) {
+        self.blockedFetcher = .init(address: name, credential: credential, interface: interface, db: database)
+        
+//        self.profilePoster = .init(
+//            name,
+//            draftItem: .init(
+//                address: name,
+//                content: "",
+//                publish: true
+//            ),
+//            interface: interface,
+//            credential: credential
+//        )!
+//        self.nowPoster = .init(
+//            name,
+//            draftItem: .init(
+//                address: name,
+//                content: "",
+//                listed: true
+//            ),
+//            interface: interface,
+//            credential: credential
+//        )!
+        
+        super.init(name: name, interface: interface, database: database)
+        
+        self.profileFetcher = .init(name: addressName, credential: credential, interface: interface, db: database)
+        self.followingFetcher = .init(address: addressName, credential: credential, interface: interface, db: database)
+        
+        self.purlFetcher = .init(name: addressName, interface: interface, credential: credential, db: database)
+        self.pasteFetcher = .init(name: addressName, interface: interface, credential: credential, db: database)
+    }
+    
+    override func perform() async {
+        guard !addressName.isEmpty else {
+            return
+        }
+        await super.perform()
+        await blockedFetcher.perform()
     }
 }
 
