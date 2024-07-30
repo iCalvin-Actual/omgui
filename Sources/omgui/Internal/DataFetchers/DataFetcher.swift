@@ -89,8 +89,6 @@ class AccountInfoDataFetcher: DataFetcher {
 }
 
 
-
-
 class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
     let addressName: AddressName
     let title: String
@@ -120,95 +118,5 @@ class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
     
     public func deleteIfPossible() async throws {
         // override
-    }
-}
-
-class AddressPasteDataFetcher: NamedItemDataFetcher<PasteModel> {
-    override var draftPoster: PasteDraftPoster? {
-        guard let credential else {
-            return super.draftPoster as? PasteDraftPoster
-        }
-        if let model {
-            return .init(
-                addressName,
-                title: model.name,
-                content: model.content ?? "",
-                interface: interface,
-                credential: credential
-            )
-        } else {
-            return .init(
-                addressName,
-                title: "",
-                interface: interface,
-                credential: credential
-            )
-        }
-    }
-    
-    override func throwingRequest() async throws {
-        Task {
-            model = try await interface.fetchPaste(title, from: addressName, credential: credential)
-            threadSafeSendUpdate()
-        }
-    }
-    
-    override func deleteIfPossible() async throws {
-        guard let credential else {
-            return
-        }
-        let _ = try await interface.deletePaste(title, from: addressName, credential: credential)
-        model = PasteModel(owner: addressName, name: "")
-        threadSafeSendUpdate()
-    }
-}
-
-class AddressPURLDataFetcher: NamedItemDataFetcher<PURLModel> {
-    
-    @Published
-    var purlContent: String?
-    
-    override var draftPoster: PURLDraftPoster? {
-        guard let credential else {
-            return super.draftPoster as? PURLDraftPoster
-        }
-        if let model {
-            return PURLDraftPoster(
-                addressName,
-                title: model.name,
-                value: model.content?.absoluteString ?? "",
-                interface: interface,
-                credential: credential
-            )
-        } else {
-            return .init(
-                addressName,
-                title: title,
-                interface: interface,
-                credential: credential
-            )
-        }
-    }
-    
-    override func throwingRequest() async throws {
-        Task {
-            if let credential = credential {
-                model = try await interface.fetchPURL(title, from: addressName, credential: credential)
-            } else {
-                let addressPurls = try await interface.fetchAddressPURLs(addressName, credential: nil)
-                model = addressPurls.first(where: { $0.name == title })
-            }
-            purlContent = try await interface.fetchPURLContent(title, from: addressName, credential: credential)
-            fetchFinished()
-        }
-    }
-    
-    override func deleteIfPossible() async throws {
-        guard let credential else {
-            return
-        }
-        let _ = try await interface.deletePURL(title, from: addressName, credential: credential)
-        model = PURLModel(owner: addressName, name: "")
-        threadSafeSendUpdate()
     }
 }

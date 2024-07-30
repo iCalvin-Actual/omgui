@@ -86,3 +86,116 @@ class StatusDataFetcher: ModelBackedDataFetcher<StatusModel> {
         linkFetchers.first(where: { $0.url == url })
     }
 }
+
+class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
+    let address: AddressName
+    let title: String
+    let credential: APICredential?
+    
+    init(name: AddressName, title: String, credential: APICredential? = nil, interface: any DataInterface, db: Blackbird.Database) {
+        self.address = name
+        self.title = title
+        self.credential = credential
+        super.init(interface: interface, db: db)
+    }
+    
+//    var draftPoster: PasteDraftPoster? {
+//        guard let credential else {
+//            return super.draftPoster as? PasteDraftPoster
+//        }
+//        if let model {
+//            return .init(
+//                addressName,
+//                title: model.name,
+//                content: model.content ?? "",
+//                interface: interface,
+//                credential: credential
+//            )
+//        } else {
+//            return .init(
+//                addressName,
+//                title: "",
+//                interface: interface,
+//                credential: credential
+//            )
+//        }
+//    }
+    
+    override func fetchModels() async throws {
+        self.result = try await PasteModel.read(from: db, id: title)
+    }
+    
+    override func fetchRemote() async throws {
+        guard !address.isEmpty, !title.isEmpty else {
+            return
+        }
+        let paste = try await interface.fetchPaste(title, from: address, credential: credential)
+        try await paste?.write(to: db)
+    }
+    
+    func deleteIfPossible() async throws {
+        guard let credential else {
+            return
+        }
+        let _ = try await interface.deletePaste(title, from: address, credential: credential)
+        try await result?.delete(from: db)
+        threadSafeSendUpdate()
+    }
+}
+
+class AddressPURLDataFetcher: ModelBackedDataFetcher<PURLModel> {
+    let address: AddressName
+    let title: String
+    let credential: APICredential?
+    
+    init(name: AddressName, title: String, credential: APICredential? = nil, interface: any DataInterface, db: Blackbird.Database) {
+        self.address = name
+        self.title = title
+        self.credential = credential
+        super.init(interface: interface, db: db)
+    }
+    
+//    var draftPoster: PURLDraftPoster? {
+//        guard let credential else {
+//            return super.draftPoster as? PasteDraftPoster
+//        }
+//        if let model {
+//            return .init(
+//                addressName,
+//                title: model.name,
+//                content: model.content ?? "",
+//                interface: interface,
+//                credential: credential
+//            )
+//        } else {
+//            return .init(
+//                addressName,
+//                title: "",
+//                interface: interface,
+//                credential: credential
+//            )
+//        }
+//    }
+    
+    override func fetchModels() async throws {
+        self.result = try await PURLModel.read(from: db, id: title)
+    }
+    
+    override func fetchRemote() async throws {
+        guard !address.isEmpty, !title.isEmpty else {
+            return
+        }
+        let purl = try await interface.fetchPURL(title, from: address, credential: credential)
+        try await purl?.write(to: db)
+    }
+    
+    func deleteIfPossible() async throws {
+        guard let credential else {
+            return
+        }
+        let _ = try await interface.deletePURL(title, from: address, credential: credential)
+        try await result?.delete(from: db)
+        result = nil
+        threadSafeSendUpdate()
+    }
+}

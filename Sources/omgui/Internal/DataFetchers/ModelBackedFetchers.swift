@@ -6,6 +6,7 @@
 //
 
 import Blackbird
+import Combine
 
 class BackedDataFetcher: Request {
     let db: Blackbird.Database
@@ -33,6 +34,7 @@ class BackedDataFetcher: Request {
 }
 
 class ModelBackedDataFetcher<M: BlackbirdModel>: BackedDataFetcher {
+    @Published
     var result: M?
     
     override var noContent: Bool {
