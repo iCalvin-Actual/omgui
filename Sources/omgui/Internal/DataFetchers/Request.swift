@@ -10,6 +10,16 @@ import Foundation
 
 @MainActor
 class Request: NSObject, ObservableObject {
+    struct AutomationPreferences {
+        var autoLoad: Bool
+        var reloadDuration: TimeInterval?
+        
+        init(_ autoLoad: Bool = true, reloadDuration: TimeInterval? = nil) {
+            self.reloadDuration = reloadDuration
+            self.autoLoad = autoLoad
+        }
+    }
+    
     let interface: DataInterface
     
     var loaded: Bool = false
@@ -23,9 +33,15 @@ class Request: NSObject, ObservableObject {
         !loading
     }
     
-    init(interface: DataInterface) {
+    init(interface: DataInterface, automation: AutomationPreferences = .init()) {
         self.interface = interface
         super.init()
+        
+        if automation.autoLoad {
+            Task {
+                await perform()
+            }
+        }
     }
     
     func updateIfNeeded() async {
