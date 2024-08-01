@@ -315,7 +315,13 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
     }
     
     override func fetchModels() async throws {
-        results = try await StatusModel.read(from: db, matching: .valueIn(\.$address, addresses), orderBy: .descending(\.$posted))
+        if addresses.isEmpty {
+            let results = try await StatusModel.read(from: db, orderBy: .descending(\.$posted))
+            self.results = results
+        } else {
+            let results = try await StatusModel.read(from: db, matching: .valueIn(\.$address, addresses), orderBy: .descending(\.$posted))
+            self.results = results
+        }
     }
     
     override func fetchRemote() async throws {
