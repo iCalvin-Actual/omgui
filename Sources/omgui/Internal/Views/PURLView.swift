@@ -82,7 +82,7 @@ struct PURLView: View {
                         if let content = fetcher.result?.content {
                             ShareLink(item: content)
                             Button(action: {
-                                UIPasteboard.general.string = content.absoluteString
+                                UIPasteboard.general.string = content
                             }, label: {
                                 Label(
                                     title: { Text("Copy Content") },
@@ -157,8 +157,8 @@ struct PURLView: View {
     
     @ViewBuilder
     var preview: some View {
-        if let content = fetcher.result?.content {
-            HTMLContentView(activeAddress: fetcher.address, htmlContent: nil, baseURL: content, activeURL: $presented)
+        if let content = fetcher.result?.content, !content.isEmpty {
+            HTMLContentView(activeAddress: fetcher.address, htmlContent: nil, baseURL: URL(string: content), activeURL: $presented)
         } else {
             Spacer()
         }
@@ -200,8 +200,8 @@ struct PURLView: View {
                 .fontDesign(.monospaced)
                 .lineLimit(2)
                 
-                if let destination = fetcher.result?.content {
-                    Text(destination.absoluteString)
+                if let destination = fetcher.result?.content, destination.isEmpty {
+                    Text(destination)
                         .textSelection(.enabled)
                         .font(.caption)
                         .fontDesign(.serif)

@@ -180,7 +180,7 @@ extension StatusModel: QueryFilterable {
 
 extension PURLModel: QueryFilterable {
     var queryCheckStrings: [String] {
-        [addressName, name, content?.absoluteString]
+        [addressName, name, content]
             .compactMap({ $0 })
     }
     

@@ -48,12 +48,12 @@ extension StatusModel: Listable     {
 }
 extension PasteModel: Listable     {
     var listTitle: String     { name }
-    var listSubtitle: String  { String(content?.prefix(42) ?? "") }
+    var listSubtitle: String  { String(content.prefix(42)) }
     var listCaption: String?  { owner.addressDisplayString }
 }
 extension PURLModel: Listable     {
     var listTitle: String     { name }
-    var listSubtitle: String  { content?.absoluteString ?? "" }
+    var listSubtitle: String  { content }
     var listCaption: String?  { owner.addressDisplayString }
 }
 extension NowListing: Listable     {

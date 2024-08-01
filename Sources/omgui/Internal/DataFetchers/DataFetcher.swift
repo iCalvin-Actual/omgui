@@ -13,27 +13,12 @@ import Foundation
 
 @MainActor
 class DataFetcher: Request {
-    struct AutomationPreferences {
-        var autoLoad: Bool
-        var reloadDuration: TimeInterval?
-        
-        init(_ autoLoad: Bool = true, reloadDuration: TimeInterval? = nil) {
-            self.reloadDuration = reloadDuration
-            self.autoLoad = autoLoad
-        }
-    }
-    
     var summaryString: String? {
         "Loading"
     }
     
-    init(interface: DataInterface, automation: AutomationPreferences = .init()) {
+    init(interface: DataInterface) {
         super.init(interface: interface)
-        if automation.autoLoad {
-            Task {
-                await perform()
-            }
-        }
     }
 }
 

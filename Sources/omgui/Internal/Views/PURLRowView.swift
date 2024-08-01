@@ -33,8 +33,8 @@ struct PURLRowView: View {
                     Spacer()
                 }
                 
-                if let destination = model.content {
-                    Text(destination.absoluteString)
+                if !model.content.isEmpty {
+                    Text(model.content)
                         .font(.subheadline)
                         .fontDesign(.monospaced)
                         .lineLimit(5)

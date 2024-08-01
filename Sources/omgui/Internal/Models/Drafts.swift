@@ -177,7 +177,7 @@ extension PasteModel: NamedDraftable {
     }
     
     public var asDraft: Draft? {
-        .init(address: addressName, name: name, content: content ?? "", listed: listed)
+        .init(address: addressName, name: name, content: content, listed: listed)
     }
 }
 
@@ -202,7 +202,7 @@ extension PURLModel: NamedDraftable {
             self.init(
                 address: model.addressName,
                 name: name ?? "",
-                content: model.content?.absoluteString ?? "",
+                content: model.content,
                 listed: model.listed
             )
         }
@@ -216,7 +216,7 @@ extension PURLModel: NamedDraftable {
     }
     
     public var asDraft: Draft? {
-        .init(address: addressName, name: self.name, content: content?.absoluteString ?? "", listed: listed)
+        .init(address: addressName, name: self.name, content: content, listed: listed)
     }
 }
 

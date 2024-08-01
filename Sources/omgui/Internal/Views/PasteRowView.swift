@@ -33,8 +33,8 @@ struct PasteRowView: View {
                     Spacer()
                 }
                 
-                if let destination = model.content {
-                    Text(destination)
+                if !model.content.isEmpty {
+                    Text(model.content)
                         .font(.subheadline)
                         .fontDesign(.monospaced)
                         .lineLimit(5)

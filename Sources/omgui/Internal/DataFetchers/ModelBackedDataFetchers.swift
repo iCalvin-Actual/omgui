@@ -79,7 +79,8 @@ class StatusDataFetcher: ModelBackedDataFetcher<StatusModel> {
     }
     
     override func fetchRemote() async throws {
-        try await interface.fetchAddressStatus(id, from: address)?.write(to: db)
+        let status = try await interface.fetchAddressStatus(id, from: address)
+        try await status?.write(to: db)
     }
     
     func fetcher(for url: URL) -> URLContentDataFetcher? {

@@ -13,14 +13,12 @@ struct StatusView: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    var status: StatusModel?
-    
     @State
     var shareURL: URL?
     @State
     var presentURL: URL?
     
-    init(fetcher: StatusDataFetcher, status: StatusModel? = nil) {
+    init(fetcher: StatusDataFetcher) {
         self.fetcher = fetcher
     }
     
