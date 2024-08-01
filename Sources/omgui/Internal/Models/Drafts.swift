@@ -177,7 +177,7 @@ extension PasteModel: NamedDraftable {
     }
     
     public var asDraft: Draft? {
-        .init(address: addressName, name: name, content: content ?? "", listed: listed)
+        .init(address: addressName, name: name, content: content, listed: listed)
     }
 }
 
