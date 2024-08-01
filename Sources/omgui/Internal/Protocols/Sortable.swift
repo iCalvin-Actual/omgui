@@ -75,7 +75,7 @@ extension Array where Element: Sortable {
 }
 
 extension AddressModel: AllSortable {
-    var primarySortValue: String { name }
+    var primarySortValue: String { addressName }
     var dateValue: Date? { registered }
     
     static let defaultSort: Sort = .alphabet
@@ -125,7 +125,7 @@ extension PasteModel: StringSortable {
 }
 
 extension PURLModel: StringSortable {
-    var primarySortValue: String { value }
+    var primarySortValue: String { name }
     
     static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {

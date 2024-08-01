@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/5/23.
 //
 
+import Blackbird
 import Combine
 import SwiftUI
 
@@ -34,31 +35,26 @@ class AccountModel: ObservableObject {
     
     @Published
     public var myAddressesFetcher: AccountAddressDataFetcher?
-    @Published
-    public var accountStatusesFetcher: StatusLogDataFetcher
-    @Published
-    public var accountPURLsFetcher: AccountPURLsDataFetcher
-    @Published
-    public var accountPastesFetcher: AccountPastesDataFetcher
     
     public let globalBlocklistFetcher: AddressBlockListDataFetcher
     public let localBloclistFetcher: LocalBlockListDataFetcher
     
     var myAddresses: [AddressName] {
-        let fetchedAddresses = myAddressesFetcher?.listItems.map { $0.name } ?? []
+        let fetchedAddresses = myAddressesFetcher?.results.map { $0.addressName } ?? []
         guard !fetchedAddresses.isEmpty else {
             return localAddresses
         }
         return fetchedAddresses
     }
     var globalBlocked: [AddressName] {
-        globalBlocklistFetcher.listItems.map { $0.name }
+        globalBlocklistFetcher.results.map { $0.addressName }
     }
     var localBlocked: [AddressName] {
-        localBloclistFetcher.listItems.map { $0.name }
+        localBloclistFetcher.results.map { $0.addressName }
     }
     
     let interface: DataInterface
+    let database: Blackbird.Database
     
     var loaded: Bool = false
     var loading: Bool = false
@@ -70,7 +66,7 @@ class AccountModel: ObservableObject {
     var publicProfileCache: [AddressName: AddressSummaryDataFetcher] = [:]
     
     var pinned: [AddressName] {
-        pinnedAddressFetcher.listItems.map { $0.name }
+        pinnedAddressFetcher.results.map { $0.addressName }
     }
     func isPinned(_ address: AddressName) -> Bool {
         pinned.contains(address)
@@ -82,19 +78,17 @@ class AccountModel: ObservableObject {
         pinnedAddressFetcher.removePin(address)
     }
     
-    init(client: ClientInfo, interface: DataInterface) {
+    init(client: ClientInfo, interface: DataInterface, database: Blackbird.Database) {
         self.authenticationFetcher = AccountAuthDataFetcher(
             client: client,
             interface: interface
         )
         
         self.interface = interface
+        self.database = database
         self.pinnedAddressFetcher = PinnedListDataFetcher(interface: interface)
-        self.globalBlocklistFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: interface)
+        self.globalBlocklistFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: interface, db: database)
         self.localBloclistFetcher = LocalBlockListDataFetcher(interface: interface)
-        self.accountStatusesFetcher = .init(title: "@/statuses", interface: interface)
-        self.accountPURLsFetcher = AccountPURLsDataFetcher(addresses: [], interface: interface, credential: "")
-        self.accountPastesFetcher = AccountPastesDataFetcher(addresses: [], interface: interface, credential: "")
         
         subscribe()
         
@@ -139,28 +133,20 @@ class AccountModel: ObservableObject {
         await self.perform()
     }
     
-    func constructAccountAddressesFetcher(_ credential: APICredential) -> AccountAddressDataFetcher? {
-        return AccountAddressDataFetcher(interface: interface, credential: credential)
-    }
-    
-    func constructAccountInfoFetcher(_ name: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {
-        return AccountInfoDataFetcher(address: name, interface: interface, credential: credential)
-    }
-    
     func throwingRequest() async throws {
         guard !authKey.isEmpty else {
             accountInfoFetcher = nil
             threadSafeSendUpdate()
             return
         }
-        myAddressesFetcher = AccountAddressDataFetcher(interface: interface, credential: authKey)
+        myAddressesFetcher = AccountAddressDataFetcher(credential: authKey, interface: interface, db: database)
         myAddressesFetcher?.objectWillChange.sink { [weak self] _ in
             guard let self = self else { return }
             self.handleAddresses(self.myAddresses)
         }
         .store(in: &requests)
         
-        self.accountInfoFetcher = self.constructAccountInfoFetcher("application", credential: self.authKey)
+        self.accountInfoFetcher = AccountInfoDataFetcher(address: "application", interface: interface, credential: authKey)
         self.accountInfoFetcher?.objectWillChange.sink { [self] _ in
             self.threadSafeSendUpdate()
         }
@@ -182,11 +168,8 @@ class AccountModel: ObservableObject {
     
     func handleAddresses(_ incomingAddresses: [AddressName]) {
         incomingAddresses.forEach { address in
-            publicProfileCache[address] = AddressSummaryDataFetcher(name: address, interface: interface)
+            publicProfileCache[address] = AddressSummaryDataFetcher(name: address, interface: interface, database: database)
         }
-        accountStatusesFetcher = .init(title: "@/statuses", addresses: incomingAddresses, interface: interface)
-        accountPURLsFetcher = .init(addresses: incomingAddresses, interface: interface, credential: authKey)
-        accountPastesFetcher = .init(addresses: incomingAddresses, interface: interface, credential: authKey)
         threadSafeSendUpdate()
     }
     
@@ -222,7 +205,7 @@ class AccountModel: ObservableObject {
     }
     
     var listItems: [AddressModel] {
-        get { myAddressesFetcher?.listItems ?? [] }
+        get { myAddressesFetcher?.results ?? [] }
         set { }
     }
 }

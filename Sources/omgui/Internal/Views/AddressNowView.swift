@@ -22,7 +22,7 @@ struct AddressNowView: View {
     
     @ViewBuilder
     var htmlBody: some View {
-        if let html = fetcher.html {
+        if let html = fetcher.result?.html {
             HTMLFetcherView(
                 fetcher: fetcher,
                 activeAddress: fetcher.address,
@@ -40,10 +40,5 @@ struct AddressNowView: View {
                 Spacer()
             }
         }
-    }
-    
-    @ViewBuilder
-    var markdowyBody: some View {
-        MarkdownContentView(source: fetcher, content: fetcher.content)
     }
 }

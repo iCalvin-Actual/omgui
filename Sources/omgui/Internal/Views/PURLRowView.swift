@@ -25,7 +25,7 @@ struct PURLRowView: View {
             
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("/\(model.value)")
+                    Text("/\(model.name)")
                         .font(.title2)
                         .bold()
                         .fontDesign(.serif)
@@ -33,8 +33,8 @@ struct PURLRowView: View {
                     Spacer()
                 }
                 
-                if let destination = model.destination {
-                    Text(destination)
+                if let destination = model.content {
+                    Text(destination.absoluteString)
                         .font(.subheadline)
                         .fontDesign(.monospaced)
                         .lineLimit(5)
@@ -44,7 +44,7 @@ struct PURLRowView: View {
             .frame(maxWidth: .infinity)
             .padding(12)
             .foregroundColor(.black)
-            .background(Color.lolRandom(model.value))
+            .background(Color.lolRandom(model.name))
             .cornerRadius(12, antialiased: true)
             .padding(.vertical, 4)
         }

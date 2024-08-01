@@ -5,20 +5,26 @@
 //  Created by Calvin Chestnut on 3/5/23.
 //
 
+import Blackbird
 import Foundation
+import SwiftUI
 
 @MainActor
 class FetchConstructor {
     let client: ClientInfo
     let interface: DataInterface
     
-    init(client: ClientInfo, interface: DataInterface) {
+    @ObservedObject
+    var database: Blackbird.Database
+    
+    init(client: ClientInfo, interface: DataInterface, database: Blackbird.Database) {
         self.client = client
         self.interface = interface
+        self.database = database
     }
     
     func constructAccountModel() -> AccountModel {
-        AccountModel(client: client, interface: interface)
+        AccountModel(client: client, interface: interface, database: database)
     }
     
     func accountInfoFetcher(for address: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {
@@ -33,59 +39,59 @@ class FetchConstructor {
     }
     
     func blockListFetcher(for address: AddressName, credential: APICredential?) -> AddressBlockListDataFetcher {
-        AddressBlockListDataFetcher(address: address, credential: credential, interface: interface)
+        AddressBlockListDataFetcher(address: address, credential: credential, interface: interface, db: database)
     }
     
     func followingFetcher(for address: AddressName, credential: APICredential?) -> AddressFollowingDataFetcher {
-        AddressFollowingDataFetcher(address: address, credential: credential, interface: interface)
+        AddressFollowingDataFetcher(address: address, credential: credential, interface: interface, db: database)
     }
     
     func addressDirectoryDataFetcher() -> AddressDirectoryDataFetcher {
-        AddressDirectoryDataFetcher(interface: interface)
+        AddressDirectoryDataFetcher(interface: interface, db: database)
     }
     
     func accountAddressesDataFetcher(_ credential: String) -> AccountAddressDataFetcher {
-        AccountAddressDataFetcher(interface: interface, credential: credential)
+        AccountAddressDataFetcher(credential: credential, interface: interface, db: database)
     }
     
     func statusLog(for addresses: [AddressName]) -> StatusLogDataFetcher {
-        StatusLogDataFetcher(addresses: addresses, interface: interface)
+        StatusLogDataFetcher(addresses: addresses, interface: interface, db: database)
     }
     
     func generalStatusLog() -> StatusLogDataFetcher {
-        StatusLogDataFetcher(title: "statusLog", interface: interface)
+        StatusLogDataFetcher(title: "statusLog", interface: interface, db: database)
     }
     
     func nowGardenFetcher() -> NowGardenDataFetcher {
-        NowGardenDataFetcher(interface: interface)
+        NowGardenDataFetcher(interface: interface, db: database)
     }
     
     func addressDetailsFetcher(_ address: AddressName) -> AddressSummaryDataFetcher {
-        AddressSummaryDataFetcher(name: address, interface: interface)
+        AddressSummaryDataFetcher(name: address, interface: interface, database: database)
     }
     
     func addressPrivateDetailsFetcher(_ address: AddressName, credential: APICredential) -> AddressPrivateSummaryDataFetcher {
-        AddressPrivateSummaryDataFetcher(name: address, interface: interface, credential: credential)
+        AddressPrivateSummaryDataFetcher(name: address, interface: interface, credential: credential, database: database)
     }
     
     func addressProfileFetcher(_ address: AddressName) -> AddressProfileDataFetcher {
-        AddressProfileDataFetcher(name: address, interface: interface)
+        AddressProfileDataFetcher(name: address, interface: interface, db: database)
     }
     
     func addresNowFetcher(_ address: AddressName) -> AddressNowDataFetcher {
-        AddressNowDataFetcher(name: address, interface: interface)
+        AddressNowDataFetcher(name: address, interface: interface, db: database)
     }
     
     func addressPastesFetcher(_ address: AddressName, credential: APICredential?) -> AddressPasteBinDataFetcher {
-        AddressPasteBinDataFetcher(name: address, interface: interface, credential: credential)
+        AddressPasteBinDataFetcher(name: address, interface: interface, credential: credential, db: database)
     }
     
     func addressPasteFetcher(_ address: AddressName, title: String, credential: APICredential?) -> AddressPasteDataFetcher {
-        AddressPasteDataFetcher(name: address, title: title, interface: interface, credential: credential)
+        AddressPasteDataFetcher(name: address, title: title, credential: credential, interface: interface, db: database)
     }
     
     func addressPURLFetcher(_ address: AddressName, title: String, credential: APICredential?) -> AddressPURLDataFetcher {
-        AddressPURLDataFetcher(name: address, title: title, interface: interface, credential: credential)
+        AddressPURLDataFetcher(name: address, title: title, credential: credential, interface: interface, db: database)
     }
     
     func draftPastePoster(_ title: String, for address: AddressName, credential: APICredential) -> PasteDraftPoster {
@@ -97,7 +103,7 @@ class FetchConstructor {
     }
     
     func statusFetcher(_ id: String, from address: AddressName) -> StatusDataFetcher {
-        return StatusDataFetcher(id: id, from: address, interface: interface)
+        return StatusDataFetcher(id: id, from: address, interface: interface, db: database)
     }
     
     func draftStatusPoster(_ id: String? = nil, for address: AddressName, credential: APICredential) -> StatusDraftPoster {
@@ -106,6 +112,6 @@ class FetchConstructor {
     }
     
     func addressPURLsFetcher(_ address: AddressName, credential: APICredential?) -> AddressPURLsDataFetcher {
-        AddressPURLsDataFetcher(name: address, interface: interface, credential: credential)
+        AddressPURLsDataFetcher(name: address, interface: interface, credential: credential, db: database)
     }
 }

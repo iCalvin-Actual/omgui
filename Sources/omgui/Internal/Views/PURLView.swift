@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct PURLView: View {
+    @Environment(\.dismiss)
+    var dismiss
     @Environment(\.horizontalSizeClass)
     var sizeClass
+    
     @Environment(\.viewContext)
     var context: ViewContext
     @Environment(SceneModel.self)
@@ -18,37 +21,83 @@ struct PURLView: View {
     @ObservedObject
     var fetcher: AddressPURLDataFetcher
     
+    @State
+    var showDraft: Bool = false
+    @State
+    var detent: PresentationDetent = .draftDrawer
+    
+    @State
+    var presented: URL? = nil
+    
     var body: some View {
-        NamedItemView(fetcher: fetcher, mainContent: content, draftContent: draftView)
+        content
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    if fetcher.title.isEmpty {
-                        ThemedTextView(text: "/draft")
-                    } else {
-                        ThemedTextView(text: "/\(fetcher.title)")
+                    if let name = fetcher.result?.name {
+                        ThemedTextView(text: "/\(name)")
                     }
                 }
+//                ToolbarItem(placement: .topBarTrailing) {
+//                    if fetcher.draftPoster != nil {
+//                        Menu {
+//                            Button {
+//                                withAnimation {
+//                                    if detent == .large {
+//                                        detent = .draftDrawer
+//                                    } else if showDraft {
+//                                        detent = .large
+//                                    } else if !showDraft {
+//                                        detent = .medium
+//                                        showDraft = true
+//                                    } else {
+//                                        showDraft = false
+//                                        detent = .draftDrawer
+//                                    }
+//                                }
+//                            } label: {
+//                                Text("edit")
+//                            }
+//                            Menu {
+//                                Button(role: .destructive) {
+//                                    Task {
+//                                        try await fetcher.deleteIfPossible()
+//                                    }
+//                                } label: {
+//                                    Text("confirm")
+//                                }
+//                            } label: {
+//                                Label {
+//                                    Text("delete")
+//                                } icon: {
+//                                    Image(systemName: "trash")
+//                                }
+//                            }
+//                        } label: {
+//                            Image(systemName: "ellipsis.circle")
+//                        }
+//                    }
+//                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        if let purlURL = URL(string: "https://\(fetcher.addressName).url.lol/\(fetcher.title)") {
-                            ShareLink(item: purlURL)
+                        if let content = fetcher.result?.content {
+                            ShareLink(item: content)
                             Button(action: {
-                                // Copy Content
+                                UIPasteboard.general.string = content.absoluteString
                             }, label: {
                                 Label(
-                                    title: { Text("Copy PURL") },
+                                    title: { Text("Copy Content") },
                                     icon: { Image(systemName: "doc.on.doc") }
                                 )
                             })
                         }
                         Divider()
-                        if let shareURL = fetcher.model?.destinationURL {
-                            ShareLink("Share destination URL", item: shareURL)
+                        if let shareItem = fetcher.result?.shareURLs.first {
+                            ShareLink(shareItem.name, item: shareItem.content)
                             Button(action: {
-                                // Copy URL
+                                UIPasteboard.general.string = shareItem.content.absoluteString
                             }, label: {
                                 Label(
-                                    title: { Text("Copy destination") },
+                                    title: { Text("Copy URL") },
                                     icon: { Image(systemName: "link") }
                                 )
                             })
@@ -57,27 +106,46 @@ struct PURLView: View {
                         Image(systemName: "square.and.arrow.up")
                     }
                 }
-        }
+            }
+            .onReceive(fetcher.$result, perform: { model in
+                withAnimation {
+                    let address = model?.addressName ?? ""
+                    guard !address.isEmpty, sceneModel.accountModel.myAddresses.contains(address) else {
+                        showDraft = false
+                        return
+                    }
+                    if model == nil && fetcher.title.isEmpty {
+                        detent = .large
+                        showDraft = true
+                    } else if model != nil {
+                        detent = .draftDrawer
+                        showDraft = true
+                    } else {
+                        print("Stop")
+                    }
+                }
+            })
     }
     
     @ViewBuilder
     var draftView: some View {
-        if let poster = fetcher.draftPoster {
-            PURLDraftView(draftFetcher: poster)
-        }
+//        if let poster = fetcher.draftPoster {
+//            PURLDraftView(draftFetcher: poster)
+//        }
+        EmptyView()
     }
     
-    @ViewBuilder
-    func mainContent(_ poster: PURLDraftPoster?) -> some View {
-        if let poster {
-            content
-                .onReceive(poster.$result.dropFirst(), perform: { savedResult in
-                print("Stop here")
-            })
-        } else {
-            content
-        }
-    }
+//    @ViewBuilder
+//    func mainContent(_ poster: PURLDraftPoster?) -> some View {
+//        if let poster {
+//            content
+//                .onReceive(poster.$result.dropFirst(), perform: { savedResult in
+//                print("Stop here")
+//            })
+//        } else {
+//            content
+//        }
+//    }
     
     @ViewBuilder
     var content: some View {
@@ -89,21 +157,8 @@ struct PURLView: View {
     
     @ViewBuilder
     var preview: some View {
-        if let content = fetcher.purlContent {
-            HTMLFetcherView(
-                fetcher: fetcher,
-                activeAddress: fetcher.addressName,
-                htmlContent: content,
-                baseURL: {
-                    guard let destination = fetcher.model?.destinationURL else {
-                        return nil
-                    }
-                    guard let scheme = destination.scheme, let host = destination.host() else {
-                        return nil
-                    }
-                    return URL(string: "\(scheme)://\(host)")
-                }()
-            )
+        if let content = fetcher.result?.content {
+            HTMLContentView(activeAddress: fetcher.address, htmlContent: nil, baseURL: content, activeURL: $presented)
         } else {
             Spacer()
         }
@@ -115,11 +170,11 @@ struct PURLView: View {
             if context != .profile {
                 HStack(alignment: .top) {
                     Spacer()
-                    ThemedTextView(text: fetcher.addressName.addressDisplayString)
+                    ThemedTextView(text: fetcher.address.addressDisplayString)
                     Menu {
-                        AddressModel(name: fetcher.addressName).contextMenu(in: sceneModel)
+                        AddressModel(name: fetcher.address).contextMenu(in: sceneModel)
                     } label: {
-                        AddressIconView(address: fetcher.addressName)
+                        AddressIconView(address: fetcher.address)
                     }
                     .padding(.trailing)
                 }
@@ -127,19 +182,13 @@ struct PURLView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Group {
                     switch sizeClass {
-                    case .compact:
-                        if !(fetcher.model?.value.isEmpty ?? false) {
-                            Text("/\(fetcher.model?.value ?? fetcher.title)")
-                                .font(.title3)
-                                .foregroundStyle(Color.primary)
-                        }
                     default:
-                        Text("\(fetcher.addressName).purl.lol/")
+                        Text("\(fetcher.address).purl.lol/")
                             .font(.title2)
                             .bold()
                             .foregroundStyle(Color.accentColor)
                         +
-                        Text(fetcher.model?.value ?? fetcher.title)
+                        Text(fetcher.result?.name ?? fetcher.title)
                             .font(.title3)
                             .foregroundStyle(Color.primary)
                     }
@@ -151,8 +200,8 @@ struct PURLView: View {
                 .fontDesign(.monospaced)
                 .lineLimit(2)
                 
-                if let destination = fetcher.model?.destination {
-                    Text(destination)
+                if let destination = fetcher.result?.content {
+                    Text(destination.absoluteString)
                         .textSelection(.enabled)
                         .font(.caption)
                         .fontDesign(.serif)
@@ -161,14 +210,5 @@ struct PURLView: View {
             }
             .padding(.horizontal)
         }
-    }
-}
-
-public extension PresentationDetent {
-    static let draftDrawer: PresentationDetent = .fraction(0.25)
-}
-extension PresentationDetent: @retroactive Identifiable {
-    public var id: Int {
-        hashValue
     }
 }

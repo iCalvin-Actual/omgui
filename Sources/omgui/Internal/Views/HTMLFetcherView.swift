@@ -9,7 +9,7 @@ import SwiftUI
 
 struct HTMLFetcherView: View {
     @ObservedObject
-    var fetcher: DataFetcher
+    var fetcher: Request
     
     let activeAddress: AddressName?
     let htmlContent: String?

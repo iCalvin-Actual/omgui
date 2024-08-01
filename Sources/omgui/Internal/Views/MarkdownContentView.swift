@@ -83,6 +83,10 @@ struct MarkdownContentView: View {
 }
 
 extension AddressNowDataFetcher: MarkdownSourceProvider {
+    var updated: Date? {
+        result?.updated
+    }
+    
     var address: String {
         addressName
     }

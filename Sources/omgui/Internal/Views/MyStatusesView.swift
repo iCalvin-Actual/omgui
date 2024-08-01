@@ -16,19 +16,6 @@ struct MyStatusesView: View {
     
     let singleAddressMode: Bool
     
-    var accountFetcher: StatusLogDataFetcher {
-        account.accountStatusesFetcher
-    }
-    
-    var activeFetcher: StatusLogDataFetcher {
-        switch filter {
-        case .mine:
-            return addressFetcher
-        default:
-            return accountFetcher
-        }
-    }
-    
     init(singleAddress: Bool, addressBook: AddressBook, accountModel: AccountModel) {
         singleAddressMode = singleAddress
         account = accountModel
@@ -36,7 +23,7 @@ struct MyStatusesView: View {
     }
     
     var body: some View {
-        StatusList(fetcher: activeFetcher)
+        StatusList(fetcher: addressFetcher)
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     Button(action: toggleFilter) {

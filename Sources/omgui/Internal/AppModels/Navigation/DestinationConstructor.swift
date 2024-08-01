@@ -40,14 +40,14 @@ struct DestinationConstructor {
             FollowingView(addressBook)
         case .followingAddresses:
             if let fetcher = addressBook.followingFetcher {
-                ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+                ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
             }
         case .followingStatuses:
             if let fetcher = addressBook.followingStatusLogFetcher {
                 StatusList(fetcher: fetcher)
             }
         case .addressFollowing(let name):
-            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetchConstructor.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+            ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetchConstructor.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         case .nowGarden:
             GardenView(fetcher: addressBook.gardenFetcher)
         case .pastebin(let address):

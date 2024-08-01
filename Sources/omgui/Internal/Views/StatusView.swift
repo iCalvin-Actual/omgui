@@ -15,9 +15,6 @@ struct StatusView: View {
     
     var status: StatusModel?
     
-    @ObservedObject
-    var feedFetcher: StatusLogDataFetcher
-    
     @State
     var shareURL: URL?
     @State
@@ -25,23 +22,22 @@ struct StatusView: View {
     
     init(fetcher: StatusDataFetcher, status: StatusModel? = nil) {
         self.fetcher = fetcher
-        self.feedFetcher = StatusLogDataFetcher(addresses: [fetcher.address], interface: fetcher.interface)
     }
     
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading) {
-                if let model = fetcher.status ?? status {
+                if let model = fetcher.result {
                     StatusRowView(model: model)
                         .padding()
                 } else if fetcher.loading {
                     LoadingView()
                 }
-                if let items = fetcher.status?.imageLinks, !items.isEmpty {
+                if let items = fetcher.result?.imageLinks, !items.isEmpty {
                     imageSection(items)
                         .padding(.horizontal)
                 }
-                if let items = fetcher.status?.linkedItems, !items.isEmpty {
+                if let items = fetcher.result?.linkedItems, !items.isEmpty {
                     linksSection(items)
                         .padding(.horizontal)
                 }
@@ -58,7 +54,7 @@ struct StatusView: View {
 //                ThemedTextView(text: ".status")
 //            }
             ToolbarItem(placement: .topBarTrailing) {
-                if let url = fetcher.status?.shareURLs.first?.content {
+                if let url = fetcher.result?.shareURLs.first?.content {
                     ShareLink(item: url)
                 }
             }

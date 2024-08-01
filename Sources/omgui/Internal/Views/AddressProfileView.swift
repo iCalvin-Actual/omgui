@@ -22,7 +22,7 @@ struct AddressProfileView: View {
     
     @ViewBuilder
     var htmlBody: some View {
-        if let html = fetcher.html {
+        if let html = fetcher.result?.content {
             HTMLFetcherView(
                 fetcher: fetcher,
                 activeAddress: fetcher.addressName,

@@ -21,6 +21,7 @@ let package = Package(
         .package(url: "https://github.com/iCalvin-Actual/swift-markdown-ui", branch: "main"),
         .package(url: "https://github.com/stevengharris/MarkupEditor", exact: "0.5.1"),
         .package(url: "https://github.com/JohnSundell/Ink", exact: "0.5.1"),
+        .package(url: "https://github.com/iCalvin-Actual/Blackbird", branch: "main"),
     ],
     targets: [
         .target(
@@ -28,7 +29,8 @@ let package = Package(
             dependencies: [
                 .product(name: "MarkdownUI", package: "swift-markdown-ui"),
                 "MarkupEditor",
-                "Ink"
+                "Ink",
+                "Blackbird"
             ],
             swiftSettings: [
                 .enableExperimentalFeature("StrictConcurrency")

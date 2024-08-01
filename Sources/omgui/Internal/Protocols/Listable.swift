@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/5/23.
 //
 
+import Blackbird
 import Foundation
 
 protocol Listable: Filterable, Sortable, Menuable, Hashable, Identifiable {
@@ -51,8 +52,8 @@ extension PasteModel: Listable     {
     var listCaption: String?  { owner.addressDisplayString }
 }
 extension PURLModel: Listable     {
-    var listTitle: String     { value }
-    var listSubtitle: String  { destination ?? "" }
+    var listTitle: String     { name }
+    var listSubtitle: String  { content?.absoluteString ?? "" }
     var listCaption: String?  { owner.addressDisplayString }
 }
 extension NowListing: Listable     {

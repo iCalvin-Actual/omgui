@@ -16,19 +16,6 @@ struct MyPURLsView: View {
     
     let singleAddressMode: Bool
     
-    var accountFetcher: AccountPURLsDataFetcher {
-        account.accountPURLsFetcher
-    }
-    
-    var activeFetcher: ListDataFetcher<PURLModel> {
-        switch filter {
-        case .mine:
-            return addressFetcher
-        default:
-            return accountFetcher
-        }
-    }
-    
     init(singleAddress: Bool, addressBook: AddressBook, accountModel: AccountModel) {
         singleAddressMode = singleAddress
         account = accountModel
@@ -36,7 +23,7 @@ struct MyPURLsView: View {
     }
     
     var body: some View {
-        ListView<PURLModel, PURLRowView, EmptyView>(dataFetcher: activeFetcher, rowBuilder: { .init(model: $0) })
+        ModelBackedListView<PURLModel, PURLRowView, EmptyView>(dataFetcher: addressFetcher, rowBuilder: { .init(model: $0) })
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     Button(action: toggleFilter) {
