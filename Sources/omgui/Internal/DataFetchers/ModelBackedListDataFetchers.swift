@@ -85,7 +85,7 @@ class AddressFollowingDataFetcher: ModelBackedListDataFetcher<AddressModel> {
             self.fetchFinished()
             return
         }
-        self.results = following.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) }) ?? []
+        self.results = following.content.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) })
     }
     
     private func handleItems(_ addresses: [AddressName]) {
@@ -164,7 +164,7 @@ class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
         guard let blocked = pastes.first(where: { $0.name == "app.lol.blocked" }) else {
             return
         }
-        self.results = blocked.content?.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) }) ?? []
+        self.results = blocked.content.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) })
     }
     
     func block(_ toBlock: AddressName, credential: APICredential) {

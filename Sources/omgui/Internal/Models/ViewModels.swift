@@ -196,7 +196,7 @@ public struct PasteModel: BlackbirdModel, Hashable, Identifiable, RawRepresentab
     @BlackbirdColumn
     public var name: String
     @BlackbirdColumn
-    public var content: String?
+    public var content: String
     @BlackbirdColumn
     public var listed: Bool
     
@@ -213,7 +213,7 @@ public struct PasteModel: BlackbirdModel, Hashable, Identifiable, RawRepresentab
         id = try container.decode(String.self, forKey: .id)
         owner = try container.decode(AddressName.self, forKey: .owner)
         name = try container.decode(String.self, forKey: .name)
-        content = try container.decode(String?.self, forKey: .content)
+        content = try container.decode(String.self, forKey: .content)
         listed = try container.decode(Bool.self, forKey: .listed)
     }
     
@@ -235,6 +235,7 @@ public struct PasteModel: BlackbirdModel, Hashable, Identifiable, RawRepresentab
         self.id = rawValue
         self.owner = String(split[0])
         self.name = String(split[1])
+        self.content = ""
         self.listed = true
     }
     
@@ -242,7 +243,7 @@ public struct PasteModel: BlackbirdModel, Hashable, Identifiable, RawRepresentab
         self.id = id ?? [owner, name].joined(separator: Self.separator)
         self.owner = owner
         self.name = name
-        self.content = content
+        self.content = content ?? ""
         self.listed = listed
     }
 }
@@ -261,9 +262,13 @@ public struct PURLModel: BlackbirdModel, Hashable, Identifiable, RawRepresentabl
     @BlackbirdColumn
     public var name: String
     @BlackbirdColumn
-    public var content: URL?
+    public var content: String
     @BlackbirdColumn
     public var listed: Bool
+    
+    var url: URL? {
+        URL(string: content)
+    }
     
     enum CodingKeys: String, BlackbirdCodingKey {
         case id
@@ -278,7 +283,7 @@ public struct PURLModel: BlackbirdModel, Hashable, Identifiable, RawRepresentabl
         id = try container.decode(String.self, forKey: .id)
         owner = try container.decode(AddressName.self, forKey: .owner)
         name = try container.decode(String.self, forKey: .name)
-        content = try container.decode(URL?.self, forKey: .content)
+        content = try container.decode(String.self, forKey: .content)
         listed = try container.decode(Bool.self, forKey: .listed)
     }
     
@@ -300,14 +305,15 @@ public struct PURLModel: BlackbirdModel, Hashable, Identifiable, RawRepresentabl
         self.id = rawValue
         self.owner = String(split[0])
         self.name = String(split[1])
+        self.content = ""
         self.listed = true
     }
     
-    public init(id: String? = nil, owner: AddressName, name: String, content: URL? = nil, listed: Bool = true) {
+    public init(id: String? = nil, owner: AddressName, name: String, content: String? = nil, listed: Bool = true) {
         self.id = id ?? [owner, name].joined(separator: Self.separator)
         self.owner = owner
         self.name = name
-        self.content = content
+        self.content = content ?? ""
         self.listed = listed
     }
 }

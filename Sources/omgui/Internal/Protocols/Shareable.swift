@@ -126,13 +126,13 @@ extension PURLModel: Sharable {
         .init(name: "Address", content: owner)
     }
     var primaryCopy: CopyPacket? {
-        guard let destination = content else {
+        guard !content.isEmpty else {
             return address
         }
-        return .init(name: "Copy URL", content: destination.absoluteString)
+        return .init(name: "Copy URL", content: content)
     }
     var copyText: [CopyPacket] {
-        if content == nil {
+        if content.isEmpty {
             return [
                 address
             ]
@@ -142,7 +142,7 @@ extension PURLModel: Sharable {
     }
     
     var primaryURL: SharePacket? {
-        guard let url = content else {
+        guard let url = URL(string: content) else {
             return nil
         }
         return .init(name: "URL", content: url)
@@ -160,13 +160,13 @@ extension PasteModel: Sharable {
         .init(name: "Address", content: owner)
     }
     var primaryCopy: CopyPacket? {
-        guard let content = content else {
+        guard !content.isEmpty else {
             return address
         }
         return .init(name: "Copy Content", content: content)
     }
     var copyText: [CopyPacket] {
-        if content == nil {
+        if content.isEmpty {
             return [
                 .init(name: "Address", content: owner)
             ]
