@@ -9,16 +9,15 @@ import SwiftUI
 
 @MainActor
 struct CommunityView: View {
-    
-    let addressBook: AddressBook
+    @Environment(SceneModel.self)
+    var scene
     
     let communityFetcher: StatusLogDataFetcher
     var myFetcher: StatusLogDataFetcher
     
-    init(addressBook: AddressBook) {
-        self.addressBook = addressBook
-        self.communityFetcher = addressBook.statusLogFetcher
-        self.myFetcher = addressBook.fetchConstructor.statusLog(for: addressBook.myAddresses)
+    init(injectedScene: SceneModel) {
+        self.communityFetcher = injectedScene.fetchConstructor.generalStatusLog()
+        self.myFetcher = injectedScene.fetchConstructor.statusLog(for: injectedScene.myAddresses)
     }
     
     var activeFethcer: StatusLogDataFetcher {
@@ -26,7 +25,7 @@ struct CommunityView: View {
         case .community:
             return communityFetcher
         case .following:
-            return addressBook.fetchConstructor.statusLog(for: addressBook.following)
+            return scene.fetchConstructor.statusLog(for: scene.following)
         case .me:
             return myFetcher
         }

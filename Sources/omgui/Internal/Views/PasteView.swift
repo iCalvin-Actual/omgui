@@ -79,7 +79,7 @@ struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
             .onReceive(fetcher.$model, perform: { model in
                 withAnimation {
                     let address = fetcher.addressName
-                    guard sceneModel.accountModel.myAddresses.contains(address) else {
+                    guard sceneModel.myAddresses.contains(address) else {
                         showDraft = false
                         return
                     }
@@ -229,7 +229,7 @@ struct PasteView: View {
             .onReceive(fetcher.$result, perform: { model in
                 withAnimation {
                     let address = model?.addressName ?? ""
-                    guard !address.isEmpty, sceneModel.accountModel.myAddresses.contains(address) else {
+                    guard !address.isEmpty, sceneModel.myAddresses.contains(address) else {
                         showDraft = false
                         return
                     }

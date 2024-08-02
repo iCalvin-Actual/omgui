@@ -20,18 +20,39 @@ class Router: ObservableObject {
 
 @MainActor
 struct RootView: View {
-    @SceneStorage("app.lol.address")
-    var actingAddress: AddressName = ""
     
     @Environment(\.blackbirdDatabase)
     var db
     
     let fetchConstructor: FetchConstructor
     
+    @AppStorage("app.lol.auth")
+    var authKey: String = ""
+    @AppStorage("app.lol.blocked")
+    var localBlockedAddresses: String = ""
+    @AppStorage("app.lol.cache.myAddresses")
+    var localAddressesCache: String = ""
+    @AppStorage("app.lol.cache.pinned")
+    var currentlyPinnedAddresses: String = "adam&&&app"
+    @AppStorage("app.lol.cache.name")
+    var myName: String = ""
+    
+    
+    @SceneStorage("app.lol.address")
+    var actingAddress: String = ""
+    
     var body: some View {
         NavigationView()
             .environment(
-                SceneModel(actingAddress: actingAddress, fetchConstructor: fetchConstructor)
+                SceneModel(
+                    fetchConstructor: fetchConstructor,
+                    authKey: $authKey,
+                    localBlocklist: $localBlockedAddresses,
+                    pinnedAddresses: $currentlyPinnedAddresses,
+                    myAddresses: $localAddressesCache,
+                    myName: $myName,
+                    actingAddress: $actingAddress
+                )
             )
     }
 }

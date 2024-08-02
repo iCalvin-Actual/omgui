@@ -8,38 +8,24 @@
 import SwiftUI
 
 struct AddressSummaryView: View {
-    @Environment(\.horizontalSizeClass)
-    var horizontalSizeClass
-    
-    @Environment(SceneModel.self)
-    var sceneModel: SceneModel
+    @SceneStorage("app.lol.address.page")
+    var selectedPage: AddressContent = .profile
     
     @ObservedObject
     var addressSummaryFetcher: AddressSummaryDataFetcher
     
-    var allowEditing: Bool
+    @Environment(\.horizontalSizeClass)
+    var horizontalSizeClass
+    @Environment(SceneModel.self)
+    var sceneModel: SceneModel
     
-    @State
-    var sidebarVisibility: NavigationSplitViewVisibility = .all
     @State
     var expandBio: Bool = false
     
-    @SceneStorage("app.lol.address.page")
-    var selectedPage: AddressContent = .profile
-    
     private var allPages: [AddressContent] {
-        pages + more
-    }
-    
-    private var pages: [AddressContent] {
         [
             .profile,
-            .now
-        ]
-    }
-    
-    private var more: [AddressContent] {
-        [
+            .now,
             .statuslog,
             .pastebin,
             .purl

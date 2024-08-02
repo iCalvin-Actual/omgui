@@ -13,6 +13,6 @@ public extension PresentationDetent {
 }
 extension PresentationDetent: @retroactive Identifiable {
     public var id: Int {
-        hashValue
+        self.hashValue
     }
 }

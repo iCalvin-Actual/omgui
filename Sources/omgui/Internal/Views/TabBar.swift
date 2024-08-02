@@ -17,16 +17,6 @@ struct TabBar: View {
     
     let tabModel: TabBarModel = .init()
     
-    private var showEditor: Binding<Bool> {
-        Binding {
-            sceneModel.editingModel != nil
-        } set: { value, _ in
-            if !value {
-                sceneModel.editingModel = nil
-            }
-        }
-    }
-    
     var body: some View {
         TabView {
             ForEach(tabModel.tabs) { item in
@@ -38,11 +28,6 @@ struct TabBar: View {
                 .tabItem {
                     item.label
                 }
-            }
-        }
-        .sheet(isPresented: showEditor) {
-            if let model = sceneModel.editingModel {
-                sceneModel.destinationConstructor.destination(model.editingDestination)
             }
         }
     }

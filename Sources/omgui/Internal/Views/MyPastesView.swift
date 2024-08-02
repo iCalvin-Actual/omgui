@@ -10,20 +10,16 @@ struct MyPastesView: View {
     var actingAddress: AddressName = ""
     
     @ObservedObject
-    var account: AccountModel
-    @ObservedObject
     var addressFetcher: AddressPasteBinDataFetcher
     
     let singleAddressMode: Bool
     
     init(
         singleAddress: Bool,
-        addressBook: AddressBook,
-        accountModel: AccountModel
+        injectedScene: SceneModel
     ) {
         singleAddressMode = singleAddress
-        account = accountModel
-        addressFetcher = addressBook.fetchConstructor.addressPastesFetcher(addressBook.actingAddress, credential: accountModel.credential(for: addressBook.actingAddress, in: addressBook))
+        addressFetcher = injectedScene.fetchConstructor.addressPastesFetcher(injectedScene.actingAddress, credential: injectedScene.credential(for: injectedScene.actingAddress))
     }
     
     var body: some View {

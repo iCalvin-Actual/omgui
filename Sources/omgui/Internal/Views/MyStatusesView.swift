@@ -4,22 +4,20 @@ import SwiftUI
 
 struct MyStatusesView: View {
     
+    @Environment(SceneModel.self)
+    var scene
+    
     @SceneStorage("app.lol.addresses.mine.filter")
     var filter: FilterOption = .none
-    @SceneStorage("app.lol.address")
-    var actingAddress: AddressName = ""
     
-    @ObservedObject
-    var account: AccountModel
     @ObservedObject
     var addressFetcher: StatusLogDataFetcher
     
     let singleAddressMode: Bool
     
-    init(singleAddress: Bool, addressBook: AddressBook, accountModel: AccountModel) {
+    init(singleAddress: Bool, injectedScene: SceneModel) {
         singleAddressMode = singleAddress
-        account = accountModel
-        addressFetcher = addressBook.fetchConstructor.statusLog(for: [addressBook.actingAddress])
+        addressFetcher = injectedScene.fetchConstructor.statusLog(for: [injectedScene.actingAddress])
     }
     
     var body: some View {
@@ -42,7 +40,7 @@ struct MyStatusesView: View {
                         .mask(Circle())
                     }
                     Spacer()
-                    NavigationLink(value: NavigationDestination.editStatus(actingAddress, id: "")) {
+                    NavigationLink(value: NavigationDestination.editStatus(scene.actingAddress, id: "")) {
                         Image(systemName: "pencil.and.scribble")
                             .bold()
                             .foregroundStyle(Color.white)

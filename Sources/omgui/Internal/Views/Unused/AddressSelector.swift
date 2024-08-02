@@ -9,21 +9,19 @@ import SwiftUI
 
 @MainActor
 struct AddressSelector: View {
+    @SceneStorage("app.lol.address")
+    var actingAddress: AddressName = ""
     
-    @Binding
-    var sidebarModel: SidebarModel
+    @Environment(SceneModel.self)
+    var sceneModel
     
     var body: some View {
-        if sidebarModel.addressBook.accountModel.signedIn {
+        if sceneModel.signedIn {
             activeAddressRow
                 .padding()
         } else {
             Button {
-                DispatchQueue.main.async {
-                    Task {
-                        await sidebarModel.addressBook.accountModel.authenticate()
-                    }
-                }
+                sceneModel.authenticate()
             } label: {
                 Label {
                     Text("sgn in")
@@ -45,7 +43,7 @@ struct AddressSelector: View {
     @ViewBuilder
     var activeAddressRow: some View {
         ListRow<AddressModel>(
-            model: .init(name: sidebarModel.actingAddress),
+            model: .init(name: actingAddress),
             preferredStyle: .minimal
         )
     }

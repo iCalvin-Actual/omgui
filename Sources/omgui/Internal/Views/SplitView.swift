@@ -30,10 +30,10 @@ struct SplitView: View {
     
     var body: some View {
         NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(preferredColumn)) {
-            Sidebar(selected: $selected, model: .init(sceneModel.addressBook))
+            Sidebar(selected: $selected, model: .init(sceneModel: sceneModel))
                 .environment(\.viewContext, .column)
         } detail: {
-            let item: NavigationItem = selected ?? (sceneModel.accountModel.signedIn ? .newStatus : .account)
+            let item: NavigationItem = selected ?? (sceneModel.signedIn ? .newStatus : .account)
             let destination = item.destination
             NavigationStack {
                 destinationView(destination)

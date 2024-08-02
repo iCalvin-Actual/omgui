@@ -76,7 +76,7 @@ struct StatusDraftView: View {
                     if let result = draftPoster.result {
                         NavigationStack {
                             @State var innerConfirmDelete: Bool = false
-                            sceneModel.destinationConstructor.appliedDestination(.status(result.address, id: result.id))
+                            sceneModel.destinationConstructor.destination(.status(result.address, id: result.id))
                                 .toolbar {
                                     ToolbarItem(placement: .topBarTrailing) {
                                         Button {
@@ -148,13 +148,13 @@ struct StatusDraftView: View {
     }
     
     func deleteLive() {
-        guard let credential = sceneModel.accountModel.credential(for: draftPoster.address, in: sceneModel.addressBook) else {
+        guard let credential = sceneModel.credential(for: draftPoster.address) else {
             return
         }
         let toDelete = draftPoster.draft
         Task {
             let draftedAddress = draftPoster.address
-            let _ = try await sceneModel.accountModel.interface.deleteAddressStatus(toDelete, from: draftedAddress, credential: credential)
+            let _ = try await sceneModel.fetchConstructor.interface.deleteAddressStatus(toDelete, from: draftedAddress, credential: credential)
             
             withAnimation {
                 draftPoster.draft.clear()
@@ -180,7 +180,7 @@ struct StatusDraftView: View {
             AddressNameView(actingAddress)
                 .padding(.horizontal)
             if expandAddresses {
-                ForEach(sceneModel.accountModel.myAddresses) { address in
+                ForEach(sceneModel.myAddresses) { address in
                     if address != actingAddress {
                         Button {
                             withAnimation {

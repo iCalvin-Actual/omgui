@@ -193,7 +193,7 @@ public struct NowModel: BlackbirdModel, Sendable {
     }
 }
 
-public struct PasteModel: BlackbirdModel, Hashable, Identifiable, RawRepresentable, Codable, Sendable {
+public struct PasteModel: BlackbirdModel, Identifiable, RawRepresentable, Codable, Sendable {
     
     static var separator: String { "{PASTE}" }
     

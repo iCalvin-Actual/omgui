@@ -110,7 +110,7 @@ struct PURLView: View {
             .onReceive(fetcher.$result, perform: { model in
                 withAnimation {
                     let address = model?.addressName ?? ""
-                    guard !address.isEmpty, sceneModel.accountModel.myAddresses.contains(address) else {
+                    guard !address.isEmpty, sceneModel.myAddresses.contains(address) else {
                         showDraft = false
                         return
                     }

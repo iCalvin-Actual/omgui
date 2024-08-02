@@ -12,35 +12,38 @@ import Combine
 final class AccountAuthDataFetcher: NSObject, ObservableObject, Sendable {
     private var webSession: ASWebAuthenticationSession?
     
-    private let client: ClientInfo
-    private let interface: DataInterface
+    private var sceneModel: SceneModel
+    
+    private var client: ClientInfo {
+        sceneModel.fetchConstructor.client
+    }
+    private var interface: DataInterface {
+        sceneModel.fetchConstructor.interface
+    }
+    private var url: URL? {
+        interface.authURL()
+    }
     
     var loaded = false
     var loading = false
     
-    @Published
-    var authToken: String?
-    
-    private var url: URL?
     private var error: Error?
     private var requests: [AnyCancellable] = []
     
     private let anchor = ASPresentationAnchor()
     
-    init(client: ClientInfo, interface: DataInterface) {
-        self.client = client
-        self.interface = interface
-        self.url = interface.authURL()
+    init(sceneModel: SceneModel) {
+        self.sceneModel = sceneModel
         super.init()
         
         self.recreateWebSession()
     }
     
     private func recreateWebSession() {
-        guard let url = url else {
+        guard let url, webSession == nil else {
             return
         }
-        self.webSession = ASWebAuthenticationSession(
+        webSession = ASWebAuthenticationSession(
             url: url,
             callbackURLScheme: client.urlScheme
         ) { (callbackUrl, error) in
@@ -58,17 +61,25 @@ final class AccountAuthDataFetcher: NSObject, ObservableObject, Sendable {
                 return
             }
             let client = self.client
-            Task {
-                let token = try await self.interface.fetchAccessToken(
+            Task { [weak self] in
+                guard let self else { return }
+                let token = try await interface.fetchAccessToken(
                     authCode: code,
                     clientID: client.id,
                     clientSecret: client.secret,
                     redirect: client.redirectUrl
                 )
-                self.authToken = token
+                setToken(token)
             }
         }
         self.webSession?.presentationContextProvider = self
+    }
+    
+    func setToken(_ newValue: APICredential?) {
+        guard let newValue else {
+            return
+        }
+        sceneModel.login(newValue)
     }
     
     func perform() {

@@ -9,35 +9,28 @@ import Combine
 import SwiftUI
 
 struct FollowingView: View {
-    
-    @ObservedObject
-    var addressBook: AddressBook
-    
-    var requests: [AnyCancellable] = []
+    @Environment(SceneModel.self)
+    var scene
     
     @State
     var needsRefresh: Bool = false
     
-    init(_ addressBook: AddressBook) {
-        self.addressBook = addressBook
-    }
-    
     var body: some View {
         followingView
             .onAppear(perform: { needsRefresh = false })
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    ThemedTextView(text: "following")
+                }
+            }
     }
     
     @ViewBuilder
     var followingView: some View {
-        if let followingFetcher = addressBook.followingStatusLogFetcher {
-            StatusList(fetcher: followingFetcher)
+        if scene.signedIn {
+            StatusList(fetcher: scene.fetchConstructor.statusLog(for: scene.following))
         } else {
             signedOutView
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        ThemedTextView(text: "following")
-                    }
-                }
         }
     }
     

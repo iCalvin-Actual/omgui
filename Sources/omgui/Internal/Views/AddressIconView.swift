@@ -13,7 +13,7 @@ struct AddressIconView: View {
             image.resizable()
                 .aspectRatio(contentMode: .fill)
         } placeholder: {
-            if let data = sceneModel.addressBook.addressSummary(address).iconFetcher.result?.data, let uiImage = UIImage(data: data) {
+            if let data = sceneModel.addressSummary(address).iconFetcher.result?.data, let uiImage = UIImage(data: data) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .aspectRatio(contentMode: .fill)

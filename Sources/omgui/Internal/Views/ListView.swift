@@ -62,7 +62,7 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
             filters.append(.query(queryString))
         }
         return filters
-            .applyFilters(to: dataFetcher.results, addressBook: sceneModel.addressBook)
+            .applyFilters(to: dataFetcher.results, in: sceneModel)
             .sorted(with: sort)
     }
     
@@ -267,7 +267,7 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
 //            }
             return .purl(purlModel.addressName, title: purlModel.name)
         case let statusModel as StatusModel:
-            if sceneModel.accountModel.myAddresses.contains(statusModel.address) {
+            if sceneModel.myAddresses.contains(statusModel.address) {
 //                return .editStatus(statusModel.address, id: statusModel.id)
             }
             return .status(statusModel.address, id: statusModel.id)
@@ -344,7 +344,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
             filters.append(.query(queryString))
         }
         return filters
-            .applyFilters(to: dataFetcher.results, addressBook: sceneModel.addressBook)
+            .applyFilters(to: dataFetcher.results, in: sceneModel)
             .sorted(with: sort)
     }
     
@@ -549,7 +549,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
 //            }
             return .purl(purlModel.addressName, title: purlModel.name)
         case let statusModel as StatusModel:
-            if sceneModel.accountModel.myAddresses.contains(statusModel.address) {
+            if sceneModel.myAddresses.contains(statusModel.address) {
 //                return .editStatus(statusModel.address, id: statusModel.id)
             }
             return .status(statusModel.address, id: statusModel.id)
@@ -624,7 +624,7 @@ struct ListItemView<T: Listable, V: View, H: View>: View {
             filters.append(.query(queryString))
         }
         return filters
-            .applyFilters(to: data, addressBook: sceneModel.addressBook)
+            .applyFilters(to: data, in: sceneModel)
             .sorted(with: sort)
     }
     
@@ -804,7 +804,7 @@ struct ListItemView<T: Listable, V: View, H: View>: View {
 //            }
             return .purl(purlModel.addressName, title: purlModel.name)
         case let statusModel as StatusModel:
-            if sceneModel.accountModel.myAddresses.contains(statusModel.address) {
+            if sceneModel.myAddresses.contains(statusModel.address) {
 //                return .editStatus(statusModel.address, id: statusModel.id)
             }
             return .status(statusModel.address, id: statusModel.id)

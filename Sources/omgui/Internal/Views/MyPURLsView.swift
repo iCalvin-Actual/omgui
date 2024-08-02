@@ -4,22 +4,19 @@ import SwiftUI
 
 struct MyPURLsView: View {
     
+    @Environment(SceneModel.self)
+    var scene
+    
     @SceneStorage("app.lol.addresses.mine.filter")
     var filter: FilterOption = .none
-    @SceneStorage("app.lol.address")
-    var actingAddress: AddressName = ""
-    
-    @ObservedObject
-    var account: AccountModel
     @ObservedObject
     var addressFetcher: AddressPURLsDataFetcher
     
     let singleAddressMode: Bool
     
-    init(singleAddress: Bool, addressBook: AddressBook, accountModel: AccountModel) {
+    init(singleAddress: Bool, injectedScene: SceneModel) {
         singleAddressMode = singleAddress
-        account = accountModel
-        addressFetcher = addressBook.fetchConstructor.addressPURLsFetcher(addressBook.actingAddress, credential: accountModel.credential(for: addressBook.actingAddress, in: addressBook))
+        addressFetcher = injectedScene.fetchConstructor.addressPURLsFetcher(injectedScene.actingAddress, credential: injectedScene.credential(for: injectedScene.actingAddress))
     }
     
     var body: some View {
@@ -42,7 +39,7 @@ struct MyPURLsView: View {
                         .mask(Circle())
                     }
                     Spacer()
-                    NavigationLink(value: NavigationDestination.purl(actingAddress, title: "")) {
+                    NavigationLink(value: NavigationDestination.purl(scene.actingAddress, title: "")) {
                         Image(systemName: "pencil.and.scribble")
                             .bold()
                             .foregroundStyle(Color.white)
