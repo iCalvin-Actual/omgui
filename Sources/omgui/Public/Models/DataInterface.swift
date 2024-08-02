@@ -27,6 +27,11 @@ public protocol DataInterface: Sendable {
     func fetchServiceInfo()
     async throws -> ServiceInfoModel
     
+    func fetchAddressAvailability(
+        _ address: AddressName
+    )
+    async throws -> AddressAvailabilityModel
+    
     func fetchAddressDirectory()
     async throws -> [AddressName]
     

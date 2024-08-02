@@ -29,6 +29,11 @@ public final class SampleData: DataInterface {
         return
             .init(members: 500, addresses: 400, profiles: 300)
     }
+    
+    public func fetchAddressAvailability(_ address: AddressName) async throws -> AddressAvailabilityModel {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return .init(address: address, available: true, punyCode: nil)
+    }
 
     public func fetchAddressDirectory() async throws -> [AddressName] {
         try await Task.sleep(nanoseconds: UInt64(2 * Double(NSEC_PER_SEC)))

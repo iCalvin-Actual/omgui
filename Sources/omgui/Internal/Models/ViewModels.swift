@@ -20,6 +20,18 @@ public struct ServiceInfoModel: Sendable {
     }
 }
 
+public struct AddressAvailabilityModel: Sendable {
+    let address: AddressName
+    let available: Bool
+    let punyCode: String?
+    
+    public init(address: AddressName, available: Bool, punyCode: String? = nil) {
+        self.address = address
+        self.available = available
+        self.punyCode = punyCode
+    }
+}
+
 public struct AccountInfoModel: Sendable {
     let name: String
     let created: Date

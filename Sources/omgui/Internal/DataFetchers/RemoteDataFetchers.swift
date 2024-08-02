@@ -39,6 +39,35 @@ class URLContentDataFetcher: DataFetcher {
     }
 }
 
+class AddressAvailabilityDataFetcher: DataFetcher {
+    
+    var address: String
+    
+    var available: Bool?
+    var result: AddressAvailabilityModel?
+    
+    init(address: AddressName, interface: DataInterface) {
+        self.address = address
+        super.init(interface: interface)
+    }
+    
+    func fetchAddress(_ address: AddressName) async throws {
+        self.available = false
+        self.address = address
+        await self.perform()
+    }
+    
+    override func throwingRequest() async throws {
+        let address = address
+        guard !address.isEmpty else {
+            fetchFinished()
+            return
+        }
+        let result = try await interface.fetchAddressAvailability(address)
+        self.result = result
+    }
+}
+
 @MainActor
 class AddressIconDataFetcher: ModelBackedDataFetcher<AddressIconModel> {
     let address: AddressName
