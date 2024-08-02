@@ -65,6 +65,8 @@ class AddressSummaryDataFetcher: DataFetcher {
         await statusFetcher.updateIfNeeded()
         await bioFetcher.updateIfNeeded()
         await followingFetcher.updateIfNeeded()
+        
+        fetchFinished()
     }
     
     override func throwingRequest() async throws {
@@ -135,8 +137,8 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
         guard !addressName.isEmpty else {
             return
         }
-        await super.perform()
         await blockedFetcher.perform()
+        await super.perform()
     }
 }
 

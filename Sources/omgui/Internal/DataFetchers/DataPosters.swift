@@ -252,7 +252,7 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
             draft.content = status.status
             draft.externalUrl = status.link?.absoluteString
             loading = false
-            threadSafeSendUpdate()
+            publish()
         } else {
             loading = false
         }

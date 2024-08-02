@@ -17,13 +17,16 @@ class BackedDataFetcher: Request {
     }
     
     override func throwingRequest() async throws {
-        Task {
-            try await fetchModels()
-            try await fetchRemote()
-            try await fetchModels()
-            
+        defer {
             fetchFinished()
         }
+        try await fetchModels()
+        
+        guard requestNeeded else {
+            return
+        }
+        try await fetchRemote()
+        try await fetchModels()
     }
     
     func fetchModels() async throws {
@@ -37,6 +40,10 @@ class ModelBackedDataFetcher<M: BlackbirdModel>: BackedDataFetcher {
     @Published
     var result: M?
     
+    override var requestNeeded: Bool {
+        result == nil
+    }
+    
     override var noContent: Bool {
         !loading && result != nil
     }
@@ -48,6 +55,10 @@ class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
     var results: [M] = []
     var title: String { "" }
     var items: Int { results.count }
+    
+    override var requestNeeded: Bool {
+        results.isEmpty || !loaded
+    }
     
     override var noContent: Bool {
         !loading && !results.isEmpty

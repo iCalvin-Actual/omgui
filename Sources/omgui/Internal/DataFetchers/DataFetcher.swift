@@ -56,6 +56,10 @@ class AccountInfoDataFetcher: DataFetcher {
     
     var accountName: String?
     
+    override var requestNeeded: Bool {
+        accountName == nil
+    }
+    
     init(address: AddressName, interface: DataInterface, credential: APICredential) {
         self.name = address
         self.credential = credential
@@ -84,6 +88,10 @@ class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
     
     var draftPoster: NamedDraftPoster<N>? {
         return nil
+    }
+    
+    override var requestNeeded: Bool {
+        model == nil
     }
     
     init(name: AddressName, title: String, interface: DataInterface, credential: APICredential? = nil) {

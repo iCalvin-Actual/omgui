@@ -140,7 +140,7 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
         }
         let _ = try await interface.deletePaste(title, from: address, credential: credential)
         try await result?.delete(from: db)
-        threadSafeSendUpdate()
+        publish()
     }
 }
 
@@ -197,6 +197,6 @@ class AddressPURLDataFetcher: ModelBackedDataFetcher<PURLModel> {
         let _ = try await interface.deletePURL(title, from: address, credential: credential)
         try await result?.delete(from: db)
         result = nil
-        threadSafeSendUpdate()
+        publish()
     }
 }

@@ -100,7 +100,7 @@ class AddressFollowingDataFetcher: ModelBackedListDataFetcher<AddressModel> {
             try await paste.write(to: db)
         }
         self.fetchFinished()
-        self.threadSafeSendUpdate()
+        self.publish()
     }
     
     func follow(_ toFollow: AddressName, credential: APICredential) {
@@ -210,7 +210,7 @@ class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
             try await paste.write(to: db)
         }
         self.fetchFinished()
-        self.threadSafeSendUpdate()
+        self.publish()
     }
 }
 

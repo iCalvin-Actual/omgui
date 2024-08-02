@@ -168,7 +168,7 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
                 .padding(.vertical, 4)
         }
         .refreshable(action: {
-            await dataFetcher.perform()
+            await dataFetcher.updateIfNeeded(forceReload: true)
         })
         .listStyle(.plain)
         .onAppear(perform: {
@@ -450,7 +450,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
                 .padding(.vertical, 4)
         }
         .refreshable(action: {
-            await dataFetcher.perform()
+            await dataFetcher.updateIfNeeded(forceReload: true)
         })
         .listStyle(.plain)
         .onAppear(perform: {

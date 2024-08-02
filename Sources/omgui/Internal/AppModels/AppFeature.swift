@@ -13,6 +13,7 @@ enum AppFeature: String {
     case status
     case now
     case paste
+    case photo
     case purl
     case weblog
     
@@ -21,15 +22,17 @@ enum AppFeature: String {
         case .service:
             return "omg.lol"
         case .status:
-            return "StatusLog"
+            return "statuslog"
         case .now:
-            return "Now Page"
+            return "/now"
         case .paste:
-            return "PasteBin"
+            return "/pastes"
         case .purl:
-            return "PURLs"
+            return "/purls"
+        case .photo:
+            return "/pics"
         case .weblog:
-            return "Weblog"
+            return "/blog"
         }
     }
 }

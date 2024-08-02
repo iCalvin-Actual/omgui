@@ -44,8 +44,11 @@ class Request: NSObject, ObservableObject {
         }
     }
     
-    func updateIfNeeded() async {
-        guard !loading else {
+    var requestNeeded: Bool { !loaded }
+    
+    func updateIfNeeded(forceReload: Bool = false) async {
+        guard forceReload || (!loading && requestNeeded) else {
+            print("NOT performing request")
             return
         }
         await perform()
@@ -53,7 +56,7 @@ class Request: NSObject, ObservableObject {
     
     func perform() async {
         loading = true
-        threadSafeSendUpdate()
+        publish()
         do {
             try await throwingRequest()
         } catch {
@@ -62,22 +65,23 @@ class Request: NSObject, ObservableObject {
     }
     
     func throwingRequest() async throws {
+        fetchFinished()
     }
     
     func fetchFinished() {
         loaded = true
         loading = false
-        threadSafeSendUpdate()
+        publish()
     }
     
     func handle(_ incomingError: Error) {
         loaded = false
         loading = false
         error = incomingError
-        threadSafeSendUpdate()
+        publish()
     }
     
-    func threadSafeSendUpdate() {
+    func publish() {
         objectWillChange.send()
     }
 }

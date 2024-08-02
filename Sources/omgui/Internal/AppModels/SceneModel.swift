@@ -40,6 +40,7 @@ class SceneModel {
     let fetchConstructor: FetchConstructor
     
     var globalBlockedFetcher: AddressBlockListDataFetcher
+    var addressBlockedFetcher: AddressBlockListDataFetcher
     var addressFollowingFetcher: AddressFollowingDataFetcher
     
     var following: [AddressName] {
@@ -71,9 +72,15 @@ class SceneModel {
     }
     
     func unblock(_ address: AddressName) {
+        if signedIn {
+            addressBlockedFetcher.unBlock(address, credential: authKey)
+        }
         localBlocklist.removeAll(where: { $0 == address })
     }
     func block(_ address: AddressName) {
+        if signedIn {
+            addressBlockedFetcher.block(address, credential: authKey)
+        }
         localBlocklist.append(address)
     }
     
@@ -134,6 +141,8 @@ class SceneModel {
         self._actingAddress = actingAddress
         self.fetchConstructor = fetchConstructor
         self.globalBlockedFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: fetchConstructor.interface, db: fetchConstructor.database)
+        self.globalBlockedFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: fetchConstructor.interface, db: fetchConstructor.database)
+        self.addressBlockedFetcher = AddressBlockListDataFetcher(address: actingAddress.wrappedValue, credential: authKey.wrappedValue, interface: fetchConstructor.interface, db: fetchConstructor.database)
         self.addressFollowingFetcher = AddressFollowingDataFetcher(address: actingAddress.wrappedValue, credential: authKey.wrappedValue, interface: fetchConstructor.interface, db: fetchConstructor.database)
         self.authenticationFetcher = AccountAuthDataFetcher(sceneModel: self)
     }
@@ -146,7 +155,6 @@ class SceneModel {
     }
     
     public func authenticate() {
-        // Perform auth fetcher
         authenticationFetcher?.perform()
     }
     
@@ -155,10 +163,10 @@ class SceneModel {
     }
     
     func logout() {
-        self.myAddresses = []
-        self.privateProfileCache = [:]
-        self.authKey = ""
-        // todo: 'unload' my addresses first
+        myAddresses.forEach({ publicProfileCache.removeValue(forKey: $0) })
+        myAddresses = []
+        privateProfileCache = [:]
+        authKey = ""
     }
 }
 

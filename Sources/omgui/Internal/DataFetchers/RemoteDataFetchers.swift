@@ -54,7 +54,7 @@ class AddressAvailabilityDataFetcher: DataFetcher {
     func fetchAddress(_ address: AddressName) async throws {
         self.available = false
         self.address = address
-        await self.perform()
+        await self.updateIfNeeded(forceReload: true)
     }
     
     override func throwingRequest() async throws {

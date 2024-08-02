@@ -32,7 +32,7 @@ class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
         set {
             currentlyPinnedAddresses = Array(Set(newValue)).joined(separator: "&&&")
             Task {
-                await self.perform()
+                await self.updateIfNeeded(forceReload: true)
             }
         }
     }
@@ -72,7 +72,7 @@ class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
         set {
             cachedBlockList = Array(Set(newValue)).joined(separator: "&&&")
             Task {
-                await self.perform()
+                await self.updateIfNeeded(forceReload: true)
             }
         }
     }
