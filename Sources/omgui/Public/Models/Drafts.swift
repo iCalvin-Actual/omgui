@@ -53,10 +53,6 @@ protocol NamedDraft: DraftItem {
     init(address: AddressName, name: String, content: String, listed: Bool)
 }
 extension NamedDraft {
-    public var id: String {
-        address + name
-    }
-    
     mutating
     func clear() {
         content = ""

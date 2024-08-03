@@ -11,8 +11,3 @@ import SwiftUI
 extension PresentationDetent {
     static let draftDrawer: PresentationDetent = .fraction(0.25)
 }
-extension PresentationDetent: @retroactive Identifiable {
-    public var id: Int {
-        self.hashValue
-    }
-}

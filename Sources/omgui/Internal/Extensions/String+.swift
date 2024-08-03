@@ -33,17 +33,6 @@ extension String {
     }
 }
 
-extension String: @retroactive RawRepresentable {
-    public var rawValue: String { self }
-    public init?(rawValue: String) {
-        self = rawValue
-    }
-}
-
-extension String: @retroactive Identifiable {
-    public var id: String { rawValue }
-}
-
 enum HTMLToMarkdownConverter {
     
     // MARK: - Public methods
