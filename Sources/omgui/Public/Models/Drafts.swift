@@ -72,9 +72,9 @@ extension StatusModel: MDDraftable {
         var address: AddressName
         
         public var id: String?
-        var content: String
-        var emoji: String
-        var externalUrl: String?
+        public var content: String
+        public var emoji: String
+        public var externalUrl: String?
         
         var publishable: Bool {
             guard id == nil else {
@@ -156,9 +156,9 @@ extension PasteModel: NamedDraftable {
         
         var address: AddressName
         
-        var name: String
-        var content: String
-        var listed: Bool
+        public var name: String
+        public var content: String
+        public var listed: Bool
         
         var publishable: Bool {
             !name.isEmpty && !content.isEmpty
@@ -186,9 +186,9 @@ extension PURLModel: NamedDraftable {
         
         var address: AddressName
         
-        var name: String
-        var content: String
-        var listed: Bool
+        public var name: String
+        public var content: String
+        public var listed: Bool
         
         var publishable: Bool {
             !name.isEmpty && !content.isEmpty

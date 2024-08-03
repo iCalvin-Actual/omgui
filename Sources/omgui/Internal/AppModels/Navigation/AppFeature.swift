@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 enum AppFeature: String {
     case now
     case paste

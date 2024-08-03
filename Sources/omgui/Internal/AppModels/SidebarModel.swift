@@ -26,35 +26,20 @@ class SidebarModel: ObservableObject {
         
         var displayName: String {
             switch self {
-            case .account:
-                return "my account"
-            case .directory:
-                return "address book"
-            case .now:
-                return "/now pages"
-            case .status:
-                return "status.lol"
-            case .saved:
-                return "cache.app.lol"
-            case .weblog:
-                return "blog.app.lol"
-            case .comingSoon:
-                return "Coming Soon"
-            case .more:
-                return "/more"
-            case .new:
-                return "New"
+            case .account:      return "my account"
+            case .directory:    return "address book"
+            case .now:          return "/now pages"
+            case .status:       return "status.lol"
+            case .saved:        return "cache.app.lol"
+            case .weblog:       return "blog.app.lol"
+            case .comingSoon:   return "Coming Soon"
+            case .more:         return "/more"
+            case .new:          return "New"
             }
         }
     }
     
-    var requests: [AnyCancellable] = []
-    
     let sceneModel: SceneModel
-    
-    init(sceneModel: SceneModel) {
-        self.sceneModel = sceneModel
-    }
     
     var sections: [Section] {
         var sections: [Section] = [.status, .directory, .now]
@@ -66,23 +51,29 @@ class SidebarModel: ObservableObject {
         return sections
     }
     
+    init(sceneModel: SceneModel) {
+        self.sceneModel = sceneModel
+    }
+    
     func items(for section: Section) -> [NavigationItem] {
         switch section {
+            
         case .directory:
-            var destinations: [NavigationItem] = [.search]
+            var destinations: [NavigationItem] = [.search, .blocked]
             if sceneModel.signedIn {
-                destinations.append(.following(.autoUpdatingAddress))
+                destinations.insert(.following(.autoUpdatingAddress), at: 1)
             }
-            destinations.append(.blocked)
             destinations.append(
                 contentsOf: sceneModel.pinned.sorted().map({ .pinnedAddress($0) })
             )
             return destinations
+            
         case .now:
             let destinations = [
                 NavigationItem.nowGarden
             ]
             return destinations
+            
         case .status:
             var destinations = [
                 NavigationItem.community
@@ -91,8 +82,10 @@ class SidebarModel: ObservableObject {
                 destinations.insert(contentsOf: [.newStatus, .following(.autoUpdatingAddress)], at: 0)
             }
             return destinations
+            
         default:
             return []
+            
         }
     }
 }

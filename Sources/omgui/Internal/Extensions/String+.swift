@@ -35,8 +35,6 @@ extension String {
 
 enum HTMLToMarkdownConverter {
     
-    // MARK: - Public methods
-    
     /// Converts the HTML-tags in the given string to their corresponding markdown tags.
     ///
     /// - SeeAlso: See type `HTMLToMarkdownConverter.Tags` for a list of supported HTML-tags.
@@ -94,8 +92,6 @@ extension HTMLToMarkdownConverter {
         // Hyperlinks need to be handled differently, as they not only have simple opening and closing tag, but also use the attribute `href`.
         // See private method `Text.convertHtmlLinksToMarkdown(:)` for further details.
         // case a
-        
-        // MARK: - Public properties
         
         var openingHtmlTag: String {
             "<\(rawValue)>"
@@ -178,16 +174,5 @@ extension AddressName {
 extension String {
     func clearWhitespace() -> String {
         filter { !$0.isWhitespace }
-    }
-    
-    var urlString: String {
-        var newText = self
-        if !newText.contains("://") {
-            newText = "https://" + newText
-        }
-        if !newText.contains(".") {
-            newText = newText + ".com"
-        }
-        return newText
     }
 }

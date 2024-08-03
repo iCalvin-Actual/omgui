@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     var id: String { rawValue }
     

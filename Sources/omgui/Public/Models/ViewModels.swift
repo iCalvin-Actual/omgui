@@ -570,7 +570,7 @@ public struct AddressBioModel: Sendable {
     let address: AddressName
     let bio: String?
     
-    init(address: AddressName, bio: String?) {
+    public init(address: AddressName, bio: String?) {
         self.address = address
         self.bio = bio
     }

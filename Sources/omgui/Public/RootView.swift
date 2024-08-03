@@ -42,7 +42,7 @@ struct RootView: View {
     var actingAddress: String = ""
     
     var body: some View {
-        NavigationView()
+        SplitView()
             .environment(
                 SceneModel(
                     fetchConstructor: fetchConstructor,
