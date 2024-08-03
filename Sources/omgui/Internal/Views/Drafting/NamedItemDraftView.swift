@@ -11,7 +11,7 @@ struct NamedItemDraftView<D: NamedDraftable>: View {
     @ObservedObject
     var fetcher: NamedDraftPoster<D>
     
-    public init(fetcher: NamedDraftPoster<D>) {
+    init(fetcher: NamedDraftPoster<D>) {
         self.fetcher = fetcher
     }
     

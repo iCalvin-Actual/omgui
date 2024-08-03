@@ -7,25 +7,25 @@
 
 import SwiftUI
 
-struct AddressNowView: View {
+struct AddressProfileView: View {
     @ObservedObject
-    var fetcher: AddressNowDataFetcher
+    var fetcher: AddressProfileDataFetcher
     
     var body: some View {
         htmlBody
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    ThemedTextView(text: fetcher.addressName.addressDisplayString + ".now")
+                    AddressNameView(fetcher.addressName)
                 }
             }
     }
     
     @ViewBuilder
     var htmlBody: some View {
-        if let html = fetcher.result?.html {
+        if let html = fetcher.result?.content {
             HTMLFetcherView(
                 fetcher: fetcher,
-                activeAddress: fetcher.address,
+                activeAddress: fetcher.addressName,
                 htmlContent: html,
                 baseURL: nil
             )
@@ -34,7 +34,7 @@ struct AddressNowView: View {
                 if fetcher.loading {
                     LoadingView()
                 } else {
-                    ThemedTextView(text: "no /now page")
+                    ThemedTextView(text: "no profile")
                         .padding()
                 }
                 Spacer()

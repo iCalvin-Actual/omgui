@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AddressPasteView: View {
+struct AddressPastesView: View {
     @ObservedObject
     var fetcher: AddressPasteBinDataFetcher
     

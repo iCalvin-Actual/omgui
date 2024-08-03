@@ -97,7 +97,7 @@ struct AddressPicker: View {
                                 actingAddress = address
                             }
                         } label: {
-                            ThemedTextView(text: address.addressDisplayString, font: .headline)
+                            AddressNameView(address, font: .headline)
                                 .padding(.horizontal)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }

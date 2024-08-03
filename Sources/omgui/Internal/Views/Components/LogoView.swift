@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-struct IconView: View {
+struct LogoView: View {
     @Environment(\.colorScheme)
     var colorScheme
     

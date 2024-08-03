@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public enum ViewContext {
+enum ViewContext {
     case column
     case detail
     case profile

@@ -109,7 +109,7 @@ class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
         self.model = model
     }
     
-    public func deleteIfPossible() async throws {
+    func deleteIfPossible() async throws {
         // override
     }
 }

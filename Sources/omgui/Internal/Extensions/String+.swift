@@ -191,7 +191,7 @@ extension String {
         filter { !$0.isWhitespace }
     }
     
-    public var urlString: String {
+    var urlString: String {
         var newText = self
         if !newText.contains("://") {
             newText = "https://" + newText

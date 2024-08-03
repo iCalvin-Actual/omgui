@@ -565,3 +565,13 @@ public struct GroupStatusLogModel: Sendable {
     let displayTitle: String?
     let statuses: [StatusModel]
 }
+
+public struct AddressBioModel: Sendable {
+    let address: AddressName
+    let bio: String?
+    
+    init(address: AddressName, bio: String?) {
+        self.address = address
+        self.bio = bio
+    }
+}

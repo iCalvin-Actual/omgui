@@ -90,7 +90,7 @@ struct Sidebar: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 4) {
-                    IconView()
+                    LogoView()
                         .frame(height: 34)
                     ThemedTextView(text: "app.lol", font: .title)
                 }

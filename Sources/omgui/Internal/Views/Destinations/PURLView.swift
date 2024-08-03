@@ -170,7 +170,7 @@ struct PURLView: View {
             if context != .profile {
                 HStack(alignment: .top) {
                     Spacer()
-                    ThemedTextView(text: fetcher.address.addressDisplayString)
+                    AddressNameView(fetcher.address)
                     Menu {
                         AddressModel(name: fetcher.address).contextMenu(in: sceneModel)
                     } label: {

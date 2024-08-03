@@ -84,7 +84,7 @@ class SceneModel {
         localBlocklist.append(address)
     }
     
-    public var myAddresses: [String] {
+    var myAddresses: [String] {
         get {
             localAddressesCache.split(separator: "&&&").map({ String($0) })
         }
@@ -92,7 +92,7 @@ class SceneModel {
             localAddressesCache = newValue.joined(separator: "&&&")
         }
     }
-    public var myOtherAddresses: [String] {
+    var myOtherAddresses: [String] {
         myAddresses.filter({ $0 != actingAddress })
     }
     
@@ -147,14 +147,14 @@ class SceneModel {
         self.authenticationFetcher = AccountAuthDataFetcher(sceneModel: self)
     }
     
-    public func credential(for address: AddressName) -> APICredential? {
+    func credential(for address: AddressName) -> APICredential? {
         guard !authKey.isEmpty, myAddresses.contains(address) else {
             return nil
         }
         return authKey
     }
     
-    public func authenticate() {
+    func authenticate() {
         authenticationFetcher?.perform()
     }
     
@@ -174,7 +174,7 @@ extension SceneModel {
     private func constructFetcher(for address: AddressName) -> AddressSummaryDataFetcher {
         fetchConstructor.addressDetailsFetcher(address)
     }
-    public func addressSummary(_ address: AddressName) -> AddressSummaryDataFetcher {
+    func addressSummary(_ address: AddressName) -> AddressSummaryDataFetcher {
         if let model = publicProfileCache[address] {
             return model
         } else {
@@ -192,7 +192,7 @@ extension SceneModel {
     enum AddressBookError: Error {
         case notYourAddress
     }
-    public func addressPrivateSummary(_ address: AddressName) throws -> AddressPrivateSummaryDataFetcher {
+    func addressPrivateSummary(_ address: AddressName) throws -> AddressPrivateSummaryDataFetcher {
         if let model = privateProfileCache[address] {
             return model
         } else {
@@ -203,31 +203,31 @@ extension SceneModel {
             return model
         }
     }
-    public func isFollowing(_ address: AddressName) -> Bool {
+    func isFollowing(_ address: AddressName) -> Bool {
         guard signedIn else {
             return false
         }
         return following.contains(address)
     }
-    public func canFollow(_ address: AddressName) -> Bool {
+    func canFollow(_ address: AddressName) -> Bool {
         guard signedIn else {
             return false
         }
         return !following.contains(address)
     }
-    public func canUnFollow(_ address: AddressName) -> Bool {
+    func canUnFollow(_ address: AddressName) -> Bool {
         guard signedIn else {
             return false
         }
         return following.contains(address)
     }
-    public func follow(_ address: AddressName) {
+    func follow(_ address: AddressName) {
         guard let credential = credential(for: actingAddress) else {
             return
         }
         addressFollowingFetcher.follow(address, credential: credential)
     }
-    public func unFollow(_ address: AddressName) {
+    func unFollow(_ address: AddressName) {
         guard let credential = credential(for: address) else {
             return
         }

@@ -9,19 +9,19 @@ import MarkdownUI
 import SwiftUI
 
 
-public protocol SomeDraftable: Sendable {
+protocol SomeDraftable: Sendable {
     associatedtype Draft: DraftItem
 }
-public protocol NamedDraftable: SomeDraftable, Equatable {
+protocol NamedDraftable: SomeDraftable, Equatable {
     associatedtype NamedDraftItem: NamedDraft
     
     var asDraft: Draft? { get }
 }
-public protocol MDDraftable: SomeDraftable {
+protocol MDDraftable: SomeDraftable {
     associatedtype MDDraftItem: MDDraft
 }
 
-public protocol DraftItem: Sendable, Identifiable {
+protocol DraftItem: Sendable, Identifiable {
     static var contentPlaceholder: String { get }
     
     var address: AddressName { get }
@@ -33,7 +33,7 @@ public protocol DraftItem: Sendable, Identifiable {
     func clear()
 }
 extension DraftItem {
-    public var id: String {
+    var id: String {
         address
     }
     var publishable: Bool {
@@ -41,12 +41,12 @@ extension DraftItem {
     }
     
     mutating
-    public func clear() {
+    func clear() {
         content = ""
     }
 }
-public protocol MDDraft: DraftItem { }
-public protocol NamedDraft: DraftItem {
+protocol MDDraft: DraftItem { }
+protocol NamedDraft: DraftItem {
     var name: String { get set }
     var listed: Bool { get set }
     
@@ -58,7 +58,7 @@ extension NamedDraft {
     }
     
     mutating
-    public func clear() {
+    func clear() {
         content = ""
         name = ""
         listed = false
@@ -66,33 +66,33 @@ extension NamedDraft {
 }
 
 extension StatusModel: MDDraftable {
-    public typealias MDDraftItem = Draft
+    typealias MDDraftItem = Draft
     
     public struct Draft: MDDraft {
-        static public var contentPlaceholder: String {
+        static var contentPlaceholder: String {
             "what's new?"
         }
         
-        public var address: AddressName
+        var address: AddressName
         
         public var id: String?
-        public var content: String
-        public var emoji: String
-        public var externalUrl: String?
+        var content: String
+        var emoji: String
+        var externalUrl: String?
         
-        public var publishable: Bool {
+        var publishable: Bool {
             guard id == nil else {
                 return true
             }
             return !content.isEmpty
         }
         
-        public var displayEmoji: String {
+        var displayEmoji: String {
             emoji.isEmpty ? "💗" : emoji
         }
         
         mutating
-        public func clear() {
+        func clear() {
             id = nil
             content = ""
             emoji = ""
@@ -117,58 +117,58 @@ extension StatusModel: MDDraftable {
 }
 
 extension NowModel: MDDraftable {
-    public typealias MDDraftItem = Draft
+    typealias MDDraftItem = Draft
     
-    public struct Draft: MDDraft {
-        static public var contentPlaceholder: String {
+    struct Draft: MDDraft {
+        static var contentPlaceholder: String {
             "what's the latest?"
         }
         
-        public var address: AddressName
+        var address: AddressName
         
-        public var content: String
-        public var listed: Bool
+        var content: String
+        var listed: Bool
         
-        public var publishable: Bool { true }
+        var publishable: Bool { true }
     }
 }
 
 extension AddressProfile: MDDraftable {
-    public typealias MDDraftItem = Draft
+    typealias MDDraftItem = Draft
     
-    public struct Draft: MDDraft {
-        static public var contentPlaceholder: String {
+    struct Draft: MDDraft {
+        static var contentPlaceholder: String {
             "from the top"
         }
         
-        public var address: AddressName
+        var address: AddressName
         
-        public var content: String
-        public var publish: Bool
+        var content: String
+        var publish: Bool
         
-        public var publishable: Bool { true }
+        var publishable: Bool { true }
     }
 }
 
 extension PasteModel: NamedDraftable {
-    public typealias NamedDraftItem = Draft
+    typealias NamedDraftItem = Draft
     
     public struct Draft: NamedDraft {
-        static public var contentPlaceholder: String {
+        static var contentPlaceholder: String {
             "what do you have?"
         }
         
-        public var address: AddressName
+        var address: AddressName
         
-        public var name: String
-        public var content: String
-        public var listed: Bool
+        var name: String
+        var content: String
+        var listed: Bool
         
-        public var publishable: Bool {
+        var publishable: Bool {
             !name.isEmpty && !content.isEmpty
         }
         
-        public init(address: AddressName, name: String, content: String, listed: Bool = true) {
+        init(address: AddressName, name: String, content: String, listed: Bool = true) {
             self.address = address
             self.name = name
             self.content = content
@@ -176,29 +176,29 @@ extension PasteModel: NamedDraftable {
         }
     }
     
-    public var asDraft: Draft? {
+    var asDraft: Draft? {
         .init(address: addressName, name: name, content: content, listed: listed)
     }
 }
 
 extension PURLModel: NamedDraftable {
-    public typealias NamedDraftItem = Draft
+    typealias NamedDraftItem = Draft
     public struct Draft: NamedDraft {
-        static public var contentPlaceholder: String {
+        static var contentPlaceholder: String {
             "where are we going?"
         }
         
-        public var address: AddressName
+        var address: AddressName
         
-        public var name: String
-        public var content: String
-        public var listed: Bool
+        var name: String
+        var content: String
+        var listed: Bool
         
-        public var publishable: Bool {
+        var publishable: Bool {
             !name.isEmpty && !content.isEmpty
         }
         
-        public init(_ model: PURLModel, name: String? = nil) {
+        init(_ model: PURLModel, name: String? = nil) {
             self.init(
                 address: model.addressName,
                 name: name ?? "",
@@ -207,7 +207,7 @@ extension PURLModel: NamedDraftable {
             )
         }
         
-        public init(address: AddressName, name: String, content: String = "", listed: Bool = true) {
+        init(address: AddressName, name: String, content: String = "", listed: Bool = true) {
             self.address = address
             self.name = name
             self.content = content
@@ -215,7 +215,7 @@ extension PURLModel: NamedDraftable {
         }
     }
     
-    public var asDraft: Draft? {
+    var asDraft: Draft? {
         .init(address: addressName, name: self.name, content: content, listed: listed)
     }
 }
@@ -297,7 +297,7 @@ extension PURLRowView {
 }
 
 extension StatusRowView {
-    struct Preview: View {
+    public struct Preview: View {
         @SceneStorage("app.lol.address")
         var actingAddress: AddressName = ""
         

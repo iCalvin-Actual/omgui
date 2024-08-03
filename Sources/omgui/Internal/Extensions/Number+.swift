@@ -8,7 +8,7 @@
 import SwiftUI
 
 
-public extension PresentationDetent {
+extension PresentationDetent {
     static let draftDrawer: PresentationDetent = .fraction(0.25)
 }
 extension PresentationDetent: @retroactive Identifiable {
