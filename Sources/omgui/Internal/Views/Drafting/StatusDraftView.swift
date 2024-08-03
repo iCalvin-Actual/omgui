@@ -14,7 +14,7 @@ struct StatusDraftView: View {
     var actingAddress: AddressName = ""
     
     private enum FocusField: Hashable {
-        case emoji
+        case title
         case content
     }
     @FocusState
@@ -53,7 +53,7 @@ struct StatusDraftView: View {
             Divider()
             
             EmojiPicker(text: $draftPoster.draft.emoji, placeholder: "💗")
-                .focused($focusedField, equals: .emoji)
+                .focused($focusedField, equals: .title)
                 .frame(width: 66, height: 66)
                 .padding(2)
                 .background(Color(UIColor.systemBackground))
@@ -65,7 +65,7 @@ struct StatusDraftView: View {
                     withAnimation {
                         if clearResult {
                             draftPoster.draft.clear()
-                            focusedField = .emoji
+                            focusedField = .title
                         } else {
                             focusedField = .content
                             draftPoster.result = nil
@@ -219,7 +219,7 @@ struct StatusDraftView: View {
             }
             .onAppear {
                 withAnimation {
-                    focusedField = .emoji
+                    focusedField = .title
                 }
             }
             .focused($focusedField, equals: .content)
@@ -247,7 +247,7 @@ struct StatusDraftView: View {
                         .padding([.bottom, .horizontal], 8)
                         .onTapGesture {
                             withAnimation {
-                                focusedField = .emoji
+                                focusedField = .title
                                 draftPoster.draft = .init(model: result, id: result.id)
                                 draftPoster.result = nil
                             }

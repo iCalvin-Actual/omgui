@@ -1,11 +1,10 @@
 //
-//  File.swift
+//  NavigationItem.swift
 //  
 //
 //  Created by Calvin Chestnut on 3/10/23.
 //
 
-import SwiftUI
 import Foundation
 
 
@@ -13,44 +12,33 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     var id: String { rawValue }
     
     case account
-    case search
-    case nowGarden
-    case community
-    case following
-    case followingStatuses
-    case followingAddresses
-    
-    case editProfile
-    case editNow
-    case myStatuses
-    case newStatus
-    case myPURLs
-    case newPURL
-    case myPastes
-    case newPaste
-    
-    case pinnedAddress(_ address: AddressName)
     case blocked
+    case community
+    case nowGarden
+    case search
+    
+    case newPaste
+    case newPURL
+    case newStatus
+    
+    case following      (_ address: AddressName)
+    case pinnedAddress  (_ address: AddressName)
     
     var rawValue: String {
         switch self {
         case .account:                  return "account"
-        case .search:                   return "search"
-        case .nowGarden:                return "garden"
-        case .pinnedAddress(let address):     return "pinned.\(address)"
-        case .community:                return "community"
-        case .following:                return "following"
-        case .followingStatuses:        return "following.statuses"
-        case .followingAddresses:       return "following.addresses"
         case .blocked:                  return "blocked"
-        case .editProfile:              return "my profile"
-        case .editNow:                  return "my now"
-        case .myStatuses:               return "my statuses"
+        case .community:                return "community"
+        case .nowGarden:                return "garden"
+        case .search:                   return "search"
+        
         case .newStatus:                return "new status"
-        case .myPURLs:                  return "my PURLs"
         case .newPURL:                  return "new PURL"
-        case .myPastes:                 return "my pastes"
         case .newPaste:                 return "new paste"
+            
+        case .following(let address):   return "following.\(address)"
+        case .pinnedAddress(let address):
+                                        return "pinned.\(address)"
         }
     }
     
@@ -58,45 +46,30 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         let splitString = rawValue.components(separatedBy: ".")
         switch splitString.first {
         case "account":     self = .account
-        case "search":      self = .search
-        case "garden":      self = .nowGarden
+        case "blocked":     self = .blocked
         case "community":   self = .community
+        case "garden":      self = .nowGarden
+        case "search":      self = .search
+            
+        case "new status":
+            self = .newStatus
+        case "new PURL":
+            self = .newPURL
+        case "new paste":
+            self = .newPaste
+            
         case "following":
             guard splitString.count > 1 else {
-                self = .following
+                self = .following(.autoUpdatingAddress)
                 return
             }
-            switch splitString[1] {
-            case "addresses":
-                self = .followingAddresses
-            case "statuses":
-                self = .followingStatuses
-            default:
-                self = .following
-            }
+            self = .following(splitString[1])
         case "pinned":
             guard splitString.count > 1 else {
                 return nil
             }
             self = .pinnedAddress(splitString[1])
-        case "blocked":
-            self = .blocked
-        case "my profile":
-            self = .editProfile
-        case "my now":
-            self = .editNow
-        case "my statuses":
-            self = .myStatuses
-        case "new status":
-            self = .newStatus
-        case "my purls":
-            self = .myPURLs
-        case "new PURL":
-            self = .newPURL
-        case "my pastes":
-            self = .myPastes
-        case "new paste":
-            self = .newPaste
+            
         default:
             return nil
         }
@@ -104,36 +77,20 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     
     var displayString: String {
         switch self {
-        case .account:
-            return "Account"
-        case .community:
-            return "/status.log"
-        case .following, .followingStatuses, .followingAddresses:
-            return "/following"
-        case .nowGarden:
-            return "/nowGarden"
+        case .account:      return "/account"
+        case .blocked:      return "/blocked"
+        case .community:    return "/statuslog"
+        case .nowGarden:    return "/nowGarden"
+        case .search:       return "/search"
+            
+        case .newStatus:    return "/new"
+        case .newPURL:      return "New PURL"
+        case .newPaste:     return "New Paste"
+            
+        case .following(let address):
+            return (address == .autoUpdatingAddress ? "" : "\(address.addressDisplayString).") + "following"
         case .pinnedAddress(let address):
             return address.addressDisplayString
-        case .search:
-            return "/search"
-        case .blocked:
-            return "/blocked"
-        case .editProfile:
-            return "/profile"
-        case .editNow:
-            return "/now"
-        case .myStatuses:
-            return "/statuses"
-        case .newStatus:
-            return "/new"
-        case .myPURLs:
-            return "/purls"
-        case .newPURL:
-            return "New PURL"
-        case .myPastes:
-            return "/pastes"
-        case .newPaste:
-            return "New Paste"
         }
     }
     
@@ -147,7 +104,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return "camera.macro"
         case .community:
             return "globe"
-        case .following, .followingStatuses, .followingAddresses:
+        case .following:
             return "person.2"
         case .pinnedAddress:
             return "pin"
@@ -155,21 +112,6 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return "hand.raised"
         case .newStatus, .newPURL, .newPaste:
             return "pencil.and.scribble"
-        case .editProfile, .editNow, .myStatuses, .myPURLs, .myPastes:
-            return "at"
-        }
-    }
-    
-    @ViewBuilder
-    var sidebarView: some View {
-        label
-    }
-    
-    var label: some View {
-        Label(title: {
-            Text(displayString)
-        }) {
-            Image(systemName: iconName)
         }
     }
     
@@ -183,24 +125,14 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return .nowGarden
         case .community:
             return .community
-        case .following:
-            return .following
-        case .followingStatuses:
-            return .followingStatuses
-        case .followingAddresses:
-            return .followingAddresses
+        case .following(let address):
+            return .following(address)
         case .pinnedAddress(let name):
             return .address(name)
         case .blocked:
             return .blocked
-        case .myStatuses:
-            return .myStatuses
         case .newStatus:
             return .editStatus(.autoUpdatingAddress, id: "")
-        case .myPURLs:
-            return .myPURLs
-        case .myPastes:
-            return .myPastes
         default:
             return .account
         }

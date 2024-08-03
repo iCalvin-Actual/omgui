@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NavigationDestination.swift
 //  
 //
 //  Created by Calvin Chestnut on 3/8/23.
@@ -10,94 +10,79 @@ import Foundation
 enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     var id: String { rawValue }
     
-    case directory
-    case nowGarden
-    case address(_ name: AddressName)
-    case community
-    case following
-    case followingStatuses
-    case followingAddresses
-    case saved(_ feature: AppFeature)
-    case comingSoon(_ feature: AppFeature)
     case account
     case blocked
-    case addressFollowing(_ name: AddressName)
-    case webpage(_ name: AddressName)
+    case community
+    case directory
+    case nowGarden
+    
+    case saved      (_ feature: AppFeature)
+    case comingSoon (_ feature: AppFeature)
+    
+    case address    (_ name: AddressName)
+    case following  (_ name: AddressName)
+    case webpage    (_ name: AddressName)
+    case now        (_ name: AddressName)
+    case editNow    (_ name: AddressName)
+    case purls      (_ name: AddressName)
+    case pastebin   (_ name: AddressName)
+    case statusLog  (_ name: AddressName)
+    
+    case paste  (_ name: AddressName, id: String)
+    case purl   (_ name: AddressName, id: String)
+    case status (_ name: AddressName, id: String)
+    
     case editWebpage(_ name: AddressName)
-    case now(_ name: AddressName)
-    case editNow(_ name: AddressName)
-    case purls(_ name: AddressName)
-    case pastebin(_ name: AddressName)
-    case statusLog(_ name: AddressName)
-    case status(_ name: AddressName, id: String)
-    case paste(_ name: AddressName, title: String)
-    case purl(_ addressName: AddressName, title: String)
-    case editStatus(_ name: AddressName, id: String)
-    case editPaste(_ name: AddressName, title: String)
-    case editPURL(_ name: AddressName, title: String)
-    case myStatuses
-    case myPURLs
-    case myPastes
-    case addressStatuses
-    case addressPURLs
-    case addressPastes
+    case editPaste  (_ name: AddressName, id: String)
+    case editPURL   (_ name: AddressName, id: String)
+    case editStatus (_ name: AddressName, id: String)
     
     var rawValue: String {
         switch self {
-        case .directory:                return "directory"
-        case .nowGarden:                return "garden"
-        case .address(let address):     return "address.\(address)"
-        case .community:                return "community"
-        case .following:                return "following"
-        case .followingStatuses:        return "following.statuses"
-        case .followingAddresses:       return "following.addresses"
+            
+        case .account:      return "account"
+        case .blocked:      return "blocked"
+        case .community:    return "community"
+        case .directory:    return "directory"
+        case .nowGarden:    return "garden"
+            
         case .saved(let feature):       return "saved.\(feature.rawValue)"
         case .comingSoon(let feature):  return "coming.\(feature.rawValue)"
-        case .account:                  return "account"
-        case .blocked:                  return "blocked"
-        case .addressFollowing(let address): return "following.\(address)"
+            
+        case .address(let address):     return "address.\(address)"
+        case .following(let address):   return "following.\(address)"
         case .webpage(let address):     return "webpage.\(address)"
-        case .editWebpage(let address): return "webpage.\(address).edit"
         case .now(let address):         return "now.\(address)"
-        case .editNow(let address):     return "now.\(address).edit"
         case .purls(let address):       return "purls.\(address)"
         case .pastebin(let address):    return "pastes.\(address)"
         case .statusLog(let address):   return "status.\(address)"
-        case .status(let address, let id):          return "status.\(address).\(id)"
-        case .editStatus(let address, let id):      return "status.\(address).\(id).edit"
-        case .paste(let address, let paste):        return "paste.\(address).\(paste)"
-        case .purl(let address, let purl):          return "purl.\(address).\(purl)"
-        case .editPURL(let address, let purl):      return "purl.\(address).\(purl).edit"
-        case .editPaste(let paste, let address):    return "paste.\(address).\(paste).edit"
-        case .myStatuses:                           return "myStatuses"
-        case .myPURLs:                              return "myPURLs"
-        case .myPastes:                             return "myPastes"
-        case .addressStatuses:                      return "addressStatuses"
-        case .addressPURLs:                         return "addressPURLs"
-        case .addressPastes:                        return "addressPastes"
+            
+        case .status(let address, let id):      return "status.\(address).\(id)"
+        case .paste(let address, let id):       return "paste.\(address).\(id)"
+        case .purl(let address, let id):        return "purl.\(address).\(id)"
+
+        case .editWebpage(let address): return "webpage.\(address).edit"
+        case .editNow(let address):     return "now.\(address).edit"
+        case .editStatus(let address, let id):  return "status.\(address).\(id).edit"
+        case .editPURL(let address, let id):    return "purl.\(address).\(id).edit"
+        case .editPaste(let address, let id):   return "paste.\(address).\(id).edit"
         }
     }
     
     init?(rawValue: String) {
         let splitString = rawValue.components(separatedBy: ".")
         switch splitString.first {
+        case "account":     self = .account
+        case "blocked":     self = .blocked
+        case "community":   self = .community
         case "directory":   self = .directory
         case "garden":      self = .nowGarden
-        case "community":   self = .community
-        case "account":     self = .account
         case "following":
-            guard splitString.count > 1 else {
-                self = .following
+            guard splitString.count > 1, !splitString[1].isEmpty else {
+                self = .following(.autoUpdatingAddress)
                 return
             }
-            switch splitString[1] {
-            case "statuses":
-                self = .followingStatuses
-            case "addresses":
-                self = .followingAddresses
-            default:
-                self = .following
-            }
+            self = .following(splitString[1])
         case "address":
             guard splitString.count > 1 else {
                 return nil
@@ -113,8 +98,6 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
                 return nil
             }
             self = .comingSoon(feature)
-        case "blocked":
-            self = .blocked
         case "webpage":
             guard splitString.count > 1 else {
                 return nil
@@ -139,11 +122,7 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
             }
             let address = splitString[1]
             let title = splitString[2]
-            if splitString.last == "edit" {
-                self = .editPaste(address, title: title)
-            } else {
-                self = .paste(address, title: title)
-            }
+            self = .paste(address, id: title)
         case "pastes":
             guard splitString.count > 1 else {
                 return nil
@@ -160,11 +139,7 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
             }
             let address = splitString[1]
             let title = splitString[2]
-            if splitString.last == "edit" {
-                self = .editPURL(address, title: title)
-            } else {
-                self = .purl(address, title: title)
-            }
+            self = .purl(address, id: title)
         case "status":
             switch splitString.count {
             case 0, 1:
@@ -178,18 +153,6 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
                     self = .status(splitString[1], id: splitString[2])
                 }
             }
-        case "myStatuses":
-            self = .myStatuses
-        case "myPURLs":
-            self = .myPURLs
-        case "myPastes":
-            self = .myPastes
-        case "addressStatuses":
-            self = .addressStatuses
-        case "addressPURLs":
-            self = .addressPURLs
-        case "addressPastes":
-            self = .addressPastes
         default:
             return nil
         }

@@ -71,34 +71,26 @@ class SidebarModel: ObservableObject {
         case .directory:
             var destinations: [NavigationItem] = [.search]
             if sceneModel.signedIn {
-                destinations.append(.editProfile)
-                destinations.append(.followingAddresses)
+                destinations.append(.following(.autoUpdatingAddress))
             }
             destinations.append(.blocked)
-            destinations.append(contentsOf: sceneModel.pinnedAddresses.sorted().map({ .pinnedAddress($0) }))
+            destinations.append(
+                contentsOf: sceneModel.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
+            )
             return destinations
         case .now:
-            var destinations = [
+            let destinations = [
                 NavigationItem.nowGarden
             ]
-            if sceneModel.signedIn {
-                destinations.insert(.editNow, at: 0)
-            }
-            // Handle pinned
             return destinations
         case .status:
             var destinations = [
                 NavigationItem.community
             ]
             if sceneModel.signedIn {
-                destinations.insert(contentsOf: [.newStatus, .myStatuses, .following], at: 0)
+                destinations.insert(contentsOf: [.newStatus, .following(.autoUpdatingAddress)], at: 0)
             }
             return destinations
-        case .more:
-            return [
-                .myPURLs,
-                .myPastes
-            ]
         default:
             return []
         }

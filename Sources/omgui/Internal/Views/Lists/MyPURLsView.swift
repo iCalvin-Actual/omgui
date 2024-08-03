@@ -39,7 +39,7 @@ struct MyPURLsView: View {
                         .mask(Circle())
                     }
                     Spacer()
-                    NavigationLink(value: NavigationDestination.purl(scene.actingAddress, title: "")) {
+                    NavigationLink(value: NavigationDestination.purl(scene.actingAddress, id: "")) {
                         Image(systemName: "pencil.and.scribble")
                             .bold()
                             .foregroundStyle(Color.white)

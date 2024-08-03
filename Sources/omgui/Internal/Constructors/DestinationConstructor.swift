@@ -38,7 +38,7 @@ struct DestinationConstructor {
 //            if let fetcher = addressBook.followingStatusLogFetcher {
 //                StatusList(fetcher: fetcher)
 //            }
-//        case .addressFollowing(let name):
+//        case .following(let name):
 //            ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetchConstructor.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
 //        case .nowGarden:
 //            GardenView(fetcher: addressBook.gardenFetcher)

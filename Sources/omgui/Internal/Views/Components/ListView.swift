@@ -260,12 +260,12 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
 //            if sceneModel.accountModel.myAddresses.contains(pasteModel.addressName) {
 //                return .editPaste(pasteModel.addressName, title: pasteModel.name)
 //            }
-            return .paste(pasteModel.addressName, title: pasteModel.name)
+            return .paste(pasteModel.addressName, id: pasteModel.name)
         case let purlModel as PURLModel:
 //            if sceneModel.accountModel.myAddresses.contains(purlModel.addressName) {
 //                return .editPURL(purlModel.addressName, title: purlModel.value)
 //            }
-            return .purl(purlModel.addressName, title: purlModel.name)
+            return .purl(purlModel.addressName, id: purlModel.name)
         case let statusModel as StatusModel:
             if sceneModel.myAddresses.contains(statusModel.address) {
 //                return .editStatus(statusModel.address, id: statusModel.id)
@@ -542,12 +542,12 @@ struct ListView<T: Listable, V: View, H: View>: View {
 //            if sceneModel.accountModel.myAddresses.contains(pasteModel.addressName) {
 //                return .editPaste(pasteModel.addressName, title: pasteModel.name)
 //            }
-            return .paste(pasteModel.addressName, title: pasteModel.name)
+            return .paste(pasteModel.addressName, id: pasteModel.name)
         case let purlModel as PURLModel:
 //            if sceneModel.accountModel.myAddresses.contains(purlModel.addressName) {
 //                return .editPURL(purlModel.addressName, title: purlModel.value)
 //            }
-            return .purl(purlModel.addressName, title: purlModel.name)
+            return .purl(purlModel.addressName, id: purlModel.name)
         case let statusModel as StatusModel:
             if sceneModel.myAddresses.contains(statusModel.address) {
 //                return .editStatus(statusModel.address, id: statusModel.id)
@@ -797,12 +797,12 @@ struct ListItemView<T: Listable, V: View, H: View>: View {
 //            if sceneModel.accountModel.myAddresses.contains(pasteModel.addressName) {
 //                return .editPaste(pasteModel.addressName, title: pasteModel.name)
 //            }
-            return .paste(pasteModel.addressName, title: pasteModel.name)
+            return .paste(pasteModel.addressName, id: pasteModel.name)
         case let purlModel as PURLModel:
 //            if sceneModel.accountModel.myAddresses.contains(purlModel.addressName) {
 //                return .editPURL(purlModel.addressName, title: purlModel.value)
 //            }
-            return .purl(purlModel.addressName, title: purlModel.name)
+            return .purl(purlModel.addressName, id: purlModel.name)
         case let statusModel as StatusModel:
             if sceneModel.myAddresses.contains(statusModel.address) {
 //                return .editStatus(statusModel.address, id: statusModel.id)

@@ -84,19 +84,4 @@ enum AddressContent: String, Identifiable {
             return .statusLog(name)
         }
     }
-    
-    func editingDestination(_ name: AddressName) -> NavigationDestination {
-        switch self {
-        case .profile:
-            return .editWebpage(name)
-        case .now:
-            return .editNow(name)
-        case .pastebin:
-            return .editPaste(name, title: "")
-        case .purl:
-            return .editPURL(name, title: "")
-        case .statuslog:
-            return .editStatus(name, id: "")
-        }
-    }
 }

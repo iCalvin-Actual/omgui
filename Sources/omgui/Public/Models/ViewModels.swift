@@ -260,7 +260,7 @@ public struct PasteModel: BlackbirdModel, Identifiable, RawRepresentable, Codabl
     }
 }
 
-public struct PURLModel: BlackbirdModel, Hashable, Identifiable, RawRepresentable, Codable, Sendable {
+public struct PURLModel: BlackbirdModel, Identifiable, RawRepresentable, Codable, Sendable {
     static var separator: String { "{PURL}" }
     
     public var rawValue: String {
@@ -330,7 +330,7 @@ public struct PURLModel: BlackbirdModel, Hashable, Identifiable, RawRepresentabl
     }
 }
 
-public struct NowListing: BlackbirdModel, Hashable, Identifiable, Sendable {
+public struct NowListing: BlackbirdModel, Identifiable, Sendable {
     var owner: AddressName { id }
     @BlackbirdColumn
     public var id: AddressName
@@ -363,7 +363,7 @@ public struct NowListing: BlackbirdModel, Hashable, Identifiable, Sendable {
     }
 }
 
-public struct AddressModel: BlackbirdModel, Hashable, Identifiable, RawRepresentable, Codable, Sendable {
+public struct AddressModel: BlackbirdModel, Identifiable, RawRepresentable, Codable, Sendable {
     public init?(rawValue: String) {
         self = AddressModel(name: rawValue)
     }
@@ -405,7 +405,7 @@ public struct AddressModel: BlackbirdModel, Hashable, Identifiable, RawRepresent
     }
 }
 
-public struct StatusModel: BlackbirdModel, Hashable, Identifiable, Sendable {
+public struct StatusModel: BlackbirdModel, Identifiable, Sendable {
     
     @BlackbirdColumn
     public var id: String
