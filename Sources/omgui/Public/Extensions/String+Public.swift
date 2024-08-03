@@ -13,7 +13,7 @@ extension String {
      Assume https://\(self).com
      But if the field provides a scheme/domain it will be used
      */
-    var urlString: String {
+    public var urlString: String {
         var newText = self
         if !newText.contains("://") {
             newText = "https://" + newText

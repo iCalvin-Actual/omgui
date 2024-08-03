@@ -37,44 +37,62 @@ struct AddressSummaryView: View {
             .background(Color.lolBackground)
     }
     
+    var addressHeader: some View {
+        HStack(alignment: .top) {
+            Menu {
+                AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
+            } label: {
+                AddressIconView(address: addressSummaryFetcher.addressName)
+            }
+            .frame(width: 44)
+            AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+    
+    @ViewBuilder
+    var destinationPicker: some View {
+        HStack(alignment: .top) {
+            ScrollView(.horizontal) {
+                HStack(alignment: .bottom, spacing: 0) {
+                    ForEach(allPages) { page in
+                        destinationButton(page)
+                    }
+                }
+                .background(Color.lolBackground)
+            }
+        }
+        .frame(height: 50)
+        .ignoresSafeArea(.container, edges: [.bottom])
+    }
+    
+    @ViewBuilder
+    func destinationButton(_ page: AddressContent) -> some View {
+        Button(action: {
+            withAnimation {
+                expandBio = false
+                selectedPage = page
+            }
+        }) {
+            Text(page.displayString)
+                .bold()
+                .padding(8)
+                .padding(.bottom, 6)
+                .frame(minWidth: 44, maxHeight: .infinity, alignment: .bottom)
+                .background(page == selectedPage ? page.color : Color.clear)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(6)
+                .foregroundColor(page == selectedPage ? .white : .primary)
+                .bold(page == selectedPage)
+        }
+    }
+    
     @ViewBuilder
     var sizeAppropriateBody: some View {
         VStack(spacing: 0) {
-            HStack(alignment: .top) {
-                Menu {
-                    AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
-                } label: {
-                    AddressIconView(address: addressSummaryFetcher.addressName)
-                }
-                .frame(width: 44)
-                AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding()
+            addressHeader.padding()
             
             VStack(spacing: 0) {
-                HStack(alignment: .top) {
-                    ScrollView(.horizontal) {
-                        HStack(alignment: .bottom, spacing: 0) {
-                            ForEach(allPages) { page in
-                                Button(action: {
-                                    withAnimation {
-                                        expandBio = false
-                                        selectedPage = page
-                                    }
-                                }) {
-                                    Text(page.displayString)
-                                }
-                                .buttonStyle(AddressTabStyle(isActive: selectedPage == page))
-                                .background(Color.lolBackground)
-                            }
-                        }
-                    }
-                }
-                .frame(height: 50)
-                .ignoresSafeArea(.container, edges: [.bottom])
-                
-                
                 destination(selectedPage)
                     .frame(maxHeight: expandBio ? 0 : .infinity)
             }

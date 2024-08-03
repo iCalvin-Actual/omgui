@@ -149,75 +149,10 @@ extension Filterable {
     }
 }
 
-extension AddressModel: QueryFilterable {
-    var queryCheckStrings: [String] {
-        [addressName]
-    }
-    
-    var addressName: AddressName {
-        id
-    }
-    
-    var filterDate: Date? {
-        registered
-    }
-}
-
-extension StatusModel: QueryFilterable {
-    var queryCheckStrings: [String] {
-        [addressName, emoji, status]
-            .compactMap({ $0 })
-    }
-    
-    var addressName: AddressName {
-        address
-    }
-    
-    var filterDate: Date? {
-        posted
-    }
-}
-
-extension PURLModel: QueryFilterable {
-    var queryCheckStrings: [String] {
-        [addressName, name, content]
-            .compactMap({ $0 })
-    }
-    
-    var addressName: AddressName {
-        owner
-    }
-    
-    var filterDate: Date? {
-        nil
-    }
-}
-
-extension PasteModel: QueryFilterable {
-    var queryCheckStrings: [String] {
-        [addressName, name, content]
-            .compactMap({ $0 })
-    }
-    
-    var addressName: AddressName {
-        owner
-    }
-    
-    var filterDate: Date? {
-        nil
-    }
-}
-
-extension NowListing: QueryFilterable {
-    var queryCheckStrings: [String] {
-        [addressName]
-    }
-    
-    var addressName: AddressName {
-        owner
-    }
-    
-    var filterDate: Date? {
-        updated
+extension Array<FilterOption> {
+    @MainActor
+    func applyFilters<T: Filterable>(to inputModels: [T], in scene: SceneModel) -> [T] {
+        inputModels
+            .filter({ $0.include(with: self, in: scene) })
     }
 }

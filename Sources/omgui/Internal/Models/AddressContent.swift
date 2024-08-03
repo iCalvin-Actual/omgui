@@ -46,15 +46,6 @@ enum AddressContent: String, Identifiable {
         }
     }
     
-    var editText: String {
-        switch self {
-        case .profile, .now:
-            return "edit"
-        default:
-            return "new"
-        }
-    }
-    
     var color: Color {
         switch self {
         case .profile:
