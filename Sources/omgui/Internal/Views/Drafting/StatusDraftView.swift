@@ -154,7 +154,7 @@ struct StatusDraftView: View {
         let toDelete = draftPoster.draft
         Task {
             let draftedAddress = draftPoster.address
-            let _ = try await sceneModel.fetchConstructor.interface.deleteAddressStatus(toDelete, from: draftedAddress, credential: credential)
+            let _ = try await sceneModel.fetcher.interface.deleteAddressStatus(toDelete, from: draftedAddress, credential: credential)
             
             withAnimation {
                 draftPoster.draft.clear()

@@ -17,7 +17,7 @@ struct DestinationConstructor {
         switch destination {
         case .directory:
             DirectoryView(
-                fetcher: .init(interface: sceneModel.fetchConstructor.interface, db: sceneModel.fetchConstructor.database)
+                fetcher: .init(interface: sceneModel.fetcher.interface, db: sceneModel.fetcher.database)
             )
 //        case .community:
 //            CommunityView(addressBook: addressBook)
@@ -41,7 +41,7 @@ struct DestinationConstructor {
 //                StatusList(fetcher: fetcher)
 //            }
 //        case .following(let name):
-//            ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetchConstructor.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+//            ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
 //        case .nowGarden:
 //            GardenView(fetcher: addressBook.gardenFetcher)
 //        case .pastebin(let address):
@@ -49,13 +49,13 @@ struct DestinationConstructor {
 //        case .purls(let address):
 //            AddressPURLsView(fetcher: addressBook.addressSummary(address).purlFetcher)
 //        case .purl(let address, title: let title):
-//            PURLView(fetcher: fetchConstructor.addressPURLFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
+//            PURLView(fetcher: fetcher.addressPURLFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
 //        case .paste(let address, title: let title):
-//            PasteView(fetcher: fetchConstructor.addressPasteFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
+//            PasteView(fetcher: fetcher.addressPasteFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
 //        case .statusLog(let address):
 //            StatusList(fetcher: addressBook.addressSummary(address).statusFetcher)
 //        case .status(let address, id: let id):
-//            StatusView(fetcher: fetchConstructor.statusFetcher(id, from: address))
+//            StatusView(fetcher: fetcher.statusFetcher(id, from: address))
 //        case .account:
 //            AccountView(addressBook: addressBook, accountModel: accountModel)
 //        case .myStatuses:
@@ -64,7 +64,7 @@ struct DestinationConstructor {
 //            MyPURLsView(singleAddress: false, addressBook: addressBook, accountModel: accountModel)
 //        case .editPURL(let address, title: let title):
 //            if let credential = accountModel.credential(for: address, in: addressBook) {
-//                NamedItemDraftView(fetcher: fetchConstructor.draftPurlPoster(title, for: address, credential: credential))
+//                NamedItemDraftView(fetcher: fetcher.draftPurlPoster(title, for: address, credential: credential))
 //            } else {
 //                // Unauthorized
 //                EmptyView()
@@ -73,7 +73,7 @@ struct DestinationConstructor {
 //            MyPastesView(singleAddress: false, addressBook: addressBook, accountModel: accountModel)
 //        case .editPaste(let address, title: let title):
 //            if let credential = accountModel.credential(for: address, in: addressBook) {
-//                NamedItemDraftView(fetcher: fetchConstructor.draftPastePoster(title, for: address, credential: credential))
+//                NamedItemDraftView(fetcher: fetcher.draftPastePoster(title, for: address, credential: credential))
 //            } else {
 //                // Unauthorized
 //                EmptyView()
@@ -94,9 +94,9 @@ struct DestinationConstructor {
 ////            }
 //        case .editStatus(let address, id: let id):
 //            if address == .autoUpdatingAddress && id.isEmpty {
-//                StatusDraftView(draftPoster: fetchConstructor.draftStatusPoster(for: address, credential: accountModel.authKey))
+//                StatusDraftView(draftPoster: fetcher.draftStatusPoster(for: address, credential: accountModel.authKey))
 //            } else if let credential = accountModel.credential(for: address, in: addressBook) {
-//                StatusDraftView(draftPoster: fetchConstructor.draftStatusPoster(id, for: address, credential: credential))
+//                StatusDraftView(draftPoster: fetcher.draftStatusPoster(id, for: address, credential: credential))
 //            } else {
 //                // Unauthenticated
 //                EmptyView()

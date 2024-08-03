@@ -17,7 +17,7 @@ struct MyStatusesView: View {
     
     init(singleAddress: Bool, injectedScene: SceneModel) {
         singleAddressMode = singleAddress
-        addressFetcher = injectedScene.fetchConstructor.statusLog(for: [injectedScene.actingAddress])
+        addressFetcher = injectedScene.fetcher.statusLog(for: [injectedScene.actingAddress])
     }
     
     var body: some View {

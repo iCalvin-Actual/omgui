@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-class FetchConstructor {
+class FetchConstructor: ObservableObject {
     let client: ClientInfo
     let interface: DataInterface
     

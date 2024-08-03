@@ -16,7 +16,7 @@ struct MyPURLsView: View {
     
     init(singleAddress: Bool, injectedScene: SceneModel) {
         singleAddressMode = singleAddress
-        addressFetcher = injectedScene.fetchConstructor.addressPURLsFetcher(injectedScene.actingAddress, credential: injectedScene.credential(for: injectedScene.actingAddress))
+        addressFetcher = injectedScene.fetcher.addressPURLsFetcher(injectedScene.actingAddress, credential: injectedScene.credential(for: injectedScene.actingAddress))
     }
     
     var body: some View {

@@ -14,7 +14,14 @@ public struct omgui: View {
     }
     
     public var body: some View {
-        RootView(fetchConstructor: .init(client: clientInfo, interface: dataInterface, database: database))
+        RootView()
             .environment(\.blackbirdDatabase, database)
+            .environmentObject(
+                FetchConstructor(
+                    client: clientInfo,
+                    interface: dataInterface,
+                    database: database
+                )
+            )
     }
 }

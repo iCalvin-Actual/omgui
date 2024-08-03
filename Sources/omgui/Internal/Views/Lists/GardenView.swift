@@ -55,7 +55,7 @@ struct GardenView: View {
     @ViewBuilder
     var selectedContent: some View {
         if let selected = selected {
-            AddressNowView(fetcher: sceneModel.fetchConstructor.addresNowFetcher(selected))
+            AddressNowView(fetcher: sceneModel.fetcher.addresNowFetcher(selected))
         } else {
             ThemedTextView(text: "select a /now page")
         }

@@ -15,10 +15,10 @@ final class AccountAuthDataFetcher: NSObject, ObservableObject, Sendable {
     private var sceneModel: SceneModel
     
     private var client: ClientInfo {
-        sceneModel.fetchConstructor.client
+        sceneModel.fetcher.client
     }
     private var interface: DataInterface {
-        sceneModel.fetchConstructor.interface
+        sceneModel.fetcher.interface
     }
     private var url: URL? {
         interface.authURL()

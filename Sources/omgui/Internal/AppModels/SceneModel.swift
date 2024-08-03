@@ -38,7 +38,7 @@ class SceneModel {
     
     // MARK: Properties
     
-    let fetchConstructor: FetchConstructor
+    let fetcher: FetchConstructor
     var destinationConstructor: DestinationConstructor {
         .init(
             sceneModel: self
@@ -48,7 +48,7 @@ class SceneModel {
     // MARK: Lifecycle
     
     init(
-        fetchConstructor: FetchConstructor,
+        fetcher: FetchConstructor,
         authKey: Binding<String>,
         localBlocklist: Binding<String>,
         pinnedAddresses: Binding<String>,
@@ -63,11 +63,11 @@ class SceneModel {
         self._localAddressesCache = myAddresses
         self._myName = myName
         self._actingAddress = actingAddress
-        self.fetchConstructor = fetchConstructor
-        self.globalBlockedFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: fetchConstructor.interface, db: fetchConstructor.database)
-        self.globalBlockedFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: fetchConstructor.interface, db: fetchConstructor.database)
-        self.addressBlockedFetcher = AddressBlockListDataFetcher(address: actingAddress.wrappedValue, credential: authKey.wrappedValue, interface: fetchConstructor.interface, db: fetchConstructor.database)
-        self.addressFollowingFetcher = AddressFollowingDataFetcher(address: actingAddress.wrappedValue, credential: authKey.wrappedValue, interface: fetchConstructor.interface, db: fetchConstructor.database)
+        self.fetcher = fetcher
+        self.globalBlockedFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: fetcher.interface, db: fetcher.database)
+        self.globalBlockedFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: fetcher.interface, db: fetcher.database)
+        self.addressBlockedFetcher = AddressBlockListDataFetcher(address: actingAddress.wrappedValue, credential: authKey.wrappedValue, interface: fetcher.interface, db: fetcher.database)
+        self.addressFollowingFetcher = AddressFollowingDataFetcher(address: actingAddress.wrappedValue, credential: authKey.wrappedValue, interface: fetcher.interface, db: fetcher.database)
         self.authenticationFetcher = AccountAuthDataFetcher(sceneModel: self)
     }
     
@@ -225,13 +225,13 @@ extension SceneModel {
     // MARK: Summaries
     
     func constructFetcher(for address: AddressName) -> AddressSummaryDataFetcher {
-        fetchConstructor.addressDetailsFetcher(address)
+        fetcher.addressDetailsFetcher(address)
     }
     func privateSummary(for address: AddressName) -> AddressPrivateSummaryDataFetcher? {
         guard let credential = credential(for: address) else {
             return nil
         }
-        return fetchConstructor.addressPrivateDetailsFetcher(address, credential: credential)
+        return fetcher.addressPrivateDetailsFetcher(address, credential: credential)
     }
     func addressSummary(_ address: AddressName) -> AddressSummaryDataFetcher {
         if let model = publicProfileCache[address] {

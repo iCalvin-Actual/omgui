@@ -8,23 +8,8 @@
 import Blackbird
 import SwiftUI
 
-struct Selections {
-    var destination: NavigationItem?
-    var address: AddressModel?
-}
-
-class Router: ObservableObject {
-    @Published
-    var navPath: NavigationPath = .init()
-}
-
 @MainActor
 struct RootView: View {
-    
-    @Environment(\.blackbirdDatabase)
-    var db
-    
-    let fetchConstructor: FetchConstructor
     
     @AppStorage("app.lol.auth")
     var authKey: String = ""
@@ -37,15 +22,20 @@ struct RootView: View {
     @AppStorage("app.lol.cache.name")
     var myName: String = ""
     
-    
     @SceneStorage("app.lol.address")
     var actingAddress: String = ""
+    
+    @Environment(\.blackbirdDatabase)
+    var db
+    @EnvironmentObject
+    var fetcher: FetchConstructor
+
     
     var body: some View {
         SplitView()
             .environment(
                 SceneModel(
-                    fetchConstructor: fetchConstructor,
+                    fetcher: fetcher,
                     authKey: $authKey,
                     localBlocklist: $localBlockedAddresses,
                     pinnedAddresses: $currentlyPinnedAddresses,
@@ -62,6 +52,6 @@ struct ContentView_Previews: PreviewProvider {
     static var database = try! Blackbird.Database.inMemoryDatabase()
     
     static var previews: some View {
-        RootView(fetchConstructor: .init(client: .sample, interface: SampleData(), database: database))
+        RootView()
     }
 }

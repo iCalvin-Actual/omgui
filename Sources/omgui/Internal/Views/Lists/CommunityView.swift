@@ -16,8 +16,8 @@ struct CommunityView: View {
     var myFetcher: StatusLogDataFetcher
     
     init(injectedScene: SceneModel) {
-        self.communityFetcher = injectedScene.fetchConstructor.generalStatusLog()
-        self.myFetcher = injectedScene.fetchConstructor.statusLog(for: injectedScene.myAddresses)
+        self.communityFetcher = injectedScene.fetcher.generalStatusLog()
+        self.myFetcher = injectedScene.fetcher.statusLog(for: injectedScene.myAddresses)
     }
     
     var activeFethcer: StatusLogDataFetcher {
@@ -25,7 +25,7 @@ struct CommunityView: View {
         case .community:
             return communityFetcher
         case .following:
-            return scene.fetchConstructor.statusLog(for: scene.following)
+            return scene.fetcher.statusLog(for: scene.following)
         case .me:
             return myFetcher
         }
