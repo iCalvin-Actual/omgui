@@ -27,9 +27,8 @@ struct RootView: View {
     
     @Environment(\.blackbirdDatabase)
     var db
-    @EnvironmentObject
+    @Environment(\.fetcher)
     var fetcher: FetchConstructor
-
     
     var body: some View {
         SplitView()

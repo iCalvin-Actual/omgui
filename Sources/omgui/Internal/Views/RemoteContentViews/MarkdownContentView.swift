@@ -61,18 +61,15 @@ struct MarkdownContentView: View {
         ScrollView {
             if let content {
                 Markdown(content)
-                    .environment(
-                        \.openURL,
-                         OpenURLAction { url in
-                             guard context != .column else {
-                                 return .systemAction
-                             }
-                             Task {
-                                 presentedURL = url
-                             }
-                             return .handled
-                         }
-                    )
+                    .environment(\.openURL, OpenURLAction { url in
+                        guard context != .column else {
+                            return .systemAction
+                        }
+                        Task {
+                            presentedURL = url
+                        }
+                        return .handled
+                    })
                     .sheet(item: $presentedURL, content: { url in
                         SafariView(url: url)
                             .ignoresSafeArea(.all, edges: .bottom)

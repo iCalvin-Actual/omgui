@@ -2,11 +2,12 @@ import Blackbird
 import SwiftUI
 
 public struct omgui: View {
-    @StateObject
-    var database = try! Blackbird.Database.inMemoryDatabase(options: [.debugPrintEveryQuery, .debugPrintEveryReportedChange])
     
     let clientInfo: ClientInfo
     let dataInterface: DataInterface
+    
+    @StateObject
+    var database = try! Blackbird.Database.inMemoryDatabase()
     
     public init(client: ClientInfo, interface: DataInterface) {
         self.clientInfo = client
@@ -16,7 +17,7 @@ public struct omgui: View {
     public var body: some View {
         RootView()
             .environment(\.blackbirdDatabase, database)
-            .environmentObject(
+            .environment(\.fetcher,
                 FetchConstructor(
                     client: clientInfo,
                     interface: dataInterface,
