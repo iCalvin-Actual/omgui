@@ -8,6 +8,7 @@
 import MarkdownUI
 import SwiftUI
 
+// Draft Protocols
 
 protocol SomeDraftable: Sendable {
     associatedtype Draft: DraftItem
@@ -22,20 +23,18 @@ protocol MDDraftable: SomeDraftable {
 }
 
 protocol DraftItem: Sendable, Identifiable {
+    
     static var contentPlaceholder: String { get }
     
-    var address: AddressName { get }
-    var publishable: Bool { get }
-    
+    var address: AddressName { get set }
     var content: String { get set }
+    
+    var publishable: Bool { get }
     
     mutating
     func clear()
 }
 extension DraftItem {
-    var id: String {
-        address
-    }
     var publishable: Bool {
         !content.isEmpty
     }
@@ -45,19 +44,44 @@ extension DraftItem {
         content = ""
     }
 }
+
 protocol MDDraft: DraftItem { }
-protocol NamedDraft: DraftItem {
-    var name: String { get set }
-    var listed: Bool { get set }
+
+extension AddressProfile: MDDraftable {
+    typealias MDDraftItem = Draft
     
-    init(address: AddressName, name: String, content: String, listed: Bool)
+    struct Draft: MDDraft {
+        static var contentPlaceholder: String {
+            "from the top"
+        }
+        
+        var id: String { address }
+        
+        var address: AddressName
+        
+        var content: String
+        var publish: Bool
+        
+        var publishable: Bool { true }
+    }
 }
-extension NamedDraft {
-    mutating
-    func clear() {
-        content = ""
-        name = ""
-        listed = false
+
+extension NowModel: MDDraftable {
+    typealias MDDraftItem = Draft
+    
+    struct Draft: MDDraft {
+        static var contentPlaceholder: String {
+            "what's the latest?"
+        }
+        
+        var id: String { address }
+        
+        var address: AddressName
+        
+        var content: String
+        var listed: Bool
+        
+        var publishable: Bool { true }
     }
 }
 
@@ -112,37 +136,20 @@ extension StatusModel: MDDraftable {
     }
 }
 
-extension NowModel: MDDraftable {
-    typealias MDDraftItem = Draft
+protocol NamedDraft: DraftItem {
+    var name: String { get set }
+    var listed: Bool { get set }
     
-    struct Draft: MDDraft {
-        static var contentPlaceholder: String {
-            "what's the latest?"
-        }
-        
-        var address: AddressName
-        
-        var content: String
-        var listed: Bool
-        
-        var publishable: Bool { true }
-    }
+    init(address: AddressName, name: String, content: String, listed: Bool)
 }
-
-extension AddressProfile: MDDraftable {
-    typealias MDDraftItem = Draft
+extension NamedDraft {
+    public var id: String { address + name }
     
-    struct Draft: MDDraft {
-        static var contentPlaceholder: String {
-            "from the top"
-        }
-        
-        var address: AddressName
-        
-        var content: String
-        var publish: Bool
-        
-        var publishable: Bool { true }
+    mutating
+    func clear() {
+        content = ""
+        name = ""
+        listed = false
     }
 }
 
@@ -215,6 +222,8 @@ extension PURLModel: NamedDraftable {
         .init(address: addressName, name: self.name, content: content, listed: listed)
     }
 }
+
+// MARK: Previews
 
 extension PURLRowView {
     struct Preview: View {

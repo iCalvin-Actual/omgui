@@ -8,7 +8,12 @@
 import Foundation
 
 extension String {
-    public var urlString: String {
+    /*
+     Used to massage text input to force a valid URL.
+     Assume https://\(self).com
+     But if the field provides a scheme/domain it will be used
+     */
+    var urlString: String {
         var newText = self
         if !newText.contains("://") {
             newText = "https://" + newText

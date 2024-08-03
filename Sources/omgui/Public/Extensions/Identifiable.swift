@@ -20,9 +20,3 @@ extension PresentationDetent: @retroactive Identifiable {
 extension URL: @retroactive Identifiable {
     public var id: String { absoluteString }
 }
-
-extension NamedDraft {
-    public var id: String {
-        address + name
-    }
-}
