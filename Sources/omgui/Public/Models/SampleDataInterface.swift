@@ -12,50 +12,27 @@ public final class SampleData: DataInterface {
         return UInt64(Double.random(min: 0.02, max: 5.0) * Double(NSEC_PER_SEC))
     }
     
-    public func authURL() -> URL? {
-        URL(string: "https://home.omg.lol")
-    }
-    
     public init() { }
     
-    @MainActor
-    public func fetchAccessToken(authCode: String, clientID: String, clientSecret: String, redirect: String) async throws -> String? {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        return authCode
-    }
-    
+    // MARK: General Service
+
     public func fetchServiceInfo() async throws -> ServiceInfoModel {
         try await Task.sleep(nanoseconds: artificalDelay)
-        return
-            .init(members: 500, addresses: 400, profiles: 300)
+        return .init(members: 500, addresses: 400, profiles: 300)
     }
-    
-    public func fetchAddressAvailability(_ address: AddressName) async throws -> AddressAvailabilityModel {
+
+    public func fetchThemes() async throws -> [ThemeModel] {
         try await Task.sleep(nanoseconds: artificalDelay)
-        return .init(address: address, available: true, punyCode: nil)
+        return [
+            .init(id: "default", name: "Default", created: "1660967179", updated: "1660967179", author: "omg.lol", license: "MIT", description: "A friendly, simple look for your amazing profile.", preview: "")
+        ]
     }
 
     public func fetchAddressDirectory() async throws -> [AddressName] {
         try await Task.sleep(nanoseconds: UInt64(2 * Double(NSEC_PER_SEC)))
         return ["app", "appleAppStoreReview", "calvin", "jwithy", "jmj", "kris", "spalger", "joshbrez"]
     }
-    
-    public func fetchAccountInfo(_ address: AddressName, credential: APICredential) async throws -> AccountInfoModel? {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        guard !credential.isEmpty else {
-            return nil
-        }
-        return .init(name: "Firstname", created: Date.init(timeIntervalSinceNow: -1000000))
-    }
-    
-    public func fetchAccountAddresses(_ credential: String) async throws -> [AddressName] {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        guard !credential.isEmpty else {
-            return []
-        }
-        return ["app", "calvin"]
-    }
-    
+
     public func fetchNowGarden() async throws -> [NowListing] {
         let directory = try await fetchAddressDirectory()
         try await Task.sleep(nanoseconds: artificalDelay)
@@ -63,83 +40,7 @@ public final class SampleData: DataInterface {
             return .init(owner: name, url: "https://\(name).omg.lol", updated: Date())
         }
     }
-    
-    public func fetchAddressInfo(_ name: AddressName) async throws -> AddressModel {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        return .sample(with: name)
-    }
-    
-    public func fetchAddressNow(_ name: AddressName) async throws -> NowModel? {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        return .sample(with: name)
-    }
-    
-    public func saveAddressNow(_ name: AddressName, content: String, credential: APICredential) -> NowModel? {
-        return .sample(with: name)
-    }
-    
-    public func fetchAddressPURLs(_ name: AddressName, credential: APICredential?) async throws -> [PURLModel] {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        return [
-            .sample(with: name),
-            .sample(with: name),
-            .sample(with: name)
-        ]
-    }
-    
-    public func fetchPURL(_ id: String, from address: AddressName, credential: APICredential?) async throws -> PURLModel? {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        return .sample(with: address)
-    }
-    
-    public func deletePURL(_ id: String, from address: AddressName, credential: APICredential) async throws {
-    }
-    
-    public func fetchPURLContent(_ id: String, from address: AddressName, credential: APICredential?) async throws -> String? {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        let content = String.htmlContent
-        return content
-    }
-    
-    public func savePURL(_ draft: PURLModel.Draft, to address: AddressName, credential: APICredential) async throws -> PURLModel? {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        return PURLModel(owner: address, name: draft.name, content: draft.content, listed: true)
-    }
-    
-    public func fetchAddressPastes(_ name: AddressName, credential: APICredential?) async throws -> [PasteModel] {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        return [
-            .sample(with: name),
-            .sample(with: name),
-            .sample(with: name)
-        ]
-    }
-    
-    public func fetchPaste(_ id: String, from address: AddressName, credential: APICredential? = nil) async throws -> PasteModel? {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        if id == "app.lol.following" {
-            return .followed(with: address)
-        } else if id == "app.lol.blocked" {
-            return .blocked(with: address)
-        }
-        return .sample(with: address)
-    }
-    
-    public func deletePaste(
-        _ id: String,
-        from address: AddressName,
-        credential: APICredential
-    ) async throws {
-    }
-    
-    public func savePaste(
-        _ draft: PasteModel.Draft,
-        to address: AddressName,
-        credential: APICredential
-    ) async throws -> PasteModel? {
-        try await fetchPaste(draft.name, from: address, credential: credential)
-    }
-    
+
     public func fetchStatusLog() async throws -> [StatusModel] {
         try await Task.sleep(nanoseconds: artificalDelay)
         var statuses: [StatusModel] = []
@@ -149,7 +50,75 @@ public final class SampleData: DataInterface {
         }
         return statuses
     }
-    
+
+    // MARK: Address Content
+
+    public func fetchAddressAvailability(_ address: AddressName) async throws -> AddressAvailabilityModel {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return .init(address: address, available: true, punyCode: nil)
+    }
+
+    public func fetchAddressInfo(_ name: AddressName) async throws -> AddressModel {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return .sample(with: name)
+    }
+
+    public func fetchAddressBio(_ name: AddressName) async throws -> AddressBioModel {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        let content = String.minimalLorum
+        return .init(address: name, bio: content)
+    }
+
+    public func fetchAddressProfile(_ name: AddressName, credential: APICredential?) async throws -> AddressProfile? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        let content = String.htmlContent
+        return .init(owner: name, content: content)
+    }
+
+    public func fetchAddressNow(_ name: AddressName) async throws -> NowModel? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return .sample(with: name)
+    }
+
+    public func fetchAddressPastes(_ name: AddressName, credential: APICredential?) async throws -> [PasteModel] {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return [
+            .sample(with: name),
+            .sample(with: name),
+            .sample(with: name)
+        ]
+    }
+
+    public func fetchPaste(_ id: String, from address: AddressName, credential: APICredential? = nil) async throws -> PasteModel? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        if id == "app.lol.following" {
+            return .followed(with: address)
+        } else if id == "app.lol.blocked" {
+            return .blocked(with: address)
+        }
+        return .sample(with: address)
+    }
+
+    public func fetchAddressPURLs(_ name: AddressName, credential: APICredential?) async throws -> [PURLModel] {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return [
+            .sample(with: name),
+            .sample(with: name),
+            .sample(with: name)
+        ]
+    }
+
+    public func fetchPURL(_ id: String, from address: AddressName, credential: APICredential?) async throws -> PURLModel? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return .sample(with: address)
+    }
+
+    public func fetchPURLContent(_ id: String, from address: AddressName, credential: APICredential?) async throws -> String? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        let content = String.htmlContent
+        return content
+    }
+
     public func fetchAddressStatuses(addresses: [AddressName]) async throws -> [StatusModel] {
         return try await fetchStatusLog()
             .filter({ element in
@@ -159,12 +128,50 @@ public final class SampleData: DataInterface {
                 return addresses.contains(element.address)
             })
     }
-    
+
     public func fetchAddressStatus(_ id: String, from address: AddressName) async throws -> StatusModel? {
         try await Task.sleep(nanoseconds: artificalDelay)
         return StatusModel.sample(with: address, id: id)
     }
-    
+
+    // MARK: Account
+
+    public func authURL() -> URL? {
+        URL(string: "https://home.omg.lol")
+    }
+
+    @MainActor
+    public func fetchAccessToken(authCode: String, clientID: String, clientSecret: String, redirect: String) async throws -> String? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return authCode
+    }
+
+    public func fetchAccountAddresses(_ credential: String) async throws -> [AddressName] {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        guard !credential.isEmpty else {
+            return []
+        }
+        return ["app", "calvin"]
+    }
+
+    public func fetchAccountInfo(_ address: AddressName, credential: APICredential) async throws -> AccountInfoModel? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        guard !credential.isEmpty else {
+            return nil
+        }
+        return .init(name: "Firstname", created: Date.init(timeIntervalSinceNow: -1000000))
+    }
+
+    // MARK: Deleting
+
+    public func deletePaste(_ id: String, from address: AddressName, credential: APICredential) async throws {
+        // Implementation here
+    }
+
+    public func deletePURL(_ id: String, from address: AddressName, credential: APICredential) async throws {
+        // Implementation here
+    }
+
     public func deleteAddressStatus(_ draft: StatusModel.Draft, from address: AddressName, credential: APICredential) async throws -> StatusModel? {
         guard let id = draft.id else {
             return nil
@@ -172,33 +179,29 @@ public final class SampleData: DataInterface {
         try await Task.sleep(nanoseconds: artificalDelay)
         return StatusModel.sample(with: address, id: id)
     }
-    
-    public func saveStatusDraft(_ draft: StatusModel.Draft, to address: AddressName, credential: APICredential) async throws -> StatusModel? {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        return try await fetchAddressStatus(draft.id ?? UUID().uuidString, from: address)
-    }
-    
-    public func fetchAddressBio(_ name: AddressName) async throws -> AddressBioModel {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        let content = String.minimalLorum
-        return .init(address: name, bio: content)
-    }
-    
-    public func fetchAddressProfile(_ name: AddressName, credential: APICredential?) async throws -> AddressProfile? {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        let content = String.htmlContent
-        return .init(owner: name, content: content)
-    }
-    
+
+    // MARK: Posting
+
     public func saveAddressProfile(_ name: AddressName, content: String, credential: APICredential) async throws -> AddressProfile? {
         try await fetchAddressProfile(name, credential: credential)
     }
-    
-    public func fetchThemes() async throws -> [ThemeModel] {
+
+    public func saveAddressNow(_ name: AddressName, content: String, credential: APICredential) -> NowModel? {
+        return .sample(with: name)
+    }
+
+    public func savePURL(_ draft: PURLModel.Draft, to address: AddressName, credential: APICredential) async throws -> PURLModel? {
         try await Task.sleep(nanoseconds: artificalDelay)
-        return [
-            .init(id: "default", name: "Default", created: "1660967179", updated: "1660967179", author: "omg.lol", license: "MIT", description: "A friendly, simple look for your amazing profile.", preview: "")
-        ]
+        return PURLModel(owner: address, name: draft.name, content: draft.content, listed: true)
+    }
+
+    public func savePaste(_ draft: PasteModel.Draft, to address: AddressName, credential: APICredential) async throws -> PasteModel? {
+        try await fetchPaste(draft.name, from: address, credential: credential)
+    }
+
+    public func saveStatusDraft(_ draft: StatusModel.Draft, to address: AddressName, credential: APICredential) async throws -> StatusModel? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        return try await fetchAddressStatus(draft.id ?? UUID().uuidString, from: address)
     }
 }
 

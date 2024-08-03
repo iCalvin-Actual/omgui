@@ -13,14 +13,14 @@ public struct ClientInfo {
     let urlScheme: String
     let callback: String
     
+    var redirectUrl: String { urlScheme + callback}
+    
     public init(id: String, secret: String, scheme: String, callback: String) {
         self.id = id
         self.secret = secret
         self.urlScheme = scheme
         self.callback = callback
     }
-    
-    var redirectUrl: String { urlScheme + callback}
 }
 
 extension ClientInfo {
