@@ -75,7 +75,7 @@ class SidebarModel: ObservableObject {
             }
             destinations.append(.blocked)
             destinations.append(
-                contentsOf: sceneModel.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
+                contentsOf: sceneModel.pinned.sorted().map({ .pinnedAddress($0) })
             )
             return destinations
         case .now:

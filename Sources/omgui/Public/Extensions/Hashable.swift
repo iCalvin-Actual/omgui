@@ -7,7 +7,13 @@
 
 import Foundation
 
-extension PURLModel {
+extension AddressModel {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(addressName)
+    }
+}
+
+extension PasteModel {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(owner)
         hasher.combine(name)
@@ -16,7 +22,7 @@ extension PURLModel {
     }
 }
 
-extension PasteModel {
+extension PURLModel {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(owner)
         hasher.combine(name)
