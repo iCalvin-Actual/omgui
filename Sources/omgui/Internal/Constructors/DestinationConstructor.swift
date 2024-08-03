@@ -16,7 +16,9 @@ struct DestinationConstructor {
         let destination = destination ?? .community
         switch destination {
         case .directory:
-            DirectoryView(fetcher: .init(interface: sceneModel.fetchConstructor.interface, db: sceneModel.fetchConstructor.database))
+            DirectoryView(
+                fetcher: .init(interface: sceneModel.fetchConstructor.interface, db: sceneModel.fetchConstructor.database)
+            )
 //        case .community:
 //            CommunityView(addressBook: addressBook)
 //        case .address(let name):

@@ -23,11 +23,24 @@ class FetchConstructor {
         self.database = database
     }
     
-    func accountInfoFetcher(for address: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {
-        guard !address.isEmpty else {
-            return nil
-        }
-        return AccountInfoDataFetcher(address: address, interface: interface, credential: credential)
+    func addressDirectoryDataFetcher() -> AddressDirectoryDataFetcher {
+        AddressDirectoryDataFetcher(interface: interface, db: database)
+    }
+    
+    func generalStatusLog() -> StatusLogDataFetcher {
+        StatusLogDataFetcher(title: "statusLog", interface: interface, db: database)
+    }
+    
+    func nowGardenFetcher() -> NowGardenDataFetcher {
+        NowGardenDataFetcher(interface: interface, db: database)
+    }
+    
+    func statusLog(for addresses: [AddressName]) -> StatusLogDataFetcher {
+        StatusLogDataFetcher(addresses: addresses, interface: interface, db: database)
+    }
+    
+    func statusFetcher(_ id: String, from address: AddressName) -> StatusDataFetcher {
+        return StatusDataFetcher(id: id, from: address, interface: interface, db: database)
     }
     
     func blockListFetcher(for address: AddressName, credential: APICredential?) -> AddressBlockListDataFetcher {
@@ -38,24 +51,15 @@ class FetchConstructor {
         AddressFollowingDataFetcher(address: address, credential: credential, interface: interface, db: database)
     }
     
-    func addressDirectoryDataFetcher() -> AddressDirectoryDataFetcher {
-        AddressDirectoryDataFetcher(interface: interface, db: database)
+    func accountInfoFetcher(for address: AddressName, credential: APICredential) -> AccountInfoDataFetcher? {
+        guard !address.isEmpty else {
+            return nil
+        }
+        return AccountInfoDataFetcher(address: address, interface: interface, credential: credential)
     }
     
     func accountAddressesDataFetcher(_ credential: String) -> AccountAddressDataFetcher {
         AccountAddressDataFetcher(credential: credential, interface: interface, db: database)
-    }
-    
-    func statusLog(for addresses: [AddressName]) -> StatusLogDataFetcher {
-        StatusLogDataFetcher(addresses: addresses, interface: interface, db: database)
-    }
-    
-    func generalStatusLog() -> StatusLogDataFetcher {
-        StatusLogDataFetcher(title: "statusLog", interface: interface, db: database)
-    }
-    
-    func nowGardenFetcher() -> NowGardenDataFetcher {
-        NowGardenDataFetcher(interface: interface, db: database)
     }
     
     func addressDetailsFetcher(_ address: AddressName) -> AddressSummaryDataFetcher {
@@ -82,6 +86,10 @@ class FetchConstructor {
         AddressPasteDataFetcher(name: address, title: title, credential: credential, interface: interface, db: database)
     }
     
+    func addressPURLsFetcher(_ address: AddressName, credential: APICredential?) -> AddressPURLsDataFetcher {
+        AddressPURLsDataFetcher(name: address, interface: interface, credential: credential, db: database)
+    }
+    
     func addressPURLFetcher(_ address: AddressName, title: String, credential: APICredential?) -> AddressPURLDataFetcher {
         AddressPURLDataFetcher(name: address, title: title, credential: credential, interface: interface, db: database)
     }
@@ -94,16 +102,8 @@ class FetchConstructor {
         PURLDraftPoster(address, title: title, value: "", interface: interface, credential: credential, onPost: { _ in })
     }
     
-    func statusFetcher(_ id: String, from address: AddressName) -> StatusDataFetcher {
-        return StatusDataFetcher(id: id, from: address, interface: interface, db: database)
-    }
-    
     func draftStatusPoster(_ id: String? = nil, for address: AddressName, credential: APICredential) -> StatusDraftPoster {
         let draft = StatusModel.Draft(address: address, id: id, content: "", emoji: "")
         return StatusDraftPoster(address, draft: draft, interface: interface, credential: credential)
-    }
-    
-    func addressPURLsFetcher(_ address: AddressName, credential: APICredential?) -> AddressPURLsDataFetcher {
-        AddressPURLsDataFetcher(name: address, interface: interface, credential: credential, db: database)
     }
 }
