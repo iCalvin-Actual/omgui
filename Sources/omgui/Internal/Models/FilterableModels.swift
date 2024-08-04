@@ -14,7 +14,7 @@ extension AddressModel: QueryFilterable {
     }
     
     var addressName: AddressName {
-        id
+        owner
     }
     
     var filterDate: Date? {
@@ -73,7 +73,7 @@ extension StatusModel: QueryFilterable {
     }
     
     var addressName: AddressName {
-        address
+        owner
     }
     
     var filterDate: Date? {

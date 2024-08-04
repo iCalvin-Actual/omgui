@@ -86,7 +86,7 @@ class AddressIconDataFetcher: ModelBackedDataFetcher<AddressIconModel> {
             return
         }
         let response = try await URLSession.shared.data(from: url)
-        let model = AddressIconModel(id: address, data: response.0)
+        let model = AddressIconModel(owner: address, data: response.0)
         try await model.write(to: db)
     }
 }

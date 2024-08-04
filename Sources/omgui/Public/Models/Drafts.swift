@@ -120,7 +120,7 @@ extension StatusModel: MDDraftable {
         }
         
         init(model: StatusModel, id: String? = nil) {
-            self.address = model.address
+            self.address = model.owner
             self.id = id
             self.content = model.status
             self.emoji = model.emoji ?? ""

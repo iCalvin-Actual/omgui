@@ -26,6 +26,9 @@ public protocol DataInterface: Sendable {
     func fetchStatusLog()
     async throws -> [StatusModel]
     
+    func fetchCompleteStatusLog()
+    async throws -> [StatusModel]
+    
     // MARK: Address Content
     
     func fetchAddressAvailability(

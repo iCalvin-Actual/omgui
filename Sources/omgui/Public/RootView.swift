@@ -24,6 +24,10 @@ struct RootView: View {
     
     @SceneStorage("app.lol.address")
     var actingAddress: String = ""
+    @SceneStorage("app.lol.following")
+    var appliedFollow: String = ""
+    @SceneStorage("app.lol.blocked")
+    var appliedBlocked: String = ""
     
     @Environment(\.blackbirdDatabase)
     var db
@@ -40,7 +44,9 @@ struct RootView: View {
                     pinnedAddresses: $currentlyPinnedAddresses,
                     myAddresses: $localAddressesCache,
                     myName: $myName,
-                    actingAddress: $actingAddress
+                    actingAddress: $actingAddress,
+                    appliedFollow: $appliedFollow,
+                    appliedBlocked: $appliedBlocked
                 )
             )
     }

@@ -47,7 +47,7 @@ class Request: NSObject, ObservableObject {
     var requestNeeded: Bool { !loaded }
     
     func updateIfNeeded(forceReload: Bool = false) async {
-        guard forceReload || (!loading && requestNeeded) else {
+        guard forceReload || (loading && requestNeeded) else {
             print("NOT performing request")
             return
         }

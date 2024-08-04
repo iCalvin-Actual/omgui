@@ -50,6 +50,10 @@ public final class SampleData: DataInterface {
         }
         return statuses
     }
+    
+    public func fetchCompleteStatusLog() async throws -> [StatusModel] {
+        try await fetchStatusLog()
+    }
 
     // MARK: Address Content
 
@@ -125,7 +129,7 @@ public final class SampleData: DataInterface {
                 guard !addresses.isEmpty else {
                     return true
                 }
-                return addresses.contains(element.address)
+                return addresses.contains(element.owner)
             })
     }
 
@@ -447,7 +451,7 @@ fileprivate extension StatusModel {
         let emoji = emojiItems.randomElement()!
         return StatusModel(
             id: id ?? UUID().uuidString,
-            address: address,
+            owner: address,
             posted: Date(timeIntervalSince1970: .random(min: 1600000000.0, max: 1678019926.0)),
             status: content,
             emoji: emoji,

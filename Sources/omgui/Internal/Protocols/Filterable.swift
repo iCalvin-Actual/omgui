@@ -14,12 +14,18 @@ enum FilterOption: Equatable, RawRepresentable {
             return "interval.\(interval)"
         case .query(let query):
             return "query.\(query)"
+        case .from(let address):
+            return "from.\(address)"
+        case .fromOneOf(let addresses):
+            return "fromOne.\(addresses.joined(separator: "."))"
         case .none:
             return ""
         case .notBlocked:
             return "notBlocked"
         case .mine:
             return "mine"
+        case .following:
+            return "following"
         }
     }
     
@@ -41,10 +47,24 @@ enum FilterOption: Equatable, RawRepresentable {
             }
             let joined = splitString.dropFirst().joined(separator: ".")
             self = .query(joined)
+        case "from":
+            guard splitString.count > 1 else {
+                return nil
+            }
+            let joined = splitString.dropFirst().joined(separator: ".")
+            self = .from(joined)
+        case "fromOne":
+            guard splitString.count > 1 else {
+                return nil
+            }
+            let joined = Array(splitString.dropFirst())
+            self = .fromOneOf(joined)
         case "notBlocked":
             self = .notBlocked
         case "mine":
             self = .mine
+        case "following":
+            self = .following
         case "":
             self = .none
         default:
@@ -56,7 +76,10 @@ enum FilterOption: Equatable, RawRepresentable {
     case recent(TimeInterval)
     case notBlocked
     case query(String)
+    case from(AddressName)
+    case fromOneOf([AddressName])
     case mine
+    case following
     case none
 }
 
@@ -128,6 +151,10 @@ extension Filterable {
             if scene.isBlocked(addressName) {
                 return false
             }
+        case .from(let address):
+            return addressName == address
+        case .fromOneOf(let addresses):
+            return addresses.contains(addressName)
         case .query(let query):
             guard let queryable = self as? QueryFilterable else {
                 return false
@@ -144,6 +171,8 @@ extension Filterable {
             }
         case .mine:
             return scene.myAddresses.contains(addressName)
+        case .following:
+            return scene.following.contains(addressName)
         }
         return true
     }

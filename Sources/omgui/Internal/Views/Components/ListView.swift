@@ -57,13 +57,14 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
     }
     
     var items: [T] {
-        var filters = filters
-        if !queryString.isEmpty {
-            filters.append(.query(queryString))
-        }
-        return filters
-            .applyFilters(to: dataFetcher.results, in: sceneModel)
-            .sorted(with: sort)
+        dataFetcher.results
+//        var filters = filters
+//        if !queryString.isEmpty {
+//            filters.append(.query(queryString))
+//        }
+//        return filters
+//            .applyFilters(to: dataFetcher.results, in: sceneModel)
+//            .sorted(with: sort)
     }
     
     var body: some View {
@@ -166,6 +167,18 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
             listItems
                 .listRowBackground(Color.clear)
                 .padding(.vertical, 4)
+            
+            if dataFetcher.nextPage != nil {
+                ProgressView()
+                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+                  .foregroundColor(.black)
+                  .foregroundColor(.red)
+                  .onAppear {
+                      Task {
+                          try await dataFetcher.fetchModels()
+                      }
+                  }
+            }
         }
         .refreshable(action: {
             await dataFetcher.updateIfNeeded(forceReload: true)

@@ -8,6 +8,13 @@
 import Blackbird
 import Foundation
 
+protocol BlackbirdListable: BlackbirdModel {
+    static var ownerKey: BlackbirdColumnKeyPath { get }
+}
+extension BlackbirdListable {
+    static public var primaryKey: [PartialKeyPath<Self>] { [ownerKey] }
+}
+
 public struct ServiceInfoModel: Sendable {
     let members: Int?
     let addresses: Int?
@@ -76,34 +83,33 @@ public struct ThemeModel: Codable, Sendable {
     }
 }
 
-struct AddressIconModel: BlackbirdModel {
-    
-    var addressName: AddressName { id }
+struct AddressIconModel: BlackbirdListable {
+    static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     
     @BlackbirdColumn
-    var id: AddressName
+    var owner: AddressName
     @BlackbirdColumn
     var data: Data?
     
     enum CodingKeys: String, BlackbirdCodingKey {
-        case id
+        case owner
         case data
     }
     
     init(_ row: Blackbird.ModelRow<AddressIconModel>) {
-        self.init(id: row[\.$id], data: row[\.$data])
+        self.init(owner: row[\.$owner], data: row[\.$data])
     }
     
     init (from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(AddressName.self, forKey: .id)
+        owner = try container.decode(AddressName.self, forKey: .owner)
         if let data = try container.decodeIfPresent(Data.self, forKey: .data) {
             self.data = data
         }
     }
     
-    init(id: AddressName, data: Data? = nil) {
-        self.id = id
+    init(owner: AddressName, data: Data? = nil) {
+        self.owner = owner
         self.data = data
     }
 }
@@ -193,7 +199,9 @@ public struct NowModel: BlackbirdModel, Sendable {
     }
 }
 
-public struct PasteModel: BlackbirdModel, Identifiable, RawRepresentable, Codable, Sendable {
+public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Codable, Sendable {
+    public static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
+    public static var primaryKey: [BlackbirdColumnKeyPath] { [\.$owner, \.$name] }
     
     static var separator: String { "{PASTE}" }
     
@@ -201,8 +209,6 @@ public struct PasteModel: BlackbirdModel, Identifiable, RawRepresentable, Codabl
         [owner, name].joined(separator: Self.separator)
     }
     
-    @BlackbirdColumn
-    public var id: String
     @BlackbirdColumn
     public var owner: AddressName
     @BlackbirdColumn
@@ -213,7 +219,6 @@ public struct PasteModel: BlackbirdModel, Identifiable, RawRepresentable, Codabl
     public var listed: Bool
     
     enum CodingKeys: String, BlackbirdCodingKey {
-        case id
         case owner
         case name
         case content
@@ -222,7 +227,6 @@ public struct PasteModel: BlackbirdModel, Identifiable, RawRepresentable, Codabl
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
         owner = try container.decode(AddressName.self, forKey: .owner)
         name = try container.decode(String.self, forKey: .name)
         content = try container.decode(String.self, forKey: .content)
@@ -231,7 +235,6 @@ public struct PasteModel: BlackbirdModel, Identifiable, RawRepresentable, Codabl
     
     public init(_ row: Blackbird.ModelRow<PasteModel>) {
         self.init(
-            id: row[\.$id],
             owner: row[\.$owner],
             name: row[\.$name],
             content: row[\.$content],
@@ -244,7 +247,6 @@ public struct PasteModel: BlackbirdModel, Identifiable, RawRepresentable, Codabl
         guard split.count > 1 else {
             return nil
         }
-        self.id = rawValue
         self.owner = String(split[0])
         self.name = String(split[1])
         self.content = ""
@@ -252,7 +254,6 @@ public struct PasteModel: BlackbirdModel, Identifiable, RawRepresentable, Codabl
     }
     
     public init(id: String? = nil, owner: AddressName, name: String, content: String? = nil, listed: Bool = true) {
-        self.id = id ?? [owner, name].joined(separator: Self.separator)
         self.owner = owner
         self.name = name
         self.content = content ?? ""
@@ -260,15 +261,16 @@ public struct PasteModel: BlackbirdModel, Identifiable, RawRepresentable, Codabl
     }
 }
 
-public struct PURLModel: BlackbirdModel, Identifiable, RawRepresentable, Codable, Sendable {
+public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Codable, Sendable {
+    public static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
+    public static var primaryKey: [BlackbirdColumnKeyPath] { [\.$owner, \.$name] }
+    
     static var separator: String { "{PURL}" }
     
     public var rawValue: String {
         [owner, name].joined(separator: Self.separator)
     }
     
-    @BlackbirdColumn
-    public var id: String
     @BlackbirdColumn
     public var owner: AddressName
     @BlackbirdColumn
@@ -283,7 +285,6 @@ public struct PURLModel: BlackbirdModel, Identifiable, RawRepresentable, Codable
     }
     
     enum CodingKeys: String, BlackbirdCodingKey {
-        case id
         case owner
         case name
         case content
@@ -292,7 +293,6 @@ public struct PURLModel: BlackbirdModel, Identifiable, RawRepresentable, Codable
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
         owner = try container.decode(AddressName.self, forKey: .owner)
         name = try container.decode(String.self, forKey: .name)
         content = try container.decode(String.self, forKey: .content)
@@ -301,7 +301,6 @@ public struct PURLModel: BlackbirdModel, Identifiable, RawRepresentable, Codable
     
     public init(_ row: Blackbird.ModelRow<PURLModel>) {
         self.init(
-            id: row[\.$id],
             owner: row[\.$owner],
             name: row[\.$name],
             content: row[\.$content],
@@ -314,7 +313,6 @@ public struct PURLModel: BlackbirdModel, Identifiable, RawRepresentable, Codable
         guard split.count > 1 else {
             return nil
         }
-        self.id = rawValue
         self.owner = String(split[0])
         self.name = String(split[1])
         self.content = ""
@@ -322,7 +320,6 @@ public struct PURLModel: BlackbirdModel, Identifiable, RawRepresentable, Codable
     }
     
     public init(id: String? = nil, owner: AddressName, name: String, content: String? = nil, listed: Bool = true) {
-        self.id = id ?? [owner, name].joined(separator: Self.separator)
         self.owner = owner
         self.name = name
         self.content = content ?? ""
@@ -330,87 +327,91 @@ public struct PURLModel: BlackbirdModel, Identifiable, RawRepresentable, Codable
     }
 }
 
-public struct NowListing: BlackbirdModel, Identifiable, Sendable {
-    var owner: AddressName { id }
+public struct NowListing: BlackbirdListable, Identifiable, Sendable {
+    public static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
+    
     @BlackbirdColumn
-    public var id: AddressName
+    var owner: AddressName
     @BlackbirdColumn
     var url: String
     @BlackbirdColumn
     var updated: Date
     
     enum CodingKeys: String, BlackbirdCodingKey {
-        case id
+        case owner
         case url
         case updated
     }
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self._id = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .id)
+        self._owner = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .owner)
         self._url = try container.decode(BlackbirdColumn<String>.self, forKey: .url)
         self._updated = try container.decode(BlackbirdColumn<Date>.self, forKey: .updated)
     }
     
     public init(_ row: Blackbird.ModelRow<NowListing>) {
-        self.init(owner: row[\.$id], url: row[\.$url], updated: row[\.$updated])
+        self.init(owner: row[\.$owner], url: row[\.$url], updated: row[\.$updated])
     }
     
     public init(owner: AddressName, url: String, updated: Date) {
-        self.id = owner
+        self.owner = owner
         self.url = url
         self.updated = updated
     }
 }
 
-public struct AddressModel: BlackbirdModel, Identifiable, RawRepresentable, Codable, Sendable {
+public struct AddressModel: BlackbirdListable, Identifiable, RawRepresentable, Codable, Sendable {
+    static public var ownerKey: BlackbirdColumnKeyPath { \.$owner }
+    
     public init?(rawValue: String) {
         self = AddressModel(name: rawValue)
     }
     
-    public var rawValue: String { id }
+    public var rawValue: String { owner }
     
     @BlackbirdColumn
-    public var id: AddressName
+    var owner: AddressName
     @BlackbirdColumn
     var url: URL?
     @BlackbirdColumn
     var registered: Date?
     
     enum CodingKeys: String, BlackbirdCodingKey {
-        case id
+        case owner
         case url
         case registered
     }
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(AddressName.self, forKey: .id)
+        owner = try container.decode(AddressName.self, forKey: .owner)
         url = try container.decodeIfPresent(URL.self, forKey: .url)
         registered = try container.decodeIfPresent(Date.self, forKey: .registered)
     }
     
     public init(_ row: Blackbird.ModelRow<AddressModel>) {
         self = .init(
-            name: row[\.$id],
+            name: row[\.$owner],
             url: row[\.$url],
             registered: row[\.$registered]
         )
     }
     
     public init(name: AddressName, url: URL? = nil, registered: Date? = nil) {
-        self.id = name
+        self.owner = name
         self.url = url
         self.registered = registered
     }
 }
 
-public struct StatusModel: BlackbirdModel, Identifiable, Sendable {
+public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
+    static public var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     
     @BlackbirdColumn
     public var id: String
     @BlackbirdColumn
-    var address: AddressName
+    var owner: AddressName
     @BlackbirdColumn
     var posted: Date
     
@@ -426,7 +427,7 @@ public struct StatusModel: BlackbirdModel, Identifiable, Sendable {
     
     enum CodingKeys: String, BlackbirdCodingKey {
         case id
-        case address
+        case owner
         case posted
         case status
         case emoji
@@ -437,7 +438,7 @@ public struct StatusModel: BlackbirdModel, Identifiable, Sendable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self._id = try container.decode(BlackbirdColumn<String>.self, forKey: .id)
-        self._address = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .address)
+        self._owner = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .owner)
         self._posted = try container.decode(BlackbirdColumn<Date>.self, forKey: .posted)
         self._status = try container.decode(BlackbirdColumn<String>.self, forKey: .status)
         self._emoji = try container.decode(BlackbirdColumn<String?>.self, forKey: .emoji)
@@ -448,7 +449,7 @@ public struct StatusModel: BlackbirdModel, Identifiable, Sendable {
     public init(_ row: Blackbird.ModelRow<StatusModel>) {
         self.init(
             id: row[\.$id],
-            address: row[\.$address],
+            owner: row[\.$owner],
             posted: row[\.$posted],
             status: row[\.$status],
             emoji: row[\.$emoji],
@@ -457,9 +458,9 @@ public struct StatusModel: BlackbirdModel, Identifiable, Sendable {
         )
     }
     
-    public init(id: String, address: AddressName, posted: Date, status: String, emoji: String? = nil, linkText: String? = nil, link: URL? = nil) {
+    public init(id: String, owner: AddressName, posted: Date, status: String, emoji: String? = nil, linkText: String? = nil, link: URL? = nil) {
         self.id = id
-        self.address = address
+        self.owner = owner
         self.posted = posted
         self.status = status
         self.emoji = emoji
@@ -472,11 +473,11 @@ public struct StatusModel: BlackbirdModel, Identifiable, Sendable {
     }
     
     var urlString: String {
-        "https://\(address).status.lol/\(id)"
+        "https://\(owner).status.lol/\(id)"
     }
     
     var primaryDestination: NavigationDestination {
-        .statusLog(address)
+        .statusLog(owner)
     }
     
     var webLinks: [SharePacket] {

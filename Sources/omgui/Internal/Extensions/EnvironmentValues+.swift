@@ -32,6 +32,6 @@ struct ViewContextKey: EnvironmentKey {
 struct FetchConstructorKey: @preconcurrency EnvironmentKey {
     @MainActor
     static var defaultValue: FetchConstructor {
-        try! .init(client: .sample, interface: SampleData(), database: .inMemoryDatabase())
+        try! .init(client: .sample, interface: SampleData(), lists: .init(), database: .inMemoryDatabase())
     }
 }

@@ -42,7 +42,7 @@ extension AddressModel: Listable {
 }
 extension StatusModel: Listable     {
     var listTitle: String     { status }
-    var listSubtitle: String  { address.addressDisplayString }
+    var listSubtitle: String  { owner.addressDisplayString }
     var displayDate: Date?    { posted }
     var listCaption: String?  { DateFormatter.short.string(from: posted) }
 }

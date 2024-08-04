@@ -14,10 +14,6 @@ class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
         "omg.lol"
     }
     
-    override func fetchModels() async throws {
-        self.results = try await AddressModel.read(from: db, orderBy: .ascending(\.$id))
-    }
-    
     override func fetchRemote() async throws {
         guard results.isEmpty else {
             return
@@ -39,19 +35,21 @@ class AccountAddressDataFetcher: ModelBackedListDataFetcher<AddressModel> {
     }
     private let credential: String
     
-    init(credential: APICredential, interface: DataInterface, db: Blackbird.Database) {
+    init(credential: APICredential, lists: CoreLists, interface: DataInterface, db: Blackbird.Database) {
         self.credential = credential
-        super.init(interface: interface, db: db)
+        super.init(lists: lists, interface: interface, db: db)
     }
     
-    override func fetchRemote() async throws {
-        self.results = try await interface.fetchAccountAddresses(credential).map({ AddressModel(name: $0) })
+    override func throwingRequest() async throws {
+        let results = try await interface.fetchAccountAddresses(credential).map({ AddressModel(name: $0) })
         
-        self.results.forEach({ model in
+        results.forEach({ model in
             Task {
                 try await model.write(to: db)
             }
         })
+        
+        self.results = results
     }
 }
 
@@ -66,7 +64,7 @@ class AddressFollowingDataFetcher: ModelBackedListDataFetcher<AddressModel> {
     init(address: AddressName, credential: APICredential?, interface: DataInterface, db: Blackbird.Database) {
         self.address = address
         self.credential = credential
-        super.init(interface: interface, db: db)
+        super.init(lists: .init(), interface: interface, db: db)
     }
     
     override func throwingRequest() async throws {
@@ -145,7 +143,7 @@ class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
     init(address: AddressName, credential: APICredential?, interface: DataInterface, db: Blackbird.Database) {
         self.address = address
         self.credential = credential
-        super.init(interface: interface, db: db)
+        super.init(lists: .init(), interface: interface, db: db)
     }
     
     override func throwingRequest() async throws {
@@ -218,9 +216,7 @@ class NowGardenDataFetcher: ModelBackedListDataFetcher<NowListing> {
     override var title: String {
         "now.garden🌷"
     }
-    override func fetchModels() async throws {
-        results = try await NowListing.read(from: db, orderBy: .ascending(\.$id))
-    }
+    
     override func fetchRemote() async throws {
         let garden = try await interface.fetchNowGarden()
         garden.forEach { model in
@@ -239,14 +235,10 @@ class AddressPasteBinDataFetcher: ModelBackedListDataFetcher<PasteModel> {
         "\(addressName.addressDisplayString).paste"
     }
     
-    init(name: AddressName, pastes: [PasteModel] = [], interface: DataInterface, credential: APICredential?, db: Blackbird.Database) {
+    init(name: AddressName, pastes: [PasteModel] = [], credential: APICredential?, interface: DataInterface, db: Blackbird.Database) {
         self.addressName = name
         self.credential = credential
-        super.init(interface: interface, db: db)
-    }
-    
-    override func fetchModels() async throws {
-        self.results = try await PasteModel.read(from: db, matching: \.$owner == addressName)
+        super.init(lists: .init(), interface: interface, db: db, filters: [.from(name)])
     }
     
     override func fetchRemote() async throws {
@@ -270,14 +262,10 @@ class AddressPURLsDataFetcher: ModelBackedListDataFetcher<PURLModel> {
         "\(addressName.addressDisplayString).PURLs"
     }
     
-    init(name: AddressName, purls: [PURLModel] = [], interface: DataInterface, credential: APICredential?, db: Blackbird.Database) {
+    init(name: AddressName, purls: [PURLModel] = [], credential: APICredential?, interface: DataInterface, db: Blackbird.Database) {
         self.addressName = name
         self.credential = credential
-        super.init(interface: interface, db: db)
-    }
-    
-    override func fetchModels() async throws {
-        self.results = try await PURLModel.read(from: db, matching: \.$owner == addressName)
+        super.init(lists: .init(), interface: interface, db: db, filters: [.from(name)])
     }
     
     override func fetchRemote() async throws {
@@ -299,7 +287,7 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
     
     override var title: String { displayTitle }
     
-    init(title: String? = nil, addresses: [AddressName] = [], interface: DataInterface, db: Blackbird.Database) {
+    init(title: String? = nil, addresses: [AddressName] = [], lists: CoreLists, interface: DataInterface, db: Blackbird.Database) {
         self.displayTitle = title ?? {
             switch addresses.count {
             case 0:
@@ -311,17 +299,7 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
             }
         }()
         self.addresses = addresses
-        super.init(interface: interface, db: db)
-    }
-    
-    override func fetchModels() async throws {
-        if addresses.isEmpty {
-            let results = try await StatusModel.read(from: db, orderBy: .descending(\.$posted))
-            self.results = results
-        } else {
-            let results = try await StatusModel.read(from: db, matching: .valueIn(\.$address, addresses), orderBy: .descending(\.$posted))
-            self.results = results
-        }
+        super.init(lists: lists, interface: interface, db: db, filters: addresses.isEmpty ? [] : [.fromOneOf(addresses)])
     }
     
     override func fetchRemote() async throws {
@@ -332,6 +310,19 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
                     try await model.write(to: db)
                 }
             })
+            fetchFinished()
+            Task {
+                // Jump to the BG for the big job
+                let generalStatuses = try await interface.fetchCompleteStatusLog()
+                
+                generalStatuses.forEach({ model in
+                    Task {
+                        try await model.write(to: db)
+                    }
+                })
+                try await fetchModels()
+                fetchFinished()
+            }
         } else {
             let statuses = try await interface.fetchAddressStatuses(addresses: addresses)
             statuses.forEach({ model in

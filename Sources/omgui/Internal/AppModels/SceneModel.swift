@@ -22,14 +22,17 @@ class SceneModel {
     @Binding @ObservationIgnored var myName: String
     @Binding @ObservationIgnored var pinnedAddresses: String
     
+    @Binding @ObservationIgnored var appliedFollow: String
+    @Binding @ObservationIgnored var appliedBlocked: String
+    
     // MARK: DataFetchers
     
     var authenticationFetcher: AccountAuthDataFetcher?
     
-    var addressBlockedFetcher: AddressBlockListDataFetcher
-    var globalBlockedFetcher: AddressBlockListDataFetcher
+    var addressBlockedFetcher: AddressBlockListDataFetcher?
+    var globalBlockedFetcher: AddressBlockListDataFetcher?
     
-    var addressFollowingFetcher: AddressFollowingDataFetcher
+    var addressFollowingFetcher: AddressFollowingDataFetcher?
     
     // MARK: Caches
     
@@ -54,7 +57,9 @@ class SceneModel {
         pinnedAddresses: Binding<String>,
         myAddresses: Binding<String>,
         myName: Binding<String>,
-        actingAddress: Binding<String>
+        actingAddress: Binding<String>,
+        appliedFollow: Binding<String>,
+        appliedBlocked: Binding<String>
     )
     {
         self._authKey = authKey
@@ -63,8 +68,9 @@ class SceneModel {
         self._localAddressesCache = myAddresses
         self._myName = myName
         self._actingAddress = actingAddress
+        self._appliedFollow = appliedFollow
+        self._appliedBlocked = appliedBlocked
         self.fetcher = fetcher
-        self.globalBlockedFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: fetcher.interface, db: fetcher.database)
         self.globalBlockedFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: fetcher.interface, db: fetcher.database)
         self.addressBlockedFetcher = AddressBlockListDataFetcher(address: actingAddress.wrappedValue, credential: authKey.wrappedValue, interface: fetcher.interface, db: fetcher.database)
         self.addressFollowingFetcher = AddressFollowingDataFetcher(address: actingAddress.wrappedValue, credential: authKey.wrappedValue, interface: fetcher.interface, db: fetcher.database)
@@ -145,10 +151,10 @@ extension SceneModel {
     // MARK: Blocked
     
     var globalBlocked: [AddressName] {
-        globalBlockedFetcher.results.map({ $0.addressName })
+        globalBlockedFetcher?.results.map({ $0.addressName }) ?? []
     }
     var addressBlocked: [AddressName] {
-        addressBlockedFetcher.results.map(({ $0.addressName }))
+        addressBlockedFetcher?.results.map(({ $0.addressName })) ?? []
     }
     var localBlocklist: [AddressName] {
         get {
@@ -157,6 +163,7 @@ extension SceneModel {
         }
         set {
             localBlockedAddresses = Array(Set(newValue)).joined(separator: "&&&")
+            appliedBlocked = applicableBlocklist.joined(separator: "&&&")
         }
     }
     var applicableBlocklist: [AddressName] {
@@ -174,13 +181,13 @@ extension SceneModel {
     }
     func block(_ address: AddressName) {
         if signedIn {
-            addressBlockedFetcher.block(address, credential: authKey)
+            addressBlockedFetcher?.block(address, credential: authKey)
         }
         localBlocklist.append(address)
     }
     func unblock(_ address: AddressName) {
         if signedIn {
-            addressBlockedFetcher.unBlock(address, credential: authKey)
+            addressBlockedFetcher?.unBlock(address, credential: authKey)
         }
         localBlocklist.removeAll(where: { $0 == address })
     }
@@ -188,7 +195,7 @@ extension SceneModel {
     // MARK: Following
     
     var following: [AddressName] {
-        addressFollowingFetcher.results.map({ $0.addressName })
+        addressFollowingFetcher?.results.map({ $0.addressName }) ?? []
     }
     
     func isFollowing(_ address: AddressName) -> Bool {
@@ -213,13 +220,15 @@ extension SceneModel {
         guard let credential = credential(for: actingAddress) else {
             return
         }
-        addressFollowingFetcher.follow(address, credential: credential)
+        addressFollowingFetcher?.follow(address, credential: credential)
+        appliedFollow = following.joined(separator: "&&&")
     }
     func unFollow(_ address: AddressName) {
         guard let credential = credential(for: address) else {
             return
         }
-        addressFollowingFetcher.unFollow(address, credential: credential)
+        addressFollowingFetcher?.unFollow(address, credential: credential)
+        appliedFollow = following.joined(separator: "&&&")
     }
     
     // MARK: Summaries

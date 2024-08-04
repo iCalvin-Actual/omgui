@@ -87,7 +87,7 @@ extension AddressModel: AllSortable {
 }
 
 extension StatusModel: AllSortable {
-    var primarySortValue: String { address }
+    var primarySortValue: String { owner }
     var dateValue: Date? { posted }
     
     static let defaultSort: Sort = .newestFirst

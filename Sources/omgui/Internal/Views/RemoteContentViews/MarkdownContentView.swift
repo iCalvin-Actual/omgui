@@ -90,6 +90,10 @@ extension AddressNowDataFetcher: MarkdownSourceProvider {
 }
 
 extension StatusModel: MarkdownSourceProvider {
+    var address: String {
+        owner
+    }
+    
     var updated: Date? {
         dateValue
     }

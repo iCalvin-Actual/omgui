@@ -34,6 +34,7 @@ class AddressSummaryDataFetcher: DataFetcher {
     
     init(
         name: AddressName,
+        lists: CoreLists,
         interface: DataInterface,
         database: Blackbird.Database
     ) {
@@ -41,9 +42,9 @@ class AddressSummaryDataFetcher: DataFetcher {
         self.iconFetcher = .init(address: name, interface: interface, db: database)
         self.profileFetcher = .init(name: name, credential: nil, interface: interface, db: database)
         self.nowFetcher = .init(name: name, interface: interface, db: database)
-        self.purlFetcher = .init(name: name, interface: interface, credential: nil, db: database)
-        self.pasteFetcher = .init(name: name, interface: interface, credential: nil, db: database)
-        self.statusFetcher = .init(addresses: [name], interface: interface, db: database)
+        self.purlFetcher = .init(name: name, credential: nil, interface: interface, db: database)
+        self.pasteFetcher = .init(name: name, credential: nil, interface: interface, db: database)
+        self.statusFetcher = .init(addresses: [name], lists: .init(), interface: interface, db: database)
         self.bioFetcher = .init(address: name, interface: interface)
         
         self.followingFetcher = .init(address: name, credential: nil, interface: interface, db: database)
@@ -97,8 +98,9 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
     
     init(
         name: AddressName,
-        interface: DataInterface,
         credential: APICredential,
+        lists: CoreLists = .init(),
+        interface: DataInterface,
         database: Blackbird.Database
     ) {
         self.blockedFetcher = .init(address: name, credential: credential, interface: interface, db: database)
@@ -124,13 +126,13 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
 //            credential: credential
 //        )!
         
-        super.init(name: name, interface: interface, database: database)
+        super.init(name: name, lists: lists, interface: interface, database: database)
         
         self.profileFetcher = .init(name: addressName, credential: credential, interface: interface, db: database)
         self.followingFetcher = .init(address: addressName, credential: credential, interface: interface, db: database)
         
-        self.purlFetcher = .init(name: addressName, interface: interface, credential: credential, db: database)
-        self.pasteFetcher = .init(name: addressName, interface: interface, credential: credential, db: database)
+        self.purlFetcher = .init(name: addressName, credential: credential, interface: interface, db: database)
+        self.pasteFetcher = .init(name: addressName, credential: credential, interface: interface, db: database)
     }
     
     override func perform() async {

@@ -9,23 +9,7 @@ import SwiftUI
 import Foundation
 
 protocol AddressManagable {
-    var addressToActOn: AddressName { get }
-}
-
-extension AddressModel: AddressManagable {
-    var addressToActOn: AddressName { addressName }
-}
-extension NowListing: AddressManagable {
-    var addressToActOn: AddressName { owner }
-}
-extension StatusModel: AddressManagable {
-    var addressToActOn: AddressName { address }
-}
-extension PURLModel: AddressManagable {
-    var addressToActOn: AddressName { owner }
-}
-extension PasteModel: AddressManagable {
-    var addressToActOn: AddressName { owner }
+    var owner: AddressName { get }
 }
 
 protocol Menuable {
@@ -39,7 +23,7 @@ protocol Menuable {
 extension Menuable {
     @ViewBuilder
     func editingSection(in scene: SceneModel) -> some View {
-        if let editable = self as? Editable, scene.myAddresses.contains(editable.addressToActOn) {
+        if let editable = self as? Editable, scene.myAddresses.contains(editable.owner) {
             NavigationLink {
                 scene.destinationConstructor.destination(editable.editingDestination)
             } label: {
@@ -62,7 +46,7 @@ extension AddressManagable where Self: Menuable {
     @MainActor
     @ViewBuilder
     func manageSection(_ scene: SceneModel) -> some View {
-        let name = addressToActOn
+        let name = owner
         let isBlocked = scene.isBlocked(name)
         let isPinned = scene.isPinned(name)
         let canFollow = scene.canFollow(name)

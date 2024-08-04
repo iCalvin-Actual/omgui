@@ -17,10 +17,17 @@ struct DestinationConstructor {
         switch destination {
         case .directory:
             DirectoryView(
-                fetcher: .init(interface: sceneModel.fetcher.interface, db: sceneModel.fetcher.database)
+                fetcher: .init(
+                    lists: .init(
+                        following: sceneModel.following,
+                        blocked: sceneModel.applicableBlocklist
+                    ),
+                    interface: sceneModel.fetcher.interface,
+                    db: sceneModel.fetcher.database
+                )
             )
-//        case .community:
-//            CommunityView(addressBook: addressBook)
+        case .community:
+            CommunityView(sceneModel)
 //        case .address(let name):
 //            AddressSummaryView(addressSummaryFetcher: addressBook.addressSummary(name), allowEditing: addressBook.actingAddress == name, selectedPage: .profile)
 //                .toolbarRole(.editor)

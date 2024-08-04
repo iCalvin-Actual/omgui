@@ -105,7 +105,7 @@ extension StatusModel: Sharable {
         [
             .init(name: "Emoji", content: displayEmoji),
             .init(name: "URL", content: urlString),
-            .init(name: "Address", content: address)
+            .init(name: "Address", content: owner)
         ]
     }
     
@@ -114,9 +114,9 @@ extension StatusModel: Sharable {
     }
     var shareURLs: [SharePacket] {
         [
-            .init(name: "StatusLog", content: URL(string: "https://\(address).status.lol")!),
-            .init(name: "Profile", content: URL(string: "https://\(address).omg.lol")!),
-            .init(name: "Now Page", content: URL(string: "https://\(address).omg.lol/now")!)
+            .init(name: "StatusLog", content: URL(string: "https://\(owner).status.lol")!),
+            .init(name: "Profile", content: URL(string: "https://\(owner).omg.lol")!),
+            .init(name: "Now Page", content: URL(string: "https://\(owner).omg.lol/now")!)
         ]
     }
 }

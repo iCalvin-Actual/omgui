@@ -13,30 +13,32 @@ import SwiftUI
 class FetchConstructor: ObservableObject {
     let client: ClientInfo
     let interface: DataInterface
+    let coreLists: CoreLists
     
     @ObservedObject
     var database: Blackbird.Database
     
-    init(client: ClientInfo, interface: DataInterface, database: Blackbird.Database) {
+    init(client: ClientInfo, interface: DataInterface, lists: CoreLists, database: Blackbird.Database) {
         self.client = client
         self.interface = interface
+        self.coreLists = lists
         self.database = database
     }
     
     func addressDirectoryDataFetcher() -> AddressDirectoryDataFetcher {
-        AddressDirectoryDataFetcher(interface: interface, db: database)
+        AddressDirectoryDataFetcher(lists: coreLists, interface: interface, db: database)
     }
     
     func generalStatusLog() -> StatusLogDataFetcher {
-        StatusLogDataFetcher(title: "statusLog", interface: interface, db: database)
+        StatusLogDataFetcher(title: "statusLog", lists: coreLists, interface: interface, db: database)
     }
     
     func nowGardenFetcher() -> NowGardenDataFetcher {
-        NowGardenDataFetcher(interface: interface, db: database)
+        NowGardenDataFetcher(lists: coreLists, interface: interface, db: database)
     }
     
     func statusLog(for addresses: [AddressName]) -> StatusLogDataFetcher {
-        StatusLogDataFetcher(addresses: addresses, interface: interface, db: database)
+        StatusLogDataFetcher(addresses: addresses, lists: coreLists, interface: interface, db: database)
     }
     
     func statusFetcher(_ id: String, from address: AddressName) -> StatusDataFetcher {
@@ -59,15 +61,15 @@ class FetchConstructor: ObservableObject {
     }
     
     func accountAddressesDataFetcher(_ credential: String) -> AccountAddressDataFetcher {
-        AccountAddressDataFetcher(credential: credential, interface: interface, db: database)
+        AccountAddressDataFetcher(credential: credential, lists: coreLists, interface: interface, db: database)
     }
     
     func addressDetailsFetcher(_ address: AddressName) -> AddressSummaryDataFetcher {
-        AddressSummaryDataFetcher(name: address, interface: interface, database: database)
+        AddressSummaryDataFetcher(name: address, lists: coreLists, interface: interface, database: database)
     }
     
     func addressPrivateDetailsFetcher(_ address: AddressName, credential: APICredential) -> AddressPrivateSummaryDataFetcher {
-        AddressPrivateSummaryDataFetcher(name: address, interface: interface, credential: credential, database: database)
+        AddressPrivateSummaryDataFetcher(name: address, credential: credential, interface: interface, database: database)
     }
     
     func addressProfileFetcher(_ address: AddressName) -> AddressProfileDataFetcher {
@@ -79,7 +81,7 @@ class FetchConstructor: ObservableObject {
     }
     
     func addressPastesFetcher(_ address: AddressName, credential: APICredential?) -> AddressPasteBinDataFetcher {
-        AddressPasteBinDataFetcher(name: address, interface: interface, credential: credential, db: database)
+        AddressPasteBinDataFetcher(name: address, credential: credential, interface: interface, db: database)
     }
     
     func addressPasteFetcher(_ address: AddressName, title: String, credential: APICredential?) -> AddressPasteDataFetcher {
@@ -87,7 +89,7 @@ class FetchConstructor: ObservableObject {
     }
     
     func addressPURLsFetcher(_ address: AddressName, credential: APICredential?) -> AddressPURLsDataFetcher {
-        AddressPURLsDataFetcher(name: address, interface: interface, credential: credential, db: database)
+        AddressPURLsDataFetcher(name: address, credential: credential, interface: interface, db: database)
     }
     
     func addressPURLFetcher(_ address: AddressName, title: String, credential: APICredential?) -> AddressPURLDataFetcher {
