@@ -61,7 +61,7 @@ struct URLTextField: UIViewRepresentable {
         }
         
         func textFieldDidChangeSelection(_ textField: UITextField) {
-            DispatchQueue.main.async { [weak self] in
+            Task { @MainActor [weak self] in
                 self?.parent.text = (textField.text ?? "")
             }
         }
@@ -71,7 +71,7 @@ struct URLTextField: UIViewRepresentable {
                 return
             }
             let newText = textField.text?.urlString ?? ""
-            DispatchQueue.main.async { [weak self] in
+            Task { @MainActor [weak self] in
                 if newText != text {
                     self?.parent.text = newText
                 }

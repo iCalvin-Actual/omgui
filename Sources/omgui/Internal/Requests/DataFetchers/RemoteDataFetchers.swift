@@ -9,7 +9,6 @@ import Blackbird
 import Combine
 import Foundation
 
-@MainActor
 class URLContentDataFetcher: DataFetcher {
     let url: URL
     
@@ -30,7 +29,7 @@ class URLContentDataFetcher: DataFetcher {
         URLSession.shared.dataTaskPublisher(for: url)
           .map(\.data)
           .eraseToAnyPublisher()
-          .receive(on: DispatchQueue.main)
+//          .receive(on: DispatchQueue.main)
           .sink(receiveCompletion: { _ in }) { [weak self] newValue in
               self?.html = String(data: newValue, encoding: .utf8)
               self?.fetchFinished()
@@ -68,7 +67,6 @@ class AddressAvailabilityDataFetcher: DataFetcher {
     }
 }
 
-@MainActor
 class AddressIconDataFetcher: ModelBackedDataFetcher<AddressIconModel> {
     let address: AddressName
     

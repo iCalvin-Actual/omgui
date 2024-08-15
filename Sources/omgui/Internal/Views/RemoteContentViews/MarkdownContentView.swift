@@ -14,7 +14,6 @@ protocol MarkdownSourceProvider {
     var updated: Date? { get }
 }
 
-@MainActor
 struct MarkdownContentView: View {
     
     let source: MarkdownSourceProvider?
@@ -81,7 +80,7 @@ struct MarkdownContentView: View {
 
 extension AddressNowDataFetcher: MarkdownSourceProvider {
     var updated: Date? {
-        result?.updated
+        result?.date
     }
     
     var address: String {

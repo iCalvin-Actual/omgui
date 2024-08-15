@@ -76,32 +76,35 @@ extension Array where Element: Sortable {
 
 extension AddressModel: AllSortable {
     var primarySortValue: String { addressName }
-    var dateValue: Date? { registered }
+    var dateValue: Date? { date }
     
     static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
-            .alphabet
+            .alphabet,
+            .oldestFirst,
+            .newestFirst
         ]
     }
 }
 
 extension StatusModel: AllSortable {
-    var primarySortValue: String { owner }
-    var dateValue: Date? { posted }
+    var primarySortValue: String { displayEmoji }
+    var dateValue: Date? { date }
     
     static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
             .newestFirst,
-            .oldestFirst
+            .oldestFirst,
+            .alphabet
         ]
     }
 }
 
 extension NowListing: AllSortable {
     var primarySortValue: String { owner }
-    var dateValue: Date? { updated }
+    var dateValue: Date? { date }
     
     static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
@@ -114,6 +117,7 @@ extension NowListing: AllSortable {
 
 extension PasteModel: StringSortable {
     var primarySortValue: String { name }
+    var dateValue: Date? { date }
     
     static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
@@ -130,7 +134,6 @@ extension PURLModel: StringSortable {
     static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
-            .newestFirst,
             .alphabet
         ]
     }

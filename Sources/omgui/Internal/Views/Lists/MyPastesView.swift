@@ -9,8 +9,7 @@ struct MyPastesView: View {
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
     
-    @ObservedObject
-    var addressFetcher: AddressPasteBinDataFetcher
+    let addressFetcher: AddressPasteBinDataFetcher
     
     let singleAddressMode: Bool
     
@@ -19,7 +18,7 @@ struct MyPastesView: View {
         injectedScene: SceneModel
     ) {
         singleAddressMode = singleAddress
-        addressFetcher = injectedScene.fetcher.addressPastesFetcher(injectedScene.actingAddress, credential: injectedScene.credential(for: injectedScene.actingAddress))
+        addressFetcher = .init(name: injectedScene.addressBook.actingAddress, credential: injectedScene.addressBook.apiKey, addressBook: injectedScene.addressBook, interface: injectedScene.interface, db: injectedScene.database)
     }
     
     var body: some View {

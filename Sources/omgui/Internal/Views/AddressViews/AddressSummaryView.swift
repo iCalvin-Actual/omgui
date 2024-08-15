@@ -11,8 +11,7 @@ struct AddressSummaryView: View {
     @SceneStorage("app.lol.address.page")
     var selectedPage: AddressContent = .profile
     
-    @ObservedObject
-    var addressSummaryFetcher: AddressSummaryDataFetcher
+    let addressSummaryFetcher: AddressSummaryDataFetcher
     
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
@@ -128,8 +127,7 @@ struct AddressBioLabel: View {
     @Binding
     var expanded: Bool
     
-    @ObservedObject
-    var addressBioFetcher: AddressBioDataFetcher
+    let addressBioFetcher: AddressBioDataFetcher
     
     var body: some View {
         if addressBioFetcher.loading {

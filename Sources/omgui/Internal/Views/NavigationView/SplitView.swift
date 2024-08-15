@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@MainActor
 struct SplitView: View {
     
     @Environment(SceneModel.self)
@@ -30,10 +29,10 @@ struct SplitView: View {
     
     var body: some View {
         NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(preferredColumn)) {
-            Sidebar(selected: $selected, model: .init(sceneModel: sceneModel))
+            Sidebar(selected: $selected, model: .init(addressBook: sceneModel.addressBook))
                 .environment(\.viewContext, .column)
         } detail: {
-            let item: NavigationItem = selected ?? (sceneModel.signedIn ? .newStatus : .account)
+            let item: NavigationItem = selected ?? (sceneModel.addressBook.signedIn ? .newStatus : .account)
             let destination = item.destination
             NavigationStack {
                 destinationView(destination)

@@ -9,8 +9,8 @@ import Blackbird
 import SwiftUI
 
 struct DirectoryView: View {
-    @ObservedObject
-    var fetcher: AddressDirectoryDataFetcher
+    
+    let fetcher: AddressDirectoryDataFetcher
     
     var body: some View {
         ModelBackedListView<AddressModel, ListRow, EmptyView>(

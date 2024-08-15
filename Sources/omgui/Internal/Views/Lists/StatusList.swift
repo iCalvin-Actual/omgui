@@ -9,8 +9,7 @@ import Combine
 import SwiftUI
 
 struct StatusList: View {
-    @ObservedObject
-    var fetcher: StatusLogDataFetcher
+    let fetcher: StatusLogDataFetcher
     
     @Environment(SceneModel.self)
     var sceneModel: SceneModel

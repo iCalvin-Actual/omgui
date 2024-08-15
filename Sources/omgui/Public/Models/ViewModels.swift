@@ -10,8 +10,12 @@ import Foundation
 
 protocol BlackbirdListable: BlackbirdModel {
     static var ownerKey: BlackbirdColumnKeyPath { get }
+    static var dateKey: BlackbirdColumnKeyPath { get }
 }
 extension BlackbirdListable {
+    static public var fullTextSearchableColumns: [PartialKeyPath<Self> : BlackbirdModelFullTextSearchableColumn] { [
+        ownerKey: .text
+    ]}
     static public var primaryKey: [PartialKeyPath<Self>] { [ownerKey] }
 }
 
@@ -85,32 +89,38 @@ public struct ThemeModel: Codable, Sendable {
 
 struct AddressIconModel: BlackbirdListable {
     static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
+    static var dateKey: BlackbirdColumnKeyPath { \.$date }
     
     @BlackbirdColumn
     var owner: AddressName
     @BlackbirdColumn
     var data: Data?
+    @BlackbirdColumn
+    var date: Date
     
     enum CodingKeys: String, BlackbirdCodingKey {
         case owner
         case data
+        case date
     }
     
     init(_ row: Blackbird.ModelRow<AddressIconModel>) {
-        self.init(owner: row[\.$owner], data: row[\.$data])
+        self.init(owner: row[\.$owner], data: row[\.$data], date: row[\.$date])
     }
     
     init (from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         owner = try container.decode(AddressName.self, forKey: .owner)
+        date = try container.decode(Date.self, forKey: .data)
         if let data = try container.decodeIfPresent(Data.self, forKey: .data) {
             self.data = data
         }
     }
     
-    init(owner: AddressName, data: Data? = nil) {
+    init(owner: AddressName, data: Data? = nil, date: Date = .now) {
         self.owner = owner
         self.data = data
+        self.date = date
     }
 }
 
@@ -151,7 +161,7 @@ public struct NowModel: BlackbirdModel, Sendable {
     @BlackbirdColumn
     var html: String?
     @BlackbirdColumn
-    var updated: Date?
+    var date: Date
     @BlackbirdColumn
     var listed: Bool?
     
@@ -161,7 +171,7 @@ public struct NowModel: BlackbirdModel, Sendable {
         case id
         case content
         case html
-        case updated
+        case date
         case listed
     }
     
@@ -170,7 +180,7 @@ public struct NowModel: BlackbirdModel, Sendable {
         self.id = try container.decode(AddressName.self, forKey: .id)
         self.content = try container.decodeIfPresent(String.self, forKey: .content)
         self.html = try container.decodeIfPresent(String.self, forKey: .html)
-        self.updated = try container.decodeIfPresent(Date.self, forKey: .updated)
+        self.date = try container.decode(Date.self, forKey: .date)
         self.listed = try container.decodeIfPresent(Bool.self, forKey: .listed)
     }
     
@@ -179,7 +189,7 @@ public struct NowModel: BlackbirdModel, Sendable {
             owner: row[\.$id],
             content: row[\.$content],
             html: row[\.$html],
-            updated: row[\.$updated],
+            date: row[\.$date],
             listed: row[\.$listed]
         )
     }
@@ -188,13 +198,13 @@ public struct NowModel: BlackbirdModel, Sendable {
         owner: AddressName,
         content: String? = nil,
         html: String? = nil,
-        updated: Date? = nil,
+        date: Date = .now,
         listed: Bool? = nil
     ) {
         self.id = owner
         self.content = content
         self.html = html
-        self.updated = updated
+        self.date = date
         self.listed = listed
     }
 }
@@ -202,6 +212,7 @@ public struct NowModel: BlackbirdModel, Sendable {
 public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Codable, Sendable {
     public static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     public static var primaryKey: [BlackbirdColumnKeyPath] { [\.$owner, \.$name] }
+    public static var dateKey: BlackbirdColumnKeyPath { \.$date }
     
     static var separator: String { "{PASTE}" }
     
@@ -216,12 +227,16 @@ public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Cod
     @BlackbirdColumn
     public var content: String
     @BlackbirdColumn
+    public var date: Date
+    @BlackbirdColumn
     public var listed: Bool
+    
     
     enum CodingKeys: String, BlackbirdCodingKey {
         case owner
         case name
         case content
+        case date
         case listed
     }
     
@@ -230,6 +245,7 @@ public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Cod
         owner = try container.decode(AddressName.self, forKey: .owner)
         name = try container.decode(String.self, forKey: .name)
         content = try container.decode(String.self, forKey: .content)
+        date = try container.decode(Date.self, forKey: .date)
         listed = try container.decode(Bool.self, forKey: .listed)
     }
     
@@ -238,6 +254,7 @@ public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Cod
             owner: row[\.$owner],
             name: row[\.$name],
             content: row[\.$content],
+            date: row[\.$date],
             listed: row[\.$listed]
         )
     }
@@ -250,13 +267,15 @@ public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Cod
         self.owner = String(split[0])
         self.name = String(split[1])
         self.content = ""
+        self.date = .init(timeIntervalSince1970: 0)
         self.listed = true
     }
     
-    public init(id: String? = nil, owner: AddressName, name: String, content: String? = nil, listed: Bool = true) {
+    public init(id: String? = nil, owner: AddressName, name: String, content: String? = nil, date: Date = .now, listed: Bool = true) {
         self.owner = owner
         self.name = name
         self.content = content ?? ""
+        self.date = date
         self.listed = listed
     }
 }
@@ -264,6 +283,7 @@ public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Cod
 public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Codable, Sendable {
     public static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     public static var primaryKey: [BlackbirdColumnKeyPath] { [\.$owner, \.$name] }
+    public static var dateKey: BlackbirdColumnKeyPath { \.$date }
     
     static var separator: String { "{PURL}" }
     
@@ -278,6 +298,8 @@ public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Coda
     @BlackbirdColumn
     public var content: String
     @BlackbirdColumn
+    public var date: Date
+    @BlackbirdColumn
     public var listed: Bool
     
     var url: URL? {
@@ -288,6 +310,7 @@ public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Coda
         case owner
         case name
         case content
+        case date
         case listed
     }
     
@@ -296,6 +319,7 @@ public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Coda
         owner = try container.decode(AddressName.self, forKey: .owner)
         name = try container.decode(String.self, forKey: .name)
         content = try container.decode(String.self, forKey: .content)
+        date = try container.decode(Date.self, forKey: .date)
         listed = try container.decode(Bool.self, forKey: .listed)
     }
     
@@ -304,6 +328,7 @@ public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Coda
             owner: row[\.$owner],
             name: row[\.$name],
             content: row[\.$content],
+            date: row[\.$date],
             listed: row[\.$listed]
         )
     }
@@ -316,56 +341,61 @@ public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Coda
         self.owner = String(split[0])
         self.name = String(split[1])
         self.content = ""
+        self.date = .init(timeIntervalSince1970: 0)
         self.listed = true
     }
     
-    public init(id: String? = nil, owner: AddressName, name: String, content: String? = nil, listed: Bool = true) {
+    public init(id: String? = nil, owner: AddressName, name: String, content: String? = nil, date: Date = .now, listed: Bool = true) {
         self.owner = owner
         self.name = name
         self.content = content ?? ""
+        self.date = date
         self.listed = listed
     }
 }
 
 public struct NowListing: BlackbirdListable, Identifiable, Sendable {
     public static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
+    public static var dateKey: BlackbirdColumnKeyPath { \.$date }
     
     @BlackbirdColumn
     var owner: AddressName
     @BlackbirdColumn
     var url: String
     @BlackbirdColumn
-    var updated: Date
+    var date: Date
     
     enum CodingKeys: String, BlackbirdCodingKey {
         case owner
         case url
-        case updated
+        case date
     }
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self._owner = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .owner)
         self._url = try container.decode(BlackbirdColumn<String>.self, forKey: .url)
-        self._updated = try container.decode(BlackbirdColumn<Date>.self, forKey: .updated)
+        self._date = try container.decode(BlackbirdColumn<Date>.self, forKey: .date)
     }
     
     public init(_ row: Blackbird.ModelRow<NowListing>) {
-        self.init(owner: row[\.$owner], url: row[\.$url], updated: row[\.$updated])
+        self.init(owner: row[\.$owner], url: row[\.$url], date: row[\.$date])
     }
     
-    public init(owner: AddressName, url: String, updated: Date) {
+    public init(owner: AddressName, url: String, date: Date) {
         self.owner = owner
         self.url = url
-        self.updated = updated
+        self.date = date
     }
 }
 
 public struct AddressModel: BlackbirdListable, Identifiable, RawRepresentable, Codable, Sendable {
     static public var ownerKey: BlackbirdColumnKeyPath { \.$owner }
+    static public var dateKey: BlackbirdColumnKeyPath { \.$date }
     
     public init?(rawValue: String) {
         self = AddressModel(name: rawValue)
+        self.date = .init(timeIntervalSince1970: 0)
     }
     
     public var rawValue: String { owner }
@@ -375,45 +405,46 @@ public struct AddressModel: BlackbirdListable, Identifiable, RawRepresentable, C
     @BlackbirdColumn
     var url: URL?
     @BlackbirdColumn
-    var registered: Date?
+    var date: Date
     
     enum CodingKeys: String, BlackbirdCodingKey {
         case owner
         case url
-        case registered
+        case date
     }
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         owner = try container.decode(AddressName.self, forKey: .owner)
         url = try container.decodeIfPresent(URL.self, forKey: .url)
-        registered = try container.decodeIfPresent(Date.self, forKey: .registered)
+        date = try container.decode(Date.self, forKey: .date)
     }
     
     public init(_ row: Blackbird.ModelRow<AddressModel>) {
         self = .init(
             name: row[\.$owner],
             url: row[\.$url],
-            registered: row[\.$registered]
+            date: row[\.$date]
         )
     }
     
-    public init(name: AddressName, url: URL? = nil, registered: Date? = nil) {
+    public init(name: AddressName, url: URL? = nil, date: Date = .now) {
         self.owner = name
         self.url = url
-        self.registered = registered
+        self.date = date
     }
 }
 
 public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
     static public var ownerKey: BlackbirdColumnKeyPath { \.$owner }
+    static public var dateKey: BlackbirdColumnKeyPath { \.$date }
     
     @BlackbirdColumn
     public var id: String
     @BlackbirdColumn
     var owner: AddressName
     @BlackbirdColumn
-    var posted: Date
+    var date: Date
     
     @BlackbirdColumn
     var status: String
@@ -428,7 +459,7 @@ public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
     enum CodingKeys: String, BlackbirdCodingKey {
         case id
         case owner
-        case posted
+        case date
         case status
         case emoji
         case linkText
@@ -439,7 +470,7 @@ public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self._id = try container.decode(BlackbirdColumn<String>.self, forKey: .id)
         self._owner = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .owner)
-        self._posted = try container.decode(BlackbirdColumn<Date>.self, forKey: .posted)
+        self._date = try container.decode(BlackbirdColumn<Date>.self, forKey: .date)
         self._status = try container.decode(BlackbirdColumn<String>.self, forKey: .status)
         self._emoji = try container.decode(BlackbirdColumn<String?>.self, forKey: .emoji)
         self._linkText = try container.decode(BlackbirdColumn<String?>.self, forKey: .linkText)
@@ -450,7 +481,7 @@ public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
         self.init(
             id: row[\.$id],
             owner: row[\.$owner],
-            posted: row[\.$posted],
+            date: row[\.$date],
             status: row[\.$status],
             emoji: row[\.$emoji],
             linkText: row[\.$linkText],
@@ -458,10 +489,10 @@ public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
         )
     }
     
-    public init(id: String, owner: AddressName, posted: Date, status: String, emoji: String? = nil, linkText: String? = nil, link: URL? = nil) {
+    public init(id: String, owner: AddressName, date: Date, status: String, emoji: String? = nil, linkText: String? = nil, link: URL? = nil) {
         self.id = id
         self.owner = owner
-        self.posted = posted
+        self.date = date
         self.status = status
         self.emoji = emoji
         self.linkText = linkText

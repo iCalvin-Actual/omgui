@@ -18,7 +18,7 @@ extension AddressModel: QueryFilterable {
     }
     
     var filterDate: Date? {
-        registered
+        date
     }
 }
 
@@ -32,7 +32,7 @@ extension NowListing: QueryFilterable {
     }
     
     var filterDate: Date? {
-        updated
+        date
     }
 }
 
@@ -77,6 +77,6 @@ extension StatusModel: QueryFilterable {
     }
     
     var filterDate: Date? {
-        posted
+        date
     }
 }

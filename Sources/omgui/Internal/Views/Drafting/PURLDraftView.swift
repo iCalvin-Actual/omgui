@@ -14,11 +14,10 @@ struct PURLDraftView: View {
     @FocusState
     private var focusedField: FocusField?
     
-    @StateObject
-    var draftFetcher: PURLDraftPoster
+    let draftFetcher: PURLDraftPoster
     
     init(focusedField: FocusField? = nil, draftFetcher: PURLDraftPoster) {
-        self._draftFetcher = .init(wrappedValue: draftFetcher)
+        self.draftFetcher = draftFetcher
         self.focusedField = focusedField
     }
     
@@ -34,8 +33,8 @@ struct PURLDraftView: View {
             .padding(2)
             
             VStack {
-                PathField(text: $draftFetcher.namedDraft.name, placeholder: "path")
-                URLField(text: $draftFetcher.namedDraft.content)
+//                PathField(text: $draftFetcher.namedDraft.name, placeholder: "path")
+//                URLField(text: $draftFetcher.namedDraft.content)
             }
             .padding(12)
             .foregroundColor(.black)
@@ -52,14 +51,15 @@ struct PURLDraftView: View {
     
     @ViewBuilder
     var draftBody: some View {
-        PathField(text: $draftFetcher.namedDraft.name, placeholder: "title")
-            .font(.title2)
-            .bold()
-            .fontDesign(.serif)
-            .lineLimit(2)
-            
-        TextEditor(text: $draftFetcher.namedDraft.content)
-            .frame(minHeight: 33)
+        EmptyView()
+//        PathField(text: $draftFetcher.namedDraft.name, placeholder: "title")
+//            .font(.title2)
+//            .bold()
+//            .fontDesign(.serif)
+//            .lineLimit(2)
+//            
+//        TextEditor(text: $draftFetcher.namedDraft.content)
+//            .frame(minHeight: 33)
     }
     
     @ViewBuilder
@@ -68,7 +68,7 @@ struct PURLDraftView: View {
             guard draftFetcher.draft.publishable else {
                 return
             }
-            Task {
+            Task { [draftFetcher] in
                 await draftFetcher.perform()
             }
         }) {

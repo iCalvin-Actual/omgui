@@ -7,19 +7,13 @@
 
 import AuthenticationServices
 import Combine
+import SwiftUI
 
 @MainActor
-final class AccountAuthDataFetcher: NSObject, ObservableObject, Sendable {
+@Observable
+final class AccountAuthDataFetcher: NSObject, Sendable {
     private var webSession: ASWebAuthenticationSession?
     
-    private var sceneModel: SceneModel
-    
-    private var client: ClientInfo {
-        sceneModel.fetcher.client
-    }
-    private var interface: DataInterface {
-        sceneModel.fetcher.interface
-    }
     private var url: URL? {
         interface.authURL()
     }
@@ -32,11 +26,23 @@ final class AccountAuthDataFetcher: NSObject, ObservableObject, Sendable {
     
     private let anchor = ASPresentationAnchor()
     
-    init(sceneModel: SceneModel) {
-        self.sceneModel = sceneModel
+    @ObservationIgnored
+    var authKey: Binding<APICredential>?
+    
+    let client: ClientInfo
+    let interface: DataInterface
+    
+    init(authKey: Binding<APICredential>?, client: ClientInfo, interface: DataInterface) {
+        self.client = client
+        self.interface = interface
+        self.authKey = authKey
         super.init()
         
         self.recreateWebSession()
+    }
+    
+    func configure(_ binding: Binding<APICredential>?) {
+        self.authKey = binding
     }
     
     private func recreateWebSession() {
@@ -79,13 +85,17 @@ final class AccountAuthDataFetcher: NSObject, ObservableObject, Sendable {
         guard let newValue else {
             return
         }
-        sceneModel.login(newValue)
+        authKey?.wrappedValue = newValue
     }
     
     func perform() {
         loading = true
         recreateWebSession()
         webSession?.start()
+    }
+    
+    func logout() {
+        authKey?.wrappedValue = ""
     }
 }
 

@@ -20,8 +20,7 @@ struct StatusDraftView: View {
     @FocusState
     private var focusedField: FocusField?
     
-    @StateObject
-    var draftPoster: StatusDraftPoster
+    let draftPoster: StatusDraftPoster
     
     @State
     var showPlaceholder: Bool = true
@@ -41,7 +40,7 @@ struct StatusDraftView: View {
     }
     
     init(draftPoster: StatusDraftPoster) {
-        self._draftPoster = .init(wrappedValue:  draftPoster)
+        self.draftPoster = draftPoster
         self.showPlaceholder = draftPoster.originalDraft == nil
     }
     
@@ -52,13 +51,13 @@ struct StatusDraftView: View {
             
             Divider()
             
-            EmojiPicker(text: $draftPoster.draft.emoji, placeholder: "💗")
-                .focused($focusedField, equals: .title)
-                .frame(width: 66, height: 66)
-                .padding(2)
-                .background(Color(UIColor.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal)
+//            EmojiPicker(text: $draftPoster.draft.emoji, placeholder: "💗")
+//                .focused($focusedField, equals: .title)
+//                .frame(width: 66, height: 66)
+//                .padding(2)
+//                .background(Color(UIColor.systemBackground))
+//                .clipShape(RoundedRectangle(cornerRadius: 12))
+//                .padding(.horizontal)
             
             editorView
                 .sheet(isPresented: $presentResult, onDismiss: {
@@ -148,13 +147,13 @@ struct StatusDraftView: View {
     }
     
     func deleteLive() {
-        guard let credential = sceneModel.credential(for: draftPoster.address) else {
+        guard let credential = sceneModel.addressBook.credential(for: draftPoster.address) else {
             return
         }
         let toDelete = draftPoster.draft
         Task {
             let draftedAddress = draftPoster.address
-            let _ = try await sceneModel.fetcher.interface.deleteAddressStatus(toDelete, from: draftedAddress, credential: credential)
+            let _ = try await sceneModel.interface.deleteAddressStatus(toDelete, from: draftedAddress, credential: credential)
             
             withAnimation {
                 draftPoster.draft.clear()
@@ -180,7 +179,7 @@ struct StatusDraftView: View {
             AddressNameView(actingAddress)
                 .padding(.horizontal)
             if expandAddresses {
-                ForEach(sceneModel.myAddresses) { address in
+                ForEach(sceneModel.addressBook.myAddresses) { address in
                     if address != actingAddress {
                         Button {
                             withAnimation {
@@ -202,7 +201,8 @@ struct StatusDraftView: View {
     
     @ViewBuilder
     private var editorView: some View {
-        TextEditor(text: $draftPoster.draft.content)
+//        TextEditor(text: $draftPoster.draft.content)
+        EmptyView()
             .padding(.horizontal, 4)
             .background(Color(UIColor.systemBackground))
             .toolbar {

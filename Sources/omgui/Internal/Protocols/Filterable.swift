@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/5/23.
 //
 
+import Blackbird
 import Foundation
 
 enum FilterOption: Equatable, RawRepresentable {
@@ -72,15 +73,14 @@ enum FilterOption: Equatable, RawRepresentable {
         }
     }
     
-//    case following
-    case recent(TimeInterval)
-    case notBlocked
-    case query(String)
-    case from(AddressName)
-    case fromOneOf([AddressName])
+    case none
     case mine
     case following
-    case none
+    case notBlocked
+    case from(AddressName)
+    case fromOneOf([AddressName])
+    case recent(TimeInterval)
+    case query(String)
 }
 
 extension Array<FilterOption> {
@@ -88,9 +88,9 @@ extension Array<FilterOption> {
     static let everyone: Self           = [.notBlocked]
     static let today: Self              = [.recent(86400), .notBlocked]
     static let thisWeek: Self           = [.recent(604800), .notBlocked]
-//    static let followed: Self           = [.following, .notBlocked]
-//    static let followedToday: Self      = .followed + .today
-//    static let followedThisWeek: Self   = .followed + .thisWeek
+    static let followed: Self           = [.following, .notBlocked]
+    static let followedToday: Self      = .followed + .today
+    static let followedThisWeek: Self   = .followed + .thisWeek
 }
 
 protocol Filterable {
@@ -148,7 +148,7 @@ extension Filterable {
 //            }
         case .notBlocked:
             // Check if address is blocked
-            if scene.isBlocked(addressName) {
+            if scene.addressBook.isBlocked(addressName) {
                 return false
             }
         case .from(let address):
@@ -170,9 +170,9 @@ extension Filterable {
                 return false
             }
         case .mine:
-            return scene.myAddresses.contains(addressName)
+            return scene.addressBook.myAddresses.contains(addressName)
         case .following:
-            return scene.following.contains(addressName)
+            return scene.addressBook.following.contains(addressName)
         }
         return true
     }
@@ -183,5 +183,40 @@ extension Array<FilterOption> {
     func applyFilters<T: Filterable>(to inputModels: [T], in scene: SceneModel) -> [T] {
         inputModels
             .filter({ $0.include(with: self, in: scene) })
+    }
+}
+
+extension Array<FilterOption> {
+    func asQuery<M: ModelBackedListable>(matchingAgainst addressBook: AddressBook) -> BlackbirdModelColumnExpression<M>? {
+        let filters: [BlackbirdModelColumnExpression<M>] = compactMap({ $0.asQuery(addressBook) })
+        if filters.count > 1 {
+            return .combining(filters)
+        } else {
+            return filters.first
+        }
+    }
+}
+
+extension FilterOption {
+    func asQuery<M: ModelBackedListable>(_ adderessBook: AddressBook) -> BlackbirdModelColumnExpression<M>? {
+        switch self {
+        case .mine:
+            return BlackbirdModelColumnExpression<M>
+                .valueIn(M.ownerKey, adderessBook.myAddresses)
+        case .following:
+            return BlackbirdModelColumnExpression<M>.valueIn(M.ownerKey, adderessBook.following)
+        case .notBlocked:
+            return BlackbirdModelColumnExpression<M>.valueNotIn(M.ownerKey, adderessBook.appliedBlocked)
+        case .from(let address):
+            return BlackbirdModelColumnExpression<M>.equals(M.ownerKey, address)
+        case .fromOneOf(let addresses):
+            return BlackbirdModelColumnExpression<M>.valueIn(M.ownerKey, addresses)
+        case .recent(let interval):
+            return BlackbirdModelColumnExpression<M>.greaterThanOrEqual(M.dateKey, Date(timeIntervalSinceNow: -interval))
+        case .query(let queryString):
+            return BlackbirdModelColumnExpression<M>.match(queryString)
+        default:
+            return nil
+        }
     }
 }

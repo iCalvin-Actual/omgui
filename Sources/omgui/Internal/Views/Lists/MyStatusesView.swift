@@ -10,14 +10,13 @@ struct MyStatusesView: View {
     @SceneStorage("app.lol.addresses.mine.filter")
     var filter: FilterOption = .none
     
-    @ObservedObject
-    var addressFetcher: StatusLogDataFetcher
+    let addressFetcher: StatusLogDataFetcher
     
     let singleAddressMode: Bool
     
     init(singleAddress: Bool, injectedScene: SceneModel) {
         singleAddressMode = singleAddress
-        addressFetcher = injectedScene.fetcher.statusLog(for: [injectedScene.actingAddress])
+        addressFetcher = StatusLogDataFetcher(addresses: [injectedScene.addressBook.actingAddress], addressBook: injectedScene.addressBook, interface: injectedScene.interface, db: injectedScene.database)
     }
     
     var body: some View {
@@ -40,7 +39,7 @@ struct MyStatusesView: View {
                         .mask(Circle())
                     }
                     Spacer()
-                    NavigationLink(value: NavigationDestination.editStatus(scene.actingAddress, id: "")) {
+                    NavigationLink(value: NavigationDestination.editStatus(scene.addressBook.actingAddress, id: "")) {
                         Image(systemName: "pencil.and.scribble")
                             .bold()
                             .foregroundStyle(Color.white)

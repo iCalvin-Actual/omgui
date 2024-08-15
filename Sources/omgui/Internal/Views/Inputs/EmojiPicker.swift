@@ -72,7 +72,7 @@ struct EmojiTextField: UIViewRepresentable {
         }
         
         func textFieldDidChangeSelection(_ textField: UITextField) {
-            DispatchQueue.main.async { [weak self] in
+            Task { @MainActor [weak self] in
                 self?.parent.text = textField.text ?? ""
             }
         }

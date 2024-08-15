@@ -11,15 +11,15 @@ import Combine
 class BackedDataFetcher: Request {
     let db: Blackbird.Database
     
-    init(interface: DataInterface, db: Blackbird.Database) {
+    init(interface: DataInterface, db: Blackbird.Database, automation: AutomationPreferences = .init()) {
         self.db = db
-        super.init(interface: interface)
+        super.init(interface: interface, automation: automation)
     }
     
     override func throwingRequest() async throws {
-        defer {
-            fetchFinished()
-        }
+//        defer {
+//            fetchFinished()
+//        }
         try await fetchModels()
         
         guard requestNeeded else {
@@ -55,7 +55,7 @@ class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
     @Published
     var results: [M] = []
     
-    let coreLists: CoreLists
+    let addressBook: AddressBook?
     
     let filters: [FilterOption]
     let sort: Sort
@@ -66,49 +66,23 @@ class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
     let limit: Int
     var nextPage: Int? = 0
     
-    init(lists: CoreLists, interface: DataInterface, db: Blackbird.Database, limit: Int = 42, filters: [FilterOption] = [], sort: Sort = M.defaultSort) {
-        self.coreLists = lists
+    init(addressBook: AddressBook?, interface: DataInterface, db: Blackbird.Database, limit: Int = 42, filters: [FilterOption] = .everyone, sort: Sort = M.defaultSort, automation: AutomationPreferences = .init()) {
+        self.addressBook = addressBook
         self.limit = limit
         self.filters = filters
         self.sort = sort
-        super.init(interface: interface, db: db)
+        super.init(interface: interface, db: db, automation: automation)
     }
     
+    @MainActor
     override func fetchModels() async throws {
-        guard let nextPage else {
+        guard let nextPage, let addressBook else {
             fetchFinished()
             return
         }
         var nextResults = try await M.read(
             from: db,
-            matching: {
-                func columnExpression(_ from: FilterOption?) -> BlackbirdModelColumnExpression<M>? {
-                    switch from {
-                    case .mine:
-                        return BlackbirdModelColumnExpression<M>.valueIn(M.ownerKey, coreLists.myAddresses)
-                    case .following:
-                        return BlackbirdModelColumnExpression<M>.valueIn(M.ownerKey, coreLists.following)
-                    case .from(let address):
-                        return BlackbirdModelColumnExpression<M>.equals(M.ownerKey, address)
-                    case .fromOneOf(let addresses):
-                        return BlackbirdModelColumnExpression<M>.valueIn(M.ownerKey, addresses)
-                    default:
-                        return nil
-                    }
-                }
-                guard !filters.isEmpty else {
-                    return nil
-                }
-                switch filters.count {
-                case 0:
-                    return nil
-                case 1:
-                    return columnExpression(filters.first)
-                default:
-                    print("Concattonate?")
-                    return columnExpression(filters.first)
-                }
-            }(),
+            matching: filters.asQuery(matchingAgainst: addressBook),
             orderBy: {
                 switch sort {
                 default:
@@ -132,7 +106,6 @@ class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
             }
         }
         results = oldResults + nextResults
-        objectWillChange.send()
     }
     
     override var requestNeeded: Bool {

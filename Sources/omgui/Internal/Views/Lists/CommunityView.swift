@@ -7,28 +7,12 @@
 
 import SwiftUI
 
-@MainActor
 struct CommunityView: View {
-    @Environment(SceneModel.self)
-    var scene
     
     let communityFetcher: StatusLogDataFetcher
-    var myFetcher: StatusLogDataFetcher
     
-    init(_ scene: SceneModel) {
-        self.communityFetcher = scene.fetcher.generalStatusLog()
-        self.myFetcher = scene.fetcher.statusLog(for: scene.myAddresses)
-    }
-    
-    var activeFethcer: StatusLogDataFetcher {
-        switch active {
-        case .community:
-            return communityFetcher
-        case .following:
-            return scene.fetcher.statusLog(for: scene.following)
-        case .me:
-            return myFetcher
-        }
+    init(_ fetcher: StatusLogDataFetcher) {
+        self.communityFetcher = fetcher
     }
     
     @State

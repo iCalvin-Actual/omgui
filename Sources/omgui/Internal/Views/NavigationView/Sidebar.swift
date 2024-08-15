@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@MainActor
 struct Sidebar: View {
     
     @SceneStorage("app.lol.address")
@@ -24,11 +23,10 @@ struct Sidebar: View {
     @Binding
     var selected: NavigationItem?
     
-    @ObservedObject
-    var sidebarModel: SidebarModel
+    let sidebarModel: SidebarModel
     
     private var myAddresses: [AddressName] {
-        sceneModel.myAddresses
+        sceneModel.addressBook.myAddresses
     }
     
     init(selected: Binding<NavigationItem?>, model: SidebarModel) {
@@ -70,7 +68,7 @@ struct Sidebar: View {
             AddressPicker()
         }
         .safeAreaInset(edge: .top, content: {
-            if !sceneModel.signedIn {
+            if !sceneModel.addressBook.signedIn {
                 Button {
                     selected = .account
                 } label: {
@@ -96,13 +94,6 @@ struct Sidebar: View {
                 }
             }
         }
-        .onReceive(sceneModel.localAddressesCache.publisher, perform: { _ in
-            Task { @MainActor in
-                if actingAddress.isEmpty, let first = myAddresses.first {
-                    actingAddress = first
-                }
-            }
-        })
         .navigationTitle("")
     }
     

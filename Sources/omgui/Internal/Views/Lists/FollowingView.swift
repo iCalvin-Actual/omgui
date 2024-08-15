@@ -27,8 +27,15 @@ struct FollowingView: View {
     
     @ViewBuilder
     var followingView: some View {
-        if scene.signedIn {
-            StatusList(fetcher: scene.fetcher.statusLog(for: scene.following))
+        if scene.addressBook.signedIn {
+            StatusList(
+                fetcher: StatusLogDataFetcher(
+                    addresses: scene.addressBook.following,
+                    addressBook: scene.addressBook,
+                    interface: scene.interface,
+                    db: scene.database
+                )
+            )
         } else {
             signedOutView
         }

@@ -10,6 +10,8 @@ import SwiftUI
 struct AddressPicker: View {
     @Environment(SceneModel.self)
     var scene
+    @Environment(AccountAuthDataFetcher.self)
+    var authFetcher
     
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
@@ -20,11 +22,11 @@ struct AddressPicker: View {
     var showConfirmLogout: Bool = false
     
     private var myOtherAddresses: [AddressName] {
-        scene.myOtherAddresses
+        scene.addressBook.myOtherAddresses
     }
     var body: some View {
         VStack(alignment: .trailing, spacing: 8) {
-            if scene.signedIn {
+            if scene.addressBook.signedIn {
                 if expandAddresses {
                     selectionView
                 }
@@ -42,7 +44,7 @@ struct AddressPicker: View {
                 "Yes",
                 role: .destructive,
                 action: {
-                    scene.logout()
+                    authFetcher.logout()
                 })
         }, message: {
             Text("Are you sure you want to sign out of omg.lol?")
@@ -66,7 +68,7 @@ struct AddressPicker: View {
     var signInButton: some View {
         Button {
             expandAddresses = false
-            scene.authenticate()
+            authFetcher.perform()
         } label: {
             Label {
                 Text("sign in")

@@ -23,7 +23,7 @@ protocol Menuable {
 extension Menuable {
     @ViewBuilder
     func editingSection(in scene: SceneModel) -> some View {
-        if let editable = self as? Editable, scene.myAddresses.contains(editable.owner) {
+        if let editable = self as? Editable, scene.addressBook.myAddresses.contains(editable.owner) {
             NavigationLink {
                 scene.destinationConstructor.destination(editable.editingDestination)
             } label: {
@@ -47,23 +47,24 @@ extension AddressManagable where Self: Menuable {
     @ViewBuilder
     func manageSection(_ scene: SceneModel) -> some View {
         let name = owner
-        let isBlocked = scene.isBlocked(name)
-        let isPinned = scene.isPinned(name)
-        let canFollow = scene.canFollow(name)
-        let canUnfollow = scene.canUnFollow(name)
+        let book = scene.addressBook
+        let isBlocked = book.isBlocked(name)
+        let isPinned = book.isPinned(name)
+        let canFollow = book.canFollow(name)
+        let canUnfollow = book.canUnFollow(name)
         if !isBlocked {
             if canFollow {
                 Button(action: {
-                    withAnimation {
-                        scene.follow(name)
+                    Task {
+                        await book.follow(name)
                     }
                 }, label: {
                     Label("Follow \(name.addressDisplayString)", systemImage: "plus.circle")
                 })
             } else if canUnfollow {
                 Button(action: {
-                    withAnimation {
-                        scene.unFollow(name)
+                    Task {
+                        await book.unFollow(name)
                     }
                 }, label: {
                     Label("Un-follow \(name.addressDisplayString)", systemImage: "minus.circle")
@@ -73,7 +74,7 @@ extension AddressManagable where Self: Menuable {
             if isPinned {
                 Button(action: {
                     withAnimation {
-                        scene.removePin(name)
+                        book.removePin(name)
                     }
                 }, label: {
                     Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
@@ -81,7 +82,7 @@ extension AddressManagable where Self: Menuable {
             } else {
                 Button(action: {
                     withAnimation {
-                        scene.pin(name)
+                        book.pin(name)
                     }
                 }, label: {
                     Label("Pin \(name.addressDisplayString)", systemImage: "pin")
@@ -92,8 +93,8 @@ extension AddressManagable where Self: Menuable {
             
             Menu {
                 Button(role: .destructive, action: {
-                    withAnimation {
-                        scene.block(name)
+                    Task {
+                        await book.block(name)
                     }
                 }, label: {
                     Label("Block", systemImage: "eye.slash.circle")
@@ -104,10 +105,10 @@ extension AddressManagable where Self: Menuable {
                 Label("Safety", systemImage: "hand.raised")
             }
         } else {
-            if scene.canUnblock(name) {
+            if book.canUnblock(name) {
                 Button(action: {
-                    withAnimation {
-                        scene.unblock(name)
+                    Task {
+                        await book.unblock(name)
                     }
                 }, label: {
                     Label("Un-block", systemImage: "eye.circle")
@@ -176,7 +177,7 @@ extension NavigationItem: Menuable {
         case .pinnedAddress(let name):
             Button(action: {
                 Task { @MainActor in
-                    scene.removePin(name)
+                    scene.addressBook.removePin(name)
                 }
             }, label: {
                 Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")

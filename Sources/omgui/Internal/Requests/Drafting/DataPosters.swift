@@ -9,7 +9,6 @@ import Combine
 import SwiftUI
 
 
-@MainActor
 class DraftPoster<D: SomeDraftable>: Request {
     var address: AddressName
     let credential: APICredential
@@ -109,7 +108,6 @@ class ProfileDraftPoster: MDDraftPoster<AddressProfile> {
         "webpage"
     }
     
-    @MainActor
     override func throwingRequest() async throws {
         loading = true
         let draftedAddress = address
@@ -148,7 +146,6 @@ class PasteDraftPoster: NamedDraftPoster<PasteModel> {
         return "edit"
     }
     
-    @MainActor
     override func throwingRequest() async throws {
         let draftedAddress = draft.address
         if let originalName = originalDraft?.name, !originalName.isEmpty, draft.name != originalName {
@@ -214,7 +211,6 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel> {
     }
 }
 
-@MainActor
 class StatusDraftPoster: DraftPoster<StatusModel> {
     override var navigationTitle: String {
         if originalDraft == nil {
@@ -252,7 +248,7 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
             draft.content = status.status
             draft.externalUrl = status.link?.absoluteString
             loading = false
-            publish()
+            fetchFinished()
         } else {
             loading = false
         }
@@ -263,16 +259,16 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
             return
         }
         let patchDraft = StatusModel.Draft(model: presented, id: presented.id)
-        Task { [weak self] in
-            guard let self else { return }
-            let draftedAddress = draft.address
-            let backup = try await interface.deleteAddressStatus(patchDraft, from: draftedAddress, credential: credential)
-            withAnimation {
-                if let backup {
-                    self.draft = .init(model: backup)
-                }
-                self.result = nil
-            }
-        }
+//        Task { [weak self] in
+//            guard let self else { return }
+//            let draftedAddress = draft.address
+//            let backup = try await interface.deleteAddressStatus(patchDraft, from: draftedAddress, credential: credential)
+//            withAnimation {
+//                if let backup {
+//                    self.draft = .init(model: backup)
+//                }
+//                self.result = nil
+//            }
+//        }
     }
 }

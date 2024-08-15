@@ -8,55 +8,37 @@
 import Blackbird
 import SwiftUI
 
-@MainActor
 struct RootView: View {
     
-    @AppStorage("app.lol.auth")
-    var authKey: String = ""
-    @AppStorage("app.lol.blocked")
-    var localBlockedAddresses: String = ""
-    @AppStorage("app.lol.cache.myAddresses")
-    var localAddressesCache: String = ""
-    @AppStorage("app.lol.cache.pinned")
-    var currentlyPinnedAddresses: String = "adam&&&app"
-    @AppStorage("app.lol.cache.name")
-    var myName: String = ""
     
-    @SceneStorage("app.lol.address")
-    var actingAddress: String = ""
-    @SceneStorage("app.lol.following")
-    var appliedFollow: String = ""
-    @SceneStorage("app.lol.blocked")
-    var appliedBlocked: String = ""
+    let addressBook: AddressBook
+    let accountAuthDataFetcher: AccountAuthDataFetcher
+    let db: Blackbird.Database
     
-    @Environment(\.blackbirdDatabase)
-    var db
-    @Environment(\.fetcher)
-    var fetcher: FetchConstructor
+    init(addressBook: AddressBook, accountAuthDataFetcher: AccountAuthDataFetcher, db: Blackbird.Database) {
+        self.addressBook = addressBook
+        self.accountAuthDataFetcher = accountAuthDataFetcher
+        self.db = db
+    }
     
     var body: some View {
         SplitView()
+            .environment(accountAuthDataFetcher)
             .environment(
                 SceneModel(
-                    fetcher: fetcher,
-                    authKey: $authKey,
-                    localBlocklist: $localBlockedAddresses,
-                    pinnedAddresses: $currentlyPinnedAddresses,
-                    myAddresses: $localAddressesCache,
-                    myName: $myName,
-                    actingAddress: $actingAddress,
-                    appliedFollow: $appliedFollow,
-                    appliedBlocked: $appliedBlocked
+                    addressBook: addressBook,
+                    interface: accountAuthDataFetcher.interface,
+                    database: db
                 )
             )
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    @StateObject
-    static var database = try! Blackbird.Database.inMemoryDatabase()
-    
-    static var previews: some View {
-        RootView()
-    }
-}
+//struct ContentView_Previews: PreviewProvider {
+//    @StateObject
+//    static var database = try! Blackbird.Database.inMemoryDatabase()
+//    
+//    static var previews: some View {
+//        RootView()
+//    }
+//}

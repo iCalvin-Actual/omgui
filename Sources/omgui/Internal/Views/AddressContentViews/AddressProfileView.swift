@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct AddressProfileView: View {
-    @ObservedObject
-    var fetcher: AddressProfileDataFetcher
+    let fetcher: AddressProfileDataFetcher
     
     var body: some View {
         htmlBody

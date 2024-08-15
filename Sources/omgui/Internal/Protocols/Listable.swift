@@ -37,14 +37,14 @@ extension Listable {
 extension AddressModel: Listable {
     var listTitle: String { addressName.addressDisplayString }
     var listSubtitle: String { url?.absoluteString ?? "" }
-    var displayDate: Date? { registered }
+    var displayDate: Date? { date }
     var iconURL: URL? { addressName.addressIconURL }
 }
 extension StatusModel: Listable     {
     var listTitle: String     { status }
     var listSubtitle: String  { owner.addressDisplayString }
-    var displayDate: Date?    { posted }
-    var listCaption: String?  { DateFormatter.short.string(from: posted) }
+    var displayDate: Date?    { date }
+    var listCaption: String?  { DateFormatter.short.string(from: date) }
 }
 extension PasteModel: Listable     {
     var listTitle: String     { name }
@@ -59,6 +59,6 @@ extension PURLModel: Listable     {
 extension NowListing: Listable     {
     var listTitle: String     { owner.addressDisplayString }
     var listSubtitle: String  { url.replacingOccurrences(of: "https://", with: "") }
-    var displayDate: Date?    { updated }
+    var displayDate: Date?    { date }
     var hideIcon: Bool { false }
 }

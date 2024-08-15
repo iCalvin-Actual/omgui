@@ -31,9 +31,8 @@ class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
         }
         set {
             currentlyPinnedAddresses = Array(Set(newValue)).joined(separator: "&&&")
-            Task {
-                await self.updateIfNeeded(forceReload: true)
-            }
+            // Hopefully this isn't needed?
+//            updateIfNeeded(forceReload: true)
         }
     }
     
@@ -71,14 +70,13 @@ class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
         }
         set {
             cachedBlockList = Array(Set(newValue)).joined(separator: "&&&")
-            Task {
-                await self.updateIfNeeded(forceReload: true)
-            }
+            // Hopefully this isn't needed?
+//            updateIfNeeded(forceReload: true)
         }
     }
     
-    init(interface: DataInterface) {
-        super.init(interface: interface)
+    init(interface: DataInterface, automation: AutomationPreferences = .init()) {
+        super.init(interface: interface, automation: automation)
         self.results = blockedAddresses.map({ AddressModel.init(name: $0) })
         
     }

@@ -37,7 +37,7 @@ public final class SampleData: DataInterface {
         let directory = try await fetchAddressDirectory()
         try await Task.sleep(nanoseconds: artificalDelay)
         return directory.map { name in
-            return .init(owner: name, url: "https://\(name).omg.lol", updated: Date())
+            return .init(owner: name, url: "https://\(name).omg.lol", date: Date())
         }
     }
 
@@ -380,7 +380,7 @@ fileprivate extension AddressModel {
         .init(
             name: address,
             url: URL(string: "https://\(address).omg.lol"),
-            registered: .init(timeIntervalSince1970:
+            date: .init(timeIntervalSince1970:
                 .random(min: 1600000000.0, max: 1678019926.0))
         )
     }
@@ -391,7 +391,7 @@ fileprivate extension NowModel {
         .init(
             owner: address,
             content: .lorum,
-            updated: Date(timeIntervalSince1970: .random(min: 1600000000.0, max: 1678019926.0)),
+            date: Date(timeIntervalSince1970: .random(min: 1600000000.0, max: 1678019926.0)),
             listed: .random()
         )
     }
@@ -452,7 +452,7 @@ fileprivate extension StatusModel {
         return StatusModel(
             id: id ?? UUID().uuidString,
             owner: address,
-            posted: Date(timeIntervalSince1970: .random(min: 1600000000.0, max: 1678019926.0)),
+            date: Date(timeIntervalSince1970: .random(min: 1600000000.0, max: 1678019926.0)),
             status: content,
             emoji: emoji,
             linkText: nil,

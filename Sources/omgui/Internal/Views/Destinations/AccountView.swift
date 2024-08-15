@@ -14,7 +14,9 @@ struct AccountView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @Environment(SceneModel.self)
-    var sceneModel: SceneModel
+    var sceneModel
+    @Environment(AccountAuthDataFetcher.self)
+    var authFetcher
     
     @State
     var searchAddress: String = ""
@@ -27,10 +29,10 @@ struct AccountView: View {
     
     var body: some View {
         NavigationStack {
-            if sceneModel.signedIn {
+            if sceneModel.addressBook.signedIn {
                 AddressSummaryView(
                     selectedPage: .profile,
-                    addressSummaryFetcher: sceneModel.addressSummary(sceneModel.actingAddress)
+                    addressSummaryFetcher: sceneModel.addressSummary(sceneModel.addressBook.actingAddress)
                 )
             } else {
                 ScrollView {
@@ -77,7 +79,7 @@ struct AccountView: View {
                         
                         HStack {
                             Button {
-                                sceneModel.authenticate()
+                                authFetcher.perform()
                             } label: {
                                 Text("Sign in with omg.lol")
                                     .bold()

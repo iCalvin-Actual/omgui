@@ -18,8 +18,7 @@ struct PURLView: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    @ObservedObject
-    var fetcher: AddressPURLDataFetcher
+    let fetcher: AddressPURLDataFetcher
     
     @State
     var showDraft: Bool = false
@@ -110,7 +109,7 @@ struct PURLView: View {
             .onReceive(fetcher.$result, perform: { model in
                 withAnimation {
                     let address = model?.addressName ?? ""
-                    guard !address.isEmpty, sceneModel.myAddresses.contains(address) else {
+                    guard !address.isEmpty, sceneModel.addressBook.myAddresses.contains(address) else {
                         showDraft = false
                         return
                     }

@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-class SidebarModel: ObservableObject {
+class SidebarModel {
     enum Section: String, Identifiable {
         var id: String { rawValue }
         
@@ -39,20 +39,20 @@ class SidebarModel: ObservableObject {
         }
     }
     
-    let sceneModel: SceneModel
-    
     var sections: [Section] {
         var sections: [Section] = [.status, .directory, .now]
         
-        if sceneModel.signedIn {
+        if addressBook.signedIn {
             sections.append(.more)
         }
         
         return sections
     }
     
-    init(sceneModel: SceneModel) {
-        self.sceneModel = sceneModel
+    let addressBook: AddressBook
+    
+    init(addressBook: AddressBook) {
+        self.addressBook = addressBook
     }
     
     func items(for section: Section) -> [NavigationItem] {
@@ -60,11 +60,11 @@ class SidebarModel: ObservableObject {
             
         case .directory:
             var destinations: [NavigationItem] = [.search, .blocked]
-            if sceneModel.signedIn {
+            if addressBook.signedIn {
                 destinations.insert(.following(.autoUpdatingAddress), at: 1)
             }
             destinations.append(
-                contentsOf: sceneModel.pinned.sorted().map({ .pinnedAddress($0) })
+                contentsOf: addressBook.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
             )
             return destinations
             
@@ -78,7 +78,7 @@ class SidebarModel: ObservableObject {
             var destinations = [
                 NavigationItem.community
             ]
-            if sceneModel.signedIn {
+            if addressBook.signedIn {
                 destinations.insert(contentsOf: [.newStatus, .following(.autoUpdatingAddress)], at: 0)
             }
             return destinations

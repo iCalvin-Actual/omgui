@@ -8,21 +8,13 @@
 import SwiftUI
 
 struct AddressPastesView: View {
-    @ObservedObject
-    var fetcher: AddressPasteBinDataFetcher
-    
-    @State
-    var sort: Sort = .alphabet
+    let fetcher: AddressPasteBinDataFetcher
     
     var body: some View {
         ModelBackedListView<PasteModel, PasteRowView, EmptyView>(
             filters: .everyone,
             dataFetcher: fetcher,
-            rowBuilder: pasteView(_:)
+            rowBuilder: { PasteRowView(model: $0) }
         )
-    }
-    
-    func pasteView(_ model: PasteModel) -> PasteRowView {
-        PasteRowView(model: model)
     }
 }

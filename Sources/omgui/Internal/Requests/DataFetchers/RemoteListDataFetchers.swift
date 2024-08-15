@@ -18,11 +18,9 @@ class AddressBioDataFetcher: DataFetcher {
     }
     
     override func throwingRequest() async throws {
-        Task {
-            let bio = try await interface.fetchAddressBio(address)
-            self.bio = bio
-            self.fetchFinished()
-        }
+        let bio = try await interface.fetchAddressBio(address)
+        self.bio = bio
+        self.fetchFinished()
     }
 }
 

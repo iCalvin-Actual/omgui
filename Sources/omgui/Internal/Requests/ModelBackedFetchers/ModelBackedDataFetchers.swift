@@ -33,7 +33,6 @@ class AddressProfileDataFetcher: ModelBackedDataFetcher<AddressProfile> {
     }
 }
 
-@MainActor
 class AddressNowDataFetcher: ModelBackedDataFetcher<NowModel> {
     let addressName: AddressName
     
@@ -140,7 +139,7 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
         }
         let _ = try await interface.deletePaste(title, from: address, credential: credential)
         try await result?.delete(from: db)
-        publish()
+        fetchFinished()
     }
 }
 
@@ -197,6 +196,6 @@ class AddressPURLDataFetcher: ModelBackedDataFetcher<PURLModel> {
         let _ = try await interface.deletePURL(title, from: address, credential: credential)
         try await result?.delete(from: db)
         result = nil
-        publish()
+        fetchFinished()
     }
 }

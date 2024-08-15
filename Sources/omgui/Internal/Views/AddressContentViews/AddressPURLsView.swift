@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct AddressPURLsView: View {
-    @ObservedObject
-    var fetcher: AddressPURLsDataFetcher
+    let fetcher: AddressPURLsDataFetcher
     
     var body: some View {
         ModelBackedListView<PURLModel, PURLRowView, EmptyView>(

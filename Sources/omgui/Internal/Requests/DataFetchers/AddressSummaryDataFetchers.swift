@@ -34,7 +34,7 @@ class AddressSummaryDataFetcher: DataFetcher {
     
     init(
         name: AddressName,
-        lists: CoreLists,
+        addressBook: AddressBook,
         interface: DataInterface,
         database: Blackbird.Database
     ) {
@@ -42,12 +42,12 @@ class AddressSummaryDataFetcher: DataFetcher {
         self.iconFetcher = .init(address: name, interface: interface, db: database)
         self.profileFetcher = .init(name: name, credential: nil, interface: interface, db: database)
         self.nowFetcher = .init(name: name, interface: interface, db: database)
-        self.purlFetcher = .init(name: name, credential: nil, interface: interface, db: database)
-        self.pasteFetcher = .init(name: name, credential: nil, interface: interface, db: database)
-        self.statusFetcher = .init(addresses: [name], lists: .init(), interface: interface, db: database)
+        self.purlFetcher = .init(name: name, credential: nil, addressBook: addressBook, interface: interface, db: database)
+        self.pasteFetcher = .init(name: name, credential: nil, addressBook: addressBook, interface: interface, db: database)
+        self.statusFetcher = .init(addresses: [name], addressBook: addressBook, interface: interface, db: database)
         self.bioFetcher = .init(address: name, interface: interface)
         
-        self.followingFetcher = .init(address: name, credential: nil, interface: interface, db: database)
+        self.followingFetcher = .init(address: name, credential: nil, interface: interface)
         
         super.init(interface: interface)
     }
@@ -74,36 +74,31 @@ class AddressSummaryDataFetcher: DataFetcher {
         guard !addressName.isEmpty else {
             return
         }
-        Task {
-            url = URL(string: "https://\(addressName).omg.lol")
-            let info = try await interface.fetchAddressInfo(addressName)
-            self.verified = false
-            self.registered = info.registered
-            self.url = info.url
-            
-            self.fetchFinished()
-        }
+        url = URL(string: "https://\(addressName).omg.lol")
+        let info = try await interface.fetchAddressInfo(addressName)
+        self.verified = false
+        self.registered = info.date
+        self.url = info.url
+        
+        self.fetchFinished()
     }
 }
 
-@MainActor
 class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
-    @ObservedObject
-    var blockedFetcher: AddressBlockListDataFetcher
+    let blockedFetcher: AddressBlockListDataFetcher
     
 //    @ObservedObject
 //    var profilePoster: ProfileDraftPoster
 //    @ObservedObject
 //    var nowPoster: NowDraftPoster
     
-    init(
+    override init(
         name: AddressName,
-        credential: APICredential,
-        lists: CoreLists = .init(),
+        addressBook: AddressBook,
         interface: DataInterface,
         database: Blackbird.Database
     ) {
-        self.blockedFetcher = .init(address: name, credential: credential, interface: interface, db: database)
+        self.blockedFetcher = .init(address: name, credential: addressBook.apiKey, interface: interface, db: database)
         
 //        self.profilePoster = .init(
 //            name,
@@ -126,13 +121,13 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
 //            credential: credential
 //        )!
         
-        super.init(name: name, lists: lists, interface: interface, database: database)
+        super.init(name: name, addressBook: addressBook, interface: interface, database: database)
         
-        self.profileFetcher = .init(name: addressName, credential: credential, interface: interface, db: database)
-        self.followingFetcher = .init(address: addressName, credential: credential, interface: interface, db: database)
+        self.profileFetcher = .init(name: addressName, credential: addressBook.apiKey, interface: interface, db: database)
+        self.followingFetcher = .init(address: addressName, credential: addressBook.apiKey, interface: interface)
         
-        self.purlFetcher = .init(name: addressName, credential: credential, interface: interface, db: database)
-        self.pasteFetcher = .init(name: addressName, credential: credential, interface: interface, db: database)
+        self.purlFetcher = .init(name: addressName, credential: addressBook.apiKey, addressBook: addressBook, interface: interface, db: database)
+        self.pasteFetcher = .init(name: addressName, credential: addressBook.apiKey, addressBook: addressBook, interface: interface, db: database)
     }
     
     override func perform() async {

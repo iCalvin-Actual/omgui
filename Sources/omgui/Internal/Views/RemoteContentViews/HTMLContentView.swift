@@ -9,7 +9,6 @@ import SwiftUI
 import Foundation
 import WebKit
 
-@MainActor
 struct HTMLContentView: UIViewRepresentable {
     @MainActor
     class Coordinator: NSObject, WKNavigationDelegate {
@@ -129,7 +128,6 @@ struct HTMLContentView_Previews: PreviewProvider {
     }
 }
 
-@MainActor
 struct RemoteHTMLContentView: UIViewRepresentable {
     @MainActor
     class Coordinator: NSObject, WKNavigationDelegate {

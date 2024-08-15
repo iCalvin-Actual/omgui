@@ -6,33 +6,19 @@
 //
 
 import AuthenticationServices
+import Blackbird
 import Combine
 import SwiftUI
 
-@Observable
 @MainActor
+@Observable
 class SceneModel {
     
-    // MARK: Bindings
+    var database: Blackbird.Database
     
-    @Binding @ObservationIgnored var actingAddress: AddressName
-    @Binding @ObservationIgnored var authKey: String
-    @Binding @ObservationIgnored var localAddressesCache: String
-    @Binding @ObservationIgnored var localBlockedAddresses: String
-    @Binding @ObservationIgnored var myName: String
-    @Binding @ObservationIgnored var pinnedAddresses: String
+    let interface: DataInterface
     
-    @Binding @ObservationIgnored var appliedFollow: String
-    @Binding @ObservationIgnored var appliedBlocked: String
-    
-    // MARK: DataFetchers
-    
-    var authenticationFetcher: AccountAuthDataFetcher?
-    
-    var addressBlockedFetcher: AddressBlockListDataFetcher?
-    var globalBlockedFetcher: AddressBlockListDataFetcher?
-    
-    var addressFollowingFetcher: AddressFollowingDataFetcher?
+    let addressBook: AddressBook
     
     // MARK: Caches
     
@@ -41,7 +27,6 @@ class SceneModel {
     
     // MARK: Properties
     
-    let fetcher: FetchConstructor
     var destinationConstructor: DestinationConstructor {
         .init(
             sceneModel: self
@@ -50,46 +35,37 @@ class SceneModel {
     
     // MARK: Lifecycle
     
+    var cancellables: Set<AnyCancellable> = []
+    
+    let directoryFetcher: AddressDirectoryDataFetcher
+    let statusFetcher: StatusLogDataFetcher
+    
     init(
-        fetcher: FetchConstructor,
-        authKey: Binding<String>,
-        localBlocklist: Binding<String>,
-        pinnedAddresses: Binding<String>,
-        myAddresses: Binding<String>,
-        myName: Binding<String>,
-        actingAddress: Binding<String>,
-        appliedFollow: Binding<String>,
-        appliedBlocked: Binding<String>
+        addressBook: AddressBook,
+        interface: DataInterface,
+        database: Blackbird.Database
     )
     {
-        self._authKey = authKey
-        self._localBlockedAddresses = localBlocklist
-        self._pinnedAddresses = pinnedAddresses
-        self._localAddressesCache = myAddresses
-        self._myName = myName
-        self._actingAddress = actingAddress
-        self._appliedFollow = appliedFollow
-        self._appliedBlocked = appliedBlocked
-        self.fetcher = fetcher
-        self.globalBlockedFetcher = AddressBlockListDataFetcher(address: "app", credential: nil, interface: fetcher.interface, db: fetcher.database)
-        self.addressBlockedFetcher = AddressBlockListDataFetcher(address: actingAddress.wrappedValue, credential: authKey.wrappedValue, interface: fetcher.interface, db: fetcher.database)
-        self.addressFollowingFetcher = AddressFollowingDataFetcher(address: actingAddress.wrappedValue, credential: authKey.wrappedValue, interface: fetcher.interface, db: fetcher.database)
-        self.authenticationFetcher = AccountAuthDataFetcher(sceneModel: self)
-    }
-    
-    // MARK: Authentication
-    
-    func authenticate() {
-        authenticationFetcher?.perform()
-    }
-    func login(_ incomingAuthKey: APICredential) {
-        authKey = incomingAuthKey
-    }
-    func logout() {
-        myAddresses.forEach({ publicProfileCache.removeValue(forKey: $0) })
-        myAddresses = []
-        privateProfileCache = [:]
-        authKey = ""
+        self.addressBook = addressBook
+        self.interface = interface
+        self.database = database
+        
+        self.directoryFetcher = .init(addressBook: addressBook, interface: interface, db: database)
+        self.statusFetcher = .init(addressBook: addressBook, interface: interface, db: database)
+        
+        
+        let myProfiles = addressBook.myAddresses
+        let publicProfiles = (addressBook.pinnedAddresses + addressBook.following).filter({ !myProfiles.contains($0) })
+        
+        myProfiles.forEach({
+            let privateAddress = $0
+            Task {
+                let _ = try addressPrivateSummary(privateAddress)
+            }
+        })
+        publicProfiles.forEach({
+            let _ = addressSummary($0)
+        })
     }
 }
 
@@ -100,147 +76,16 @@ extension SceneModel {
         case notYourAddress
     }
     
-    // MARK: Authentication
-    
-    var signedIn: Bool {
-        !authKey.isEmpty
-    }
-    var myAddresses: [String] {
-        get {
-            localAddressesCache
-                .split(separator: "&&&")
-                .map({ String($0) })
-        }
-        set {
-            localAddressesCache = newValue.joined(separator: "&&&")
-        }
-    }
-    var myOtherAddresses: [String] {
-        myAddresses.filter({ $0 != actingAddress })
-    }
-    
-    func credential(for address: AddressName) -> APICredential? {
-        guard !authKey.isEmpty, myAddresses.contains(address) else {
-            return nil
-        }
-        return authKey
-    }
-    
-    // MARK: Pinned
-    
-    var pinned: [AddressName] {
-        get {
-            let split = pinnedAddresses.split(separator: "&&&")
-            return split.map({ String($0) })
-        }
-        set {
-            pinnedAddresses = Array(Set(newValue)).joined(separator: "&&&")
-        }
-    }
-    
-    func isPinned(_ address: AddressName) -> Bool {
-        pinned.contains(address)
-    }
-    func pin(_ address: AddressName) {
-        pinned.append(address)
-    }
-    func removePin(_ address: AddressName) {
-        pinned.removeAll(where: { $0 == address })
-    }
-    
-    // MARK: Blocked
-    
-    var globalBlocked: [AddressName] {
-        globalBlockedFetcher?.results.map({ $0.addressName }) ?? []
-    }
-    var addressBlocked: [AddressName] {
-        addressBlockedFetcher?.results.map(({ $0.addressName })) ?? []
-    }
-    var localBlocklist: [AddressName] {
-        get {
-            let split = localBlockedAddresses.split(separator: "&&&")
-            return split.map({ String($0) })
-        }
-        set {
-            localBlockedAddresses = Array(Set(newValue)).joined(separator: "&&&")
-            appliedBlocked = applicableBlocklist.joined(separator: "&&&")
-        }
-    }
-    var applicableBlocklist: [AddressName] {
-        Array(Set(globalBlocked + localBlocklist + addressBlocked))
-    }
-    var viewableBlocklist: [AddressName] {
-        Array(Set(localBlocklist + addressBlocked))
-    }
-    
-    func isBlocked(_ address: AddressName) -> Bool {
-        applicableBlocklist.contains(address)
-    }
-    func canUnblock(_ address: AddressName) -> Bool {
-        viewableBlocklist.contains(address)
-    }
-    func block(_ address: AddressName) {
-        if signedIn {
-            addressBlockedFetcher?.block(address, credential: authKey)
-        }
-        localBlocklist.append(address)
-    }
-    func unblock(_ address: AddressName) {
-        if signedIn {
-            addressBlockedFetcher?.unBlock(address, credential: authKey)
-        }
-        localBlocklist.removeAll(where: { $0 == address })
-    }
-    
-    // MARK: Following
-    
-    var following: [AddressName] {
-        addressFollowingFetcher?.results.map({ $0.addressName }) ?? []
-    }
-    
-    func isFollowing(_ address: AddressName) -> Bool {
-        guard signedIn else {
-            return false
-        }
-        return following.contains(address)
-    }
-    func canFollow(_ address: AddressName) -> Bool {
-        guard signedIn else {
-            return false
-        }
-        return !following.contains(address)
-    }
-    func canUnFollow(_ address: AddressName) -> Bool {
-        guard signedIn else {
-            return false
-        }
-        return following.contains(address)
-    }
-    func follow(_ address: AddressName) {
-        guard let credential = credential(for: actingAddress) else {
-            return
-        }
-        addressFollowingFetcher?.follow(address, credential: credential)
-        appliedFollow = following.joined(separator: "&&&")
-    }
-    func unFollow(_ address: AddressName) {
-        guard let credential = credential(for: address) else {
-            return
-        }
-        addressFollowingFetcher?.unFollow(address, credential: credential)
-        appliedFollow = following.joined(separator: "&&&")
-    }
-    
     // MARK: Summaries
     
     func constructFetcher(for address: AddressName) -> AddressSummaryDataFetcher {
-        fetcher.addressDetailsFetcher(address)
+        AddressSummaryDataFetcher(name: address, addressBook: addressBook, interface: interface, database: database)
     }
     func privateSummary(for address: AddressName) -> AddressPrivateSummaryDataFetcher? {
-        guard let credential = credential(for: address) else {
+        guard let credential = addressBook.credential(for: address) else {
             return nil
         }
-        return fetcher.addressPrivateDetailsFetcher(address, credential: credential)
+        return AddressPrivateSummaryDataFetcher(name: address, addressBook: addressBook, interface: interface, database: database)
     }
     func addressSummary(_ address: AddressName) -> AddressSummaryDataFetcher {
         if let model = publicProfileCache[address] {

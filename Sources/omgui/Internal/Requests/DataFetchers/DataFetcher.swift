@@ -11,25 +11,20 @@ import Combine
 import SwiftUI
 import Foundation
 
-@MainActor
 class DataFetcher: Request {
     var summaryString: String? {
         "Loading"
     }
-    
-    init(interface: DataInterface) {
-        super.init(interface: interface)
-    }
 }
 
-@MainActor
-class ListDataFetcher<T: Listable>: DataFetcher, Observable {
+class ListDataFetcher<T: Listable>: DataFetcher {
     
+    @Published
     var results: [T] = []
     
     var title: String { "" }
     
-    init(items: [T] = [], interface: DataInterface) {
+    init(items: [T] = [], interface: DataInterface, automation: AutomationPreferences = .init()) {
         self.results = items
         super.init(interface: interface)
         self.loaded = items.isEmpty
@@ -51,9 +46,10 @@ class ListDataFetcher<T: Listable>: DataFetcher, Observable {
 }
 
 class AccountInfoDataFetcher: DataFetcher {
-    private let name: String
-    private let credential: String
+    private var name: String
+    private var credential: String
     
+    @Published
     var accountName: String?
     
     override var requestNeeded: Bool {
@@ -66,8 +62,16 @@ class AccountInfoDataFetcher: DataFetcher {
         super.init(interface: interface)
     }
     
+    func configure(_ name: AddressName, credential: APICredential) {
+        self.name = name
+        self.credential = credential
+        super.configure()
+    }
+    
     override func throwingRequest() async throws {
-        let info = try await interface.fetchAccountInfo(name, credential: credential)
+        let address = name
+        let credential = credential
+        let info = try await interface.fetchAccountInfo(address, credential: credential)
         self.accountName = info?.name
         self.fetchFinished()
     }
@@ -76,7 +80,6 @@ class AccountInfoDataFetcher: DataFetcher {
         !loading && name.isEmpty
     }
 }
-
 
 class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
     let addressName: AddressName

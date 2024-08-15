@@ -9,14 +9,13 @@ struct MyPURLsView: View {
     
     @SceneStorage("app.lol.addresses.mine.filter")
     var filter: FilterOption = .none
-    @ObservedObject
-    var addressFetcher: AddressPURLsDataFetcher
+    let addressFetcher: AddressPURLsDataFetcher
     
     let singleAddressMode: Bool
     
     init(singleAddress: Bool, injectedScene: SceneModel) {
         singleAddressMode = singleAddress
-        addressFetcher = injectedScene.fetcher.addressPURLsFetcher(injectedScene.actingAddress, credential: injectedScene.credential(for: injectedScene.actingAddress))
+        addressFetcher = AddressPURLsDataFetcher(name: injectedScene.addressBook.actingAddress, credential: injectedScene.addressBook.credential(for: injectedScene.addressBook.actingAddress), addressBook: injectedScene.addressBook, interface: injectedScene.interface, db: injectedScene.database)
     }
     
     var body: some View {
@@ -39,7 +38,7 @@ struct MyPURLsView: View {
                         .mask(Circle())
                     }
                     Spacer()
-                    NavigationLink(value: NavigationDestination.purl(scene.actingAddress, id: "")) {
+                    NavigationLink(value: NavigationDestination.purl(scene.addressBook.actingAddress, id: "")) {
                         Image(systemName: "pencil.and.scribble")
                             .bold()
                             .foregroundStyle(Color.white)

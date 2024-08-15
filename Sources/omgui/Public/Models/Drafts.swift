@@ -280,7 +280,7 @@ extension PURLRowView {
                 guard draftPoster.draft.publishable else {
                     return
                 }
-                Task {
+                Task { [draftPoster] in
                     await draftPoster.perform()
                     draftPoster.draft.clear()
                 }
@@ -369,6 +369,7 @@ extension StatusRowView {
         @ViewBuilder
         var postButton: some View {
             Button(action: {
+                /*
                 guard draftPoster.draft.publishable else {
                     return
                 }
@@ -379,6 +380,7 @@ extension StatusRowView {
                     await draftPoster.perform()
                     draftPoster.draft.clear()
                 }
+                 */
             }) {
                 Label {
                     if draftPoster.draft.id == nil {

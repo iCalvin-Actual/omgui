@@ -18,8 +18,7 @@ struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    @StateObject
-    var fetcher: NamedItemDataFetcher<N>
+    let fetcher: NamedItemDataFetcher<N>
     
     @State
     var showDraft: Bool = false
@@ -57,7 +56,7 @@ struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
                             }
                             Menu {
                                 Button(role: .destructive) {
-                                    Task {
+                                    Task { @MainActor [fetcher] in
                                         try await fetcher.deleteIfPossible()
                                     }
                                 } label: {
@@ -76,24 +75,24 @@ struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
                     }
                 }
             }
-            .onReceive(fetcher.$model, perform: { model in
-                withAnimation {
-                    let address = fetcher.addressName
-                    guard sceneModel.myAddresses.contains(address) else {
-                        showDraft = false
-                        return
-                    }
-                    if model == nil && fetcher.title.isEmpty {
-                        detent = .large
-                        showDraft = true
-                    } else if model != nil {
-                        detent = .draftDrawer
-                        showDraft = true
-                    } else {
-                        print("Stop")
-                    }
-                }
-            })
+//            .onReceive(fetcher.$model, perform: { model in
+//                withAnimation {
+//                    let address = fetcher.addressName
+//                    guard sceneModel.myAddresses.contains(address) else {
+//                        showDraft = false
+//                        return
+//                    }
+//                    if model == nil && fetcher.title.isEmpty {
+//                        detent = .large
+//                        showDraft = true
+//                    } else if model != nil {
+//                        detent = .draftDrawer
+//                        showDraft = true
+//                    } else {
+//                        print("Stop")
+//                    }
+//                }
+//            })
             .onChange(of: draftResult, { oldValue, newValue in
                 guard let newValue else {
                     return
@@ -101,7 +100,9 @@ struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
                 fetcher.model = newValue
                 detent = .draftDrawer
                 showDraft = true
-                Task { await fetcher.perform() }
+                Task { [fetcher] in
+                    await fetcher.perform()
+                }
             })
             .sheet(
                 isPresented: $showDraft,
@@ -140,8 +141,7 @@ struct PasteView: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    @ObservedObject
-    var fetcher: AddressPasteDataFetcher
+    let fetcher: AddressPasteDataFetcher
     
     @State
     var showDraft: Bool = false
@@ -229,7 +229,7 @@ struct PasteView: View {
             .onReceive(fetcher.$result, perform: { model in
                 withAnimation {
                     let address = model?.addressName ?? ""
-                    guard !address.isEmpty, sceneModel.myAddresses.contains(address) else {
+                    guard !address.isEmpty, sceneModel.addressBook.myAddresses.contains(address) else {
                         showDraft = false
                         return
                     }

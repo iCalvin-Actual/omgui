@@ -7,15 +7,13 @@
 
 import SwiftUI
 
-@MainActor
 struct GardenView: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     @Environment(\.horizontalSizeClass)
     var sizeClass
     
-    @ObservedObject
-    var fetcher: NowGardenDataFetcher
+    let fetcher: NowGardenDataFetcher
     
     @State
     var selected: String?
@@ -55,7 +53,13 @@ struct GardenView: View {
     @ViewBuilder
     var selectedContent: some View {
         if let selected = selected {
-            AddressNowView(fetcher: sceneModel.fetcher.addresNowFetcher(selected))
+            AddressNowView(
+                fetcher: AddressNowDataFetcher(
+                    name: selected,
+                    interface: sceneModel.interface,
+                    db: sceneModel.database
+                )
+            )
         } else {
             ThemedTextView(text: "select a /now page")
         }

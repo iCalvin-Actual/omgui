@@ -35,7 +35,7 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
     @State
     var sort: Sort = T.defaultSort
     
-    @ObservedObject
+    @StateObject
     var dataFetcher: ModelBackedListDataFetcher<T>
     
     var menuBuilder: ContextMenuBuilder<T> = .init()
@@ -51,7 +51,7 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
         self.filters = filters
         self.allowSearch = allowSearch
         self.allowFilter = allowFilter
-        self.dataFetcher = dataFetcher
+        self._dataFetcher = .init(wrappedValue: dataFetcher)
         self.rowBuilder = rowBuilder
         self.headerBuilder = headerBuilder
     }
@@ -69,13 +69,11 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
     
     var body: some View {
         toolbarAwareBody
-            .onAppear(perform: {
+            .task { [dataFetcher] in
                 if !dataFetcher.loading {
-                    Task {
-                        await dataFetcher.updateIfNeeded()
-                    }
+                    await dataFetcher.updateIfNeeded()
                 }
-            })
+            }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("")
             .toolbar {
@@ -174,13 +172,18 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
                   .foregroundColor(.black)
                   .foregroundColor(.red)
                   .onAppear {
-                      Task {
+                      Task { [dataFetcher] in
                           try await dataFetcher.fetchModels()
                       }
                   }
             }
         }
-        .refreshable(action: {
+        .task { [dataFetcher] in
+            dataFetcher.loading = true
+            await dataFetcher.updateIfNeeded(forceReload: true)
+            dataFetcher.loaded = false
+        }
+        .refreshable(action: { [dataFetcher] in
             await dataFetcher.updateIfNeeded(forceReload: true)
         })
         .listStyle(.plain)
@@ -280,7 +283,7 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
 //            }
             return .purl(purlModel.addressName, id: purlModel.name)
         case let statusModel as StatusModel:
-            if sceneModel.myAddresses.contains(statusModel.address) {
+            if sceneModel.addressBook.myAddresses.contains(statusModel.address) {
 //                return .editStatus(statusModel.address, id: statusModel.id)
             }
             return .status(statusModel.address, id: statusModel.id)
@@ -330,8 +333,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
     @State
     var sort: Sort = T.defaultSort
     
-    @ObservedObject
-    var dataFetcher: ListDataFetcher<T>
+    let dataFetcher: ListDataFetcher<T>
     
     var menuBuilder: ContextMenuBuilder<T> = .init()
     
@@ -363,13 +365,13 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     var body: some View {
         toolbarAwareBody
-            .onAppear(perform: {
+            .task { [dataFetcher] in
                 if !dataFetcher.loading {
                     Task {
                         await dataFetcher.updateIfNeeded()
                     }
                 }
-            })
+            }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("")
             .toolbar {
@@ -462,7 +464,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
                 .listRowBackground(Color.clear)
                 .padding(.vertical, 4)
         }
-        .refreshable(action: {
+        .refreshable(action: { [dataFetcher] in
             await dataFetcher.updateIfNeeded(forceReload: true)
         })
         .listStyle(.plain)
@@ -562,7 +564,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
 //            }
             return .purl(purlModel.addressName, id: purlModel.name)
         case let statusModel as StatusModel:
-            if sceneModel.myAddresses.contains(statusModel.address) {
+            if sceneModel.addressBook.myAddresses.contains(statusModel.address) {
 //                return .editStatus(statusModel.address, id: statusModel.id)
             }
             return .status(statusModel.address, id: statusModel.id)
@@ -817,7 +819,7 @@ struct ListItemView<T: Listable, V: View, H: View>: View {
 //            }
             return .purl(purlModel.addressName, id: purlModel.name)
         case let statusModel as StatusModel:
-            if sceneModel.myAddresses.contains(statusModel.address) {
+            if sceneModel.addressBook.myAddresses.contains(statusModel.address) {
 //                return .editStatus(statusModel.address, id: statusModel.id)
             }
             return .status(statusModel.address, id: statusModel.id)

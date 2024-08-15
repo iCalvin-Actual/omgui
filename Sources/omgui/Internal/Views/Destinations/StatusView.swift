@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct StatusView: View {
-    @ObservedObject
-    var fetcher: StatusDataFetcher
+    let fetcher: StatusDataFetcher
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
