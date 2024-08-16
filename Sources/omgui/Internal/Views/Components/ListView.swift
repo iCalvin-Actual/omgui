@@ -76,6 +76,12 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("")
+            .onChange(of: sort, { oldValue, newValue in
+                dataFetcher.sort = newValue
+            })
+            .onChange(of: filters, { oldValue, newValue in
+                dataFetcher.filters = newValue
+            })
             .toolbar {
                 let sortOptions = T.sortOptions
                 if sortOptions.count > 1, dataFetcher.results.count > 1, allowFilter {

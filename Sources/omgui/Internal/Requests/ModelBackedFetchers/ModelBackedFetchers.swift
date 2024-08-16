@@ -57,8 +57,18 @@ class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
     
     let addressBook: AddressBook?
     
-    let filters: [FilterOption]
-    let sort: Sort
+    var filters: [FilterOption] {
+        didSet {
+            results = []
+            nextPage = 0
+        }
+    }
+    var sort: Sort {
+        didSet {
+            results = []
+            nextPage = 0
+        }
+    }
     
     var title: String { "" }
     var items: Int { results.count }
@@ -83,12 +93,7 @@ class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
         var nextResults = try await M.read(
             from: db,
             matching: filters.asQuery(matchingAgainst: addressBook),
-            orderBy: {
-                switch sort {
-                default:
-                    return .ascending(M.ownerKey)
-                }
-            }(),
+            orderBy: sort.asClause(),
             limit: limit,
             offset: (nextPage * limit)
         )

@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/5/23.
 //
 
+import Blackbird
 import SwiftUI
 
 enum Sort: String, Identifiable {
@@ -25,6 +26,19 @@ enum Sort: String, Identifiable {
             return "Oldest First"
         case .shuffle:
             return "Shuffle"
+        }
+    }
+    
+    func asClause<S: ModelBackedListable>() -> BlackbirdModelOrderClause<S> {
+        switch self {
+        case .newestFirst:
+            return .descending(S.dateKey)
+        case .oldestFirst:
+            return .ascending(S.dateKey)
+        case .shuffle:
+            return .random(S.ownerKey)
+        default:
+            return .ascending(S.ownerKey)
         }
     }
 }
@@ -78,12 +92,11 @@ extension AddressModel: AllSortable {
     var primarySortValue: String { addressName }
     var dateValue: Date? { date }
     
-    static let defaultSort: Sort = .alphabet
+    static let defaultSort: Sort = .shuffle
     static var sortOptions: [Sort] {
         [
             .alphabet,
-            .oldestFirst,
-            .newestFirst
+            .shuffle
         ]
     }
 }
