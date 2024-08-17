@@ -204,17 +204,17 @@ extension FilterOption {
             return BlackbirdModelColumnExpression<M>
                 .valueIn(M.ownerKey, adderessBook.myAddresses)
         case .following:
-            return BlackbirdModelColumnExpression<M>.valueIn(M.ownerKey, adderessBook.following)
+            return .valueIn(M.ownerKey, adderessBook.following)
         case .notBlocked:
-            return BlackbirdModelColumnExpression<M>.valueNotIn(M.ownerKey, adderessBook.appliedBlocked)
+            return .valueNotIn(M.ownerKey, adderessBook.appliedBlocked)
         case .from(let address):
-            return BlackbirdModelColumnExpression<M>.equals(M.ownerKey, address)
+            return .equals(M.ownerKey, address)
         case .fromOneOf(let addresses):
-            return BlackbirdModelColumnExpression<M>.valueIn(M.ownerKey, addresses)
+            return .valueIn(M.ownerKey, addresses)
         case .recent(let interval):
-            return BlackbirdModelColumnExpression<M>.greaterThanOrEqual(M.dateKey, Date(timeIntervalSinceNow: -interval))
+            return .greaterThanOrEqual(M.dateKey, Date(timeIntervalSinceNow: -interval))
         case .query(let queryString):
-            return BlackbirdModelColumnExpression<M>.match(queryString)
+            return .oneOf(M.fullTextSearchableColumns.map({ .like($0.key, "%\(queryString)%") }))
         default:
             return nil
         }

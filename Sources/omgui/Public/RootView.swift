@@ -23,6 +23,9 @@ struct RootView: View {
     
     var body: some View {
         SplitView()
+            .task { [addressBook] in
+                await addressBook.autoFetch()
+            }
             .environment(accountAuthDataFetcher)
             .environment(
                 SceneModel(

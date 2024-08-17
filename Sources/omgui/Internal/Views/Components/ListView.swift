@@ -17,7 +17,8 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
     @Environment(\.viewContext)
     var context: ViewContext
     
-    let filters: [FilterOption]
+    @State
+    var filters: [FilterOption]
     
     let allowSearch: Bool
     let allowFilter: Bool
@@ -78,6 +79,30 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
             .navigationTitle("")
             .onChange(of: sort, { oldValue, newValue in
                 dataFetcher.sort = newValue
+            })
+            .onChange(of: queryString, { oldValue, newValue in
+                var newFilters = filters
+                newFilters.removeAll(where: { filter in
+                    switch filter {
+                    case .query:
+                        return true
+                    default:
+                        return false
+                    }
+                })
+                defer {
+                    dataFetcher.results = []
+                    dataFetcher.nextPage = 0
+                    Task { [dataFetcher] in
+                        await dataFetcher.updateIfNeeded(forceReload: true)
+                    }
+                }
+                guard !newValue.isEmpty else {
+                    filters = newFilters
+                    return
+                }
+                newFilters.append(.query(newValue))
+                filters = newFilters
             })
             .onChange(of: filters, { oldValue, newValue in
                 dataFetcher.filters = newValue

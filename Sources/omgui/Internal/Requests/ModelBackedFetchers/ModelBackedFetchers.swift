@@ -84,6 +84,14 @@ class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
         super.init(interface: interface, db: db, automation: automation)
     }
     
+    override func updateIfNeeded(forceReload: Bool = false) async {
+        guard forceReload || (loading && requestNeeded) else {
+            return
+        }
+        nextPage = 0
+        await perform()
+    }
+    
     @MainActor
     override func fetchModels() async throws {
         guard let nextPage, let addressBook else {
@@ -97,17 +105,19 @@ class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
             limit: limit,
             offset: (nextPage * limit)
         )
+        var oldResults = nextPage == 0 ? [] : results
         if nextResults.count == limit {
             self.nextPage = nextPage + 1
         } else if nextResults.count != 0 {
             self.nextPage = nil
         }
-        var oldResults = results
-        results.enumerated().forEach { (offset, element) in
-            if let matchingInNext = nextResults.enumerated().first(where: { $0.element == element }) {
-                oldResults.remove(at: offset)
-                oldResults.insert(matchingInNext.element, at: offset)
-                nextResults.remove(at: matchingInNext.offset)
+        if !oldResults.isEmpty {
+            results.enumerated().forEach { (offset, element) in
+                if let matchingInNext = nextResults.enumerated().first(where: { $0.element == element }) {
+                    oldResults.remove(at: offset)
+                    oldResults.insert(matchingInNext.element, at: offset)
+                    nextResults.remove(at: matchingInNext.offset)
+                }
             }
         }
         results = oldResults + nextResults

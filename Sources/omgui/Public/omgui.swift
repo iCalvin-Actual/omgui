@@ -65,6 +65,15 @@ final class AddressBook {
         self.pinnedAddressFetcher = pinnedAddressFetcher
     }
     
+    func autoFetch() async {
+        await accountAddressesFetcher.updateIfNeeded(forceReload: true)
+        await globalBlocklistFetcher.updateIfNeeded(forceReload: true)
+        await localBlocklistFetcher.updateIfNeeded(forceReload: true)
+        await addressBlocklistFetcher.updateIfNeeded(forceReload: true)
+        await addressFollowingFetcher.updateIfNeeded(forceReload: true)
+        await pinnedAddressFetcher.updateIfNeeded(forceReload: true)
+    }
+    
     func credential(for address: AddressName) -> APICredential? {
         guard myAddresses.contains(address) else {
             return nil
