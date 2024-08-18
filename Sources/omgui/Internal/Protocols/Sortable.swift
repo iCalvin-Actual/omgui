@@ -32,9 +32,9 @@ enum Sort: String, Identifiable {
     func asClause<S: ModelBackedListable>() -> BlackbirdModelOrderClause<S> {
         switch self {
         case .newestFirst:
-            return .descending(S.dateKey)
-        case .oldestFirst:
             return .ascending(S.dateKey)
+        case .oldestFirst:
+            return .descending(S.dateKey)
         case .shuffle:
             return .random(S.ownerKey)
         default:
@@ -108,9 +108,6 @@ extension StatusModel: AllSortable {
     static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
-            .newestFirst,
-            .oldestFirst,
-            .alphabet
         ]
     }
 }

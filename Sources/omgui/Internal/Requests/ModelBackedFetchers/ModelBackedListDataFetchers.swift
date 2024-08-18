@@ -354,24 +354,21 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
                     try await model.write(to: db)
                 }
             })
-            fetchFinished()
-            try await fetchBacklog()
         } else {
             let statuses = try await interface.fetchAddressStatuses(addresses: addresses)
             statuses.forEach({ model in
-                Task {
+                Task { [model] in
                     try await model.write(to: db)
                 }
             })
         }
     }
     
-    private func fetchBacklog() async throws {
+    func fetchBacklog() async throws {
         let db = db
         let generalStatuses = try await self.interface.fetchCompleteStatusLog()
-        
         generalStatuses.forEach({ model in
-            Task {
+            Task { [model] in
                 try await model.write(to: db)
             }
         })

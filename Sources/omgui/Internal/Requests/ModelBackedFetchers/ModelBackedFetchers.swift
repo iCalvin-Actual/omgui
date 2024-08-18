@@ -17,9 +17,6 @@ class BackedDataFetcher: Request {
     }
     
     override func throwingRequest() async throws {
-//        defer {
-//            fetchFinished()
-//        }
         try await fetchModels()
         
         guard requestNeeded else {

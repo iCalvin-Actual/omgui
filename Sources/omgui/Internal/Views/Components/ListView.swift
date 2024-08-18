@@ -70,7 +70,7 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
     
     var body: some View {
         toolbarAwareBody
-            .task { [dataFetcher] in
+            .task { @MainActor [dataFetcher] in
                 if !dataFetcher.loading {
                     await dataFetcher.updateIfNeeded()
                 }

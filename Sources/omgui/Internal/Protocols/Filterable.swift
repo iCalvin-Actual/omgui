@@ -214,7 +214,12 @@ extension FilterOption {
         case .recent(let interval):
             return .greaterThanOrEqual(M.dateKey, Date(timeIntervalSinceNow: -interval))
         case .query(let queryString):
-            return .oneOf(M.fullTextSearchableColumns.map({ .like($0.key, "%\(queryString)%") }))
+            return .oneOf(M.fullTextSearchableColumns.compactMap({
+                if case .text = $0.value {
+                    return .like($0.key, "%\(queryString)%")
+                }
+                return nil
+            }))
         default:
             return nil
         }

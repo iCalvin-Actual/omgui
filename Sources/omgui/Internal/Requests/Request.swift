@@ -178,13 +178,13 @@ class Request: ObservableObject {
     }
     
     func fetchFinished() {
-        loaded = true
-        loading = false
+//        loaded = true
+//        loading = false
     }
     
     func handle(_ incomingError: Error) {
-        loaded = false
-        loading = false
-        error = incomingError
+//        loaded = false
+//        loading = false
+//        error = incomingError
     }
 }

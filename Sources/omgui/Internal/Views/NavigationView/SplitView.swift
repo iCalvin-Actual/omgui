@@ -39,6 +39,10 @@ struct SplitView: View {
             }
             .environment(\.viewContext, sizeClass == .regular ? .detail : .column)
         }
+        .task { @MainActor [statusFetcher = sceneModel.statusFetcher] in
+            try? await statusFetcher.fetchRemote()
+            try? await statusFetcher.fetchBacklog()
+        }
     }
     
     @ViewBuilder

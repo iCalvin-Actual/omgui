@@ -14,7 +14,8 @@ protocol BlackbirdListable: BlackbirdModel {
 }
 extension BlackbirdListable {
     static public var fullTextSearchableColumns: [PartialKeyPath<Self> : BlackbirdModelFullTextSearchableColumn] { [
-        ownerKey: .text
+        ownerKey: .text,
+        dateKey: .filterOnly
     ]}
     static public var primaryKey: [PartialKeyPath<Self>] { [ownerKey] }
 }
@@ -438,6 +439,12 @@ public struct AddressModel: BlackbirdListable, Identifiable, RawRepresentable, C
 public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
     static public var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     static public var dateKey: BlackbirdColumnKeyPath { \.$date }
+    static public var fullTextSearchableColumns: FullTextIndex {[
+        ownerKey: .text,
+        dateKey: .filterOnly,
+        \.$status: .text,
+        \.$emoji: .text
+    ]}
     
     @BlackbirdColumn
     public var id: String
