@@ -36,7 +36,7 @@ final class AddressBook {
         addressFollowingFetcher.results.map({ $0.addressName })
     }
     var pinnedAddresses: [AddressName] {
-        pinnedAddressFetcher.results.map({ $0.addressName })
+        pinnedAddressFetcher.pinnedAddresses
     }
     var appliedBlocked: [AddressName] {
         Array(Set(globalBlocked + visibleBlocked))
