@@ -23,9 +23,8 @@ struct DestinationConstructor {
             CommunityView(sceneModel.statusFetcher)
         case .address(let name):
             AddressSummaryView(addressSummaryFetcher: sceneModel.addressSummary(name))
-//                .toolbarRole(.editor)
-//        case .webpage(let name):
-//            AddressProfileView(fetcher: addressBook.addressSummary(name).profileFetcher)
+        case .webpage(let name):
+            AddressProfileView(fetcher: sceneModel.addressSummary(name).profileFetcher)
 //        case .now(let name):
 //            AddressNowView(fetcher: addressBook.addressSummary(name).nowFetcher)
 //        case .blocked:

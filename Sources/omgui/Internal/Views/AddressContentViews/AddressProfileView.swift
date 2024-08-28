@@ -12,6 +12,9 @@ struct AddressProfileView: View {
     
     var body: some View {
         htmlBody
+            .task { [fetcher] in
+                await fetcher.perform()
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     AddressNameView(fetcher.addressName)

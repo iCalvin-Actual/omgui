@@ -34,6 +34,9 @@ struct AddressSummaryView: View {
     var body: some View {
         sizeAppropriateBody
             .background(Color.lolBackground)
+            .task { [addressSummaryFetcher] in
+                await addressSummaryFetcher.perform()
+            }
     }
     
     @ViewBuilder
@@ -91,7 +94,7 @@ struct AddressSummaryView: View {
     var sizeAppropriateBody: some View {
         VStack(spacing: 0) {
             addressHeader.padding()
-            
+            destinationPicker
             VStack(spacing: 0) {
                 destination(selectedPage)
                     .frame(maxHeight: expandBio ? 0 : .infinity)
@@ -141,7 +144,10 @@ struct AddressBioLabel: View {
                     }
                 }
         } else {
-            EmptyView()
+            LoadingView()
+                .task { [addressBioFetcher] in
+                    await addressBioFetcher.perform()
+                }
         }
     }
     

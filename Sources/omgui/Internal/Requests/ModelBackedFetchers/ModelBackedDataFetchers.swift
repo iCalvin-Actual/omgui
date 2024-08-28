@@ -21,7 +21,7 @@ class AddressProfileDataFetcher: ModelBackedDataFetcher<AddressProfile> {
     }
     
     override func fetchModels() async throws {
-        result = try await AddressProfile.read(from: db, id: addressName)
+        self.result = try await AddressProfile.read(from: db, id: addressName)
     }
     
     override func fetchRemote() async throws {
