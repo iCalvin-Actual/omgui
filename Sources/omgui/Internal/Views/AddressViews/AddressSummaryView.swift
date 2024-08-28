@@ -11,8 +11,6 @@ struct AddressSummaryView: View {
     @SceneStorage("app.lol.address.page")
     var selectedPage: AddressContent = .profile
     
-    let addressSummaryFetcher: AddressSummaryDataFetcher
-    
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
     @Environment(SceneModel.self)
@@ -20,6 +18,8 @@ struct AddressSummaryView: View {
     
     @State
     var expandBio: Bool = false
+    
+    let addressSummaryFetcher: AddressSummaryDataFetcher
     
     private var allPages: [AddressContent] {
         [
@@ -36,6 +36,7 @@ struct AddressSummaryView: View {
             .background(Color.lolBackground)
     }
     
+    @ViewBuilder
     var addressHeader: some View {
         HStack(alignment: .top) {
             Menu {

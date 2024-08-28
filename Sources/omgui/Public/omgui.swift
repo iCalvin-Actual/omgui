@@ -182,37 +182,55 @@ public struct omgui: View {
         self.globalBlocklistFetcher = .init(address: "app", credential: nil, interface: interface, db: database)
     }
     
+    @State
+    var addressBook: AddressBook?
+    @State
+    var sceneModel: SceneModel?
+    
     public var body: some View {
-        RootView(
-            addressBook: .init(
-                authKey: authKey,
-                actingAddress: actingAddress,
-                accountAddressesFetcher: accountAddressesFetcher,
-                globalBlocklistFetcher: globalBlocklistFetcher,
-                localBlocklistFetcher: .init(interface: dataInterface),
-                addressBlocklistFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface, db: database),
-                addressFollowingFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface),
-                pinnedAddressFetcher: .init(interface: dataInterface)
-            ),
-            accountAuthDataFetcher: accountAuthFetcher,
-            db: database
-        )
-        .environment(\.blackbirdDatabase, database)
-        .onReceive(authKey.publisher, perform: { newValue in
-            print("Received auth key: \(newValue)")
-            self.accountAuthFetcher.configure($authKey)
-            self.accountAddressesFetcher.configure(credential: authKey)
-        })
-        .onReceive(accountAddressesFetcher.results.publisher, perform: { _ in
-            accountAddressesFetcher.results.forEach { model in
-                let database = database
-                Task {
-                    try await model.write(to: database)
+        if let addressBook, let sceneModel {
+            RootView(
+                sceneModel: sceneModel,
+                addressBook: addressBook,
+                accountAuthDataFetcher: accountAuthFetcher,
+                db: database
+            )
+            .environment(\.blackbirdDatabase, database)
+            .onReceive(authKey.publisher, perform: { newValue in
+                print("Received auth key: \(newValue)")
+                self.accountAuthFetcher.configure($authKey)
+                self.accountAddressesFetcher.configure(credential: authKey)
+            })
+            .onReceive(accountAddressesFetcher.results.publisher, perform: { _ in
+                accountAddressesFetcher.results.forEach { model in
+                    let database = database
+                    Task {
+                        try await model.write(to: database)
+                    }
                 }
-            }
-            if actingAddress.isEmpty, let address = accountAddressesFetcher.results.first {
-                actingAddress = address.addressName
-            }
-        })
+                if actingAddress.isEmpty, let address = accountAddressesFetcher.results.first {
+                    actingAddress = address.addressName
+                }
+            })
+        } else if let addressBook {
+            LoadingView()
+                .task {
+                    self.sceneModel = .init(addressBook: addressBook, interface: dataInterface, database: database)
+                }
+        } else {
+            LoadingView()
+                .task {
+                    self.addressBook = .init(
+                        authKey: authKey,
+                        actingAddress: actingAddress,
+                        accountAddressesFetcher: accountAddressesFetcher,
+                        globalBlocklistFetcher: globalBlocklistFetcher,
+                        localBlocklistFetcher: .init(interface: dataInterface),
+                        addressBlocklistFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface, db: database),
+                        addressFollowingFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface),
+                        pinnedAddressFetcher: .init(interface: dataInterface)
+                    )
+                }
+        }
     }
 }

@@ -10,15 +10,17 @@ import SwiftUI
 
 struct RootView: View {
     
-    
     let addressBook: AddressBook
     let accountAuthDataFetcher: AccountAuthDataFetcher
     let db: Blackbird.Database
     
-    init(addressBook: AddressBook, accountAuthDataFetcher: AccountAuthDataFetcher, db: Blackbird.Database) {
+    let sceneModel: SceneModel
+    
+    init(sceneModel: SceneModel, addressBook: AddressBook, accountAuthDataFetcher: AccountAuthDataFetcher, db: Blackbird.Database) {
         self.addressBook = addressBook
         self.accountAuthDataFetcher = accountAuthDataFetcher
         self.db = db
+        self.sceneModel = sceneModel
     }
     
     var body: some View {
@@ -27,13 +29,7 @@ struct RootView: View {
                 await addressBook.autoFetch()
             }
             .environment(accountAuthDataFetcher)
-            .environment(
-                SceneModel(
-                    addressBook: addressBook,
-                    interface: accountAuthDataFetcher.interface,
-                    database: db
-                )
-            )
+            .environment(sceneModel)
     }
 }
 
