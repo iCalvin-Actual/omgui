@@ -255,10 +255,10 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
     }
     
     override func deletePresented() {
-        guard let presented = result else {
-            return
-        }
-        let patchDraft = StatusModel.Draft(model: presented, id: presented.id)
+//        guard let presented = result else {
+//            return
+//        }
+//        let patchDraft = StatusModel.Draft(model: presented, id: presented.id)
 //        Task { [weak self] in
 //            guard let self else { return }
 //            let draftedAddress = draft.address

@@ -82,7 +82,7 @@ extension SceneModel {
         AddressSummaryDataFetcher(name: address, addressBook: addressBook, interface: interface, database: database)
     }
     func privateSummary(for address: AddressName) -> AddressPrivateSummaryDataFetcher? {
-        guard let credential = addressBook.credential(for: address) else {
+        guard addressBook.credential(for: address) != nil else {
             return nil
         }
         return AddressPrivateSummaryDataFetcher(name: address, addressBook: addressBook, interface: interface, database: database)

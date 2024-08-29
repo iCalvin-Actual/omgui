@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct AddressNowView: View {
-    let fetcher: AddressNowDataFetcher
+    @ObservedObject
+    var fetcher: AddressNowDataFetcher
     
     var body: some View {
         htmlBody
+            .task { [fetcher] in
+                await fetcher.perform()
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     AddressNameView(fetcher.address, path: "now")
