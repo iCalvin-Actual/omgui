@@ -67,7 +67,7 @@ class AddressSummaryDataFetcher: DataFetcher {
         await bioFetcher.updateIfNeeded()
         await followingFetcher.updateIfNeeded()
         
-        fetchFinished()
+        await fetchFinished()
     }
     
     override func throwingRequest() async throws {
@@ -80,7 +80,7 @@ class AddressSummaryDataFetcher: DataFetcher {
         self.registered = info.date
         self.url = info.url
         
-        self.fetchFinished()
+        await self.fetchFinished()
     }
 }
 

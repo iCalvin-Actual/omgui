@@ -73,7 +73,7 @@ class AccountInfoDataFetcher: DataFetcher {
         let credential = credential
         let info = try await interface.fetchAccountInfo(address, credential: credential)
         self.accountName = info?.name
-        self.fetchFinished()
+        await self.fetchFinished()
     }
     
     override var noContent: Bool {

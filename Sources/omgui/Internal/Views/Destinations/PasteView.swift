@@ -18,7 +18,8 @@ struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    let fetcher: NamedItemDataFetcher<N>
+    @ObservedObject
+    var fetcher: NamedItemDataFetcher<N>
     
     @State
     var showDraft: Bool = false
@@ -141,7 +142,8 @@ struct PasteView: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    let fetcher: AddressPasteDataFetcher
+    @ObservedObject
+    var fetcher: AddressPasteDataFetcher
     
     @State
     var showDraft: Bool = false
@@ -226,7 +228,7 @@ struct PasteView: View {
                     }
                 }
             }
-            .onReceive(fetcher.$result, perform: { model in
+            .onChange(of: fetcher.result, initial: false) { _, model in
                 withAnimation {
                     let address = model?.addressName ?? ""
                     guard !address.isEmpty, sceneModel.addressBook.myAddresses.contains(address) else {
@@ -243,7 +245,7 @@ struct PasteView: View {
                         print("Stop")
                     }
                 }
-            })
+            }
     }
     
     @ViewBuilder

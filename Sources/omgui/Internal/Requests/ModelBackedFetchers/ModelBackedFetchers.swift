@@ -92,7 +92,9 @@ class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
     @MainActor
     override func fetchModels() async throws {
         guard let nextPage, let addressBook else {
-            fetchFinished()
+            Task {
+                await fetchFinished()
+            }
             return
         }
         var nextResults = try await M.read(

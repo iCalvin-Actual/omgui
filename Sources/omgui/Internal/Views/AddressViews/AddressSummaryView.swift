@@ -19,7 +19,8 @@ struct AddressSummaryView: View {
     @State
     var expandBio: Bool = false
     
-    let addressSummaryFetcher: AddressSummaryDataFetcher
+    @ObservedObject
+    var addressSummaryFetcher: AddressSummaryDataFetcher
     
     private var allPages: [AddressContent] {
         [
@@ -131,7 +132,8 @@ struct AddressBioLabel: View {
     @Binding
     var expanded: Bool
     
-    let addressBioFetcher: AddressBioDataFetcher
+    @ObservedObject
+    var addressBioFetcher: AddressBioDataFetcher
     
     var body: some View {
         if addressBioFetcher.loading {

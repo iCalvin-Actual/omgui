@@ -20,6 +20,7 @@ class AddressProfileDataFetcher: ModelBackedDataFetcher<AddressProfile> {
         super.init(interface: interface, db: db)
     }
     
+    @MainActor
     override func fetchModels() async throws {
         self.result = try await AddressProfile.read(from: db, id: addressName)
     }
@@ -139,7 +140,7 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
         }
         let _ = try await interface.deletePaste(title, from: address, credential: credential)
         try await result?.delete(from: db)
-        fetchFinished()
+        await fetchFinished()
     }
 }
 
@@ -196,6 +197,6 @@ class AddressPURLDataFetcher: ModelBackedDataFetcher<PURLModel> {
         let _ = try await interface.deletePURL(title, from: address, credential: credential)
         try await result?.delete(from: db)
         result = nil
-        fetchFinished()
+        await fetchFinished()
     }
 }

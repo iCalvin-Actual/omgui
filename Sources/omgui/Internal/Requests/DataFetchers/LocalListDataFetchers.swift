@@ -42,7 +42,7 @@ class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
     
     override func throwingRequest() async throws {
         self.results = self.pinnedAddresses.map({ AddressModel.init(name: $0) })
-        self.fetchFinished()
+        await self.fetchFinished()
     }
     
     func isPinned(_ address: AddressName) -> Bool {
@@ -86,7 +86,7 @@ class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
     
     override func throwingRequest() async throws {
         self.results = blockedAddresses.map({ AddressModel.init(name: $0) })
-        self.fetchFinished()
+        await self.fetchFinished()
     }
     
     func remove(_ address: AddressName) {

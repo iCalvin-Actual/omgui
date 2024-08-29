@@ -169,22 +169,24 @@ class Request: ObservableObject {
         do {
             try await throwingRequest()
         } catch {
-            handle(error)
+            await handle(error)
         }
     }
     
     func throwingRequest() async throws {
-        fetchFinished()
+        await fetchFinished()
     }
     
-    func fetchFinished() {
-//        loaded = true
-//        loading = false
+    @MainActor
+    func fetchFinished() async {
+        loaded = true
+        loading = false
     }
     
+    @MainActor
     func handle(_ incomingError: Error) {
-//        loaded = false
-//        loading = false
-//        error = incomingError
+        loaded = false
+        loading = false
+        error = incomingError
     }
 }

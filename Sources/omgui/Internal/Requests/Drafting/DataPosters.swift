@@ -117,7 +117,7 @@ class ProfileDraftPoster: MDDraftPoster<AddressProfile> {
             credential: credential
         )
         originalDraft = draft
-        fetchFinished()
+        await fetchFinished()
     }
 }
 
@@ -134,7 +134,7 @@ class NowDraftPoster: MDDraftPoster<NowModel> {
             credential: credential
         )
         originalDraft = draft
-        fetchFinished()
+        await fetchFinished()
     }
 }
 
@@ -155,7 +155,7 @@ class PasteDraftPoster: NamedDraftPoster<PasteModel> {
             self.result = result
             onPost(result)
         }
-        fetchFinished()
+        await fetchFinished()
     }
 }
 
@@ -175,7 +175,7 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel> {
             self.result = result
             onPost(result)
         }
-        fetchFinished()
+        await fetchFinished()
     }
     
     var destination: String
@@ -234,7 +234,7 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
             }
         }
         
-        fetchFinished()
+        await fetchFinished()
     }
     
     func fetchCurrentValue() async {
@@ -248,7 +248,7 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
             draft.content = status.status
             draft.externalUrl = status.link?.absoluteString
             loading = false
-            fetchFinished()
+            await fetchFinished()
         } else {
             loading = false
         }

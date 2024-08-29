@@ -60,19 +60,18 @@ class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
     }
     
     override func throwingRequest() async throws {
-        defer {
-            fetchFinished()
-        }
         let credential = credential
         guard !credential.isEmpty else {
             results = []
             localAddressesCache = ""
+            await fetchFinished()
             return
         }
         let results = try await interface.fetchAccountAddresses(credential).map({ AddressModel(name: $0) })
         
         self.results = results
         localAddressesCache = Array(Set(results.map({ $0.addressName }))).joined(separator: "&&&")
+        await fetchFinished()
     }
     
     func clear() {
@@ -102,7 +101,7 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     
     override func throwingRequest() async throws {
         guard !address.isEmpty else {
-            fetchFinished()
+            await fetchFinished()
             return
         }
         let address = address
@@ -115,24 +114,15 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
 //            }
 //        })
         guard let following = pastes.first(where: { $0.name == "app.lol.following" }) else {
-            self.fetchFinished()
+            await self.fetchFinished()
             return
         }
         self.results = following.content.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) })
     }
     
-    private func handleItems(_ addresses: [AddressName]) {
-        let paste = PasteModel(
-            owner: address,
-            name: "app.lol.following",
-            content: addresses.joined(separator: "\n"),
-            listed: true
-        )
+    private func handleItems(_ addresses: [AddressName]) async {
         self.results = addresses.map({ AddressModel(name: $0) })
-//        Task { @MainActor in
-//            try await paste.write(to: db)
-//        }
-        self.fetchFinished()
+        await self.fetchFinished()
     }
     
     func follow(_ toFollow: AddressName, credential: APICredential) async {
@@ -147,7 +137,7 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
         let address = address
         let credential = credential
         let _ = try? await interface.savePaste(draft, to: address, credential: credential)
-        handleItems(newValue)
+        await handleItems(newValue)
     }
     
     func unFollow(_ toRemove: AddressName, credential: APICredential) async {
@@ -162,7 +152,7 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
         let address = address
         let credential = credential
         let _ = try? await interface.savePaste(draft, to: address, credential: credential)
-        handleItems(newValue)
+        await handleItems(newValue)
     }
 }
 
@@ -187,10 +177,8 @@ class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
     }
     
     override func throwingRequest() async throws {
-        defer {
-            fetchFinished()
-        }
         guard !address.isEmpty else {
+            await fetchFinished()
             return
         }
         let address = address
@@ -202,9 +190,11 @@ class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
             }
         })
         guard let blocked = pastes.first(where: { $0.name == "app.lol.blocked" }) else {
+            await fetchFinished()
             return
         }
         self.results = blocked.content.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) })
+        await fetchFinished()
     }
     
     func block(_ toBlock: AddressName, credential: APICredential) async {
@@ -219,7 +209,7 @@ class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
         let address = address
         let credential = credential
         let _ = try? await self.interface.savePaste(draft, to: address, credential: credential)
-        self.handleItems(newValue)
+        await self.handleItems(newValue)
         
     }
     
@@ -235,10 +225,10 @@ class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
         let address = address
         let credential = credential
         let _ = try? await interface.savePaste(draft, to: address, credential: credential)
-        self.handleItems(newValue)
+        await self.handleItems(newValue)
     }
     
-    private func handleItems(_ addresses: [AddressName]) {
+    private func handleItems(_ addresses: [AddressName]) async {
         let paste = PasteModel(
             owner: address,
             name: "app.lol.blocked",
@@ -246,10 +236,8 @@ class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
             listed: true
         )
         self.results = addresses.map({ AddressModel(name: $0) })
-        Task { [db] in
-            try await paste.write(to: db)
-        }
-        self.fetchFinished()
+        try? await paste.write(to: db)
+        await fetchFinished()
     }
 }
 
@@ -372,6 +360,6 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
                 try await model.write(to: db)
             }
         })
-        self.fetchFinished()
+        await self.fetchFinished()
     }
 }

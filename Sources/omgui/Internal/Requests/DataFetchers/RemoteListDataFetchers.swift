@@ -8,7 +8,8 @@
 import Foundation
 
 class AddressBioDataFetcher: DataFetcher {
-    let address: AddressName
+    @Published
+    var address: AddressName
     
     var bio: AddressBioModel?
     
@@ -18,9 +19,8 @@ class AddressBioDataFetcher: DataFetcher {
     }
     
     override func throwingRequest() async throws {
-        let bio = try await interface.fetchAddressBio(address)
-        self.bio = bio
-        self.fetchFinished()
+        self.bio = try await interface.fetchAddressBio(address)
+        await self.fetchFinished()
     }
 }
 

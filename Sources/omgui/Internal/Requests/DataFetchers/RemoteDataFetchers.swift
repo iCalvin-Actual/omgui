@@ -23,18 +23,12 @@ class URLContentDataFetcher: DataFetcher {
     
     override func throwingRequest() async throws {
         guard url.scheme?.contains("http") ?? false else {
-            self.fetchFinished()
+            await self.fetchFinished()
             return
         }
-        URLSession.shared.dataTaskPublisher(for: url)
-          .map(\.data)
-          .eraseToAnyPublisher()
-//          .receive(on: DispatchQueue.main)
-          .sink(receiveCompletion: { _ in }) { [weak self] newValue in
-              self?.html = String(data: newValue, encoding: .utf8)
-              self?.fetchFinished()
-          }
-          .store(in: &requests)
+        let (data, _) = try await URLSession.shared.data(from: url)
+        self.html = String(data: data, encoding: .utf8)
+        await self.fetchFinished()
     }
 }
 
@@ -59,7 +53,7 @@ class AddressAvailabilityDataFetcher: DataFetcher {
     override func throwingRequest() async throws {
         let address = address
         guard !address.isEmpty else {
-            fetchFinished()
+            await fetchFinished()
             return
         }
         let result = try await interface.fetchAddressAvailability(address)
