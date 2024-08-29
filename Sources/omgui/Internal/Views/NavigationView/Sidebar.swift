@@ -45,7 +45,7 @@ struct Sidebar: View {
                                 item.sidebarView
                                     .tag(item)
                                     .contextMenu(menuItems: {
-                                        item.contextMenu(in: sceneModel)
+                                        item.contextMenu(in: sceneModel, fetcher: nil)
                                     })
                             }
                         } header: {

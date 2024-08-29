@@ -98,7 +98,7 @@ class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
         interface: DataInterface,
         database: Blackbird.Database
     ) {
-        self.blockedFetcher = .init(address: name, credential: addressBook.apiKey, interface: interface, db: database)
+        self.blockedFetcher = .init(address: name, credential: addressBook.apiKey, interface: interface)
         
 //        self.profilePoster = .init(
 //            name,

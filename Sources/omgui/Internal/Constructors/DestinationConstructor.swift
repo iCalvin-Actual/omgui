@@ -27,8 +27,9 @@ struct DestinationConstructor {
             AddressProfileView(fetcher: sceneModel.addressSummary(name).profileFetcher)
         case .now(let name):
             AddressNowView(fetcher: sceneModel.addressSummary(name).nowFetcher)
-//        case .blocked:
-//            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: addressBook.constructBlocklist(), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+        case .blocked:
+            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: sceneModel.privateSummary(for: sceneModel.addressBook.actingAddress)?.blockedFetcher ?? sceneModel.addressBook.localBlocklistFetcher, rowBuilder: {
+                    _ in return nil as ListRow<AddressModel>? })
 //        case .following:
 //            FollowingView(addressBook)
 //        case .followingAddresses:

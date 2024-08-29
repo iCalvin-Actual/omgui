@@ -96,13 +96,13 @@ final class AddressBook {
         if let credential = credential(for: actingAddress) {
             await addressBlocklistFetcher.block(address, credential: credential)
         }
-        localBlocklistFetcher.insert(address)
+        await localBlocklistFetcher.insert(address)
     }
     func unblock(_ address: AddressName) async {
         if let credential = credential(for: actingAddress) {
             await addressBlocklistFetcher.unBlock(address, credential: credential)
         }
-        localBlocklistFetcher.remove(address)
+        await localBlocklistFetcher.remove(address)
     }
     
     func follow(_ address: AddressName) async {
@@ -179,7 +179,7 @@ public struct omgui: View {
         self._database = StateObject(wrappedValue: database)
         self.accountAuthFetcher = .init(authKey: nil, client: client, interface: interface)
         self.accountAddressesFetcher = .init(credential: "", interface: interface)
-        self.globalBlocklistFetcher = .init(address: "app", credential: nil, interface: interface, db: database)
+        self.globalBlocklistFetcher = .init(address: "app", credential: nil, interface: interface)
     }
     
     @State
@@ -226,7 +226,7 @@ public struct omgui: View {
                         accountAddressesFetcher: accountAddressesFetcher,
                         globalBlocklistFetcher: globalBlocklistFetcher,
                         localBlocklistFetcher: .init(interface: dataInterface),
-                        addressBlocklistFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface, db: database),
+                        addressBlocklistFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface),
                         addressFollowingFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface),
                         pinnedAddressFetcher: .init(interface: dataInterface)
                     )

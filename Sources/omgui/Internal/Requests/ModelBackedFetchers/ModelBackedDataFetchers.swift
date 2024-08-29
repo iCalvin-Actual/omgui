@@ -42,6 +42,7 @@ class AddressNowDataFetcher: ModelBackedDataFetcher<NowModel> {
         super.init(interface: interface, db: db)
     }
     
+    @MainActor
     override func fetchModels() async throws {
         self.result = try await NowModel.read(from: db, id: addressName)
     }

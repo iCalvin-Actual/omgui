@@ -156,7 +156,7 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
-class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
+class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
     var address: AddressName
     var credential: APICredential?
     
@@ -164,10 +164,10 @@ class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
         "blocked from \(address)"
     }
     
-    init(address: AddressName, credential: APICredential?, interface: DataInterface, db: Blackbird.Database, automation: AutomationPreferences = .init()) {
+    init(address: AddressName, credential: APICredential?, interface: DataInterface, automation: AutomationPreferences = .init()) {
         self.address = address
         self.credential = credential
-        super.init(addressBook: nil, interface: interface, db: db, automation: automation)
+        super.init(interface: interface)
     }
     
     func configure(address: AddressName, credential: APICredential?, _ automation: AutomationPreferences = .init()) {
@@ -184,11 +184,6 @@ class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
         let address = address
         let credential = credential
         let pastes = try await interface.fetchAddressPastes(address, credential: credential)
-        pastes.forEach({ model in
-            Task { [db] in
-                try await model.write(to: db)
-            }
-        })
         guard let blocked = pastes.first(where: { $0.name == "app.lol.blocked" }) else {
             await fetchFinished()
             return
@@ -229,14 +224,7 @@ class AddressBlockListDataFetcher: ModelBackedListDataFetcher<AddressModel> {
     }
     
     private func handleItems(_ addresses: [AddressName]) async {
-        let paste = PasteModel(
-            owner: address,
-            name: "app.lol.blocked",
-            content: addresses.joined(separator: "\n"),
-            listed: true
-        )
         self.results = addresses.map({ AddressModel(name: $0) })
-        try? await paste.write(to: db)
         await fetchFinished()
     }
 }

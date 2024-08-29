@@ -70,8 +70,6 @@ class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
         }
         set {
             cachedBlockList = Array(Set(newValue)).joined(separator: "&&&")
-            // Hopefully this isn't needed?
-//            updateIfNeeded(forceReload: true)
         }
     }
     
@@ -84,16 +82,19 @@ class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
         "blocked"
     }
     
+    @MainActor
     override func throwingRequest() async throws {
         self.results = blockedAddresses.map({ AddressModel.init(name: $0) })
         await self.fetchFinished()
     }
     
-    func remove(_ address: AddressName) {
+    func remove(_ address: AddressName) async {
         blockedAddresses.removeAll(where: { $0 == address })
+        await updateIfNeeded(forceReload: true)
     }
     
-    func insert(_ address: AddressName) {
+    func insert(_ address: AddressName) async {
         blockedAddresses.append(address)
+        await updateIfNeeded(forceReload: true)
     }
 }
