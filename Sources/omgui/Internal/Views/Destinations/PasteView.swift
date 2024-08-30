@@ -152,6 +152,9 @@ struct PasteView: View {
     
     var body: some View {
         mainContent
+            .task { [fetcher] in
+                await fetcher.updateIfNeeded(forceReload: true)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     if let name = fetcher.result?.name {

@@ -123,8 +123,9 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
 //        }
 //    }
     
+    @MainActor
     override func fetchModels() async throws {
-        self.result = try await PasteModel.read(from: db, id: title)
+        self.result = try await PasteModel.read(from: db, multicolumnPrimaryKey: [address, title])
     }
     
     override func fetchRemote() async throws {

@@ -32,26 +32,28 @@ struct DestinationConstructor {
                     _ in return nil as ListRow<AddressModel>? })
         case .nowGarden:
             GardenView(fetcher: sceneModel.gardenFetcher)
-//        case .following:
-//            FollowingView(addressBook)
-//        case .followingAddresses:
-//            if let fetcher = addressBook.followingFetcher {
-//                ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
-//            }
-//        case .followingStatuses:
-//            if let fetcher = addressBook.followingStatusLogFetcher {
-//                StatusList(fetcher: fetcher)
-//            }
-//        case .following(let name):
-//            ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
-//        case .pastebin(let address):
-//            AddressPasteView(fetcher: addressBook.addressSummary(address).pasteFetcher)
+        case .pastebin(let address):
+            AddressPastesView(fetcher: sceneModel.addressSummary(address).pasteFetcher)
+        case .paste(let address, id: let title):
+            PasteView(
+                fetcher: AddressPasteDataFetcher(
+                    name: address,
+                    title: title,
+                    credential: sceneModel.addressBook.credential(for: address),
+                    interface: sceneModel.interface,
+                    db: sceneModel.database
+                )
+            )
 //        case .purls(let address):
 //            AddressPURLsView(fetcher: addressBook.addressSummary(address).purlFetcher)
 //        case .purl(let address, title: let title):
 //            PURLView(fetcher: fetcher.addressPURLFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
-//        case .paste(let address, title: let title):
-//            PasteView(fetcher: fetcher.addressPasteFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
+//        case .addressStatuses:
+//            MyStatusesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
+//        case .addressPURLs:
+//            MyPURLsView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
+//        case .addressPastes:
+//            MyPastesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
 //        case .statusLog(let address):
 //            StatusList(fetcher: addressBook.addressSummary(address).statusFetcher)
 //        case .status(let address, id: let id):
@@ -101,12 +103,18 @@ struct DestinationConstructor {
 //                // Unauthenticated
 //                EmptyView()
 //            }
-//        case .addressStatuses:
-//            MyStatusesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
-//        case .addressPURLs:
-//            MyPURLsView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
-//        case .addressPastes:
-//            MyPastesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
+            //        case .following:
+            //            FollowingView(addressBook)
+            //        case .followingAddresses:
+            //            if let fetcher = addressBook.followingFetcher {
+            //                ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+            //            }
+            //        case .followingStatuses:
+            //            if let fetcher = addressBook.followingStatusLogFetcher {
+            //                StatusList(fetcher: fetcher)
+            //            }
+            //        case .following(let name):
+            //            ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         default:
             EmptyView()
         }
