@@ -29,9 +29,13 @@ struct Sidebar: View {
         sceneModel.addressBook.myAddresses
     }
     
+    @ObservedObject
+    var pinnedFetcher: PinnedListDataFetcher
+    
     init(selected: Binding<NavigationItem?>, model: SidebarModel) {
         self._selected = selected
         self.sidebarModel = model
+        self.pinnedFetcher = model.sceneModel.addressBook.pinnedAddressFetcher
     }
     
     var body: some View {
@@ -45,7 +49,7 @@ struct Sidebar: View {
                                 item.sidebarView
                                     .tag(item)
                                     .contextMenu(menuItems: {
-                                        item.contextMenu(in: sceneModel, fetcher: nil)
+                                        contextMenu(for: item)
                                     })
                             }
                         } header: {
@@ -64,27 +68,27 @@ struct Sidebar: View {
         }
         .environment(\.viewContext, ViewContext.column)
         .navigationDestination(for: NavigationDestination.self, destination: destinationView(_:))
-        .safeAreaInset(edge: .bottom) {
-            AddressPicker()
-        }
-        .safeAreaInset(edge: .top, content: {
-            if !sceneModel.addressBook.signedIn {
-                Button {
-                    selected = .account
-                } label: {
-                    Text("more about omg.lol?")
-                        .font(.title3)
-                        .bold()
-                        .fontDesign(.serif)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                }
-                .background(Color.lolBlue)
-                .cornerRadius(16)
-                .padding()
-                .background(Material.bar)
-            }
-        })
+//        .safeAreaInset(edge: .bottom) {
+//            AddressPicker()
+//        }
+//        .safeAreaInset(edge: .top, content: {
+//            if !sceneModel.addressBook.signedIn {
+//                Button {
+//                    selected = .account
+//                } label: {
+//                    Text("more about omg.lol?")
+//                        .font(.title3)
+//                        .bold()
+//                        .fontDesign(.serif)
+//                        .frame(maxWidth: .infinity)
+//                        .padding()
+//                }
+//                .background(Color.lolBlue)
+//                .cornerRadius(16)
+//                .padding()
+//                .background(Material.bar)
+//            }
+//        })
         .toolbar {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 4) {
@@ -99,6 +103,25 @@ struct Sidebar: View {
     
     private func isActingAddress(_ address: AddressName) -> Bool {
         actingAddress == address
+    }
+    
+    @ViewBuilder
+    private func contextMenu(for item: NavigationItem) -> some View {
+        switch item {
+        case .pinnedAddress(let address):
+            let addressBook = sceneModel.addressBook
+            let pinnedAddressFetcher = sidebarModel.pinnedFetcher
+            Button(action: {
+                Task { @MainActor in
+                    await addressBook.removePin(address)
+                    await pinnedAddressFetcher.updateIfNeeded(forceReload: true)
+                }
+            }, label: {
+                Label("Un-Pin \(address.addressDisplayString)", systemImage: "pin.slash")
+            })
+        default:
+            EmptyView()
+        }
     }
     
     @ViewBuilder

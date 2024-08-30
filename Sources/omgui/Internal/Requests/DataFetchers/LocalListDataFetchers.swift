@@ -23,7 +23,6 @@ class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
     
     @AppStorage("app.lol.cache.pinned", store: .standard)
     private var currentlyPinnedAddresses: String = "adam&&&app"
-    
     var pinnedAddresses: [AddressName] {
         get {
             let split = currentlyPinnedAddresses.split(separator: "&&&")
@@ -31,8 +30,6 @@ class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
         }
         set {
             currentlyPinnedAddresses = Array(Set(newValue)).joined(separator: "&&&")
-            // Hopefully this isn't needed?
-//            updateIfNeeded(forceReload: true)
         }
     }
     
@@ -40,6 +37,7 @@ class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
         "pinned"
     }
     
+    @MainActor
     override func throwingRequest() async throws {
         self.results = self.pinnedAddresses.map({ AddressModel.init(name: $0) })
         await self.fetchFinished()
@@ -49,12 +47,15 @@ class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
         pinnedAddresses.contains(address)
     }
     
-    func pin(_ address: AddressName) {
+    func pin(_ address: AddressName) async {
         pinnedAddresses.append(address)
+        await updateIfNeeded(forceReload: true)
+        
     }
     
-    func removePin(_ address: AddressName) {
+    func removePin(_ address: AddressName) async {
         pinnedAddresses.removeAll(where: { $0 == address })
+        await updateIfNeeded(forceReload: true)
     }
 }
 

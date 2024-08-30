@@ -75,22 +75,18 @@ extension AddressManagable where Self: Menuable {
             
             if isPinned {
                 Button(action: {
-                    withAnimation {
-                        book.removePin(name)
-                        Task {
-                            await fetcher?.updateIfNeeded(forceReload: true)
-                        }
+                    Task { [book, fetcher] in
+                        await book.removePin(name)
+                        await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
                     Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
                 })
             } else {
                 Button(action: {
-                    withAnimation {
-                        book.pin(name)
-                        Task {
-                            await fetcher?.updateIfNeeded(forceReload: true)
-                        }
+                    Task { [book, fetcher] in
+                        await book.pin(name)
+                        await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
                     Label("Pin \(name.addressDisplayString)", systemImage: "pin")
@@ -116,7 +112,7 @@ extension AddressManagable where Self: Menuable {
         } else {
             if book.canUnblock(name) {
                 Button(action: {
-                    Task {
+                    Task { [book, fetcher] in
                         await book.unblock(name)
                         await fetcher?.updateIfNeeded(forceReload: true)
                     }
@@ -177,24 +173,6 @@ extension Sharable where Self: Menuable {
 extension Listable where Self: Menuable {
     func contextMenu(in scene: SceneModel) -> some View {
         EmptyView()
-    }
-}
-
-extension NavigationItem: Menuable {
-    @ViewBuilder
-    func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
-        switch self {
-        case .pinnedAddress(let name):
-            Button(action: {
-                Task { @MainActor in
-                    scene.addressBook.removePin(name)
-                }
-            }, label: {
-                Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
-            })
-        default:
-            EmptyView()
-        }
     }
 }
 

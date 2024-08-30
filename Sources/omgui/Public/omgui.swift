@@ -85,11 +85,11 @@ final class AddressBook {
         !apiKey.isEmpty
     }
     
-    func pin(_ address: AddressName) {
-        pinnedAddressFetcher.pin(address)
+    func pin(_ address: AddressName) async {
+        await pinnedAddressFetcher.pin(address)
     }
-    func removePin(_ address: AddressName) {
-        pinnedAddressFetcher.removePin(address)
+    func removePin(_ address: AddressName) async {
+        await pinnedAddressFetcher.removePin(address)
     }
     
     func block(_ address: AddressName) async {

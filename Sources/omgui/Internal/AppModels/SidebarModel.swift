@@ -49,17 +49,26 @@ class SidebarModel {
         return sections
     }
     
-    let addressBook: AddressBook
+    let sceneModel: SceneModel
     
-    init(addressBook: AddressBook) {
-        self.addressBook = addressBook
+    var addressBook: AddressBook { sceneModel.addressBook }
+    
+    @Published
+    var pinnedFetcher: PinnedListDataFetcher
+    
+    init(sceneModel: SceneModel) {
+        self.sceneModel = sceneModel
+        self.pinnedFetcher = sceneModel.addressBook.pinnedAddressFetcher
     }
     
     func items(for section: Section) -> [NavigationItem] {
         switch section {
             
         case .directory:
-            var destinations: [NavigationItem] = [.search, .blocked]
+            var destinations: [NavigationItem] = [.search]
+            if !addressBook.visibleBlocked.isEmpty {
+                destinations.append(.blocked)
+            }
             if addressBook.signedIn {
                 destinations.insert(.following(.autoUpdatingAddress), at: 1)
             }
