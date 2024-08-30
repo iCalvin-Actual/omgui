@@ -59,13 +59,6 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
     
     var items: [T] {
         dataFetcher.results
-//        var filters = filters
-//        if !queryString.isEmpty {
-//            filters.append(.query(queryString))
-//        }
-//        return filters
-//            .applyFilters(to: dataFetcher.results, in: sceneModel)
-//            .sorted(with: sort)
     }
     
     var body: some View {

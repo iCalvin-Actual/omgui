@@ -30,6 +30,8 @@ struct DestinationConstructor {
         case .blocked:
             ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: sceneModel.privateSummary(for: sceneModel.addressBook.actingAddress)?.blockedFetcher ?? sceneModel.addressBook.localBlocklistFetcher, rowBuilder: {
                     _ in return nil as ListRow<AddressModel>? })
+        case .nowGarden:
+            GardenView(fetcher: sceneModel.gardenFetcher)
 //        case .following:
 //            FollowingView(addressBook)
 //        case .followingAddresses:
@@ -42,8 +44,6 @@ struct DestinationConstructor {
 //            }
 //        case .following(let name):
 //            ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
-//        case .nowGarden:
-//            GardenView(fetcher: addressBook.gardenFetcher)
 //        case .pastebin(let address):
 //            AddressPasteView(fetcher: addressBook.addressSummary(address).pasteFetcher)
 //        case .purls(let address):

@@ -119,7 +119,7 @@ extension NowListing: AllSortable {
     static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
-            .alphabet,
+            .shuffle,
             .newestFirst
         ]
     }

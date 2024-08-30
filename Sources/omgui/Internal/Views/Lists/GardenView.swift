@@ -13,7 +13,8 @@ struct GardenView: View {
     @Environment(\.horizontalSizeClass)
     var sizeClass
     
-    let fetcher: NowGardenDataFetcher
+    @ObservedObject
+    var fetcher: NowGardenDataFetcher
     
     @State
     var selected: String?

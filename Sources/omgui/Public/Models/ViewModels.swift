@@ -154,6 +154,8 @@ public struct AddressProfile: BlackbirdModel, Sendable {
 }
 
 public struct NowModel: BlackbirdModel, Sendable {
+    public static var ownerKey: BlackbirdColumnKeyPath { \.$id }
+    public static var dateKey: BlackbirdColumnKeyPath { \.$date }
     
     @BlackbirdColumn
     public var id: AddressName

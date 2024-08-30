@@ -38,6 +38,7 @@ class SceneModel {
     var cancellables: Set<AnyCancellable> = []
     
     let directoryFetcher: AddressDirectoryDataFetcher
+    let gardenFetcher: NowGardenDataFetcher
     let statusFetcher: StatusLogDataFetcher
     
     init(
@@ -51,6 +52,7 @@ class SceneModel {
         self.database = database
         
         self.directoryFetcher = .init(addressBook: addressBook, interface: interface, db: database)
+        self.gardenFetcher = .init(addressBook: addressBook, interface: interface, db: database)
         self.statusFetcher = .init(addressBook: addressBook, interface: interface, db: database)
         
         
