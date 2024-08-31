@@ -20,7 +20,7 @@ struct MyStatusesView: View {
     }
     
     var body: some View {
-        StatusList(fetcher: addressFetcher)
+        StatusList(fetcher: addressFetcher, filters: [.mine])
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     Button(action: toggleFilter) {

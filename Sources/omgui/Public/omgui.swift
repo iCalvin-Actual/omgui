@@ -175,7 +175,11 @@ public struct omgui: View {
     public init(client: ClientInfo, interface: DataInterface) {
         self.clientInfo = client
         self.dataInterface = interface
-        let database = try! Blackbird.Database.inMemoryDatabase()
+        let database = try! Blackbird.Database.inMemoryDatabase(options: [
+//            .debugPrintQueryParameterValues,
+//            .debugPrintCacheActivity,
+//            .debugPrintEveryQuery
+        ])
         self._database = StateObject(wrappedValue: database)
         self.accountAuthFetcher = .init(authKey: nil, client: client, interface: interface)
         self.accountAddressesFetcher = .init(credential: "", interface: interface)

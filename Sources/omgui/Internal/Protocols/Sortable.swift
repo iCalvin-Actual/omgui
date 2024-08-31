@@ -108,7 +108,7 @@ extension StatusModel: AllSortable {
     static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
-            .newestFirst
+            .newestFirst,
         ]
     }
 }
@@ -145,6 +145,7 @@ extension PURLModel: StringSortable {
     static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
+            .newestFirst,
             .alphabet
         ]
     }

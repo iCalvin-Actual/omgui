@@ -9,7 +9,8 @@ import Blackbird
 import Combine
 
 class BackedDataFetcher: Request {
-    let db: Blackbird.Database
+    @Published
+    var db: Blackbird.Database
     
     init(interface: DataInterface, db: Blackbird.Database, automation: AutomationPreferences = .init()) {
         self.db = db

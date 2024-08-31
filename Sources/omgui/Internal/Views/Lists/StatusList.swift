@@ -17,7 +17,7 @@ struct StatusList: View {
     @Environment(\.horizontalSizeClass)
     var sizeClass
     
-    let filters: [FilterOption] = []
+    let filters: [FilterOption]
     
     var menuBuilder: ContextMenuBuilder<StatusModel>?
     

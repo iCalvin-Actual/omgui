@@ -447,6 +447,7 @@ public struct AddressModel: BlackbirdListable, Identifiable, RawRepresentable, C
 
 public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
     public static var sortingKey: BlackbirdColumnKeyPath { \.$emoji }
+    static public var primaryKey: [BlackbirdColumnKeyPath] { [\.$id] }
     static public var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     static public var dateKey: BlackbirdColumnKeyPath { \.$date }
     static public var fullTextSearchableColumns: FullTextIndex {[

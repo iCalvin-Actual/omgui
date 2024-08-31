@@ -142,12 +142,7 @@ extension Filterable {
         switch filter {
         case .none:
             return true
-//        case .following:
-//            guard !addressBook.following.contains(addressName) else {
-//                return false
-//            }
         case .notBlocked:
-            // Check if address is blocked
             if scene.addressBook.isBlocked(addressName) {
                 return false
             }

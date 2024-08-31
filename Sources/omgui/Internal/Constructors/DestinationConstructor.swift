@@ -56,14 +56,17 @@ struct DestinationConstructor {
                     db: sceneModel.database
                 )
             )
+        case .statusLog(let address):
+            StatusList(
+                fetcher: sceneModel.addressSummary(address).statusFetcher,
+                filters: [FilterOption.fromOneOf([address])]
+            )
 //        case .addressStatuses:
 //            MyStatusesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
 //        case .addressPURLs:
 //            MyPURLsView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
 //        case .addressPastes:
 //            MyPastesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
-//        case .statusLog(let address):
-//            StatusList(fetcher: addressBook.addressSummary(address).statusFetcher)
 //        case .status(let address, id: let id):
 //            StatusView(fetcher: fetcher.statusFetcher(id, from: address))
 //        case .account:

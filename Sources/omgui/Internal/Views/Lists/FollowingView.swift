@@ -34,7 +34,8 @@ struct FollowingView: View {
                     addressBook: scene.addressBook,
                     interface: scene.interface,
                     db: scene.database
-                )
+                ),
+                filters: [.fromOneOf(scene.addressBook.following)]
             )
         } else {
             signedOutView
