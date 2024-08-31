@@ -75,6 +75,7 @@ class StatusDataFetcher: ModelBackedDataFetcher<StatusModel> {
         super.init(interface: interface, db: db)
     }
     
+    @MainActor
     override func fetchModels() async throws {
         result = try await StatusModel.read(from: db, id: id)
     }

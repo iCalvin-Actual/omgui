@@ -61,14 +61,14 @@ struct DestinationConstructor {
                 fetcher: sceneModel.addressSummary(address).statusFetcher,
                 filters: [FilterOption.fromOneOf([address])]
             )
+        case .status(let address, id: let id):
+            StatusView(fetcher: StatusDataFetcher(id: id, from: address, interface: sceneModel.interface, db: sceneModel.database))
 //        case .addressStatuses:
 //            MyStatusesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
 //        case .addressPURLs:
 //            MyPURLsView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
 //        case .addressPastes:
 //            MyPastesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
-//        case .status(let address, id: let id):
-//            StatusView(fetcher: fetcher.statusFetcher(id, from: address))
 //        case .account:
 //            AccountView(addressBook: addressBook, accountModel: accountModel)
 //        case .myStatuses:
@@ -91,20 +91,20 @@ struct DestinationConstructor {
 //                // Unauthorized
 //                EmptyView()
 //            }
-////        case .editWebpage(let name):
-////            if let poster = addressBook.profilePoster(for: name) {
-////                EditPageView(poster: poster)
-////            } else {
-////                // Unauthenticated
-////                EmptyView()
-////            }
-////        case .editNow(let name):
-////            if let poster = addressBook.nowPoster(for: name) {
-////                EditPageView(poster: poster)
-////            } else {
-////                // Unauthenticated
-////                EmptyView()
-////            }
+//        case .editWebpage(let name):
+//            if let poster = addressBook.profilePoster(for: name) {
+//                EditPageView(poster: poster)
+//            } else {
+//                // Unauthenticated
+//                EmptyView()
+//            }
+//        case .editNow(let name):
+//            if let poster = addressBook.nowPoster(for: name) {
+//                EditPageView(poster: poster)
+//            } else {
+//                // Unauthenticated
+//                EmptyView()
+//            }
 //        case .editStatus(let address, id: let id):
 //            if address == .autoUpdatingAddress && id.isEmpty {
 //                StatusDraftView(draftPoster: fetcher.draftStatusPoster(for: address, credential: accountModel.authKey))

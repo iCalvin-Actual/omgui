@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct StatusView: View {
-    let fetcher: StatusDataFetcher
+    @ObservedObject
+    var fetcher: StatusDataFetcher
+    
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
@@ -29,6 +31,11 @@ struct StatusView: View {
                         .padding()
                 } else if fetcher.loading {
                     LoadingView()
+                } else {
+                    LoadingView()
+                        .task { [fetcher] in
+                            await fetcher.updateIfNeeded(forceReload: true)
+                        }
                 }
                 if let items = fetcher.result?.imageLinks, !items.isEmpty {
                     imageSection(items)
