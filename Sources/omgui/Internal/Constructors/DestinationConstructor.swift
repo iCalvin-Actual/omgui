@@ -63,18 +63,32 @@ struct DestinationConstructor {
             )
         case .status(let address, id: let id):
             StatusView(fetcher: StatusDataFetcher(id: id, from: address, interface: sceneModel.interface, db: sceneModel.database))
+        case .account:
+            AccountView()
+//        case .following:
+//            FollowingView(addressBook)
+//        case .followingAddresses:
+//            if let fetcher = addressBook.followingFetcher {
+//                ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
+//            }
+//        case .followingStatuses:
+//            if let fetcher = addressBook.followingStatusLogFetcher {
+//                StatusList(fetcher: fetcher)
+//            }
+//        case .following(let name):
+//            ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
 //        case .addressStatuses:
 //            MyStatusesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
 //        case .addressPURLs:
 //            MyPURLsView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
 //        case .addressPastes:
 //            MyPastesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
-//        case .account:
-//            AccountView(addressBook: addressBook, accountModel: accountModel)
 //        case .myStatuses:
 //            MyStatusesView(singleAddress: false, addressBook: addressBook, accountModel: accountModel)
 //        case .myPURLs:
 //            MyPURLsView(singleAddress: false, addressBook: addressBook, accountModel: accountModel)
+//        case .myPastes:
+//            MyPastesView(singleAddress: false, addressBook: addressBook, accountModel: accountModel)
 //        case .editPURL(let address, title: let title):
 //            if let credential = accountModel.credential(for: address, in: addressBook) {
 //                NamedItemDraftView(fetcher: fetcher.draftPurlPoster(title, for: address, credential: credential))
@@ -82,8 +96,6 @@ struct DestinationConstructor {
 //                // Unauthorized
 //                EmptyView()
 //            }
-//        case .myPastes:
-//            MyPastesView(singleAddress: false, addressBook: addressBook, accountModel: accountModel)
 //        case .editPaste(let address, title: let title):
 //            if let credential = accountModel.credential(for: address, in: addressBook) {
 //                NamedItemDraftView(fetcher: fetcher.draftPastePoster(title, for: address, credential: credential))
@@ -114,18 +126,6 @@ struct DestinationConstructor {
 //                // Unauthenticated
 //                EmptyView()
 //            }
-            //        case .following:
-            //            FollowingView(addressBook)
-            //        case .followingAddresses:
-            //            if let fetcher = addressBook.followingFetcher {
-            //                ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher, rowBuilder: { _ in return nil as ListRow<AddressModel>? })
-            //            }
-            //        case .followingStatuses:
-            //            if let fetcher = addressBook.followingStatusLogFetcher {
-            //                StatusList(fetcher: fetcher)
-            //            }
-            //        case .following(let name):
-            //            ModelBackedListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: fetcher.followingFetcher(for: name, credential: accountModel.credential(for: name, in: addressBook)), rowBuilder: { _ in return nil as ListRow<AddressModel>? })
         default:
             EmptyView()
         }

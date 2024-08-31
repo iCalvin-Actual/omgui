@@ -11,7 +11,8 @@ struct AccountView: View {
     @SceneStorage("app.lol.address")
     var actingAddress: AddressName = ""
     
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme)
+    var colorScheme
     
     @Environment(SceneModel.self)
     var sceneModel
@@ -57,46 +58,46 @@ struct AccountView: View {
                     .padding()
                     .background(Color.lolPurple)
                     
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Group {
-                                Text("Already have an address on")
-                                +
-                                Text(" omg.lol")
-                                    .foregroundColor(.lolPink)
-                                +
-                                Text("?")
-                            }
-                            .bold()
-                            .multilineTextAlignment(.leading)
-                            .font(.title2)
-                            .fontDesign(.serif)
-                            .foregroundColor(.black)
-                            
-                            Spacer()
-                        }
-                        .frame(maxWidth: .infinity)
-                        
-                        HStack {
-                            Button {
-                                authFetcher.perform()
-                            } label: {
-                                Text("Sign in with omg.lol")
-                                    .bold()
-                                    .font(.callout)
-                                    .fontDesign(.serif)
-                                    .padding(3)
-                            }
-                            .accentColor(.lolPink)
-                            .buttonStyle(.borderedProminent)
-                            .buttonBorderShape(.roundedRectangle(radius: 6))
-                            Spacer()
-                        }
-                        .padding(.top, 4)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.lolBlue)
+//                    VStack(alignment: .leading) {
+//                        HStack {
+//                            Group {
+//                                Text("Already have an address on")
+//                                +
+//                                Text(" omg.lol")
+//                                    .foregroundColor(.lolPink)
+//                                +
+//                                Text("?")
+//                            }
+//                            .bold()
+//                            .multilineTextAlignment(.leading)
+//                            .font(.title2)
+//                            .fontDesign(.serif)
+//                            .foregroundColor(.black)
+//                            
+//                            Spacer()
+//                        }
+//                        .frame(maxWidth: .infinity)
+//                        
+//                        HStack {
+//                            Button {
+//                                authFetcher.perform()
+//                            } label: {
+//                                Text("Sign in with omg.lol")
+//                                    .bold()
+//                                    .font(.callout)
+//                                    .fontDesign(.serif)
+//                                    .padding(3)
+//                            }
+//                            .accentColor(.lolPink)
+//                            .buttonStyle(.borderedProminent)
+//                            .buttonBorderShape(.roundedRectangle(radius: 6))
+//                            Spacer()
+//                        }
+//                        .padding(.top, 4)
+//                    }
+//                    .frame(maxWidth: .infinity)
+//                    .padding()
+//                    .background(Color.lolBlue)
                     
                     
                     VStack(alignment: .leading) {

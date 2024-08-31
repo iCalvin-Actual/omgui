@@ -71,12 +71,12 @@ struct Sidebar: View {
 //        .safeAreaInset(edge: .bottom) {
 //            AddressPicker()
 //        }
-//        .safeAreaInset(edge: .top, content: {
+//        .safeAreaInset(edge: .bottom, content: {
 //            if !sceneModel.addressBook.signedIn {
 //                Button {
 //                    selected = .account
 //                } label: {
-//                    Text("more about omg.lol?")
+//                    Text("mor lol")
 //                        .font(.title3)
 //                        .bold()
 //                        .fontDesign(.serif)
