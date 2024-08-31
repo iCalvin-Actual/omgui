@@ -179,6 +179,8 @@ struct RemoteHTMLContentView: UIViewRepresentable {
     
     @Binding
     var activeURL: URL?
+    @Binding
+    var scrollEnabled: Bool
     
     func makeCoordinator() -> Coordinator {
         Coordinator(activeAddress: activeAddress) { url in
@@ -191,7 +193,7 @@ struct RemoteHTMLContentView: UIViewRepresentable {
         
         view.allowsLinkPreview = true
         view.allowsBackForwardNavigationGestures = true
-        view.scrollView.isScrollEnabled = false
+        view.scrollView.isScrollEnabled = scrollEnabled
         view.navigationDelegate = context.coordinator
         
         return view

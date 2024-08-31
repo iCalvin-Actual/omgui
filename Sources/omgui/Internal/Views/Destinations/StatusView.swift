@@ -114,7 +114,7 @@ struct StatusView: View {
                 
                 if item.content.scheme?.contains("http") ?? false {
                     ZStack {
-                        RemoteHTMLContentView(activeAddress: fetcher.address, startingURL: item.content, activeURL: $presentURL)
+                        RemoteHTMLContentView(activeAddress: fetcher.address, startingURL: item.content, activeURL: $presentURL, scrollEnabled: .constant(false))
                             
                         LinearGradient(
                             stops: [

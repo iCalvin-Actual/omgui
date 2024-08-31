@@ -44,10 +44,18 @@ struct DestinationConstructor {
                     db: sceneModel.database
                 )
             )
-//        case .purls(let address):
-//            AddressPURLsView(fetcher: addressBook.addressSummary(address).purlFetcher)
-//        case .purl(let address, title: let title):
-//            PURLView(fetcher: fetcher.addressPURLFetcher(address, title: title, credential: accountModel.credential(for: address, in: addressBook)))
+        case .purls(let address):
+            AddressPURLsView(fetcher: sceneModel.addressSummary(address).purlFetcher)
+        case .purl(let address, id: let title):
+            PURLView(
+                fetcher: AddressPURLDataFetcher(
+                    name: address,
+                    title: title,
+                    credential: sceneModel.addressBook.credential(for: address),
+                    interface: sceneModel.interface,
+                    db: sceneModel.database
+                )
+            )
 //        case .addressStatuses:
 //            MyStatusesView(singleAddress: true, addressBook: addressBook, accountModel: accountModel)
 //        case .addressPURLs:

@@ -38,7 +38,7 @@ enum Sort: String, Identifiable {
         case .shuffle:
             return .random(S.ownerKey)
         default:
-            return .ascending(S.ownerKey)
+            return .ascending(S.sortingKey)
         }
     }
 }
@@ -108,6 +108,7 @@ extension StatusModel: AllSortable {
     static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
+            .newestFirst
         ]
     }
 }

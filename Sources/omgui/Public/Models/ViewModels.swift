@@ -9,6 +9,7 @@ import Blackbird
 import Foundation
 
 protocol BlackbirdListable: BlackbirdModel {
+    static var sortingKey: BlackbirdColumnKeyPath { get }
     static var ownerKey: BlackbirdColumnKeyPath { get }
     static var dateKey: BlackbirdColumnKeyPath { get }
 }
@@ -89,6 +90,7 @@ public struct ThemeModel: Codable, Sendable {
 }
 
 struct AddressIconModel: BlackbirdListable {
+    static var sortingKey: BlackbirdColumnKeyPath { \.$owner }
     static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     static var dateKey: BlackbirdColumnKeyPath { \.$date }
     
@@ -154,6 +156,7 @@ public struct AddressProfile: BlackbirdModel, Sendable {
 }
 
 public struct NowModel: BlackbirdModel, Sendable {
+    public static var sortingKey: BlackbirdColumnKeyPath { ownerKey }
     public static var ownerKey: BlackbirdColumnKeyPath { \.$id }
     public static var dateKey: BlackbirdColumnKeyPath { \.$date }
     
@@ -213,6 +216,7 @@ public struct NowModel: BlackbirdModel, Sendable {
 }
 
 public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Codable, Sendable {
+    public static var sortingKey: BlackbirdColumnKeyPath { \.$name }
     public static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     public static var primaryKey: [BlackbirdColumnKeyPath] { [\.$owner, \.$name] }
     public static var dateKey: BlackbirdColumnKeyPath { \.$date }
@@ -284,6 +288,7 @@ public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Cod
 }
 
 public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Codable, Sendable {
+    public static var sortingKey: BlackbirdColumnKeyPath { \.$name }
     public static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     public static var primaryKey: [BlackbirdColumnKeyPath] { [\.$owner, \.$name] }
     public static var dateKey: BlackbirdColumnKeyPath { \.$date }
@@ -358,6 +363,7 @@ public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Coda
 }
 
 public struct NowListing: BlackbirdListable, Identifiable, Sendable {
+    public static var sortingKey: BlackbirdColumnKeyPath { ownerKey }
     public static var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     public static var dateKey: BlackbirdColumnKeyPath { \.$date }
     
@@ -393,6 +399,7 @@ public struct NowListing: BlackbirdListable, Identifiable, Sendable {
 }
 
 public struct AddressModel: BlackbirdListable, Identifiable, RawRepresentable, Codable, Sendable {
+    public static var sortingKey: BlackbirdColumnKeyPath { ownerKey }
     static public var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     static public var dateKey: BlackbirdColumnKeyPath { \.$date }
     
@@ -439,6 +446,7 @@ public struct AddressModel: BlackbirdListable, Identifiable, RawRepresentable, C
 }
 
 public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
+    public static var sortingKey: BlackbirdColumnKeyPath { \.$emoji }
     static public var ownerKey: BlackbirdColumnKeyPath { \.$owner }
     static public var dateKey: BlackbirdColumnKeyPath { \.$date }
     static public var fullTextSearchableColumns: FullTextIndex {[

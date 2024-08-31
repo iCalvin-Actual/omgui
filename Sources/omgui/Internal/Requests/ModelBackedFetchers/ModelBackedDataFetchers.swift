@@ -180,8 +180,9 @@ class AddressPURLDataFetcher: ModelBackedDataFetcher<PURLModel> {
 //        }
 //    }
     
+    @MainActor
     override func fetchModels() async throws {
-        self.result = try await PURLModel.read(from: db, id: title)
+        self.result = try await PURLModel.read(from: db, multicolumnPrimaryKey: [address, title])
     }
     
     override func fetchRemote() async throws {

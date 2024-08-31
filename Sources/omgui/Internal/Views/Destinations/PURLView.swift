@@ -18,7 +18,8 @@ struct PURLView: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
-    let fetcher: AddressPURLDataFetcher
+    @ObservedObject
+    var fetcher: AddressPURLDataFetcher
     
     @State
     var showDraft: Bool = false
@@ -29,14 +30,16 @@ struct PURLView: View {
     var presented: URL? = nil
     
     var body: some View {
-        LoadingView()
-//        content
-//            .toolbar {
-//                ToolbarItem(placement: .topBarLeading) {
-//                    if let name = fetcher.result?.name {
-//                        ThemedTextView(text: "/\(name)")
-//                    }
-//                }
+        content
+            .task { [fetcher] in
+                await fetcher.updateIfNeeded(forceReload: true)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if let name = fetcher.result?.name {
+                        ThemedTextView(text: "/\(name)")
+                    }
+                }
 ////                ToolbarItem(placement: .topBarTrailing) {
 ////                    if fetcher.draftPoster != nil {
 ////                        Menu {
@@ -77,36 +80,36 @@ struct PURLView: View {
 ////                        }
 ////                    }
 ////                }
-//                ToolbarItem(placement: .topBarTrailing) {
-//                    Menu {
-//                        if let content = fetcher.result?.content {
-//                            ShareLink(item: content)
-//                            Button(action: {
-//                                UIPasteboard.general.string = content
-//                            }, label: {
-//                                Label(
-//                                    title: { Text("Copy Content") },
-//                                    icon: { Image(systemName: "doc.on.doc") }
-//                                )
-//                            })
-//                        }
-//                        Divider()
-//                        if let shareItem = fetcher.result?.shareURLs.first {
-//                            ShareLink(shareItem.name, item: shareItem.content)
-//                            Button(action: {
-//                                UIPasteboard.general.string = shareItem.content.absoluteString
-//                            }, label: {
-//                                Label(
-//                                    title: { Text("Copy URL") },
-//                                    icon: { Image(systemName: "link") }
-//                                )
-//                            })
-//                        }
-//                    } label: {
-//                        Image(systemName: "square.and.arrow.up")
-//                    }
-//                }
-//            }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        if let content = fetcher.result?.content {
+                            ShareLink(item: content)
+                            Button(action: {
+                                UIPasteboard.general.string = content
+                            }, label: {
+                                Label(
+                                    title: { Text("Copy Content") },
+                                    icon: { Image(systemName: "doc.on.doc") }
+                                )
+                            })
+                        }
+                        Divider()
+                        if let shareItem = fetcher.result?.shareURLs.first {
+                            ShareLink(shareItem.name, item: shareItem.content)
+                            Button(action: {
+                                UIPasteboard.general.string = shareItem.content.absoluteString
+                            }, label: {
+                                Label(
+                                    title: { Text("Copy URL") },
+                                    icon: { Image(systemName: "link") }
+                                )
+                            })
+                        }
+                    } label: {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                }
+            }
 //            .onReceive(fetcher.$result, perform: { model in
 //                withAnimation {
 //                    let address = model?.addressName ?? ""
@@ -157,8 +160,8 @@ struct PURLView: View {
     
     @ViewBuilder
     var preview: some View {
-        if let content = fetcher.result?.content, !content.isEmpty {
-            HTMLContentView(activeAddress: fetcher.address, htmlContent: nil, baseURL: URL(string: content), activeURL: $presented)
+        if let content = fetcher.result?.content, let url = URL(string: content) {
+            RemoteHTMLContentView(activeAddress: fetcher.address, startingURL: url, activeURL: $presented, scrollEnabled: .constant(true))
         } else {
             Spacer()
         }
