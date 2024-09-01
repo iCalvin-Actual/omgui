@@ -23,6 +23,7 @@ class SidebarModel {
         case comingSoon
         case more
         case new
+        case app
         
         var displayName: String {
             switch self {
@@ -33,20 +34,15 @@ class SidebarModel {
             case .saved:        return "cache.app.lol"
             case .weblog:       return "blog.app.lol"
             case .comingSoon:   return "Coming Soon"
-            case .more:         return "/more"
+            case .more:         return "omg.lol"
             case .new:          return "New"
+            case .app:          return "app.lol"
             }
         }
     }
     
     var sections: [Section] {
-        var sections: [Section] = [.status, .directory, .now]
-        
-        if addressBook.signedIn {
-            sections.append(.more)
-        }
-        
-        return sections
+        [.status, .directory, .now, .more, .app]
     }
     
     let sceneModel: SceneModel
@@ -64,13 +60,16 @@ class SidebarModel {
     func items(for section: Section) -> [NavigationItem] {
         switch section {
             
+        case .more:
+            return [.account, .learn]
+            
         case .directory:
             var destinations: [NavigationItem] = [.search]
+            if addressBook.signedIn {
+                destinations.append(.following(.autoUpdatingAddress))
+            }
             if !addressBook.visibleBlocked.isEmpty {
                 destinations.append(.blocked)
-            }
-            if addressBook.signedIn {
-                destinations.insert(.following(.autoUpdatingAddress), at: 1)
             }
             destinations.append(
                 contentsOf: addressBook.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
@@ -88,9 +87,12 @@ class SidebarModel {
                 NavigationItem.community
             ]
             if addressBook.signedIn {
-                destinations.insert(contentsOf: [.newStatus, .following(.autoUpdatingAddress)], at: 0)
+                destinations.insert(contentsOf: [.following(.autoUpdatingAddress)], at: 0)
             }
             return destinations
+            
+        case .app:
+            return [.appLatest, .appSupport]
             
         default:
             return []

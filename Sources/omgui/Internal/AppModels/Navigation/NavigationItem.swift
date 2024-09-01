@@ -15,6 +15,10 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     case community
     case nowGarden
     case search
+    case lists
+    case learn
+    case appLatest
+    case appSupport
     
     case newPaste
     case newPURL
@@ -30,6 +34,11 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         case .community:                return "community"
         case .nowGarden:                return "garden"
         case .search:                   return "search"
+        case .lists:                    return "lists"
+        case .learn:                    return "about"
+            
+        case .appLatest:                 return "appNow"
+        case .appSupport:                return "appSupport"
         
         case .newStatus:                return "new status"
         case .newPURL:                  return "new PURL"
@@ -49,6 +58,9 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         case "community":   self = .community
         case "garden":      self = .nowGarden
         case "search":      self = .search
+        case "lists":       self = .lists
+        case "appNow":      self = .appLatest
+        case "appSupport":  self = .appSupport
             
         case "new status":
             self = .newStatus
@@ -81,10 +93,14 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         case .community:    return "/statuslog"
         case .nowGarden:    return "/nowGarden"
         case .search:       return "/search"
+        case .lists:        return "/lists"
+        case .learn:        return "/about"
+        case .appLatest:    return "/now"
+        case .appSupport:    return "/support"
             
         case .newStatus:    return "/new"
-        case .newPURL:      return "New PURL"
-        case .newPaste:     return "New Paste"
+        case .newPURL:      return "purl/new"
+        case .newPaste:     return "paste/new"
             
         case .following(let address):
             return (address == .autoUpdatingAddress ? "" : "\(address.addressDisplayString).") + "following"
@@ -109,6 +125,14 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return "pin"
         case .blocked:
             return "hand.raised"
+        case .lists:
+            return "person.crop.square.filled.and.at.rectangle"
+        case .learn:
+            return "book.closed"
+        case .appLatest:
+            return "app.badge"
+        case .appSupport:
+            return "questionmark.circle"
         case .newStatus, .newPURL, .newPaste:
             return "pencil.and.scribble"
         }
