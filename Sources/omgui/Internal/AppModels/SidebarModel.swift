@@ -44,15 +44,18 @@ class SidebarModel: ObservableObject {
     var tabs: [NavigationItem] {
         [
             .community,
-            .nowGarden,
             .search,
-            .lists,
-            .account
+            .nowGarden,
+            .lists
         ]
     }
     
     var sections: [Section] {
         [.status, .directory, .now, .more, .app]
+    }
+    
+    var sectionsForLists: [Section] {
+        [.more, .app]
     }
     
     let sceneModel: SceneModel
@@ -69,8 +72,6 @@ class SidebarModel: ObservableObject {
     
     func items(for section: Section) -> [NavigationItem] {
         switch section {
-        case .more:
-            return [.account, .learn]
             
         case .directory:
             var destinations: [NavigationItem] = []
@@ -102,6 +103,9 @@ class SidebarModel: ObservableObject {
             
         case .app:
             return [.appLatest, .appSupport]
+            
+        case .more:
+            return [.learn]
             
         default:
             return []

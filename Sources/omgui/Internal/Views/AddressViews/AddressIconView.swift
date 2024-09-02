@@ -7,6 +7,12 @@ struct AddressIconView: View {
     var sceneModel: SceneModel
     
     let address: AddressName
+    let size: CGFloat
+    
+    init(address: AddressName, size: CGFloat = 44.0) {
+        self.address = address
+        self.size = size
+    }
     
     var body: some View {
         AsyncImage(url: address.addressIconURL) { image in
@@ -21,7 +27,7 @@ struct AddressIconView: View {
                 Color.lolRandom(address)
             }
         }
-        .frame(width: 44, height: 44)
+        .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

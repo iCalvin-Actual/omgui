@@ -23,6 +23,8 @@ struct AccountView: View {
     var searchAddress: String = ""
     @State
     var presentUpsell: Bool = false
+    @State
+    var forceUpdateState: Bool = false
     
     var availabilityText: String {
         "Enter an address to check availability"
@@ -30,7 +32,7 @@ struct AccountView: View {
     
     var body: some View {
         NavigationStack {
-            if sceneModel.addressBook.signedIn {
+            if !(authFetcher.authKey?.wrappedValue ?? "").isEmpty {
                 AddressSummaryView(
                     selectedPage: .profile,
                     addressSummaryFetcher: sceneModel.addressSummary(sceneModel.addressBook.actingAddress)
@@ -58,46 +60,46 @@ struct AccountView: View {
                     .padding()
                     .background(Color.lolPurple)
                     
-//                    VStack(alignment: .leading) {
-//                        HStack {
-//                            Group {
-//                                Text("Already have an address on")
-//                                +
-//                                Text(" omg.lol")
-//                                    .foregroundColor(.lolPink)
-//                                +
-//                                Text("?")
-//                            }
-//                            .bold()
-//                            .multilineTextAlignment(.leading)
-//                            .font(.title2)
-//                            .fontDesign(.serif)
-//                            .foregroundColor(.black)
-//                            
-//                            Spacer()
-//                        }
-//                        .frame(maxWidth: .infinity)
-//                        
-//                        HStack {
-//                            Button {
-//                                authFetcher.perform()
-//                            } label: {
-//                                Text("Sign in with omg.lol")
-//                                    .bold()
-//                                    .font(.callout)
-//                                    .fontDesign(.serif)
-//                                    .padding(3)
-//                            }
-//                            .accentColor(.lolPink)
-//                            .buttonStyle(.borderedProminent)
-//                            .buttonBorderShape(.roundedRectangle(radius: 6))
-//                            Spacer()
-//                        }
-//                        .padding(.top, 4)
-//                    }
-//                    .frame(maxWidth: .infinity)
-//                    .padding()
-//                    .background(Color.lolBlue)
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Group {
+                                Text("Already have an address on")
+                                +
+                                Text(" omg.lol")
+                                    .foregroundColor(.lolPink)
+                                +
+                                Text("?")
+                            }
+                            .bold()
+                            .multilineTextAlignment(.leading)
+                            .font(.title2)
+                            .fontDesign(.serif)
+                            .foregroundColor(.black)
+                            
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity)
+                        
+                        HStack {
+                            Button {
+                                authFetcher.perform()
+                            } label: {
+                                Text("Sign in with omg.lol")
+                                    .bold()
+                                    .font(.callout)
+                                    .fontDesign(.serif)
+                                    .padding(3)
+                            }
+                            .accentColor(.lolPink)
+                            .buttonStyle(.borderedProminent)
+                            .buttonBorderShape(.roundedRectangle(radius: 6))
+                            Spacer()
+                        }
+                        .padding(.top, 4)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.lolBlue)
                     
                     
                     VStack(alignment: .leading) {
@@ -211,6 +213,9 @@ struct AccountView: View {
                 })
             }
         }
+        .onChange(of: actingAddress, { oldValue, newValue in
+            forceUpdateState.toggle()
+        })
         .navigationBarTitleDisplayMode(.inline)
         .environment(\.viewContext, ViewContext.detail)
         .sheet(isPresented: $presentUpsell) {

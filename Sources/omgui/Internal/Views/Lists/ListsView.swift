@@ -16,6 +16,8 @@ struct ListsView: View {
     
     @Environment(SceneModel.self)
     var sceneModel
+    @Environment(AccountAuthDataFetcher.self)
+    var accountFetcher
     
     init(sceneModel: SceneModel) {
         viewModel = .init(sceneModel: sceneModel)
@@ -25,11 +27,29 @@ struct ListsView: View {
         List(selection: $selected) {
             Section("Pinned") {
                 if viewModel.showPinned {
-                    ForEach(viewModel.pinned) { address in
-                        NavigationLink {
-                            sceneModel.destinationConstructor.destination(.address(address))
-                        } label: {
-                            NavigationItem.pinnedAddress(address).label
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(alignment: .top) {
+                            ForEach(viewModel.pinned) { address in
+                                NavigationLink {
+                                    sceneModel.destinationConstructor.destination(.address(address))
+                                } label: {
+                                    VStack(alignment: .leading) {
+                                        ZStack(alignment: .topLeading) {
+                                            AddressIconView(address: address, size: 80)
+                                                .padding(4)
+                                            Image(systemName: "pin.square.fill")
+                                                .font(.subheadline)
+                                        }
+                                        Text(address.addressDisplayString)
+                                            .font(.headline)
+                                            .fontDesign(.serif)
+                                            .multilineTextAlignment(.trailing)
+                                            .lineLimit(3)
+                                            .foregroundStyle(Color.primary)
+                                    }
+                                    .frame(width: 88)
+                                }
+                            }
                         }
                     }
                 } else {
@@ -43,7 +63,7 @@ struct ListsView: View {
             
             if sceneModel.addressBook.signedIn {
                 Section("Following") {
-                    if viewModel.showPinned {
+                    if viewModel.showFollowing {
                         ForEach(viewModel.following) { address in
                             NavigationLink {
                                 sceneModel.destinationConstructor.destination(.address(address))
@@ -76,24 +96,62 @@ struct ListsView: View {
                     Label(title: { Text("block content you don't want to see") }, icon: { Image(systemName: "person.slash")})
                 }
             }
+            
+            ForEach(viewModel.sidebarModel.sectionsForLists) { section in
+                Section(section.displayName) {
+                    ForEach(viewModel.sidebarModel.items(for: section)) { item in
+                        NavigationLink {
+                            sceneModel.destinationConstructor.destination(item.destination)
+                        } label: {
+                            item.label
+                        }
+                    }
+                }
+            }
+            
+            if sceneModel.addressBook.signedIn {
+                Button {
+                    Task { [accountFetcher] in
+                        accountFetcher.logout()
+                    }
+                } label: {
+                    Label {
+                        Text("Sign out")
+                    } icon: {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+            }
         }
-        .listStyle(.insetGrouped)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                HStack(spacing: 4) {
+                    LogoView()
+                        .frame(height: 34)
+                    ThemedTextView(text: "app.lol", font: .title)
+                }
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 @MainActor
 class ListsViewModel: ObservableObject {
-    let sceneModel: SceneModel
+    let sidebarModel: SidebarModel
     
     var showPinned: Bool { !pinned.isEmpty }
     var showFollowing: Bool { !following.isEmpty }
     var showBlocked: Bool { !blocked.isEmpty }
     
     init(sceneModel: SceneModel) {
-        self.sceneModel = sceneModel
+        self.sidebarModel = .init(sceneModel: sceneModel)
     }
     
+    var sceneModel: SceneModel {
+        sidebarModel.sceneModel
+    }
     var pinned: [AddressName] {
         sceneModel.addressBook.pinnedAddresses
     }

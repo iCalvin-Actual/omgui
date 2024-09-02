@@ -12,7 +12,10 @@ import SwiftUI
 
 class AddressSummaryDataFetcher: DataFetcher {
     
-    let addressName: AddressName
+    let addressBook: AddressBook
+    let database: Blackbird.Database
+    
+    var addressName: AddressName
     
     var verified: Bool?
     var url: URL?
@@ -38,18 +41,37 @@ class AddressSummaryDataFetcher: DataFetcher {
         interface: DataInterface,
         database: Blackbird.Database
     ) {
+        self.addressBook = addressBook
+        self.database = database
         self.addressName = name
+        let isMine = addressBook.myAddresses.contains(name)
+        let credential: APICredential? = isMine ? addressBook.apiKey : nil
         self.iconFetcher = .init(address: name, interface: interface, db: database)
-        self.profileFetcher = .init(name: name, credential: nil, interface: interface, db: database)
+        self.profileFetcher = .init(name: name, credential: credential, interface: interface, db: database)
         self.nowFetcher = .init(name: name, interface: interface, db: database)
-        self.purlFetcher = .init(name: name, credential: nil, addressBook: addressBook, interface: interface, db: database)
-        self.pasteFetcher = .init(name: name, credential: nil, addressBook: addressBook, interface: interface, db: database)
+        self.purlFetcher = .init(name: name, credential: credential, addressBook: addressBook, interface: interface, db: database)
+        self.pasteFetcher = .init(name: name, credential: credential, addressBook: addressBook, interface: interface, db: database)
         self.statusFetcher = .init(addresses: [name], addressBook: addressBook, interface: interface, db: database)
         self.bioFetcher = .init(address: name, interface: interface)
-        
-        self.followingFetcher = .init(address: name, credential: nil, interface: interface)
+        self.followingFetcher = .init(address: name, credential: credential, interface: interface)
         
         super.init(interface: interface)
+    }
+    
+    func configure(name: AddressName, _ automation: AutomationPreferences = .init()) {
+        self.addressName = name
+        
+        let credential: APICredential? = addressBook.apiKey
+        self.iconFetcher = .init(address: name, interface: interface, db: database)
+        self.profileFetcher = .init(name: name, credential: credential, interface: interface, db: database)
+        self.nowFetcher = .init(name: name, interface: interface, db: database)
+        self.purlFetcher = .init(name: name, credential: credential, addressBook: addressBook, interface: interface, db: database)
+        self.pasteFetcher = .init(name: name, credential: credential, addressBook: addressBook, interface: interface, db: database)
+        self.statusFetcher = .init(addresses: [name], addressBook: addressBook, interface: interface, db: database)
+        self.bioFetcher = .init(address: name, interface: interface)
+        self.followingFetcher = .init(address: name, credential: credential, interface: interface)
+        
+        super.configure(automation)
     }
     
     override func perform() async {

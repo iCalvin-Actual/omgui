@@ -18,5 +18,14 @@ struct DirectoryView: View {
             dataFetcher: fetcher,
             rowBuilder: { _ in return nil as ListRow<AddressModel>?}
         )
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                HStack(spacing: 4) {
+                    LogoView()
+                        .frame(height: 34)
+                    ThemedTextView(text: "app.lol", font: .title)
+                }
+            }
+        }
     }
 }

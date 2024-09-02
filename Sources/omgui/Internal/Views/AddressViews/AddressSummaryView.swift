@@ -34,7 +34,11 @@ struct AddressSummaryView: View {
     
     var body: some View {
         sizeAppropriateBody
-            .background(Color.lolBackground)
+            .onChange(of: sceneModel.addressBook.actingAddress) { oldValue, newValue in
+                if addressSummaryFetcher.addressName.isEmpty {
+                    addressSummaryFetcher.configure(name: newValue)
+                }
+            }
             .task { [addressSummaryFetcher] in
                 await addressSummaryFetcher.perform()
             }

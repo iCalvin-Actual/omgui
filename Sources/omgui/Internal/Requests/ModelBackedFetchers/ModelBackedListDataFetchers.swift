@@ -11,10 +11,6 @@ import SwiftUI
 
 
 class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
-    override var title: String {
-        "omg.lol"
-    }
-    
     override func fetchRemote() async throws {
         guard results.isEmpty else {
             return

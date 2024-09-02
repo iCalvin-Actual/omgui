@@ -172,14 +172,10 @@ public struct omgui: View {
     let globalBlocklistFetcher: AddressBlockListDataFetcher
     
     
-    public init(client: ClientInfo, interface: DataInterface) {
+    public init(client: ClientInfo, interface: DataInterface, dbDestination: String = "") {
         self.clientInfo = client
         self.dataInterface = interface
-        let database = try! Blackbird.Database.inMemoryDatabase(options: [
-//            .debugPrintQueryParameterValues,
-//            .debugPrintCacheActivity,
-//            .debugPrintEveryQuery
-        ])
+        let database = try! Blackbird.Database(path: dbDestination)
         self._database = StateObject(wrappedValue: database)
         self.accountAuthFetcher = .init(authKey: nil, client: client, interface: interface)
         self.accountAddressesFetcher = .init(credential: "", interface: interface)
@@ -200,10 +196,17 @@ public struct omgui: View {
                 db: database
             )
             .environment(\.blackbirdDatabase, database)
-            .onReceive(authKey.publisher, perform: { newValue in
+            .onChange(of: authKey, { oldValue, newValue in
                 print("Received auth key: \(newValue)")
-                self.accountAuthFetcher.configure($authKey)
-                self.accountAddressesFetcher.configure(credential: authKey)
+                if !oldValue.isEmpty && newValue.isEmpty {
+                    
+                } else if accountAuthFetcher.authKey == nil {
+                    accountAuthFetcher.configure($authKey)
+                }
+                accountAddressesFetcher.configure(credential: authKey)
+                Task { [accountAddressesFetcher] in
+                    await accountAddressesFetcher.updateIfNeeded(forceReload: true)
+                }
             })
             .onReceive(accountAddressesFetcher.results.publisher, perform: { _ in
                 accountAddressesFetcher.results.forEach { model in
@@ -224,6 +227,8 @@ public struct omgui: View {
         } else {
             LoadingView()
                 .task {
+                    self.accountAuthFetcher.configure($authKey)
+                    self.accountAddressesFetcher.configure(credential: authKey)
                     self.addressBook = .init(
                         authKey: authKey,
                         actingAddress: actingAddress,

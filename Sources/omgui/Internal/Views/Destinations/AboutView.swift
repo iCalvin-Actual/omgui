@@ -15,7 +15,7 @@ struct AboutView: View {
     @State var presented: URL?
     
     var body: some View {
-        RemoteHTMLContentView(activeAddress: sceneModel.addressBook.actingAddress, startingURL: URL(string: "https://home.omg.lol/info")!, activeURL: $presented, scrollEnabled: .constant(true))
+        RemoteHTMLContentView(activeAddress: sceneModel.addressBook.actingAddress, startingURL: URL(string: "https://home.omg.lol/referred-by/app")!, activeURL: $presented, scrollEnabled: .constant(true))
             .sheet(item: $presented, content: { url in
                 SafariView(url: url)
                     .presentationSizing(.page)

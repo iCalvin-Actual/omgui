@@ -25,7 +25,7 @@ struct HTMLFetcherView: View {
             baseURL: baseURL,
             activeURL: $presentedURL
         )
-        .ignoresSafeArea(.container, edges: .bottom)
+        .ignoresSafeArea(.container, edges: [.bottom])
         .safeAreaInset(edge: .bottom) {
             if let url = baseURL {
                 Link(destination: url) {
