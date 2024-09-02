@@ -15,6 +15,11 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     case community
     case directory
     case nowGarden
+    case lists
+    
+    case about
+    case latest
+    case support
     
     case saved      (_ feature: AppFeature)
     case comingSoon (_ feature: AppFeature)
@@ -45,6 +50,10 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         case .community:    return "community"
         case .directory:    return "directory"
         case .nowGarden:    return "garden"
+        case .lists:        return "lists"
+        case .about:        return "about"
+        case .latest:       return "latest"
+        case .support:      return "support"
             
         case .saved(let feature):       return "saved.\(feature.rawValue)"
         case .comingSoon(let feature):  return "coming.\(feature.rawValue)"
@@ -77,6 +86,10 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         case "community":   self = .community
         case "directory":   self = .directory
         case "garden":      self = .nowGarden
+        case "lists":       self = .lists
+        case "about":       self = .about
+        case "latest":      self = .latest
+        case "support":     self = .support
         case "following":
             guard splitString.count > 1, !splitString[1].isEmpty else {
                 self = .following(.autoUpdatingAddress)

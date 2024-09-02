@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-class SidebarModel {
+class SidebarModel: ObservableObject {
     enum Section: String, Identifiable {
         var id: String { rawValue }
         
@@ -41,6 +41,16 @@ class SidebarModel {
         }
     }
     
+    var tabs: [NavigationItem] {
+        [
+            .community,
+            .nowGarden,
+            .search,
+            .lists,
+            .account
+        ]
+    }
+    
     var sections: [Section] {
         [.status, .directory, .now, .more, .app]
     }
@@ -59,12 +69,11 @@ class SidebarModel {
     
     func items(for section: Section) -> [NavigationItem] {
         switch section {
-            
         case .more:
             return [.account, .learn]
             
         case .directory:
-            var destinations: [NavigationItem] = [.search]
+            var destinations: [NavigationItem] = []
             if addressBook.signedIn {
                 destinations.append(.following(.autoUpdatingAddress))
             }

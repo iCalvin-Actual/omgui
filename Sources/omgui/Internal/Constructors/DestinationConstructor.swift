@@ -65,6 +65,14 @@ struct DestinationConstructor {
             StatusView(fetcher: StatusDataFetcher(id: id, from: address, interface: sceneModel.interface, db: sceneModel.database))
         case .account:
             AccountView()
+        case .lists:
+            ListsView(sceneModel: sceneModel)
+        case .about:
+            AboutView()
+        case .latest:
+            AddressNowView(fetcher: sceneModel.addressSummary("app").nowFetcher)
+        case .support:
+            PasteView(fetcher: AddressPasteDataFetcher(name: "app", title: "support", interface: sceneModel.interface, db: sceneModel.database))
 //        case .following:
 //            FollowingView(addressBook)
 //        case .followingAddresses:

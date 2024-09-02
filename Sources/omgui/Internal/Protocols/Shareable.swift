@@ -77,6 +77,49 @@ extension AddressModel: Sharable {
     }
 }
 
+extension AddressProfile: Sharable {
+    var primaryCopy: CopyPacket? {
+        .init(name: "Name", content: owner)
+    }
+    var copyText: [CopyPacket] {
+        [
+            .init(name: "Webpage", content: "https://\(owner).omg.lol")
+        ]
+    }
+    
+    var primaryURL: SharePacket? {
+        guard !owner.isEmpty, let urlSafeAddress = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+            return nil
+        }
+        return .init(name: "Webpage", content: URL(string: "https://\(urlSafeAddress).omg.lol")!)
+    }
+    
+    var shareURLs: [SharePacket] {
+        return [
+        ]
+    }
+}
+
+extension NowModel: Sharable {
+    var primaryCopy: CopyPacket? {
+        .init(name: "/Now URL", content: "https://\(owner).omg.lol/now")
+    }
+    var copyText: [CopyPacket] {
+        [
+        ]
+    }
+    
+    var primaryURL: SharePacket? {
+        guard !owner.isEmpty, let urlSafeAddress = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+            return nil
+        }
+        return .init(name: "/Now page", content: URL(string: "https://\(urlSafeAddress).omg.lol/now")!)
+    }
+    var shareURLs: [SharePacket] {
+        []
+    }
+}
+
 extension NowListing: Sharable {
     var primaryCopy: CopyPacket? {
         .init(name: "/Now URL", content: url)

@@ -211,6 +211,7 @@ struct AccountView: View {
                 })
             }
         }
+        .navigationBarTitleDisplayMode(.inline)
         .environment(\.viewContext, ViewContext.detail)
         .sheet(isPresented: $presentUpsell) {
             UpsellView()

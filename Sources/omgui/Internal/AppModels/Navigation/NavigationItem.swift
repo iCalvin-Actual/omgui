@@ -112,13 +112,13 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     var iconName: String {
         switch self {
         case .account:
-            return "at"
+            return "person"
         case .search:
             return "magnifyingglass"
         case .nowGarden:
-            return "camera.macro"
+            return "sun.horizon"
         case .community:
-            return "globe"
+            return "bubble"
         case .following:
             return "person.2"
         case .pinnedAddress:
@@ -156,6 +156,14 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return .blocked
         case .newStatus:
             return .editStatus(.autoUpdatingAddress, id: "")
+        case .lists:
+            return .lists
+        case .learn:
+            return .about
+        case .appLatest:
+            return .latest
+        case .appSupport:
+            return .support
         default:
             return .account
         }

@@ -21,6 +21,8 @@ enum FilterOption: Equatable, RawRepresentable {
             return "fromOne.\(addresses.joined(separator: "."))"
         case .none:
             return ""
+        case .blocked:
+            return "blocked"
         case .notBlocked:
             return "notBlocked"
         case .mine:
@@ -60,6 +62,8 @@ enum FilterOption: Equatable, RawRepresentable {
             }
             let joined = Array(splitString.dropFirst())
             self = .fromOneOf(joined)
+        case "blocked":
+            self = .blocked
         case "notBlocked":
             self = .notBlocked
         case "mine":
@@ -76,6 +80,7 @@ enum FilterOption: Equatable, RawRepresentable {
     case none
     case mine
     case following
+    case blocked
     case notBlocked
     case from(AddressName)
     case fromOneOf([AddressName])
@@ -86,6 +91,7 @@ enum FilterOption: Equatable, RawRepresentable {
 extension Array<FilterOption> {
     static let none: Self               = []
     static let everyone: Self           = [.notBlocked]
+    static let blocked: Self            = [.blocked]
     static let today: Self              = [.recent(86400), .notBlocked]
     static let thisWeek: Self           = [.recent(604800), .notBlocked]
     static let followed: Self           = [.following, .notBlocked]
@@ -143,9 +149,9 @@ extension Filterable {
         case .none:
             return true
         case .notBlocked:
-            if scene.addressBook.isBlocked(addressName) {
-                return false
-            }
+            return !scene.addressBook.isBlocked(addressName)
+        case .blocked:
+            return scene.addressBook.isBlocked(addressName)
         case .from(let address):
             return addressName == address
         case .fromOneOf(let addresses):
@@ -200,6 +206,8 @@ extension FilterOption {
                 .valueIn(M.ownerKey, adderessBook.myAddresses)
         case .following:
             return .valueIn(M.ownerKey, adderessBook.following)
+        case .blocked:
+            return .valueIn(M.ownerKey, adderessBook.visibleBlocked)
         case .notBlocked:
             return .valueNotIn(M.ownerKey, adderessBook.appliedBlocked)
         case .from(let address):

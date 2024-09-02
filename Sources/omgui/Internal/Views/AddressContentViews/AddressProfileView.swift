@@ -33,6 +33,13 @@ struct AddressProfileView: View {
                 htmlContent: html,
                 baseURL: nil
             )
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if let url = fetcher.result?.shareURLs.first?.content {
+                        ShareLink(item: url)
+                    }
+                }
+            }
         } else {
             VStack {
                 if fetcher.loading {

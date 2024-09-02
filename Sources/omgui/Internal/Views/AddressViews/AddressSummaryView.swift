@@ -96,10 +96,8 @@ struct AddressSummaryView: View {
         VStack(spacing: 0) {
             addressHeader.padding()
             destinationPicker
-            VStack(spacing: 0) {
-                destination(selectedPage)
-                    .frame(maxHeight: expandBio ? 0 : .infinity)
-            }
+            destination(selectedPage)
+                .frame(maxHeight: expandBio ? 0 : .infinity)
         }
     }
     
@@ -107,7 +105,7 @@ struct AddressSummaryView: View {
     func destination(_ item: AddressContent? = nil) -> some View {
         let workingItem = item ?? .profile
         sceneModel.destinationConstructor.destination(workingItem.destination(addressSummaryFetcher.addressName))
-            .ignoresSafeArea(.container, edges: [.bottom, .leading, .trailing])
+            .ignoresSafeArea(.container, edges: [.bottom])
             .navigationSplitViewColumnWidth(min: 250, ideal: 600)
             .navigationBarTitleDisplayMode(.inline)
     }

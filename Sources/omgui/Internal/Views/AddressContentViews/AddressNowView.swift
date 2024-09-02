@@ -17,8 +17,10 @@ struct AddressNowView: View {
                 await fetcher.perform()
             }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    AddressNameView(fetcher.address, path: "now")
+                ToolbarItem(placement: .topBarTrailing) {
+                    if let url = fetcher.result?.shareURLs.first?.content {
+                        ShareLink(item: url)
+                    }
                 }
             }
     }
