@@ -152,6 +152,16 @@ struct PasteView: View {
     
     var body: some View {
         mainContent
+            .onChange(of: fetcher.address, {
+                Task { [fetcher] in
+                    await fetcher.updateIfNeeded(forceReload: true)
+                }
+            })
+            .onChange(of: fetcher.title, {
+                Task { [fetcher] in
+                    await fetcher.updateIfNeeded(forceReload: true)
+                }
+            })
             .task { [fetcher] in
                 await fetcher.updateIfNeeded(forceReload: true)
             }

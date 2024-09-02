@@ -14,6 +14,11 @@ struct AddressProfileView: View {
     
     var body: some View {
         htmlBody
+            .onChange(of: fetcher.addressName) {
+                Task { [fetcher] in
+                    await fetcher.updateIfNeeded(forceReload: true)
+                }
+            }
             .task { [fetcher] in
                 await fetcher.perform()
             }

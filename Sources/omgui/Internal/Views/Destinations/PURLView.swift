@@ -31,8 +31,20 @@ struct PURLView: View {
     
     var body: some View {
         content
-            .task { [fetcher] in
-                await fetcher.updateIfNeeded(forceReload: true)
+            .onChange(of: fetcher.address, {
+                Task { [fetcher] in
+                    await fetcher.updateIfNeeded(forceReload: true)
+                }
+            })
+            .onChange(of: fetcher.title, {
+                Task { [fetcher] in
+                    await fetcher.updateIfNeeded(forceReload: true)
+                }
+            })
+            .onAppear {
+                Task { [fetcher] in
+                    await fetcher.updateIfNeeded(forceReload: true)
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

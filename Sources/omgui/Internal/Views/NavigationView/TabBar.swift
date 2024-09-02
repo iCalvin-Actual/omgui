@@ -33,6 +33,11 @@ struct TabBar: View {
                 }
         } else {
             regularTabBar
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        LogoView()
+                    }
+                }
         }
     }
     

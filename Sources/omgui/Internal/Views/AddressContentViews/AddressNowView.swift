@@ -13,6 +13,11 @@ struct AddressNowView: View {
     
     var body: some View {
         htmlBody
+            .onChange(of: fetcher.address, {
+                Task { [fetcher] in
+                    await fetcher.updateIfNeeded(forceReload: true)
+                }
+            })
             .task { [fetcher] in
                 await fetcher.perform()
             }

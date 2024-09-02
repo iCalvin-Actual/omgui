@@ -48,6 +48,14 @@ struct StatusView: View {
                 Spacer()
             }
         }
+        .onChange(of: fetcher.id, {
+            Task { [fetcher] in
+                await fetcher.updateIfNeeded(forceReload: true)
+            }
+        })
+        .task { [fetcher] in
+            await fetcher.updateIfNeeded(forceReload: true)
+        }
         .sheet(item: $presentURL, content: { url in
             SafariView(url: url)
                 .ignoresSafeArea(.all, edges: .bottom)
