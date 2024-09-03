@@ -28,8 +28,10 @@ struct RootView: View {
     
     var body: some View {
         appropriateNavigation
-            .task { [addressBook] in
+            .task { @MainActor [statusFetcher = sceneModel.statusFetcher, addressBook] in
                 await addressBook.autoFetch()
+                try? await statusFetcher.fetchRemote()
+                try? await statusFetcher.fetchBacklog()
             }
             .environment(accountAuthDataFetcher)
             .environment(sceneModel)
@@ -37,11 +39,11 @@ struct RootView: View {
     
     @ViewBuilder
     var appropriateNavigation: some View {
-//        if horizontalSizeClass == .regular {
-//            SplitView()
-//        } else {
+        if #available(iOS 18.0, *) {
             TabBar(sceneModel: sceneModel)
-//        }
+        } else {
+            SplitView()
+        }
     }
 }
 

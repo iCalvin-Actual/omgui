@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "omgui",
     platforms: [
-        .iOS("18.0"),
+        .iOS("17.0"),
         .macOS("13.0"),
     ],
     products: [

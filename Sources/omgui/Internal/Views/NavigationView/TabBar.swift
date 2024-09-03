@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 18.0, *)
 struct TabBar: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
