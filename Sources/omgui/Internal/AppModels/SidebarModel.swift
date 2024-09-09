@@ -51,7 +51,7 @@ class SidebarModel: ObservableObject {
     }
     
     var sections: [Section] {
-        [.status, .directory, .now, .more, .app]
+        [.directory, .status, .now, .more, .app]
     }
     
     var sectionsForLists: [Section] {

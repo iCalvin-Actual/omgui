@@ -318,10 +318,12 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
     }
     
     override func fetchRemote() async throws {
+        defer {
+            nextPage = 0
+        }
         let db = db
         if addresses.isEmpty {
             let statuses = try await interface.fetchStatusLog()
-            print("check")
             statuses.forEach({ model in
                 Task {
                     try await model.write(to: db)

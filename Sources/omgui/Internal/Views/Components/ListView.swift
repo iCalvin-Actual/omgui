@@ -204,11 +204,17 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
         }
         .task { [dataFetcher] in
             dataFetcher.loading = true
-            await dataFetcher.updateIfNeeded(forceReload: true)
             dataFetcher.loaded = false
+            await dataFetcher.updateIfNeeded(forceReload: true)
+            dataFetcher.loading = false
+            dataFetcher.loaded = true
         }
         .refreshable(action: { [dataFetcher] in
+            dataFetcher.loading = true
+            dataFetcher.loaded = false
             await dataFetcher.updateIfNeeded(forceReload: true)
+            dataFetcher.loading = false
+            dataFetcher.loaded = true
         })
         .listStyle(.plain)
         .onAppear(perform: {

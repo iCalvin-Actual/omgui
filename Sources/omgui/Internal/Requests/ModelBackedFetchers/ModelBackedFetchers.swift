@@ -38,10 +38,6 @@ class ModelBackedDataFetcher<M: BlackbirdModel>: BackedDataFetcher {
     @Published
     var result: M?
     
-    override var requestNeeded: Bool {
-        result == nil
-    }
-    
     override var noContent: Bool {
         !loading && result != nil
     }
@@ -121,10 +117,6 @@ class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
             }
         }
         results = oldResults + nextResults
-    }
-    
-    override var requestNeeded: Bool {
-        results.isEmpty || !loaded
     }
     
     override var noContent: Bool {

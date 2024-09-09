@@ -26,7 +26,7 @@ class AddressProfileDataFetcher: ModelBackedDataFetcher<AddressProfile> {
     }
     
     override func fetchRemote() async throws {
-        guard !addressName.isEmpty, result == nil else {
+        guard !addressName.isEmpty else {
             return
         }
         let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
@@ -48,7 +48,7 @@ class AddressNowDataFetcher: ModelBackedDataFetcher<NowModel> {
     }
     
     override func fetchRemote() async throws {
-        guard !addressName.isEmpty, result == nil else {
+        guard !addressName.isEmpty, requestNeeded else {
             return
         }
         let now = try await interface.fetchAddressNow(addressName)
