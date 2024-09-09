@@ -9,6 +9,32 @@ import SwiftUI
 import Foundation
 
 extension Color {
+    static let lolBackground: Color =   .init("lolBackground", bundle: .module)
+    static let lolAccent: Color =       .init(hex: "e34199")
+    
+    static let lolPink: Color =         .init(hex: .hexPink)
+    static let lolOrange: Color =       .init(hex: .hexOrange)
+    static let lolYellow: Color =       .init(hex: .hexYellow)
+    static let lolGreen: Color =        .init(hex: .hexGreen)
+    static let lolTeal: Color =         .init(hex: .hexTeal)
+    static let lolBlue: Color =         .init(hex: .hexBlue)
+    static let lolPurple: Color =       .init(hex: .hexPurple)
+    
+    static var lolRandom: [Color] {
+        String.lolRandom.map({ Color(hex: $0) })
+    }
+    
+    static func lolRandom(_ input: String = .lolRandom.randomElement() ?? "000000") -> Color {
+        let hash = input.hashValue
+        let colors: [Color] = String.lolRandom.map({ .init(hex: $0) })
+        
+        let modValue = abs(hash % colors.endIndex)
+        
+        return colors[modValue]
+    }
+}
+
+extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
@@ -47,34 +73,13 @@ extension String {
     
     static var lolRandom: [String] {
         [
-            .hexGreen,
-            .hexYellow,
-            .hexTeal,
             .hexPink,
-            .hexPurple,
+            .hexOrange,
+            .hexYellow,
+            .hexGreen,
+            .hexTeal,
             .hexBlue,
-            .hexOrange
+            .hexPurple,
         ]
-    }
-}
-
-extension Color {
-    static let lolBackground: Color =   .init("lolBackground", bundle: .module)
-    static let lolGreen: Color =        .init(hex: .hexGreen)
-    static let lolYellow: Color =       .init(hex: .hexYellow)
-    static let lolTeal: Color =         .init(hex: .hexTeal)
-    static let lolPink: Color =         .init(hex: .hexPink)
-    static let lolPurple: Color =       .init(hex: .hexPurple)
-    static let lolBlue: Color =         .init(hex: .hexBlue)
-    static let lolOrange: Color =       .init(hex: .hexOrange)
-    static let lolAccent: Color =       .init(hex: "e34199")
-    
-    static func lolRandom(_ input: String = .lolRandom.randomElement() ?? "000000") -> Color {
-        let hash = input.hashValue
-        let colors: [Color] = String.lolRandom.map({ .init(hex: $0) })
-        
-        let modValue = abs(hash % colors.endIndex)
-        
-        return colors[modValue]
     }
 }

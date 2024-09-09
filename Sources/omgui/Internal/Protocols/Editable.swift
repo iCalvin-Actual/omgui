@@ -11,21 +11,3 @@ import SwiftUI
 protocol Editable: AddressManagable {
     var editingDestination: NavigationDestination { get }
 }
-
-extension PURLModel: Editable {
-    var editingDestination: NavigationDestination {
-        .editPURL(addressName, title: value)
-    }
-}
-
-extension PasteModel: Editable {
-    var editingDestination: NavigationDestination {
-        .editPaste(owner, title: name)
-    }
-}
-
-extension StatusModel: Editable {
-    var editingDestination: NavigationDestination {
-        .editStatus(address, id: id)
-    }
-}

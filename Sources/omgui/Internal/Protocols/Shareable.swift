@@ -8,7 +8,7 @@
 import CoreTransferable
 import Foundation
 
-struct SharePacket: Identifiable {
+struct SharePacket: Identifiable, Hashable {
     
     var id: String { [name, content.absoluteString].joined() }
     
@@ -77,6 +77,49 @@ extension AddressModel: Sharable {
     }
 }
 
+extension AddressProfile: Sharable {
+    var primaryCopy: CopyPacket? {
+        .init(name: "Name", content: owner)
+    }
+    var copyText: [CopyPacket] {
+        [
+            .init(name: "Webpage", content: "https://\(owner).omg.lol")
+        ]
+    }
+    
+    var primaryURL: SharePacket? {
+        guard !owner.isEmpty, let urlSafeAddress = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+            return nil
+        }
+        return .init(name: "Webpage", content: URL(string: "https://\(urlSafeAddress).omg.lol")!)
+    }
+    
+    var shareURLs: [SharePacket] {
+        return [
+        ]
+    }
+}
+
+extension NowModel: Sharable {
+    var primaryCopy: CopyPacket? {
+        .init(name: "/Now URL", content: "https://\(owner).omg.lol/now")
+    }
+    var copyText: [CopyPacket] {
+        [
+        ]
+    }
+    
+    var primaryURL: SharePacket? {
+        guard !owner.isEmpty, let urlSafeAddress = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+            return nil
+        }
+        return .init(name: "/Now page", content: URL(string: "https://\(urlSafeAddress).omg.lol/now")!)
+    }
+    var shareURLs: [SharePacket] {
+        []
+    }
+}
+
 extension NowListing: Sharable {
     var primaryCopy: CopyPacket? {
         .init(name: "/Now URL", content: url)
@@ -105,7 +148,7 @@ extension StatusModel: Sharable {
         [
             .init(name: "Emoji", content: displayEmoji),
             .init(name: "URL", content: urlString),
-            .init(name: "Address", content: address)
+            .init(name: "Address", content: owner)
         ]
     }
     
@@ -114,9 +157,9 @@ extension StatusModel: Sharable {
     }
     var shareURLs: [SharePacket] {
         [
-            .init(name: "StatusLog", content: URL(string: "https://\(address).status.lol")!),
-            .init(name: "Profile", content: URL(string: "https://\(address).omg.lol")!),
-            .init(name: "Now Page", content: URL(string: "https://\(address).omg.lol/now")!)
+            .init(name: "StatusLog", content: URL(string: "https://\(owner).status.lol")!),
+            .init(name: "Profile", content: URL(string: "https://\(owner).omg.lol")!),
+            .init(name: "Now Page", content: URL(string: "https://\(owner).omg.lol/now")!)
         ]
     }
 }
@@ -126,13 +169,13 @@ extension PURLModel: Sharable {
         .init(name: "Address", content: owner)
     }
     var primaryCopy: CopyPacket? {
-        guard let destination = destination else {
+        guard !content.isEmpty else {
             return address
         }
-        return .init(name: "Copy URL", content: destination)
+        return .init(name: "Copy URL", content: content)
     }
     var copyText: [CopyPacket] {
-        if destination == nil {
+        if content.isEmpty {
             return [
                 address
             ]
@@ -142,14 +185,14 @@ extension PURLModel: Sharable {
     }
     
     var primaryURL: SharePacket? {
-        guard let destination = destination, let url = URL(string: destination) else {
+        guard let url = URL(string: content) else {
             return nil
         }
         return .init(name: "URL", content: url)
     }
     var shareURLs: [SharePacket] {
         [
-            .init(name: "PURL", content: URL(string: "https://\(owner).url.lol/\(value)")!),
+            .init(name: "PURL", content: URL(string: "https://\(owner).url.lol/\(name)")!),
             .init(name: "Profile", content: URL(string: "https://\(owner).omg.lol")!)
         ]
     }
@@ -160,13 +203,13 @@ extension PasteModel: Sharable {
         .init(name: "Address", content: owner)
     }
     var primaryCopy: CopyPacket? {
-        guard let content = content else {
+        guard !content.isEmpty else {
             return address
         }
         return .init(name: "Copy Content", content: content)
     }
     var copyText: [CopyPacket] {
-        if content == nil {
+        if content.isEmpty {
             return [
                 .init(name: "Address", content: owner)
             ]

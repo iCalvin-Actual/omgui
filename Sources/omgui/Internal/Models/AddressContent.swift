@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-enum AddressContent: Identifiable, Codable {
+enum AddressContent: String, Identifiable {
+    
     var id: String { displayString }
     
     case profile
@@ -45,15 +46,6 @@ enum AddressContent: Identifiable, Codable {
         }
     }
     
-    var editText: String {
-        switch self {
-        case .profile, .now:
-            return "Edit"
-        default:
-            return "New"
-        }
-    }
-    
     var color: Color {
         switch self {
         case .profile:
@@ -81,21 +73,6 @@ enum AddressContent: Identifiable, Codable {
             return .pastebin(name)
         case .statuslog:
             return .statusLog(name)
-        }
-    }
-    
-    func editingDestination(_ name: AddressName) -> NavigationDestination {
-        switch self {
-        case .profile:
-            return .editWebpage(name)
-        case .now:
-            return .editNow(name)
-        case .pastebin:
-            return .editPaste(name, title: "")
-        case .purl:
-            return .editPURL(name, title: "")
-        case .statuslog:
-            return .editStatus(name, id: "")
         }
     }
 }

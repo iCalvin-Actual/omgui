@@ -9,44 +9,26 @@ import SwiftUI
 import Foundation
 
 protocol AddressManagable {
-    var addressToActOn: AddressName { get }
-}
-
-extension AddressModel: AddressManagable {
-    var addressToActOn: AddressName { name }
-}
-extension NowListing: AddressManagable {
-    var addressToActOn: AddressName { owner }
-}
-extension StatusModel: AddressManagable {
-    var addressToActOn: AddressName { address }
-}
-extension PURLModel: AddressManagable {
-    var addressToActOn: AddressName { owner }
-}
-extension PasteModel: AddressManagable {
-    var addressToActOn: AddressName { owner }
+    var owner: AddressName { get }
 }
 
 protocol Menuable {
     associatedtype M: View
     
     @MainActor
-    func contextMenu(in scene: SceneModel) -> M
+    func contextMenu(in scene: SceneModel, fetcher: Request?) -> M
 }
 
 @MainActor
 extension Menuable {
     @ViewBuilder
     func editingSection(in scene: SceneModel) -> some View {
-        if self is Editable, let name = (self as? Editable)?.addressToActOn, scene.addressBook.myAddresses.contains(name) {
-            Button(action: {
-                withAnimation {
-                    scene.editingModel = self as? Editable
-                }
-            }, label: {
-                Label("Edit", systemImage: "pencil.line")
-            })
+        if let editable = self as? Editable, scene.addressBook.myAddresses.contains(editable.owner) {
+            NavigationLink {
+                scene.destinationConstructor.destination(editable.editingDestination)
+            } label: {
+                Label("edit", systemImage: "pencil.line")
+            }
             Divider()
         }
     }
@@ -55,33 +37,36 @@ extension Menuable {
 @MainActor
 struct ContextMenuBuilder<T: Menuable> {
     @ViewBuilder
-    func contextMenu(for item: T, sceneModel: SceneModel) -> some View {
-        item.contextMenu(in: sceneModel)
+    func contextMenu(for item: T, fetcher: Request? = nil, sceneModel: SceneModel) -> some View {
+        item.contextMenu(in: sceneModel, fetcher: fetcher)
     }
 }
 
 extension AddressManagable where Self: Menuable {
     @MainActor
     @ViewBuilder
-    func manageSection(_ addressBook: AddressBook) -> some View {
-        let name = addressToActOn
-        let isBlocked = addressBook.isBlocked(name)
-        let isPinned = addressBook.isPinned(name)
-        let canFollow = addressBook.canFollow(name)
-        let canUnfollow = addressBook.canUnFollow(name)
+    func manageSection(_ scene: SceneModel, fetcher: Request?) -> some View {
+        let name = owner
+        let book = scene.addressBook
+        let isBlocked = book.isBlocked(name)
+        let isPinned = book.isPinned(name)
+        let canFollow = book.canFollow(name)
+        let canUnfollow = book.canUnFollow(name)
         if !isBlocked {
             if canFollow {
                 Button(action: {
-                    withAnimation {
-                        addressBook.follow(name)
+                    Task {
+                        await book.follow(name)
+                        await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
                     Label("Follow \(name.addressDisplayString)", systemImage: "plus.circle")
                 })
             } else if canUnfollow {
                 Button(action: {
-                    withAnimation {
-                        addressBook.unFollow(name)
+                    Task {
+                        await book.unFollow(name)
+                        await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
                     Label("Un-follow \(name.addressDisplayString)", systemImage: "minus.circle")
@@ -90,16 +75,18 @@ extension AddressManagable where Self: Menuable {
             
             if isPinned {
                 Button(action: {
-                    withAnimation {
-                        addressBook.removePin(name)
+                    Task { [book, fetcher] in
+                        await book.removePin(name)
+                        await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
                     Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
                 })
             } else {
                 Button(action: {
-                    withAnimation {
-                        addressBook.pin(name)
+                    Task { [book, fetcher] in
+                        await book.pin(name)
+                        await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
                     Label("Pin \(name.addressDisplayString)", systemImage: "pin")
@@ -110,8 +97,9 @@ extension AddressManagable where Self: Menuable {
             
             Menu {
                 Button(role: .destructive, action: {
-                    withAnimation {
-                        addressBook.block(name)
+                    Task {
+                        await book.block(name)
+                        await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
                     Label("Block", systemImage: "eye.slash.circle")
@@ -122,10 +110,11 @@ extension AddressManagable where Self: Menuable {
                 Label("Safety", systemImage: "hand.raised")
             }
         } else {
-            if addressBook.canUnblock(name) {
+            if book.canUnblock(name) {
                 Button(action: {
-                    withAnimation {
-                        addressBook.unblock(name)
+                    Task { [book, fetcher] in
+                        await book.unblock(name)
+                        await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
                     Label("Un-block", systemImage: "eye.circle")
@@ -187,76 +176,58 @@ extension Listable where Self: Menuable {
     }
 }
 
-extension NavigationItem: Menuable {
-    @ViewBuilder
-    func contextMenu(in scene: SceneModel) -> some View {
-        switch self {
-        case .pinnedAddress(let name):
-            Button(action: {
-                Task { @MainActor in
-                    scene.addressBook.removePin(name)
-                }
-            }, label: {
-                Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
-            })
-        default:
-            EmptyView()
-        }
-    }
-}
-
 extension AddressModel: Menuable {
     @ViewBuilder
     @MainActor
-    func contextMenu(in scene: SceneModel) -> some View {
+    func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
         Group {
             self.shareSection()
             self.editingSection(in: scene)
-            self.manageSection(scene.addressBook)
+            self.manageSection(scene, fetcher: fetcher)
         }
     }
 }
 
 extension NowListing: Menuable {
     @ViewBuilder
-    func contextMenu(in scene: SceneModel) -> some View {
+    func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
         Group {
             self.shareSection()
             self.editingSection(in: scene)
-            self.manageSection(scene.addressBook)
+            self.manageSection(scene, fetcher: fetcher)
         }
     }
 }
 
 extension PURLModel: Menuable {
     @ViewBuilder
-    func contextMenu(in scene: SceneModel) -> some View {
+    func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
         Group {
             self.shareSection()
             self.editingSection(in: scene)
-            self.manageSection(scene.addressBook)
+            self.manageSection(scene, fetcher: fetcher)
         }
     }
 }
 
 extension PasteModel: Menuable {
     @ViewBuilder
-    func contextMenu(in scene: SceneModel) -> some View {
+    func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
         Group {
             self.shareSection()
             self.editingSection(in: scene)
-            self.manageSection(scene.addressBook)
+            self.manageSection(scene, fetcher: fetcher)
         }
     }
 }
 
 extension StatusModel: Menuable {
     @ViewBuilder
-    func contextMenu(in scene: SceneModel) -> some View {
+    func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
         Group {
             self.shareSection()
             self.editingSection(in: scene)
-            self.manageSection(scene.addressBook)
+            self.manageSection(scene, fetcher: fetcher)
         }
     }
 }

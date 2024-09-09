@@ -9,3 +9,4 @@ import Foundation
 
 public typealias APICredential = String
 public typealias AddressName = String
+

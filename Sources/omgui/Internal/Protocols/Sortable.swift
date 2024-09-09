@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 3/5/23.
 //
 
+import Blackbird
 import SwiftUI
 
 enum Sort: String, Identifiable {
@@ -25,6 +26,19 @@ enum Sort: String, Identifiable {
             return "Oldest First"
         case .shuffle:
             return "Shuffle"
+        }
+    }
+    
+    func asClause<S: ModelBackedListable>() -> BlackbirdModelOrderClause<S> {
+        switch self {
+        case .newestFirst:
+            return .descending(S.dateKey)
+        case .oldestFirst:
+            return .ascending(S.dateKey)
+        case .shuffle:
+            return .random(S.ownerKey)
+        default:
+            return .ascending(S.sortingKey)
         }
     }
 }
@@ -75,38 +89,38 @@ extension Array where Element: Sortable {
 }
 
 extension AddressModel: AllSortable {
-    var primarySortValue: String { name }
-    var dateValue: Date? { registered }
+    var primarySortValue: String { addressName }
+    var dateValue: Date? { date }
     
-    static var defaultSort: Sort = .alphabet
+    static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
-            .alphabet
+            .alphabet,
+            .shuffle
         ]
     }
 }
 
 extension StatusModel: AllSortable {
-    var primarySortValue: String { address }
-    var dateValue: Date? { posted }
+    var primarySortValue: String { displayEmoji }
+    var dateValue: Date? { date }
     
-    static var defaultSort: Sort = .newestFirst
+    static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
             .newestFirst,
-            .oldestFirst
         ]
     }
 }
 
 extension NowListing: AllSortable {
     var primarySortValue: String { owner }
-    var dateValue: Date? { updated }
+    var dateValue: Date? { date }
     
-    static var defaultSort: Sort = .newestFirst
+    static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
-            .alphabet,
+            .shuffle,
             .newestFirst
         ]
     }
@@ -114,21 +128,24 @@ extension NowListing: AllSortable {
 
 extension PasteModel: StringSortable {
     var primarySortValue: String { name }
+    var dateValue: Date? { date }
     
-    static var defaultSort: Sort = .alphabet
+    static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
+            .newestFirst,
             .alphabet
         ]
     }
 }
 
 extension PURLModel: StringSortable {
-    var primarySortValue: String { value }
+    var primarySortValue: String { name }
     
-    static var defaultSort: Sort = .alphabet
+    static let defaultSort: Sort = .alphabet
     static var sortOptions: [Sort] {
         [
+            .newestFirst,
             .alphabet
         ]
     }
