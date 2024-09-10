@@ -12,7 +12,7 @@ struct AddressPastesView: View {
     var fetcher: AddressPasteBinDataFetcher
     
     var body: some View {
-        ModelBackedListView<PasteModel, PasteRowView, EmptyView>(
+        ListView<PasteModel, PasteRowView, EmptyView>(
             filters: .everyone,
             dataFetcher: fetcher,
             rowBuilder: { PasteRowView(model: $0) }

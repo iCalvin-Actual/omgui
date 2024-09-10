@@ -22,7 +22,7 @@ struct MyPastesView: View {
     }
     
     var body: some View {
-        ModelBackedListView<PasteModel, PasteRowView, EmptyView>(dataFetcher: addressFetcher, rowBuilder: { .init(model: $0) })
+        ListView<PasteModel, PasteRowView, EmptyView>(dataFetcher: addressFetcher, rowBuilder: { .init(model: $0) })
             .safeAreaInset(edge: .bottom, content: {
                 HStack {
                     if !singleAddressMode {

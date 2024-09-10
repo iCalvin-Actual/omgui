@@ -8,67 +8,13 @@
 import SwiftUI
 
 struct GardenView: View {
-    @Environment(SceneModel.self)
-    var sceneModel: SceneModel
-    @Environment(\.horizontalSizeClass)
-    var sizeClass
     
     @ObservedObject
     var fetcher: NowGardenDataFetcher
     
-    @State
-    var selected: String?
-    @State
-    var queryString: String = ""
-    @State
-    var sort: Sort = .newestFirst
-    
-    var menuBuilder: ContextMenuBuilder<NowListing>?
-    
     var body: some View {
-        ModelBackedListView<NowListing, GardenItemView, EmptyView>(dataFetcher: fetcher, rowBuilder: { GardenItemView(model: $0) })
+        ListView<NowListing, GardenItemView, EmptyView>(dataFetcher: fetcher, rowBuilder: { GardenItemView(model: $0) })
             .toolbarRole(.editor)
-    }
-    
-    @ViewBuilder
-    var sizeAppropriateBody: some View {
-        switch sizeClass {
-        case .compact:
-            listBody
-        default:
-            wideBody
-        }
-    }
-    
-    @ViewBuilder
-    var wideBody: some View {
-        HStack {
-            listBody
-                .frame(width: 330)
-                .clipped()
-            selectedContent
-                .frame(maxWidth: .infinity)
-        }
-    }
-    
-    @ViewBuilder
-    var selectedContent: some View {
-        if let selected = selected {
-            AddressNowView(
-                fetcher: AddressNowDataFetcher(
-                    name: selected,
-                    interface: sceneModel.interface,
-                    db: sceneModel.database
-                )
-            )
-        } else {
-            ThemedTextView(text: "select a /now page")
-        }
-    }
-    
-    @ViewBuilder
-    var listBody: some View {
-        ModelBackedListView<NowListing, GardenItemView, EmptyView>(dataFetcher: fetcher, rowBuilder: { GardenItemView(model: $0) })
     }
 }
 

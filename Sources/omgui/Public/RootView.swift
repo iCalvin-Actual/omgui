@@ -30,7 +30,9 @@ struct RootView: View {
             .task { @MainActor [statusFetcher = sceneModel.statusFetcher, addressBook] in
                 await addressBook.autoFetch()
                 try? await statusFetcher.fetchRemote()
-                try? await statusFetcher.fetchBacklog()
+                Task { [statusFetcher] in
+                    try? await statusFetcher.fetchBacklog()
+                }
             }
             .environment(accountAuthDataFetcher)
             .environment(sceneModel)

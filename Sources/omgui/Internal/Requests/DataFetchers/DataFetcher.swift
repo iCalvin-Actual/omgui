@@ -17,21 +17,71 @@ class DataFetcher: Request {
     }
 }
 
-class ListDataFetcher<T: Listable>: DataFetcher {
+class ListFetcher<T: Listable>: Request {
+    static var isModelBacked: Bool {
+        T.self is any BlackbirdListable.Type
+    }
     
     @Published
     var results: [T] = []
     
+    var items: Int { results.count }
     var title: String { "" }
     
-    init(items: [T] = [], interface: DataInterface, automation: AutomationPreferences = .init()) {
+    let limit: Int
+    var nextPage: Int? = 0
+    
+    var filters: [FilterOption] {
+        didSet {
+            results = []
+            nextPage = 0
+        }
+    }
+    var sort: Sort {
+        didSet {
+            results = []
+            nextPage = 0
+        }
+    }
+    
+    init(items: [T] = [], interface: DataInterface, limit: Int = 42, filters: [FilterOption] = .everyone, sort: Sort = T.defaultSort, automation: AutomationPreferences = .init()) {
         self.results = items
-        super.init(interface: interface)
+        self.limit = limit
+        self.filters = filters
+        self.sort = sort
+        super.init(interface: interface, automation: automation)
         self.loaded = items.isEmpty
     }
     
+    var summaryString: String? {
+        "Loading"
+    }
+    
+    override func updateIfNeeded(forceReload: Bool = false) async {
+        guard forceReload || (loading && requestNeeded) else {
+            return
+        }
+        nextPage = Self.isModelBacked ? 0 : nil
+        await perform()
+    }
+    
     override var noContent: Bool {
-        (!loaded && !loading) && results.isEmpty
+        !loading && !results.isEmpty
+    }
+    
+    @MainActor
+    func fetchNextPageIfNeeded() {
+    }
+}
+
+class DataBackedListDataFetcher<T: Listable>: ListFetcher<T> {
+    
+    init(items: [T] = [], interface: DataInterface, automation: AutomationPreferences = .init()) {
+        
+        super.init(items: items, interface: interface, automation: automation)
+        
+        self.results = items
+        self.loaded = items.isEmpty
     }
     
     override var summaryString: String? {
@@ -41,8 +91,6 @@ class ListDataFetcher<T: Listable>: DataFetcher {
         }
         return "\(items)"
     }
-    
-    var items: Int { results.count }
 }
 
 class AccountInfoDataFetcher: DataFetcher {

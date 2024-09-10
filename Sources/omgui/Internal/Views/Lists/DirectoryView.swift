@@ -13,7 +13,7 @@ struct DirectoryView: View {
     let fetcher: AddressDirectoryDataFetcher
     
     var body: some View {
-        ModelBackedListView<AddressModel, ListRow, EmptyView>(
+        ListView<AddressModel, ListRow, EmptyView>(
             filters: .everyone,
             dataFetcher: fetcher,
             rowBuilder: { _ in return nil as ListRow<AddressModel>?}
@@ -32,6 +32,8 @@ struct DirectoryView: View {
 
 #Preview {
     let sceneModel = SceneModel.sample
+    let accountAuthFetcher = AccountAuthDataFetcher(authKey: nil, client: .sample, interface: SampleData())
     DirectoryView(fetcher: .init(addressBook: sceneModel.addressBook, interface: sceneModel.interface, db: sceneModel.database))
         .environment(sceneModel)
+        .environment(accountAuthFetcher)
 }
