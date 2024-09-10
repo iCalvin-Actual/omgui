@@ -30,3 +30,10 @@ struct StatusList: View {
         .toolbarRole(.editor)
     }
 }
+
+#Preview {
+    let sceneModel = SceneModel.sample
+    
+    StatusList(fetcher: .init(addressBook: sceneModel.addressBook, interface: sceneModel.interface, db: sceneModel.database), filters: .everyone)
+        .environment(sceneModel)
+}

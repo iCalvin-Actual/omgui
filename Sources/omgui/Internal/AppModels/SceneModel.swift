@@ -110,3 +110,24 @@ extension SceneModel {
         }
     }
 }
+
+extension SceneModel {
+    static var sample: SceneModel {
+        let db = try! Blackbird.Database.inMemoryDatabase()
+        let interface = SampleData()
+        let credential = ""
+        let actingAddress = ""
+        let book = AddressBook(
+            authKey: credential,
+            actingAddress: actingAddress,
+            accountAddressesFetcher: .init(credential: credential, interface: interface),
+            globalBlocklistFetcher: .init(address: "app", credential: credential, interface: interface),
+            localBlocklistFetcher: .init(interface: interface),
+            addressBlocklistFetcher: .init(address: actingAddress, credential: credential, interface: interface),
+            addressFollowingFetcher: .init(address: actingAddress, credential: credential, interface: interface),
+            pinnedAddressFetcher: .init(interface: interface)
+        )
+        
+        return SceneModel(addressBook: book, interface: SampleData(), database: db)
+    }
+}

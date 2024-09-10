@@ -26,21 +26,27 @@ struct StatusRowView: View {
     @Environment(\.viewContext)
     var context: ViewContext
     
+    
+    let cardColor: Color
+    let cardPadding: CGFloat
+    let cardradius: CGFloat
+    let showSelection: Bool
+    
+    init(model: StatusModel, cardColor: Color? = nil, cardPadding: CGFloat = 8, cardradius: CGFloat = 4, showSelection: Bool = false) {
+        self.model = model
+        self.cardColor = cardColor ?? .lolRandom(model.displayEmoji)
+        self.cardPadding = cardPadding
+        self.cardradius = cardradius
+        self.showSelection = showSelection
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             buttonIfNeeded
             
             rowBody
+                .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
                 .padding(.bottom, 2)
-                .asCard(backgroundColor: .lolRandom(model.displayEmoji), radius: 6)
-        
-            if let caption = model.listCaption {
-                Text(caption)
-                    .frame(alignment: .trailing)
-                    .font(.system(size: 10))
-                    .foregroundStyle(Color.gray)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-            }
         
             if let text = model.link?.absoluteString {
                 Button(action: {
@@ -83,7 +89,7 @@ struct StatusRowView: View {
     
     @ViewBuilder
     var rowBody: some View {
-        Group {
+        VStack(alignment: .leading, spacing: 2) {
             /*
              This was tricky to set up
              so I'm leaving it here
@@ -99,6 +105,12 @@ struct StatusRowView: View {
                 .environment(\.colorScheme, .light)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .foregroundColor(.black)
+            if let caption = model.listCaption {
+                Text(caption)
+                    .frame(alignment: .trailing)
+                    .font(.caption2)
+                    .foregroundStyle(Color.gray)
+            }
         }
         .lineLimit(context == .column ? 5 : nil)
         .multilineTextAlignment(.leading)
@@ -131,34 +143,49 @@ struct StatusRowView: View {
     var headerContent: some View {
         HStack(alignment: .bottom) {
             if context != .profile {
-                if context != .profile {
-                    Menu {
-                        AddressModel(name: model.address).contextMenu(in: sceneModel)
-                    } label: {
-                        AsyncImage(url: model.address.addressIconURL) { image in
-                            image.resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Color.lolRandom(model.address)
-                        }
-                        .frame(width: 42, height: 42)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .padding(.vertical, 4)
+                Menu {
+                    AddressModel(name: model.address).contextMenu(in: sceneModel)
+                } label: {
+                    AsyncImage(url: model.address.addressIconURL) { image in
+                        image.resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Color.lolRandom(model.address)
                     }
+                    .frame(width: 42, height: 42)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .padding(.vertical, 4)
                 }
-                HStack(alignment: .lastTextBaseline) {
-                    Text(model.displayEmoji)
-                        .font(.system(size: 42))
-                    Spacer()
-                    AddressNameView(model.address, font: .title3)
+            }
+            HStack(alignment: .lastTextBaseline) {
+                Text(model.displayEmoji)
+                    .font(.system(size: 42))
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    AddressNameView(model.address, font: .title2)
                         .multilineTextAlignment(.trailing)
                         .lineLimit(3)
                         .foregroundColor(.black)
-                        .padding(.vertical, 4)
                 }
-                .padding(.horizontal, 2)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.vertical, 4)
             }
+            .padding(.horizontal, 2)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
+}
+
+#Preview {
+    VStack {
+        Spacer()
+        StatusRowView(model: .sample(with: "app"))
+            .environment(\.viewContext, ViewContext.column)
+        StatusRowView(model: .sample(with: "alexcox"))
+            .environment(\.viewContext, ViewContext.profile)
+        StatusRowView(model: .sample(with: "app"))
+            .environment(\.viewContext, ViewContext.detail)
+        Spacer()
+    }
+    .environment(SceneModel.sample)
+    .padding(.horizontal)
 }

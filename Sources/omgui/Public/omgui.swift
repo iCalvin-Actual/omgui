@@ -188,10 +188,9 @@ public struct omgui: View {
     var sceneModel: SceneModel?
     
     public var body: some View {
-        if let addressBook, let sceneModel {
+        if addressBook != nil, let sceneModel {
             RootView(
                 sceneModel: sceneModel,
-                addressBook: addressBook,
                 accountAuthDataFetcher: accountAuthFetcher,
                 db: database
             )

@@ -13,6 +13,8 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
     var sizeClass
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
+    @Environment(AccountAuthDataFetcher.self)
+    var authFetcher: AccountAuthDataFetcher
     
     @Environment(\.viewContext)
     var context: ViewContext
@@ -274,9 +276,6 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
             .tag(item)
             .listRowSeparator(.hidden, edges: .all)
             .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .contextMenu(menuItems: {
-                self.menuBuilder.contextMenu(for: item, fetcher: dataFetcher, sceneModel: sceneModel)
-            })
     }
     
     @ViewBuilder
@@ -323,7 +322,14 @@ struct ModelBackedListView<T: ModelBackedListable, V: View, H: View>: View {
         if let constructedView = rowBuilder(item) {
             constructedView
         } else {
-            ListRow<T>(model: item)
+            ListRow(model: item, selected: $selected)
+                .contextMenu(menuItems: {
+                    self.menuBuilder.contextMenu(for: item, fetcher: dataFetcher, sceneModel: sceneModel)
+                }) {
+                    sceneModel.destinationConstructor.destination(destination(for: item))
+                        .environment(sceneModel)
+                        .environment(authFetcher)
+                }
         }
     }
 }

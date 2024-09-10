@@ -135,7 +135,7 @@ public final class SampleData: DataInterface {
 
     public func fetchAddressStatus(_ id: String, from address: AddressName) async throws -> StatusModel? {
         try await Task.sleep(nanoseconds: artificalDelay)
-        return StatusModel.sample(with: address, id: id)
+        return StatusModel.sampleWithLinks(with: address, id: id)
     }
 
     // MARK: Account
@@ -375,7 +375,7 @@ extension String {
     }
 }
 
-fileprivate extension AddressModel {
+extension AddressModel {
     static func sample(with address: AddressName) -> AddressModel {
         .init(
             name: address,
@@ -386,7 +386,13 @@ fileprivate extension AddressModel {
     }
 }
 
-fileprivate extension NowModel {
+extension NowListing {
+    static func sample(with address: AddressName) -> NowListing {
+        .init(owner: address, url: "https://\(address).omg.lol/now", date: Date())
+    }
+}
+
+extension NowModel {
     static func sample(with address: AddressName) -> NowModel {
         .init(
             owner: address,
@@ -397,7 +403,7 @@ fileprivate extension NowModel {
     }
 }
 
-fileprivate extension PURLModel {
+extension PURLModel {
     static func sample(with address: AddressName) -> PURLModel {
         let contentItems = ["https://daringfireball.net", "https://atp.fm", "https://relay.fm"]
         let content = contentItems.randomElement()!
@@ -410,7 +416,7 @@ fileprivate extension PURLModel {
     }
 }
 
-fileprivate extension PasteModel {
+extension PasteModel {
     static func blocked(with address: AddressName) -> PasteModel {
         let content = """
 appstoreappreview
@@ -443,9 +449,25 @@ calvin
     }
 }
 
-fileprivate extension StatusModel {
+extension StatusModel {
     static func sample(with address: AddressName, id: String? = nil) -> StatusModel {
         let contentItems = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat", " Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.", "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."]
+        let emojiItems = ["🙈", "🤷", "😘", "🤣", "😅", "🦖", "🤓", "🙃", "✨", "🎉", "🤔", "😍", "🙊", "😉", "🖤", "🤩"]
+        let content = contentItems.randomElement()!
+        let emoji = emojiItems.randomElement()!
+        return StatusModel(
+            id: id ?? UUID().uuidString,
+            owner: address,
+            date: Date(timeIntervalSince1970: .random(min: 1600000000.0, max: 1678019926.0)),
+            status: content,
+            emoji: emoji,
+            linkText: nil,
+            link: nil
+        )
+    }
+    
+    static func sampleWithLinks(with address: AddressName, id: String? = nil) -> StatusModel {
+        let contentItems = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. [omg.lol](https://home.omg.lol) Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. ![Courage!](https://static.wikia.nocookie.net/courage/images/4/46/New_Courage.png/revision/latest/scale-to-width-down/1000?cb=20200912151506)"]
         let emojiItems = ["🙈", "🤷", "😘", "🤣", "😅", "🦖", "🤓", "🙃", "✨", "🎉", "🤔", "😍", "🙊", "😉", "🖤", "🤩"]
         let content = contentItems.randomElement()!
         let emoji = emojiItems.randomElement()!

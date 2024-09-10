@@ -29,3 +29,9 @@ struct DirectoryView: View {
         }
     }
 }
+
+#Preview {
+    let sceneModel = SceneModel.sample
+    DirectoryView(fetcher: .init(addressBook: sceneModel.addressBook, interface: sceneModel.interface, db: sceneModel.database))
+        .environment(sceneModel)
+}

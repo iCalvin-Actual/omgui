@@ -20,6 +20,21 @@ struct ListRow<T: Listable>: View {
     
     var preferredStyle: Style
     
+    var selected: Binding<T?>
+    
+    var cardColor: Color {
+        .lolRandom(model.listTitle)
+    }
+    var cardPadding: CGFloat {
+        4
+    }
+    var cardradius: CGFloat {
+        2
+    }
+    var showSelection: Bool {
+        selected.wrappedValue == model
+    }
+    
     var activeStyle: Style {
         switch isSearching {
         case true:
@@ -29,8 +44,9 @@ struct ListRow<T: Listable>: View {
         }
     }
     
-    init(model: T, preferredStyle: Style = .standard) {
+    init(model: T, selected: Binding<T?> = .constant(nil), preferredStyle: Style = .standard) {
         self.model = model
+        self.selected = selected
         self.preferredStyle = preferredStyle
     }
     
@@ -52,12 +68,30 @@ struct ListRow<T: Listable>: View {
     }
     
     var body: some View {
+        appropriateBody
+            .fontDesign(.serif)
+            .padding(2)
+    }
+    
+    @ViewBuilder
+    var appropriateBody: some View {
+        if let statusModel = model as? StatusModel {
+            statusBody(statusModel)
+        } else {
+            standardBody
+                .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
+        }
+    }
+    
+    @ViewBuilder
+    func statusBody(_ model: StatusModel) -> some View {
+        StatusRowView(model: model, cardColor: cardColor, cardPadding: cardPadding, cardradius: cardradius, showSelection: showSelection)
+    }
+    
+    @ViewBuilder
+    var standardBody: some View {
         VStack(alignment: .leading, spacing: verticalPadding) {
             HStack {
-                Text(model.listTitle)
-                    .font(.title3)
-                    .bold()
-                Spacer()
                 if let icon = model.iconURL {
                     AsyncImage(url: icon) { image in
                         image.resizable()
@@ -69,7 +103,13 @@ struct ListRow<T: Listable>: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 } else if !model.hideIcon {
                     AddressIconView(address: model.addressName)
+//                        .padding(2)
                 }
+                Spacer()
+                Text(model.listTitle)
+                    .font(.title3)
+                    .bold()
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.vertical, verticalPadding)
             .padding(.trailing, trailingPadding)
@@ -91,8 +131,17 @@ struct ListRow<T: Listable>: View {
                 .padding(.trailing, trailingPadding)
             }
         }
-        .asCard(color: .lolRandom(model.listTitle), padding: 4, radius: 8)
-        .fontDesign(.serif)
-        .padding(2)
     }
+}
+
+#Preview {
+    VStack {
+        ListRow(model: AddressModel.sample(with: "calvin"))
+        ListRow(model: StatusModel.sample(with: "calvin"))
+        ListRow(model: PURLModel.sample(with: "calvin"))
+        ListRow(model: PasteModel.sample(with: "calvin"))
+        ListRow(model: NowListing.sample(with: "calvin"))
+    }
+    .padding(.horizontal)
+    .environment(SceneModel.sample)
 }

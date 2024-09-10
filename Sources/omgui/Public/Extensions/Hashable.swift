@@ -30,3 +30,11 @@ extension PURLModel {
         hasher.combine(listed)
     }
 }
+
+extension String {
+    var staticHash: Int {
+        self.unicodeScalars.reduce(0) { sum, scalar in
+            sum + Int(scalar.value)
+        }
+    }
+}

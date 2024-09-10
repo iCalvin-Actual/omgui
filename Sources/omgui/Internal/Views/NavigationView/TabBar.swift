@@ -87,3 +87,14 @@ struct TabBar: View {
         .tabViewStyle(.sidebarAdaptable)
     }
 }
+
+#Preview {
+    if #available(iOS 18.0, *) {
+        let sceneModel = SceneModel.sample
+        TabBar(sceneModel: .sample)
+            .environment(sceneModel)
+            .environment(AccountAuthDataFetcher(authKey: nil, client: .sample, interface: SampleData()))
+    } else {
+        Text("Not supported on iOS 17")
+    }
+}

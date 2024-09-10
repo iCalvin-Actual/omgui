@@ -92,7 +92,7 @@ extension AddressModel: AllSortable {
     var primarySortValue: String { addressName }
     var dateValue: Date? { date }
     
-    static let defaultSort: Sort = .alphabet
+    static let defaultSort: Sort = .shuffle
     static var sortOptions: [Sort] {
         [
             .alphabet,

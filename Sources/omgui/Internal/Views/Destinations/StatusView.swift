@@ -28,6 +28,7 @@ struct StatusView: View {
             VStack(alignment: .leading) {
                 if let model = fetcher.result {
                     StatusRowView(model: model)
+                        .environment(\.viewContext, ViewContext.detail)
                         .padding()
                 } else if fetcher.loading {
                     LoadingView()
@@ -154,4 +155,10 @@ struct StatusView: View {
             }
         }
     }
+}
+
+#Preview {
+    let sceneModel = SceneModel.sample
+    StatusView(fetcher: StatusDataFetcher(id: "", from: "app", interface: sceneModel.interface, db: sceneModel.database))
+        .environment(sceneModel)
 }
