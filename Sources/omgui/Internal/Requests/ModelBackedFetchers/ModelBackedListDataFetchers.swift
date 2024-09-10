@@ -27,7 +27,7 @@ class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
     }
 }
 
-class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
+class AccountAddressDataFetcher: DataBackedListDataFetcher<AddressModel> {
     override var title: String {
         "my addresses"
     }
@@ -75,7 +75,7 @@ class AccountAddressDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
-class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
+class AddressFollowingDataFetcher: DataBackedListDataFetcher<AddressModel> {
     var address: AddressName
     var credential: APICredential?
     
@@ -152,7 +152,7 @@ class AddressFollowingDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
-class AddressBlockListDataFetcher: ListDataFetcher<AddressModel> {
+class AddressBlockListDataFetcher: DataBackedListDataFetcher<AddressModel> {
     var address: AddressName
     var credential: APICredential?
     

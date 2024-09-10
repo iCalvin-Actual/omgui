@@ -45,56 +45,50 @@ class ModelBackedDataFetcher<M: BlackbirdModel>: BackedDataFetcher {
 
 typealias ModelBackedListable = BlackbirdListable & Listable
 
-class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
-    @Published
-    var results: [M] = []
+class ModelBackedListDataFetcher<T: ModelBackedListable>: ListFetcher<T> {
     
     let addressBook: AddressBook?
+    let db: Blackbird.Database
     
-    var filters: [FilterOption] {
-        didSet {
-            results = []
-            nextPage = 0
-        }
-    }
-    var sort: Sort {
-        didSet {
-            results = []
-            nextPage = 0
-        }
-    }
-    
-    var title: String { "" }
-    var items: Int { results.count }
-    
-    let limit: Int
-    var nextPage: Int? = 0
-    
-    init(addressBook: AddressBook?, interface: DataInterface, db: Blackbird.Database, limit: Int = 42, filters: [FilterOption] = .everyone, sort: Sort = M.defaultSort, automation: AutomationPreferences = .init()) {
+    init(addressBook: AddressBook?, interface: DataInterface, db: Blackbird.Database, limit: Int = 42, filters: [FilterOption] = .everyone, sort: Sort = T.defaultSort, automation: AutomationPreferences = .init()) {
         self.addressBook = addressBook
-        self.limit = limit
-        self.filters = filters
-        self.sort = sort
-        super.init(interface: interface, db: db, automation: automation)
-    }
-    
-    override func updateIfNeeded(forceReload: Bool = false) async {
-        guard forceReload || (loading && requestNeeded) else {
-            return
-        }
-        nextPage = 0
-        await perform()
+        self.db = db
+        super.init(items: [], interface: interface, limit: limit, filters: filters, sort: sort, automation: automation)
     }
     
     @MainActor
-    override func fetchModels() async throws {
+    override func throwingRequest() async throws {
+        try await fetchModels()
+        
+        guard requestNeeded else {
+            return
+        }
+        try await fetchRemote()
+        try await fetchModels()
+    }
+    
+    @MainActor
+    override func fetchNextPageIfNeeded() {
+        Task { [weak self] in
+            try? await self?.fetchModels()
+        }
+
+    }
+    
+    // Will override
+    @MainActor
+    func fetchRemote() async throws {
+    }
+    
+    @MainActor
+    func fetchModels() async throws {
         guard let nextPage, let addressBook else {
             Task {
                 await fetchFinished()
             }
             return
         }
-        var nextResults = try await M.read(
+        var nextResults = try await T.read(
             from: db,
             matching: filters.asQuery(matchingAgainst: addressBook),
             orderBy: sort.asClause(),
@@ -117,9 +111,5 @@ class ModelBackedListDataFetcher<M: ModelBackedListable>: BackedDataFetcher {
             }
         }
         results = oldResults + nextResults
-    }
-    
-    override var noContent: Bool {
-        !loading && !results.isEmpty
     }
 }

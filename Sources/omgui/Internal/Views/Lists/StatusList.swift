@@ -22,11 +22,17 @@ struct StatusList: View {
     var menuBuilder: ContextMenuBuilder<StatusModel>?
     
     var body: some View {
-        ModelBackedListView<StatusModel, StatusRowView, EmptyView>(
+        ListView<StatusModel, EmptyView>(
             filters: .everyone,
-            dataFetcher: fetcher,
-            rowBuilder: { StatusRowView(model: $0) }
+            dataFetcher: fetcher
         )
         .toolbarRole(.editor)
     }
+}
+
+#Preview {
+    let sceneModel = SceneModel.sample
+    
+    StatusList(fetcher: .init(addressBook: sceneModel.addressBook, interface: sceneModel.interface, db: sceneModel.database), filters: .everyone)
+        .environment(sceneModel)
 }

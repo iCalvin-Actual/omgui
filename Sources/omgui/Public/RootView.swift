@@ -13,14 +13,13 @@ struct RootView: View {
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
     
-    let addressBook: AddressBook
     let accountAuthDataFetcher: AccountAuthDataFetcher
     let db: Blackbird.Database
     
     let sceneModel: SceneModel
+    var addressBook: AddressBook { sceneModel.addressBook }
     
-    init(sceneModel: SceneModel, addressBook: AddressBook, accountAuthDataFetcher: AccountAuthDataFetcher, db: Blackbird.Database) {
-        self.addressBook = addressBook
+    init(sceneModel: SceneModel, accountAuthDataFetcher: AccountAuthDataFetcher, db: Blackbird.Database) {
         self.accountAuthDataFetcher = accountAuthDataFetcher
         self.db = db
         self.sceneModel = sceneModel
@@ -31,7 +30,9 @@ struct RootView: View {
             .task { @MainActor [statusFetcher = sceneModel.statusFetcher, addressBook] in
                 await addressBook.autoFetch()
                 try? await statusFetcher.fetchRemote()
-                try? await statusFetcher.fetchBacklog()
+                Task { [statusFetcher] in
+                    try? await statusFetcher.fetchBacklog()
+                }
             }
             .environment(accountAuthDataFetcher)
             .environment(sceneModel)
@@ -47,11 +48,6 @@ struct RootView: View {
     }
 }
 
-//struct ContentView_Previews: PreviewProvider {
-//    @StateObject
-//    static var database = try! Blackbird.Database.inMemoryDatabase()
-//    
-//    static var previews: some View {
-//        RootView()
-//    }
-//}
+#Preview {
+    RootView(sceneModel: .sample, accountAuthDataFetcher: .init(authKey: nil, client: .sample, interface: SampleData()), db: SceneModel.sample.database)
+}

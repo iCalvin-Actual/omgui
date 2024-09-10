@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
+class PinnedListDataFetcher: DataBackedListDataFetcher<AddressModel> {
     @AppStorage("app.lol.cache.pinned.history", store: .standard)
     private var pinnedAddressesHistory: String = "app"
     var previouslyPinnedAddresses: Set<AddressName> {
@@ -59,7 +59,7 @@ class PinnedListDataFetcher: ListDataFetcher<AddressModel> {
     }
 }
 
-class LocalBlockListDataFetcher: ListDataFetcher<AddressModel> {
+class LocalBlockListDataFetcher: DataBackedListDataFetcher<AddressModel> {
     
     // MARK: No-Account Blocklist
     @AppStorage("app.lol.cache.blocked", store: .standard)

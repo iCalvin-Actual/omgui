@@ -25,7 +25,7 @@ extension Color {
     }
     
     static func lolRandom(_ input: String = .lolRandom.randomElement() ?? "000000") -> Color {
-        let hash = input.hashValue
+        let hash = input.staticHash
         let colors: [Color] = String.lolRandom.map({ .init(hex: $0) })
         
         let modValue = abs(hash % colors.endIndex)

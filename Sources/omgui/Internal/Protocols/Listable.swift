@@ -37,7 +37,6 @@ extension Listable {
 extension AddressModel: Listable {
     var listTitle: String { addressName.addressDisplayString }
     var listSubtitle: String { url?.absoluteString ?? "" }
-    var displayDate: Date? { date }
     var iconURL: URL? { addressName.addressIconURL }
 }
 extension StatusModel: Listable     {
