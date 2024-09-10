@@ -13,7 +13,7 @@ struct GardenView: View {
     var fetcher: NowGardenDataFetcher
     
     var body: some View {
-        ListView<NowListing, GardenItemView, EmptyView>(dataFetcher: fetcher, rowBuilder: { GardenItemView(model: $0) })
+        ListView<NowListing, EmptyView>(dataFetcher: fetcher)
             .toolbarRole(.editor)
     }
 }
@@ -24,12 +24,12 @@ struct GardenItemView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
+                AddressIconView(address: model.addressName)
                 Text(model.listTitle)
                     .font(.title3)
                     .bold()
                     .foregroundColor(.black)
-                Spacer()
-                AddressIconView(address: model.addressName)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             
             let subtitle = model.listSubtitle

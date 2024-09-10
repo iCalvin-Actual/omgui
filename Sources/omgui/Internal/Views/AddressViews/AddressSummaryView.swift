@@ -85,7 +85,6 @@ struct AddressSummaryView: View {
             Text(page.displayString)
                 .bold()
                 .padding(8)
-                .padding(.bottom, 6)
                 .frame(minWidth: 44, maxHeight: .infinity, alignment: .bottom)
                 .background(page == selectedPage ? page.color : Color.clear)
                 .clipShape(RoundedRectangle(cornerRadius: 12))

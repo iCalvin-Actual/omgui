@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ListView<T: Listable, V: View, H: View>: View {
+struct ListView<T: Listable, H: View>: View {
     
     @Environment(\.horizontalSizeClass)
     var sizeClass
@@ -24,9 +24,6 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     let allowSearch: Bool
     let allowFilter: Bool
-    
-    @ViewBuilder
-    let rowBuilder: ((T) -> V?)
     
     @ViewBuilder
     let headerBuilder: (() -> H)?
@@ -48,14 +45,12 @@ struct ListView<T: Listable, V: View, H: View>: View {
         allowSearch: Bool = true,
         allowFilter: Bool = true,
         dataFetcher: ListFetcher<T>,
-        rowBuilder: @escaping (T) -> V?,
         headerBuilder: (() -> H)? = nil
     ) {
         self.filters = filters
         self.allowSearch = allowSearch
         self.dataFetcher = dataFetcher
         self.allowFilter = allowFilter
-        self.rowBuilder = rowBuilder
         self.headerBuilder = headerBuilder
     }
     
@@ -207,8 +202,6 @@ struct ListView<T: Listable, V: View, H: View>: View {
             if dataFetcher.nextPage != nil {
                 ProgressView()
                   .frame(maxWidth: .infinity, maxHeight: .infinity)
-                  .foregroundColor(.black)
-                  .foregroundColor(.red)
                   .onAppear {
                       Task { [dataFetcher] in
                           dataFetcher.fetchNextPageIfNeeded()
@@ -356,11 +349,7 @@ struct ListView<T: Listable, V: View, H: View>: View {
     
     @ViewBuilder
     func buildRow(_ item: T) -> some View {
-        if let constructedView = rowBuilder(item) {
-            constructedView
-        } else {
-            ListRow<T>(model: item)
-        }
+        ListRow<T>(model: item, selected: $selected)
     }
 }
 

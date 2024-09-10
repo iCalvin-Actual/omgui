@@ -77,6 +77,8 @@ struct ListRow<T: Listable>: View {
     var appropriateBody: some View {
         if let statusModel = model as? StatusModel {
             statusBody(statusModel)
+        } else if let nowModel = model as? NowListing {
+            gardenView(nowModel)
         } else {
             standardBody
                 .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
@@ -86,6 +88,21 @@ struct ListRow<T: Listable>: View {
     @ViewBuilder
     func statusBody(_ model: StatusModel) -> some View {
         StatusRowView(model: model, cardColor: cardColor, cardPadding: cardPadding, cardradius: cardradius, showSelection: showSelection)
+    }
+    
+    @ViewBuilder
+    func gardenView(_ model: NowListing) -> some View {
+        GardenItemView(model: model)
+    }
+    
+    @ViewBuilder
+    func pasteView(_ model: PasteModel) -> some View {
+        PasteRowView(model: model)
+    }
+    
+    @ViewBuilder
+    func purlView(_ model: PURLModel) -> some View {
+        PURLRowView(model: model)
     }
     
     @ViewBuilder

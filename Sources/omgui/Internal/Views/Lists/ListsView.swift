@@ -30,9 +30,7 @@ struct ListsView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(alignment: .top) {
                             ForEach(viewModel.pinned) { address in
-                                NavigationLink {
-                                    sceneModel.destinationConstructor.destination(.address(address))
-                                } label: {
+                                NavigationLink(value: NavigationDestination.address(address)) {
                                     VStack(alignment: .leading) {
                                         ZStack(alignment: .topLeading) {
                                             AddressIconView(address: address, size: 80)

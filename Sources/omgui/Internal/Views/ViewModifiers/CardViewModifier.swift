@@ -44,17 +44,17 @@ struct CardViewModifier: ViewModifier {
 }
 
 extension HStack {
-    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 8, radius: CGFloat = 0, selected: Bool = false) -> some View {
+    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
         self.modifier(CardViewModifier(color: color, backgroundColor: backgroundColor, padding: padding, radius: radius, selected: selected))
     }
 }
 extension VStack {
-    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 8, radius: CGFloat = 0, selected: Bool = false) -> some View {
+    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
         self.modifier(CardViewModifier(color: color, backgroundColor: backgroundColor, padding: padding, radius: radius, selected: selected))
     }
 }
 extension View {
-    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 8, radius: CGFloat = 0, selected: Bool = false) -> some View {
+    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
         HStack {
             self
             Spacer(minLength: 0)

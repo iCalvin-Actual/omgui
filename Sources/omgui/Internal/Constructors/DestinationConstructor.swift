@@ -28,8 +28,7 @@ struct DestinationConstructor {
         case .now(let name):
             AddressNowView(fetcher: sceneModel.addressSummary(name).nowFetcher)
         case .blocked:
-            ListView<AddressModel, ListRow<AddressModel>, EmptyView>(filters: .none, dataFetcher: sceneModel.privateSummary(for: sceneModel.addressBook.actingAddress)?.blockedFetcher ?? sceneModel.addressBook.localBlocklistFetcher, rowBuilder: {
-                    _ in return nil as ListRow<AddressModel>? })
+            ListView<AddressModel, EmptyView>(filters: .none, dataFetcher: sceneModel.privateSummary(for: sceneModel.addressBook.actingAddress)?.blockedFetcher ?? sceneModel.addressBook.localBlocklistFetcher)
         case .nowGarden:
             GardenView(fetcher: sceneModel.gardenFetcher)
         case .pastebin(let address):
