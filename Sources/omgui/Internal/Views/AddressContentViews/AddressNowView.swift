@@ -41,11 +41,11 @@ struct AddressNowView: View {
             )
         } else {
             VStack {
-                if fetcher.loading {
-                    LoadingView()
-                } else {
+                if fetcher.noContent {
                     ThemedTextView(text: "no /now page")
                         .padding()
+                } else {
+                    LoadingView()
                 }
                 Spacer()
             }

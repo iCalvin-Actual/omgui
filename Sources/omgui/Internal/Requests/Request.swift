@@ -127,9 +127,17 @@ class Request: ObservableObject {
     let interface: DataInterface
     
     @Published
-    var loaded: Bool = false
+    var loaded: Bool = false {
+        didSet {
+            print("loaded \(loaded) \(self)")
+        }
+    }
     @Published
-    var loading: Bool = false
+    var loading: Bool = false{
+        didSet {
+            print("loading \(loading) \(self)")
+        }
+    }
     
     @Published
     var error: Error?

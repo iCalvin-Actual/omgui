@@ -29,18 +29,18 @@ class ListFetcher<T: Listable>: Request {
     var title: String { "" }
     
     let limit: Int
-    var nextPage: Int? = 0
+    var nextPage: Int? = ListFetcher<T>.isModelBacked ? 0 : nil
     
     var filters: [FilterOption] {
         didSet {
             results = []
-            nextPage = 0
+            nextPage = ListFetcher<T>.isModelBacked ? 0 : nil
         }
     }
     var sort: Sort {
         didSet {
             results = []
-            nextPage = 0
+            nextPage = ListFetcher<T>.isModelBacked ? 0 : nil
         }
     }
     
@@ -63,6 +63,10 @@ class ListFetcher<T: Listable>: Request {
         }
         nextPage = Self.isModelBacked ? 0 : nil
         await perform()
+    }
+    
+    var hasContent: Bool {
+        !results.isEmpty
     }
     
     override var noContent: Bool {

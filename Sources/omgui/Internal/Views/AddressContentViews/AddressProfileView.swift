@@ -47,11 +47,11 @@ struct AddressProfileView: View {
             }
         } else {
             VStack {
-                if fetcher.loading {
-                    LoadingView()
-                } else {
+                if fetcher.error?.localizedDescription.lowercased().contains("not found") ?? false {
                     ThemedTextView(text: "no profile")
                         .padding()
+                } else {
+                    LoadingView()
                 }
                 Spacer()
             }

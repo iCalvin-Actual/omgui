@@ -54,6 +54,10 @@ class AddressNowDataFetcher: ModelBackedDataFetcher<NowModel> {
         let now = try await interface.fetchAddressNow(addressName)
         try await now?.write(to: db)
     }
+    
+    override var noContent: Bool {
+        !loading && (error?.localizedDescription.contains("omgapi.APIError error 3") ?? false)
+    }
 }
 
 class StatusDataFetcher: ModelBackedDataFetcher<StatusModel> {
