@@ -19,7 +19,20 @@ struct GardenView: View {
 }
 
 struct GardenItemView: View {
-    var model: NowListing
+    let model: NowListing
+    
+    let cardColor: Color
+    let cardPadding: CGFloat
+    let cardradius: CGFloat
+    let showSelection: Bool
+    
+    init(model: NowListing, cardColor: Color, cardPadding: CGFloat, cardradius: CGFloat, showSelection: Bool) {
+        self.model = model
+        self.cardColor = cardColor
+        self.cardPadding = cardPadding
+        self.cardradius = cardradius
+        self.showSelection = showSelection
+    }
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -50,8 +63,9 @@ struct GardenItemView: View {
                 }
             }
         }
-        .asCard(color: .lolRandom(model.listTitle), padding: 4, radius: 8)
-        .fontDesign(.serif)
         .padding(2)
+        .foregroundStyle(Color.black)
+        .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
+        .fontDesign(.serif)
     }
 }

@@ -35,7 +35,6 @@ struct CardViewModifier: ViewModifier {
                 .frame(maxWidth: .infinity)
                 .padding(padding)
                 .background(color)
-                .foregroundStyle(Color.primary)
                 .cornerRadius(4)
                 .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black, radius: radius, x: shadowOffset, y: shadowOffset)
         }

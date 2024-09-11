@@ -45,6 +45,7 @@ struct StatusRowView: View {
             buttonIfNeeded
             
             rowBody
+                .foregroundStyle(Color.black)
                 .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
                 .padding(.bottom, 2)
         

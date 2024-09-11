@@ -8,9 +8,23 @@
 import SwiftUI
 
 struct PasteRowView: View {
-    let model: PasteModel
     @Environment(\.viewContext)
     var context: ViewContext
+    
+    let model: PasteModel
+    
+    let cardColor: Color
+    let cardPadding: CGFloat
+    let cardradius: CGFloat
+    let showSelection: Bool
+    
+    init(model: PasteModel, cardColor: Color, cardPadding: CGFloat, cardradius: CGFloat, showSelection: Bool) {
+        self.model = model
+        self.cardColor = cardColor
+        self.cardPadding = cardPadding
+        self.cardradius = cardradius
+        self.showSelection = showSelection
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -46,7 +60,8 @@ struct PasteRowView: View {
             .foregroundColor(.black)
             .background(Color.lolRandom(model.name))
             .cornerRadius(12, antialiased: true)
-            .padding(.vertical, 4)
+            .foregroundStyle(Color.black)
+            .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
         }
         .frame(maxWidth: .infinity)
     }
