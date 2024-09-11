@@ -200,13 +200,13 @@ struct ListView<T: Listable, H: View>: View {
                 .padding(.vertical, 4)
             
             if dataFetcher.nextPage != nil {
-                ProgressView()
-                  .frame(maxWidth: .infinity, maxHeight: .infinity)
-                  .onAppear {
-                      Task { [dataFetcher] in
-                          dataFetcher.fetchNextPageIfNeeded()
-                      }
-                  }
+                LoadingView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onAppear {
+                        Task { [dataFetcher] in
+                            dataFetcher.fetchNextPageIfNeeded()
+                        }
+                    }
             }
         }
         .task { [dataFetcher] in
@@ -271,11 +271,10 @@ struct ListView<T: Listable, H: View>: View {
     var listContent: some View {
         if !items.isEmpty {
             ForEach(items, content: rowView(_:) )
-        } else if dataFetcher.loading {
-            LoadingView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
+        } else if dataFetcher.noContent {
             emptyRowView()
+        } else {
+            EmptyView()
         }
     }
     

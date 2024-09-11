@@ -15,7 +15,7 @@ struct LoadingView: View {
     
     let style: Style
     
-    init(_ style: Style = .standard) {
+    init(_ style: Style = .horizontal) {
         self.style = style
     }
     
@@ -37,12 +37,13 @@ struct LoadingView: View {
             }
             .padding(4)
         case .horizontal:
-            HStack(spacing: 16) {
-                ThemedTextView(text: "loading...")
+            HStack(alignment: .lastTextBaseline, spacing: 16) {
+                Spacer()
                 ProgressView()
                     .progressViewStyle(.circular)
                     .scaleEffect(2.0, anchor: .center)
                     .tint(.accentColor)
+                ThemedTextView(text: "loading...")
                 Spacer()
             }
             .frame(maxHeight: 61.33)

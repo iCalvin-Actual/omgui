@@ -66,7 +66,7 @@ class ListFetcher<T: Listable>: Request {
     }
     
     override var noContent: Bool {
-        !loading && !results.isEmpty
+        loaded && results.isEmpty && nextPage == nil
     }
     
     @MainActor
