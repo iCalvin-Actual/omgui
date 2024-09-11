@@ -137,7 +137,7 @@ struct ListView<T: Listable, H: View>: View {
     
     @ViewBuilder
     var sizeAppropriateBody: some View {
-        if sizeClass == .compact || dataFetcher.noContent {
+        if sizeClass == .compact {
             compactBody
         } else {
             GeometryReader { proxy in
