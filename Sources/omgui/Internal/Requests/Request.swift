@@ -127,17 +127,9 @@ class Request: ObservableObject {
     let interface: DataInterface
     
     @Published
-    var loaded: Bool = false {
-        didSet {
-            print("loaded \(loaded) \(self)")
-        }
-    }
+    var loaded: Bool = false
     @Published
-    var loading: Bool = false{
-        didSet {
-            print("loading \(loading) \(self)")
-        }
-    }
+    var loading: Bool = false
     
     @Published
     var error: Error?
@@ -177,6 +169,7 @@ class Request: ObservableObject {
         do {
             try await throwingRequest()
         } catch {
+            print("🚨🚨🚨 Caught error: \(error) in \(self)")
             await handle(error)
         }
     }

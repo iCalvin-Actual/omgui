@@ -11,7 +11,7 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     var id: String { rawValue }
     
     case account
-    case blocked
+    case safety
     case community
     case directory
     case nowGarden
@@ -46,7 +46,7 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         switch self {
             
         case .account:      return "account"
-        case .blocked:      return "blocked"
+        case .safety:       return "safety"
         case .community:    return "community"
         case .directory:    return "directory"
         case .nowGarden:    return "garden"
@@ -82,7 +82,7 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
         let splitString = rawValue.components(separatedBy: ".")
         switch splitString.first {
         case "account":     self = .account
-        case "blocked":     self = .blocked
+        case "safety":      self = .safety
         case "community":   self = .community
         case "directory":   self = .directory
         case "garden":      self = .nowGarden

@@ -99,7 +99,6 @@ class NamedDraftPoster<D: NamedDraftable>: DraftPoster<D> {
     }
     
     override func deletePresented() {
-        print("Delete")
     }
 }
 

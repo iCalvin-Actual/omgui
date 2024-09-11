@@ -48,14 +48,14 @@ struct StatusRowView: View {
                 .foregroundStyle(Color.black)
                 .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
                 .padding(.bottom, 2)
-        
-            if let text = model.link?.absoluteString {
-                Button(action: {
-                    print("Show Link")
-                }, label: {
-                    Label(text, systemImage: "link")
-                })
-            }
+//        
+//            if let text = model.link?.absoluteString {
+//                Button(action: {
+//                    print("Show Link")
+//                }, label: {
+//                    Label(text, systemImage: "link")
+//                })
+//            }
         }
         .sheet(item: $destination, content: { destination in
             NavigationStack {

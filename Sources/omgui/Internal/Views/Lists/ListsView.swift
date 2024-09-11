@@ -32,12 +32,8 @@ struct ListsView: View {
                             ForEach(viewModel.pinned) { address in
                                 NavigationLink(value: NavigationDestination.address(address)) {
                                     VStack(alignment: .leading) {
-                                        ZStack(alignment: .topLeading) {
-                                            AddressIconView(address: address, size: 80)
-                                                .padding(4)
-                                            Image(systemName: "pin.square.fill")
-                                                .font(.subheadline)
-                                        }
+                                        AddressIconView(address: address, size: 80)
+                                            .padding(4)
                                         Text(address.addressDisplayString)
                                             .font(.headline)
                                             .fontDesign(.serif)
@@ -50,6 +46,11 @@ struct ListsView: View {
                             }
                         }
                     }
+                    .overlay(alignment: .topLeading, content: {
+                        Image(systemName: "pin.square.fill")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.accentColor)
+                    })
                 } else {
                     Label(title: {
                         Text("pin addresses")
@@ -80,18 +81,6 @@ struct ListsView: View {
                             Image(systemName: "person.3")
                         }
                     }
-                }
-            }
-            
-            Section("Blocked") {
-                if viewModel.showBlocked {
-                    NavigationLink {
-                        sceneModel.destinationConstructor.destination(.blocked)
-                    } label: {
-                        Label(title: { Text("blocked") }, icon: { Image(systemName: "person.slash")})
-                    }
-                } else {
-                    Label(title: { Text("block content you don't want to see") }, icon: { Image(systemName: "person.slash")})
                 }
             }
             
@@ -161,4 +150,13 @@ class ListsViewModel: ObservableObject {
     var blocked: [AddressName] {
         sceneModel.addressBook.visibleBlocked
     }
+}
+
+#Preview {
+    let sceneModel = SceneModel.sample
+    let accountAuthFetcher = AccountAuthDataFetcher(authKey: nil, client: .sample, interface: sceneModel.interface)
+    ListsView(sceneModel: sceneModel)
+        .environment(sceneModel)
+        .environment(accountAuthFetcher)
+    
 }

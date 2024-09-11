@@ -210,28 +210,28 @@ struct ListView<T: Listable, H: View>: View {
             }
         }
         .task { [dataFetcher] in
+            guard !dataFetcher.loaded else { return }
             dataFetcher.loading = true
-            dataFetcher.loaded = false
             await dataFetcher.updateIfNeeded(forceReload: true)
             dataFetcher.loading = false
             dataFetcher.loaded = true
         }
         .refreshable(action: { [dataFetcher] in
-            dataFetcher.loading = true
             dataFetcher.loaded = false
+            dataFetcher.loading = true
             await dataFetcher.updateIfNeeded(forceReload: true)
             dataFetcher.loading = false
             dataFetcher.loaded = true
         })
         .listStyle(.plain)
-        .onAppear(perform: {
+        .onReceive(dataFetcher.$loaded, perform: { _ in
             var newSelection: T?
             switch (
                 sizeClass == .regular,
                 dataFetcher.loaded,
                 selected == nil
             ) {
-            case (false, false, true):
+            case (false, true, false):
                 newSelection = nil
             case (true, true, true):
                 newSelection = dataFetcher.results.first
@@ -239,13 +239,8 @@ struct ListView<T: Listable, H: View>: View {
                 return
             }
             
-            Task {
-                try? await Task.sleep(nanoseconds: 50_000_000)
-                
-                withAnimation {
-                    // After delay, update the state
-                    self.selected = newSelection
-                }
+            try? withAnimation { @MainActor in
+                self.selected = newSelection
             }
         })
     }

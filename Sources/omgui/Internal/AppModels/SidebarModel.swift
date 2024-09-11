@@ -78,9 +78,6 @@ class SidebarModel: ObservableObject {
             if addressBook.signedIn {
                 destinations.append(.following(.autoUpdatingAddress))
             }
-            if !addressBook.visibleBlocked.isEmpty {
-                destinations.append(.blocked)
-            }
             destinations.append(
                 contentsOf: addressBook.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
             )
@@ -102,7 +99,7 @@ class SidebarModel: ObservableObject {
             return destinations
             
         case .app:
-            return [.appLatest, .appSupport]
+            return [.appLatest, .appSupport, .safety]
             
         case .more:
             return [.learn]

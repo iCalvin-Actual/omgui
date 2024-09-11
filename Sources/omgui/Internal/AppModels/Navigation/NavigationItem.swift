@@ -11,7 +11,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     var id: String { rawValue }
     
     case account
-    case blocked
+    case safety
     case community
     case nowGarden
     case search
@@ -30,15 +30,15 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     var rawValue: String {
         switch self {
         case .account:                  return "account"
-        case .blocked:                  return "blocked"
+        case .safety:                   return "safety"
         case .community:                return "community"
         case .nowGarden:                return "garden"
         case .search:                   return "search"
         case .lists:                    return "lists"
         case .learn:                    return "about"
             
-        case .appLatest:                 return "appNow"
-        case .appSupport:                return "appSupport"
+        case .appLatest:                return "appNow"
+        case .appSupport:               return "appSupport"
         
         case .newStatus:                return "new status"
         case .newPURL:                  return "new PURL"
@@ -54,7 +54,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         let splitString = rawValue.components(separatedBy: ".")
         switch splitString.first {
         case "account":     self = .account
-        case "blocked":     self = .blocked
+        case "safety":      self = .safety
         case "community":   self = .community
         case "garden":      self = .nowGarden
         case "search":      self = .search
@@ -89,7 +89,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
     var displayString: String {
         switch self {
         case .account:      return "/account"
-        case .blocked:      return "/blocked"
+        case .safety:       return "/safety"
         case .community:    return "/statuslog"
         case .nowGarden:    return "/nowGarden"
         case .search:       return "/search"
@@ -123,7 +123,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return "person.2"
         case .pinnedAddress:
             return "pin"
-        case .blocked:
+        case .safety:
             return "hand.raised"
         case .lists:
             return "person.crop.square.filled.and.at.rectangle"
@@ -152,8 +152,8 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
             return .following(address)
         case .pinnedAddress(let name):
             return .address(name)
-        case .blocked:
-            return .blocked
+        case .safety:
+            return .safety
         case .newStatus:
             return .editStatus(.autoUpdatingAddress, id: "")
         case .lists:

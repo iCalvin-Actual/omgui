@@ -254,8 +254,6 @@ struct PasteView: View {
                     } else if model != nil {
                         detent = .draftDrawer
                         showDraft = true
-                    } else {
-                        print("Stop")
                     }
                 }
             }
