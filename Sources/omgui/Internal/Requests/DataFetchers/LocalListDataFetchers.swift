@@ -22,7 +22,7 @@ class PinnedListDataFetcher: DataBackedListDataFetcher<AddressModel> {
     }
     
     @AppStorage("app.lol.cache.pinned", store: .standard)
-    private var currentlyPinnedAddresses: String = "adam&&&app"
+    private var currentlyPinnedAddresses: String = "app&&&adam&&&prami"
     var pinnedAddresses: [AddressName] {
         get {
             let split = currentlyPinnedAddresses.split(separator: "&&&")

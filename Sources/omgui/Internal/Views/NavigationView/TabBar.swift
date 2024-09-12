@@ -53,7 +53,7 @@ struct TabBar: View {
                             .navigationTitle("")
                     }
                 }
-                .hidden(UIDevice.current.userInterfaceIdiom != .phone || horizontalSizeClass != .compact)
+                .hidden(UIDevice.current.userInterfaceIdiom != .phone)
             }
         }
     }

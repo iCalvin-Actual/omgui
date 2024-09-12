@@ -53,7 +53,7 @@ struct ListsView: View {
                     })
                 } else {
                     Label(title: {
-                        Text("pin addresses")
+                        Text("pin addresses here for later")
                     }) {
                         Image(systemName: "pin")
                     }
