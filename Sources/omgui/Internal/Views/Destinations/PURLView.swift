@@ -12,6 +12,8 @@ struct PURLView: View {
     var dismiss
     @Environment(\.horizontalSizeClass)
     var sizeClass
+    @Environment(\.viewContext)
+    var viewContext
     
     @Environment(\.viewContext)
     var context: ViewContext
@@ -47,8 +49,10 @@ struct PURLView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    AddressNameView(fetcher.address, suffix: "/purls")
+                if viewContext != .profile {
+                    ToolbarItem(placement: .topBarLeading) {
+                        AddressNameView(fetcher.address, suffix: "/purls")
+                    }
                 }
 ////                ToolbarItem(placement: .topBarTrailing) {
 ////                    if fetcher.draftPoster != nil {

@@ -132,7 +132,7 @@ struct ListView<T: Listable, H: View>: View {
                 }
                 
                 if headerBuilder == nil {
-                    ToolbarItem(placement: .navigationBarLeading) {
+                    ToolbarItem(placement: .topBarLeading) {
                         ThemedTextView(text: dataFetcher.title)
                     }
                 }
@@ -197,7 +197,7 @@ struct ListView<T: Listable, H: View>: View {
             GeometryReader { proxy in
                 regularBodyContent
                     .frame(maxWidth: .infinity)
-                    .environment(\.viewContext, .detail)
+                    .environment(\.viewContext, context == .profile ? .profile : .detail)
                     .environment(\.horizontalSizeClass, proxy.size.width > 500 ? .regular : .compact)
             }
         }

@@ -136,6 +136,8 @@ struct PasteView: View {
     var dismiss
     @Environment(\.horizontalSizeClass)
     var sizeClass
+    @Environment(\.viewContext)
+    var viewContext
     
     @Environment(\.viewContext)
     var context: ViewContext
@@ -166,8 +168,10 @@ struct PasteView: View {
                 await fetcher.updateIfNeeded(forceReload: true)
             }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    AddressNameView(fetcher.address, suffix: "/pastebin")
+                if viewContext != .profile {
+                    ToolbarItem(placement: .topBarLeading) {
+                        AddressNameView(fetcher.address, suffix: "/pastebin")
+                    }
                 }
 //                ToolbarItem(placement: .topBarTrailing) {
 //                    if fetcher.draftPoster != nil {

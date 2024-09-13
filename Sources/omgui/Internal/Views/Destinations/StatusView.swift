@@ -13,6 +13,8 @@ struct StatusView: View {
     
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
+    @Environment(\.viewContext)
+    var viewContext
     
     @State
     var shareURL: URL?
@@ -29,8 +31,10 @@ struct StatusView: View {
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading) {
-                AddressSummaryHeader(expandBio: $expandBio, addressSummaryFetcher: sceneModel.addressSummary(fetcher.address))
-                    .padding(.horizontal)
+                if viewContext != .profile {
+                    AddressSummaryHeader(expandBio: $expandBio, addressSummaryFetcher: sceneModel.addressSummary(fetcher.address))
+                        .padding(.horizontal)
+                }
                 if let model = fetcher.result {
                     StatusRowView(model: model)
                         .environment(\.viewContext, ViewContext.detail)
@@ -58,8 +62,10 @@ struct StatusView: View {
         }
         .navigationTitle("")
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                AddressNameView(fetcher.address, suffix: "/status")
+            if viewContext != .profile {
+                ToolbarItem(placement: .topBarLeading) {
+                    AddressNameView(fetcher.address, suffix: "/status")
+                }
             }
         }
         .onChange(of: fetcher.id, {
@@ -76,9 +82,6 @@ struct StatusView: View {
         })
         .environment(\.viewContext, ViewContext.detail)
         .toolbar {
-//            ToolbarItem(placement: .topBarLeading) {
-//                ThemedTextView(text: ".status")
-//            }
             ToolbarItem(placement: .topBarTrailing) {
                 if let url = fetcher.result?.shareURLs.first?.content {
                     ShareLink(item: url)
