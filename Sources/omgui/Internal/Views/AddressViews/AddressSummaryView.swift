@@ -46,20 +46,6 @@ struct AddressSummaryView: View {
     }
     
     @ViewBuilder
-    var addressHeader: some View {
-        HStack(alignment: .top) {
-            Menu {
-                AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
-            } label: {
-                AddressIconView(address: addressSummaryFetcher.addressName)
-            }
-            .frame(width: 44)
-            AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-    
-    @ViewBuilder
     var destinationPicker: some View {
         HStack(alignment: .top) {
             ScrollView(.horizontal) {
@@ -97,7 +83,8 @@ struct AddressSummaryView: View {
     @ViewBuilder
     var sizeAppropriateBody: some View {
         VStack(spacing: 0) {
-            addressHeader.padding()
+            AddressSummaryHeader(expandBio: $expandBio, addressSummaryFetcher: addressSummaryFetcher)
+                .padding()
             destinationPicker
             destination(selectedPage)
                 .frame(maxHeight: expandBio ? 0 : .infinity)
@@ -165,6 +152,32 @@ struct AddressBioLabel: View {
                 .lineLimit(3)
                 .font(.caption)
                 .fontDesign(.monospaced)
+        }
+    }
+}
+
+struct AddressSummaryHeader: View {
+    @Environment(\.horizontalSizeClass)
+    var horizontalSizeClass
+    @Environment(SceneModel.self)
+    var sceneModel: SceneModel
+    
+    @Binding
+    var expandBio: Bool
+    
+    @ObservedObject
+    var addressSummaryFetcher: AddressSummaryDataFetcher
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            Menu {
+                AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
+            } label: {
+                AddressIconView(address: addressSummaryFetcher.addressName)
+            }
+            .frame(width: 42)
+            AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

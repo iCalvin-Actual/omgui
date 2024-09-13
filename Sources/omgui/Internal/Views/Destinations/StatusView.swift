@@ -19,6 +19,9 @@ struct StatusView: View {
     @State
     var presentURL: URL?
     
+    @State
+    var expandBio: Bool = false
+    
     init(fetcher: StatusDataFetcher) {
         self.fetcher = fetcher
     }
@@ -26,10 +29,12 @@ struct StatusView: View {
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading) {
+                AddressSummaryHeader(expandBio: $expandBio, addressSummaryFetcher: sceneModel.addressSummary(fetcher.address))
+                    .padding(.horizontal)
                 if let model = fetcher.result {
                     StatusRowView(model: model)
                         .environment(\.viewContext, ViewContext.detail)
-                        .padding()
+                        .padding(.horizontal)
                 } else if fetcher.loading {
                     LoadingView()
                         .padding()

@@ -139,20 +139,21 @@ struct StatusRowView: View {
     @ViewBuilder
     var headerContent: some View {
         HStack(alignment: .bottom) {
-            if context != .profile {
+            if context == .column {
                 AddressIconView(address: model.address)
             }
             HStack(alignment: .lastTextBaseline) {
                 Text(model.displayEmoji)
                     .font(.system(size: 42))
                 Spacer()
-                VStack(alignment: .trailing, spacing: 2) {
-                    AddressNameView(model.address, font: .title2)
-                        .multilineTextAlignment(.trailing)
-                        .lineLimit(3)
-                        .foregroundColor(.black)
+                if context != .detail {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        AddressNameView(model.address, font: .title2)
+                            .multilineTextAlignment(.trailing)
+                            .lineLimit(3)
+                            .foregroundColor(.black)
+                    }
                 }
-                .padding(.vertical, 4)
             }
             .padding(.horizontal, 2)
             .clipShape(RoundedRectangle(cornerRadius: 12))
