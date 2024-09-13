@@ -61,6 +61,11 @@ struct SafetyView: View {
                 }
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                ThemedTextView(text: "safety")
+            }
+        }
     }
     
     @ViewBuilder

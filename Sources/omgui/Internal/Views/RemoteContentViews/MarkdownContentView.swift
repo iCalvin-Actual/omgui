@@ -71,7 +71,7 @@ struct MarkdownContentView: View {
                     })
                     .sheet(item: $presentedURL, content: { url in
                         SafariView(url: url)
-                            .ignoresSafeArea(.all, edges: .bottom)
+                            .ignoresSafeArea(.container, edges: .all)
                     })
             }
         }

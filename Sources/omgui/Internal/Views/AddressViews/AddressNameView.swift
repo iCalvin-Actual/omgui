@@ -10,19 +10,23 @@ import SwiftUI
 struct AddressNameView: View {
     let name: AddressName
     let font: Font
-    let path: String?
+    let suffix: String?
     
-    init(_ name: AddressName, font: Font = .title, path: String? = nil) {
+    init(_ name: AddressName, font: Font = .title3, suffix: String? = nil) {
         self.name = name
         self.font = font
-        self.path = path
+        self.suffix = suffix
     }
     
     var body: some View {
-        ThemedTextView(text: name.addressDisplayString, font: font, suffix: path)
+        ThemedTextView(text: name.addressDisplayString, font: font, suffix: suffix)
     }
 }
 
 extension AddressName {
-    var addressDisplayString: String { "@\(self)"}
+    var addressDisplayString: String {
+        guard self.prefix(1) != "@" else { return self }
+        
+        return "@\(self)"
+    }
 }

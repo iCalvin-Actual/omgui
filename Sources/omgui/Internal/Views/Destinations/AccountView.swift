@@ -218,11 +218,11 @@ struct AccountView: View {
                 .background(Color.lolOrange)
                 .padding(.bottom, 24)
             }
-            .toolbar(content: {
+            .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     ThemedTextView(text: "omg.lol?")
                 }
-            })
+            }
         }
     }
     

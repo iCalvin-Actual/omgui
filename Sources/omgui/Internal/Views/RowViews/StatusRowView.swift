@@ -130,11 +130,7 @@ struct StatusRowView: View {
     @ViewBuilder
     var buttonIfNeeded: some View {
         if context == .detail  {
-            Button {
-                destination = .address(model.address)
-            } label: {
-                headerContent
-            }
+            NavigationLink(value: NavigationDestination.address(model.address), label: { headerContent })
         } else {
             headerContent
         }
@@ -144,19 +140,7 @@ struct StatusRowView: View {
     var headerContent: some View {
         HStack(alignment: .bottom) {
             if context != .profile {
-                Menu {
-                    AddressModel(name: model.address).contextMenu(in: sceneModel)
-                } label: {
-                    AsyncImage(url: model.address.addressIconURL) { image in
-                        image.resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Color.lolRandom(model.address)
-                    }
-                    .frame(width: 42, height: 42)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .padding(.vertical, 4)
-                }
+                AddressIconView(address: model.address)
             }
             HStack(alignment: .lastTextBaseline) {
                 Text(model.displayEmoji)

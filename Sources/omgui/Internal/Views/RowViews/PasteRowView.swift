@@ -28,14 +28,14 @@ struct PasteRowView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .bottom) {
-                if context != .profile {
+            if context != .profile {
+                HStack(alignment: .bottom) {
                     AddressNameView(model.owner, font: .title3)
+                    Spacer()
+                    AddressIconView(address: model.owner)
                 }
-                Spacer()
-                AddressIconView(address: model.owner)
+                .padding(2)
             }
-            .padding(2)
             
             VStack(alignment: .leading, spacing: 12) {
                 HStack {

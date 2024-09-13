@@ -10,7 +10,9 @@ import SwiftUI
 struct ListView<T: Listable, H: View>: View {
     
     @Environment(\.horizontalSizeClass)
-    var sizeClass
+    var horizontalSize
+    @Environment(\.verticalSizeClass)
+    var verticalSize
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     @Environment(AccountAuthDataFetcher.self)
@@ -129,7 +131,6 @@ struct ListView<T: Listable, H: View>: View {
     var toolbarAwareBody: some View {
         if #available(iOS 18.0, *) {
             sizeAppropriateBody
-                .toolbarBackgroundVisibility(.visible, for: .navigationBar)
         } else {
             sizeAppropriateBody
         }
@@ -137,7 +138,7 @@ struct ListView<T: Listable, H: View>: View {
     
     @ViewBuilder
     var sizeAppropriateBody: some View {
-        if sizeClass == .compact {
+        if horizontalSize == .compact {
             compactBody
         } else {
             GeometryReader { proxy in
@@ -154,12 +155,13 @@ struct ListView<T: Listable, H: View>: View {
     @ViewBuilder
     var compactBody: some View {
         searchableList
+            .animation(.easeInOut(duration: 0.3), value: dataFetcher.loaded)
             .listRowBackground(Color.clear)
     }
     
     @ViewBuilder
     var searchableList: some View {
-        if allowSearch && (dataFetcher.hasContent || !queryString.isEmpty) {
+        if allowSearch && (dataFetcher.loaded || !queryString.isEmpty) {
             list
                 .searchable(text: $queryString, placement: .automatic)
         } else {
@@ -228,7 +230,7 @@ struct ListView<T: Listable, H: View>: View {
         .onReceive(dataFetcher.$loaded, perform: { _ in
             var newSelection: T?
             switch (
-                sizeClass == .regular,
+                horizontalSize == .regular,
                 dataFetcher.loaded,
                 selected == nil
             ) {
@@ -305,7 +307,7 @@ struct ListView<T: Listable, H: View>: View {
     
     @ViewBuilder
     func rowBody(_ item: T) -> some View {
-        switch sizeClass {
+        switch horizontalSize {
         case .compact:
             ZStack(alignment: .leading) {
                 if let destination = destination(for: item) {

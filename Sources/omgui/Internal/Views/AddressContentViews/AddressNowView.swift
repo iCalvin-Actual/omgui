@@ -22,6 +22,9 @@ struct AddressNowView: View {
                 await fetcher.perform()
             }
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    AddressNameView(fetcher.addressName, suffix: "/now")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     if let url = fetcher.result?.shareURLs.first?.content {
                         ShareLink(item: url)
@@ -51,4 +54,9 @@ struct AddressNowView: View {
             }
         }
     }
+}
+
+#Preview {
+    let sceneModel = SceneModel.sample
+    AddressNowView(fetcher: sceneModel.addressSummary("app").nowFetcher)
 }

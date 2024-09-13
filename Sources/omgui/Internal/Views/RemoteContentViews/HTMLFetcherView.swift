@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct HTMLFetcherView: View {
+    @Environment(\.horizontalSizeClass)
+    var sizeClass
     
     let fetcher: Request
     
@@ -25,7 +27,7 @@ struct HTMLFetcherView: View {
             baseURL: baseURL,
             activeURL: $presentedURL
         )
-        .ignoresSafeArea(.container, edges: [.bottom])
+        .ignoresSafeArea(.container, edges: (sizeClass == .regular && UIDevice.current.userInterfaceIdiom == .pad) ? [.bottom] : [])
         .safeAreaInset(edge: .bottom) {
             if let url = baseURL {
                 Link(destination: url) {
@@ -51,7 +53,7 @@ struct HTMLFetcherView: View {
         })
         .sheet(item: $presentedURL, content: { url in
             SafariView(url: url)
-                .ignoresSafeArea(.all, edges: .bottom)
+                .ignoresSafeArea(.container, edges: .all)
         })
     }
 }

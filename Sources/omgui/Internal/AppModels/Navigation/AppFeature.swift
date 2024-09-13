@@ -21,7 +21,7 @@ enum AppFeature: String {
         case .now:
             return "/now"
         case .paste:
-            return "/pastes"
+            return "/pastebin"
         case .photo:
             return "/pics"
         case .purl:

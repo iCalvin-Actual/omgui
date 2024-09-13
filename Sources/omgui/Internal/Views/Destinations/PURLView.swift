@@ -48,9 +48,7 @@ struct PURLView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    if let name = fetcher.result?.name {
-                        ThemedTextView(text: "/\(name)")
-                    }
+                    AddressNameView(fetcher.address, suffix: "/purls")
                 }
 ////                ToolbarItem(placement: .topBarTrailing) {
 ////                    if fetcher.draftPoster != nil {
@@ -93,32 +91,31 @@ struct PURLView: View {
 ////                    }
 ////                }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        if let content = fetcher.result?.content {
-                            ShareLink(item: content)
+                    if let purlURL = fetcher.result?.purlURL {
+                        Menu {
+                            ShareLink("share purl", item: purlURL)
+                            Divider()
                             Button(action: {
-                                UIPasteboard.general.string = content
+                                UIPasteboard.general.string = purlURL.absoluteString
                             }, label: {
                                 Label(
-                                    title: { Text("Copy Content") },
-                                    icon: { Image(systemName: "doc.on.doc") }
+                                    title: { Text("copy purl") },
+                                    icon: { Image(systemName: "doc.on.clipboard") }
                                 )
                             })
+                            if let shareItem = fetcher.result?.content {
+                                Button(action: {
+                                    UIPasteboard.general.string = shareItem
+                                }, label: {
+                                    Label(
+                                        title: { Text("copy destination") },
+                                        icon: { Image(systemName: "link") }
+                                    )
+                                })
+                            }
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
                         }
-                        Divider()
-                        if let shareItem = fetcher.result?.shareURLs.first {
-                            ShareLink(shareItem.name, item: shareItem.content)
-                            Button(action: {
-                                UIPasteboard.general.string = shareItem.content.absoluteString
-                            }, label: {
-                                Label(
-                                    title: { Text("Copy URL") },
-                                    icon: { Image(systemName: "link") }
-                                )
-                            })
-                        }
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
                     }
                 }
             }
@@ -166,7 +163,7 @@ struct PURLView: View {
     var content: some View {
         preview
             .safeAreaInset(edge: .top) {
-                overlay
+                pathInfo
             }
     }
     
@@ -180,50 +177,43 @@ struct PURLView: View {
     }
     
     @ViewBuilder
-    var overlay: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            if context != .profile {
-                HStack(alignment: .top) {
-                    Spacer()
-                    AddressNameView(fetcher.address)
-                    Menu {
-                        AddressModel(name: fetcher.address).contextMenu(in: sceneModel)
-                    } label: {
-                        AddressIconView(address: fetcher.address)
-                    }
-                    .padding(.trailing)
+    var pathInfo: some View {
+        if context != .profile {
+            VStack(alignment: .leading) {
+                HStack(alignment: .lastTextBaseline) {
+                    AddressIconView(address: fetcher.address)
+                    Text("/\(fetcher.result?.name ?? fetcher.title)")
+                        .font(.title2)
+                        .fontDesign(.monospaced)
+                        .foregroundStyle(Color.primary)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
                 }
-            }
-            VStack(alignment: .leading, spacing: 2) {
-                Group {
-                    switch sizeClass {
-                    default:
-                        Text("\(fetcher.address).purl.lol/")
-                            .font(.title2)
-                            .bold()
-                            .foregroundStyle(Color.accentColor)
-                        +
-                        Text(fetcher.result?.name ?? fetcher.title)
-                            .font(.title3)
-                            .foregroundStyle(Color.primary)
-                    }
-                }
-                .font(.system(size: 100))
-                .minimumScaleFactor(0.01)
-                .multilineTextAlignment(.trailing)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .fontDesign(.monospaced)
-                .lineLimit(2)
                 
-                if let destination = fetcher.result?.content, destination.isEmpty {
+                if let destination = fetcher.result?.content, !destination.isEmpty {
                     Text(destination)
                         .textSelection(.enabled)
                         .font(.caption)
                         .fontDesign(.serif)
                         .lineLimit(2)
+                        .multilineTextAlignment(.leading)
                 }
             }
-            .padding(.horizontal)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(Material.thin)
+            .cornerRadius(10)
+            .padding(4)
+            .background(Color.clear)
         }
     }
+}
+
+#Preview {
+    let sceneModel = SceneModel.sample
+    let purlFetcher = AddressPURLDataFetcher(name: "app", title: "privacy", interface: SampleData(), db: sceneModel.database)
+    NavigationStack {
+        PURLView(fetcher: purlFetcher)
+    }
+    .environment(sceneModel)
 }

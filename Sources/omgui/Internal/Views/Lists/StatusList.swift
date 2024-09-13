@@ -27,6 +27,13 @@ struct StatusList: View {
             dataFetcher: fetcher
         )
         .toolbarRole(.editor)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                if let first = fetcher.addresses.first, fetcher.addresses.count == 1 {
+                    AddressNameView(first, suffix: "/statuses")
+                }
+            }
+        }
     }
 }
 

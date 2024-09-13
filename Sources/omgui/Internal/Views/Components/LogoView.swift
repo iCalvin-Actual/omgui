@@ -8,6 +8,7 @@ struct LogoView: View {
     var body: some View {
         coreIcon
             .aspectRatio(1, contentMode: .fit)
+            .frame(width: 33, height: 33)
     }
     
     @ViewBuilder

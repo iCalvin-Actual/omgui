@@ -238,6 +238,9 @@ public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Cod
     @BlackbirdColumn
     public var listed: Bool
     
+    var pasteURL: URL {
+        URL(string: "https://\(owner).paste.lol/\(name)")!
+    }
     
     enum CodingKeys: String, BlackbirdCodingKey {
         case owner
@@ -312,6 +315,10 @@ public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Coda
     
     var url: URL? {
         URL(string: content)
+    }
+    
+    var purlURL: URL {
+        URL(string: "https://\(owner).url.lol/\(name)")!
     }
     
     enum CodingKeys: String, BlackbirdCodingKey {

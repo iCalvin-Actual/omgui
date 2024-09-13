@@ -100,7 +100,7 @@ struct HTMLContentView: UIViewRepresentable {
         wkWebView.allowsLinkPreview = true
         wkWebView.allowsBackForwardNavigationGestures = true
         wkWebView.scrollView.contentInsetAdjustmentBehavior = .never
-        wkWebView.scrollView.contentInset = .init(top: 0, left: 0, bottom: 100, right: 0)
+//        wkWebView.scrollView.contentInset = .init(top: 0, left: 0, bottom: 100, right: 0)
         return wkWebView
     }
     

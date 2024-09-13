@@ -19,13 +19,13 @@ enum Sort: String, Identifiable {
     var displayString: String {
         switch self {
         case .alphabet:
-            return "Alphabetical"
+            return "alphabetical"
         case .newestFirst:
-            return "Recent First"
+            return "recent"
         case .oldestFirst:
-            return "Oldest First"
+            return "oldest"
         case .shuffle:
-            return "Shuffle"
+            return "shuffle"
         }
     }
     
@@ -108,7 +108,7 @@ extension StatusModel: AllSortable {
     static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
-            .newestFirst,
+            .newestFirst
         ]
     }
 }
@@ -120,8 +120,9 @@ extension NowListing: AllSortable {
     static let defaultSort: Sort = .newestFirst
     static var sortOptions: [Sort] {
         [
+            .newestFirst,
             .shuffle,
-            .newestFirst
+            .oldestFirst
         ]
     }
 }

@@ -34,6 +34,7 @@ struct AddressSummaryView: View {
     
     var body: some View {
         sizeAppropriateBody
+            .environment(\.viewContext, .profile)
             .onChange(of: sceneModel.addressBook.actingAddress) { oldValue, newValue in
                 if addressSummaryFetcher.addressName.isEmpty {
                     addressSummaryFetcher.configure(name: newValue)
@@ -71,7 +72,6 @@ struct AddressSummaryView: View {
             }
         }
         .frame(height: 50)
-        .ignoresSafeArea(.container, edges: [.bottom])
     }
     
     @ViewBuilder
@@ -108,7 +108,7 @@ struct AddressSummaryView: View {
     func destination(_ item: AddressContent? = nil) -> some View {
         let workingItem = item ?? .profile
         sceneModel.destinationConstructor.destination(workingItem.destination(addressSummaryFetcher.addressName))
-            .ignoresSafeArea(.container, edges: [.bottom])
+            .ignoresSafeArea(.container, edges: (horizontalSizeClass == .regular && UIDevice.current.userInterfaceIdiom == .pad) ? [.bottom] : [])
             .navigationSplitViewColumnWidth(min: 250, ideal: 600)
             .navigationBarTitleDisplayMode(.inline)
     }

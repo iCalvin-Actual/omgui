@@ -32,7 +32,7 @@ struct ListsView: View {
                             ForEach(viewModel.pinned) { address in
                                 NavigationLink(value: NavigationDestination.address(address)) {
                                     VStack(alignment: .leading) {
-                                        AddressIconView(address: address, size: 80)
+                                        AddressIconView(address: address, size: 80, showMenu: false)
                                             .padding(4)
                                         Text(address.addressDisplayString)
                                             .font(.headline)
@@ -50,6 +50,7 @@ struct ListsView: View {
                         Image(systemName: "pin.square.fill")
                             .font(.subheadline)
                             .foregroundStyle(Color.accentColor)
+                            .padding(6)
                     })
                 } else {
                     Label(title: {
@@ -113,11 +114,11 @@ struct ListsView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                HStack(spacing: 4) {
-                    LogoView()
-                        .frame(height: 34)
-                    ThemedTextView(text: "app.lol", font: .title)
-                }
+                ThemedTextView(text: "app.lol")
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                LogoView()
             }
         }
         .navigationBarTitleDisplayMode(.inline)

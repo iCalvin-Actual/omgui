@@ -167,9 +167,7 @@ struct PasteView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    if let name = fetcher.result?.name {
-                        ThemedTextView(text: "/\(name)")
-                    }
+                    AddressNameView(fetcher.address, suffix: "/pastebin")
                 }
 //                ToolbarItem(placement: .topBarTrailing) {
 //                    if fetcher.draftPoster != nil {
@@ -212,32 +210,31 @@ struct PasteView: View {
 //                    }
 //                }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        if let content = fetcher.result?.content {
-                            ShareLink(item: content)
+                    if let pasteURL = fetcher.result?.pasteURL {
+                        Menu {
+                            ShareLink("share paste", item: pasteURL)
+                            Divider()
                             Button(action: {
-                                UIPasteboard.general.string = content
+                                UIPasteboard.general.string = pasteURL.absoluteString
                             }, label: {
                                 Label(
-                                    title: { Text("Copy Content") },
-                                    icon: { Image(systemName: "doc.on.doc") }
+                                    title: { Text("copy paste") },
+                                    icon: { Image(systemName: "doc.on.clipboard") }
                                 )
                             })
+                            if let shareItem = fetcher.result?.content {
+                                Button(action: {
+                                    UIPasteboard.general.string = shareItem
+                                }, label: {
+                                    Label(
+                                        title: { Text("copy paste content") },
+                                        icon: { Image(systemName: "text.alignleft") }
+                                    )
+                                })
+                            }
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
                         }
-                        Divider()
-                        if let shareItem = fetcher.result?.shareURLs.first {
-                            ShareLink(shareItem.name, item: shareItem.content)
-                            Button(action: {
-                                UIPasteboard.general.string = shareItem.content.absoluteString
-                            }, label: {
-                                Label(
-                                    title: { Text("Copy URL") },
-                                    icon: { Image(systemName: "link") }
-                                )
-                            })
-                        }
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
                     }
                 }
             }
@@ -262,19 +259,23 @@ struct PasteView: View {
     @ViewBuilder
     var mainContent: some View {
         VStack(alignment: .leading) {
-            Group {
-                Text("\(fetcher.address).paste.lol/")
-                    .font(.title2)
-                    .bold()
-                    .foregroundStyle(Color.accentColor)
-                +
-                Text(fetcher.result?.name ?? fetcher.title)
-                    .font(.title3)
-                    .foregroundStyle(Color.primary)
+            if context != .profile {
+                HStack(alignment: .lastTextBaseline) {
+                    AddressIconView(address: fetcher.address)
+                    Text("/\(fetcher.result?.name ?? fetcher.title)")
+                        .font(.title2)
+                        .fontDesign(.monospaced)
+                        .foregroundStyle(Color.primary)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+                .background(Material.thin)
+                .cornerRadius(10)
+                .padding(4)
+                .background(Color.clear)
             }
-            .fontDesign(.monospaced)
-            .padding(.top)
-            .padding(.horizontal)
             
             ScrollView {
                 Text(fetcher.result?.content ?? "")

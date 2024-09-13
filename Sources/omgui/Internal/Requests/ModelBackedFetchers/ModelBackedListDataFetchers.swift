@@ -11,6 +11,8 @@ import SwiftUI
 
 
 class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
+    override var title: String { "omg.lol/" }
+    
     override func fetchRemote() async throws {
         guard results.isEmpty else {
             return
@@ -244,10 +246,6 @@ class AddressPasteBinDataFetcher: ModelBackedListDataFetcher<PasteModel> {
     let addressName: AddressName
     let credential: APICredential?
     
-    override var title: String {
-        "\(addressName.addressDisplayString).paste"
-    }
-    
     init(name: AddressName, pastes: [PasteModel] = [], credential: APICredential?, addressBook: AddressBook, interface: DataInterface, db: Blackbird.Database) {
         self.addressName = name
         self.credential = credential
@@ -271,10 +269,6 @@ class AddressPasteBinDataFetcher: ModelBackedListDataFetcher<PasteModel> {
 class AddressPURLsDataFetcher: ModelBackedListDataFetcher<PURLModel> {
     let addressName: AddressName
     let credential: APICredential?
-    
-    override var title: String {
-        "\(addressName.addressDisplayString).PURLs"
-    }
     
     init(name: AddressName, purls: [PURLModel] = [], credential: APICredential?, addressBook: AddressBook, interface: DataInterface, db: Blackbird.Database) {
         self.addressName = name
@@ -306,9 +300,9 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
         self.displayTitle = title ?? {
             switch addresses.count {
             case 0:
-                return "status"
+                return "status.lol/"
             case 1:
-                return "@/statuses"
+                return ""
             default:
                 return "statuses"
             }

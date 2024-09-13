@@ -16,5 +16,10 @@ struct AddressPURLsView: View {
             filters: .everyone,
             dataFetcher: fetcher
         )
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                AddressNameView(fetcher.addressName, suffix: "/purls")
+            }
+        }
     }
 }

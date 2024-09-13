@@ -17,15 +17,6 @@ struct DirectoryView: View {
             filters: .everyone,
             dataFetcher: fetcher
         )
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                HStack(spacing: 4) {
-                    LogoView()
-                        .frame(height: 34)
-                    ThemedTextView(text: "app.lol", font: .title)
-                }
-            }
-        }
     }
 }
 

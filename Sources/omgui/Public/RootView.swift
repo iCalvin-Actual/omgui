@@ -27,6 +27,7 @@ struct RootView: View {
     
     var body: some View {
         appropriateNavigation
+            .background(Color.orange)
             .task { @MainActor [statusFetcher = sceneModel.statusFetcher, addressBook] in
                 await addressBook.autoFetch()
                 try? await statusFetcher.fetchRemote()

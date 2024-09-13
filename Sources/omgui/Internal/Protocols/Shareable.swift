@@ -116,7 +116,7 @@ extension NowModel: Sharable {
         return .init(name: "/Now page", content: URL(string: "https://\(urlSafeAddress).omg.lol/now")!)
     }
     var shareURLs: [SharePacket] {
-        []
+        [primaryURL].compactMap({ $0 })
     }
 }
 

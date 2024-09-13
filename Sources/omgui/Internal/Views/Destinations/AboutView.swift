@@ -11,14 +11,21 @@ import SwiftUI
 struct AboutView: View {
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
+    @Environment(\.horizontalSizeClass)
+    var horizontalSizeClass
     
     @State var presented: URL?
     
     var body: some View {
-        RemoteHTMLContentView(activeAddress: sceneModel.addressBook.actingAddress, startingURL: URL(string: "https://home.omg.lol/referred-by/app")!, activeURL: $presented, scrollEnabled: .constant(true))
+        RemoteHTMLContentView(activeAddress: sceneModel.addressBook.actingAddress, startingURL: URL(string: "https://home.omg.lol/info/referred-by/app")!, activeURL: $presented, scrollEnabled: .constant(true))
             .sheet(item: $presented, content: { url in
                 SafariView(url: url)
-                    .ignoresSafeArea(.all, edges: .bottom)
+                    .ignoresSafeArea(.container, edges: (horizontalSizeClass == .regular && UIDevice.current.userInterfaceIdiom == .pad) ? [.bottom] : [])
             })
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    ThemedTextView(text: "info & help")
+                }
+            }
     }
 }

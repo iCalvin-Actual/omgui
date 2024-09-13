@@ -32,8 +32,10 @@ struct StatusView: View {
                         .padding()
                 } else if fetcher.loading {
                     LoadingView()
+                        .padding()
                 } else {
                     LoadingView()
+                        .padding()
                         .task { [fetcher] in
                             await fetcher.updateIfNeeded(forceReload: true)
                         }
@@ -49,6 +51,12 @@ struct StatusView: View {
                 Spacer()
             }
         }
+        .navigationTitle("")
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                AddressNameView(fetcher.address, suffix: "/status")
+            }
+        }
         .onChange(of: fetcher.id, {
             Task { [fetcher] in
                 await fetcher.updateIfNeeded(forceReload: true)
@@ -59,7 +67,7 @@ struct StatusView: View {
         }
         .sheet(item: $presentURL, content: { url in
             SafariView(url: url)
-                .ignoresSafeArea(.all, edges: .bottom)
+                .ignoresSafeArea(.container, edges: .all)
         })
         .environment(\.viewContext, ViewContext.detail)
         .toolbar {
