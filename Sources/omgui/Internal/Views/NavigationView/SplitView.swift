@@ -43,7 +43,7 @@ struct SplitView: View {
     
     @ViewBuilder
     func destinationView(_ destination: NavigationDestination? = .webpage("app")) -> some View {
-            sceneModel.destinationConstructor.destination(destination)
-                .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
+        sceneModel.destinationConstructor.destination(destination)
+            .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
     }
 }

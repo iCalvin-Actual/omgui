@@ -41,6 +41,8 @@ struct SafetyView: View {
                     .multilineTextAlignment(.leading)
                 ReportButton()
             }
+            .foregroundStyle(.secondary)
+            .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
             Section("blocked") {
                 if sceneModel.addressBook.visibleBlocked.isEmpty {
                     Text("If you wan't to stop seeing content from an address, Long Press the address or avatar and select Safety > Block")
@@ -60,7 +62,10 @@ struct SafetyView: View {
                     }
                 }
             }
+            .foregroundStyle(.secondary)
+            .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
         }
+        .scrollContentBackground(.hidden)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 ThemedTextView(text: "safety")
@@ -71,6 +76,7 @@ struct SafetyView: View {
     @ViewBuilder
     var visibleBlockedList: some View {
         ListView<AddressModel, EmptyView>(filters: .none, dataFetcher: sceneModel.privateSummary(for: sceneModel.addressBook.actingAddress)?.blockedFetcher ?? sceneModel.addressBook.localBlocklistFetcher)
+            .scrollContentBackground(.hidden)
         // Add toolbar item to insert new
     }
 }
@@ -81,4 +87,5 @@ struct SafetyView: View {
     SafetyView(addressBook: model.addressBook)
         .environment(model)
         .environment(authFetcher)
+        .background(Gradient(colors: [.red, .orange]))
 }

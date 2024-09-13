@@ -58,7 +58,6 @@ struct PURLRowView: View {
             .frame(maxWidth: .infinity)
             .padding(12)
             .foregroundColor(.black)
-            .background(Color.lolRandom(model.name))
             .cornerRadius(12, antialiased: true)
             .foregroundStyle(Color.black)
             .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)

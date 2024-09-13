@@ -100,7 +100,7 @@ struct StatusRowView: View {
 //                    + Text(" ").font(.largeTitle) +
              */
             appropriateMarkdown
-                .font(.system(.body))
+                .font(.callout)
                 .fontWeight(.medium)
                 .fontDesign(.rounded)
                 .environment(\.colorScheme, .light)

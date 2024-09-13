@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
     var id: String { rawValue }
@@ -168,6 +169,45 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
             }
         default:
             return nil
+        }
+    }
+}
+
+extension NavigationDestination {
+    public var color: Color {
+        switch self {
+        case .community:
+            return .lolPurple
+        case .directory:
+            return .lolBlue
+        case .nowGarden:
+            return .lolYellow
+        case .about:
+            return .lolTeal.opacity(0.42)
+        default:
+            return .lolRandom(rawValue)
+        }
+    }
+    
+    public var secondaryColor: Color {
+        switch self {
+        case .community:
+            return .lolPink
+        case .directory:
+            return .lolOrange
+        case .nowGarden:
+            return .lolGreen
+        case .about:
+            return .lolTeal.opacity(0.42)
+        default:
+            return .lolRandomAlternative(rawValue)
+        }
+    }
+    
+    public var gradient: Gradient {
+        switch self {
+        default:
+            return .init(colors: [color, secondaryColor])
         }
     }
 }

@@ -57,11 +57,7 @@ struct TabBar: View {
         TabView(selection: $selected) {
             ForEach(tabModel.tabs) { item in
                 Tab(item.displayString, systemImage: item.iconName, value: item) {
-                    NavigationStack {
-                        sceneModel.destinationConstructor.destination(item.destination)
-                            .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
-                            .navigationTitle("")
-                    }
+                    tabContent(item.destination)
                 }
                 .hidden(Self.usingRegularTabBar(sizeClass: horizontalSizeClass))
             }
@@ -72,22 +68,14 @@ struct TabBar: View {
     var regularTabBar: some View {
         TabView(selection: $selected) {
             Tab(NavigationItem.search.displayString, systemImage: NavigationItem.search.iconName, value: NavigationItem.search, role: .search) {
-                NavigationStack {
-                    sceneModel.destinationConstructor.destination(NavigationItem.search.destination)
-                        .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
-                        .navigationTitle("")
-                }
+                tabContent(NavigationItem.search.destination)
             }
 
             ForEach(tabModel.sections) { section in
                 TabSection(section.displayName) {
                     ForEach(tabModel.items(for: section)) { item in
                         Tab(item.displayString, systemImage: item.iconName, value: item, role: item == .search ? .search : nil) {
-                            NavigationStack {
-                                sceneModel.destinationConstructor.destination(item.destination)
-                                    .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
-                                    .navigationTitle("")
-                            }
+                            tabContent(item.destination)
                         }
                         
                     }
@@ -95,6 +83,15 @@ struct TabBar: View {
             }
         }
         .tabViewStyle(.sidebarAdaptable)
+    }
+    
+    @ViewBuilder
+    func tabContent(_ destination: NavigationDestination) -> some View {
+        NavigationStack {
+            sceneModel.destinationConstructor.destination(destination)
+                .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
+                .navigationTitle("")
+        }
     }
 }
 

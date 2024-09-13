@@ -130,6 +130,7 @@ struct ListRow<T: Listable>: View {
                 Spacer()
                 Text(model.listTitle)
                     .font(.title3)
+                    .foregroundStyle(.secondary)
                     .bold()
                     .frame(maxWidth: .infinity, alignment: .leading)
             }

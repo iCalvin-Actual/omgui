@@ -180,7 +180,7 @@ struct ListView<T: Listable, H: View>: View {
     
     @ViewBuilder
     var searchableList: some View {
-        if allowSearch && (dataFetcher.loaded || !queryString.isEmpty) {
+        if allowSearch {
             list
                 .searchable(text: $queryString, placement: .automatic)
         } else {
@@ -224,6 +224,7 @@ struct ListView<T: Listable, H: View>: View {
                 LoadingView()
                     .padding(32)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .listRowBackground(Color.clear)
                     .task { [dataFetcher] in
                         dataFetcher.fetchNextPageIfNeeded()
                     }

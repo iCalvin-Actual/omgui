@@ -54,10 +54,10 @@ struct AddressSummaryView: View {
                         destinationButton(page)
                     }
                 }
-                .background(Color.lolBackground)
             }
         }
-        .frame(height: 50)
+        .frame(maxHeight: 44)
+        .padding(.vertical, 4)
     }
     
     @ViewBuilder
@@ -69,13 +69,14 @@ struct AddressSummaryView: View {
             }
         }) {
             Text(page.displayString)
+                .font(.callout)
                 .bold()
                 .padding(8)
                 .frame(minWidth: 44, maxHeight: .infinity, alignment: .bottom)
-                .background(page == selectedPage ? page.color : Color.clear)
+                .background(page == selectedPage ? Color(UIColor.systemBackground).opacity(0.42) : Color.clear)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding(6)
-                .foregroundColor(page == selectedPage ? .white : .primary)
+                .foregroundColor(page == selectedPage ? .black : .white)
                 .bold(page == selectedPage)
         }
     }
@@ -86,8 +87,14 @@ struct AddressSummaryView: View {
             AddressSummaryHeader(expandBio: $expandBio, addressSummaryFetcher: addressSummaryFetcher)
                 .padding()
             destinationPicker
-            destination(selectedPage)
-                .frame(maxHeight: expandBio ? 0 : .infinity)
+            if #available(iOS 18.0, *) {
+                destination(selectedPage)
+                    .frame(maxHeight: expandBio ? 0 : .infinity)
+//                    .toolbarBackgroundVisibility(.hidden, for: .tabBar)
+            } else {
+                destination(selectedPage)
+                    .frame(maxHeight: expandBio ? 0 : .infinity)
+            }
         }
     }
     
@@ -95,6 +102,7 @@ struct AddressSummaryView: View {
     func destination(_ item: AddressContent? = nil) -> some View {
         let workingItem = item ?? .profile
         sceneModel.destinationConstructor.destination(workingItem.destination(addressSummaryFetcher.addressName))
+            .background(Color.clear)
             .ignoresSafeArea(.container, edges: (horizontalSizeClass == .regular && UIDevice.current.userInterfaceIdiom == .pad) ? [.bottom] : [])
             .navigationSplitViewColumnWidth(min: 250, ideal: 600)
             .navigationBarTitleDisplayMode(.inline)

@@ -13,6 +13,18 @@ struct DestinationConstructor {
 
     @ViewBuilder
     func destination(_ destination: NavigationDestination? = nil) -> some View {
+        if let destination {
+            viewContent(destination)
+                .background(destination.gradient)
+                .toolbarBackground(destination.color, for: .navigationBar)
+                .toolbarBackground(destination.secondaryColor, for: .tabBar)
+        } else {
+            viewContent(destination)
+        }
+    }
+        
+    @ViewBuilder
+    func viewContent(_ destination: NavigationDestination? = nil) -> some View {
         let destination = destination ?? .community
         switch destination {
         case .directory:

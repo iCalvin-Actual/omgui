@@ -25,12 +25,22 @@ extension Color {
     }
     
     static func lolRandom(_ input: String = .lolRandom.randomElement() ?? "000000") -> Color {
-        let hash = input.staticHash
         let colors: [Color] = String.lolRandom.map({ .init(hex: $0) })
         
-        let modValue = abs(hash % colors.endIndex)
+        return colors[modFromString(input, cnt: colors.count)]
+    }
+    
+    static func lolRandomAlternative(_ input: String = .lolRandom.randomElement() ?? "000000") -> Color {
+        let colors: [Color] = String.lolRandom.map({ .init(hex: $0) })
         
-        return colors[modValue]
+        let ogValue = modFromString(input, cnt: colors.count)
+        return colors[ogValue > colors.endIndex ? ogValue : 0]
+    }
+    
+    private static func modFromString(_ input: String, cnt: Int) -> Int {
+        let hash = input.staticHash
+        
+        return abs(hash % cnt)
     }
 }
 

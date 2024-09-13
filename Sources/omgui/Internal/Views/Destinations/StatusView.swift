@@ -165,7 +165,7 @@ struct StatusView: View {
             }
             .foregroundColor(.primary)
             .padding(4)
-            .background(Color.lolBackground)
+            .background(Material.thin)
             .mask {
                 RoundedRectangle(cornerRadius: 4, style: .continuous)
             }

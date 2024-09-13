@@ -34,9 +34,9 @@ struct CardViewModifier: ViewModifier {
             content
                 .frame(maxWidth: .infinity)
                 .padding(padding)
-                .background(color)
+                .background(Material.thin)
                 .cornerRadius(4)
-                .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black, radius: radius, x: shadowOffset, y: shadowOffset)
+                .shadow(color: selected ? .black : .clear, radius:  radius, x: shadowOffset, y: shadowOffset)
         }
         .padding(2)
     }

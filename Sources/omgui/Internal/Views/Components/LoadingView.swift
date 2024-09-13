@@ -32,7 +32,7 @@ struct LoadingView: View {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .scaleEffect(2.0, anchor: .center)
-                    .tint(.accentColor)
+                    .tint(.lolAccent)
                 ThemedTextView(text: "loading...")
             }
             .padding(4)
@@ -42,7 +42,7 @@ struct LoadingView: View {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .scaleEffect(2.0, anchor: .center)
-                    .tint(.accentColor)
+                    .tint(.lolAccent)
                 ThemedTextView(text: "loading...")
                 Spacer()
             }

@@ -47,6 +47,7 @@ struct AddressNowView: View {
                 if fetcher.noContent {
                     ThemedTextView(text: "no /now page")
                         .padding()
+                        .frame(maxWidth: .infinity)
                 } else {
                     LoadingView()
                 }

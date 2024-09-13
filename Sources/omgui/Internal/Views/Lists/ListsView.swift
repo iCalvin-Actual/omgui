@@ -28,28 +28,33 @@ struct ListsView: View {
             Section("Pinned") {
                 if viewModel.showPinned {
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(alignment: .top) {
+                        HStack(alignment: .top, spacing: 8) {
                             ForEach(viewModel.pinned) { address in
                                 NavigationLink(value: NavigationDestination.address(address)) {
                                     VStack(alignment: .leading) {
-                                        AddressIconView(address: address, size: 80, showMenu: false)
+                                        AddressIconView(address: address, size: 55, showMenu: false)
                                             .padding(4)
                                         Text(address.addressDisplayString)
-                                            .font(.headline)
+                                            .font(.caption)
                                             .fontDesign(.serif)
+                                            .foregroundStyle(.secondary)
                                             .multilineTextAlignment(.trailing)
                                             .lineLimit(3)
                                             .foregroundStyle(Color.primary)
                                     }
-                                    .frame(width: 88)
+                                    .frame(maxWidth: 88)
                                 }
                             }
                         }
                     }
+                    .padding()
+                    .background(Material.thin)
+                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowBackground(Color.clear)
                     .overlay(alignment: .topLeading, content: {
                         Image(systemName: "pin.square.fill")
                             .font(.subheadline)
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(Color.lolAccent)
                             .padding(6)
                     })
                 } else {
@@ -58,6 +63,8 @@ struct ListsView: View {
                     }) {
                         Image(systemName: "pin")
                     }
+                    .foregroundStyle(.secondary)
+                    .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
                 }
             }
             
@@ -74,6 +81,8 @@ struct ListsView: View {
                                     Image(systemName: "person.3")
                                 }
                             }
+                            .foregroundStyle(.secondary)
+                            .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
                         }
                     } else {
                         Label(title: {
@@ -81,6 +90,8 @@ struct ListsView: View {
                         }) {
                             Image(systemName: "person.3")
                         }
+                        .foregroundStyle(.secondary)
+                        .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
                     }
                 }
             }
@@ -93,8 +104,11 @@ struct ListsView: View {
                         } label: {
                             item.label
                         }
+                        .foregroundStyle(.secondary)
+                        .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
                     }
                 }
+
             }
             
             if sceneModel.addressBook.signedIn {
@@ -112,6 +126,8 @@ struct ListsView: View {
                 .buttonStyle(.borderedProminent)
             }
         }
+        .fontDesign(.serif)
+        .scrollContentBackground(.hidden)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 ThemedTextView(text: "app.lol")
@@ -159,5 +175,6 @@ class ListsViewModel: ObservableObject {
     ListsView(sceneModel: sceneModel)
         .environment(sceneModel)
         .environment(accountAuthFetcher)
+        .background(Gradient(colors: Color.lolRandom))
     
 }
