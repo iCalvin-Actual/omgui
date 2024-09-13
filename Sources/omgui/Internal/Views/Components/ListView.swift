@@ -143,7 +143,7 @@ struct ListView<T: Listable, H: View>: View {
     var toolbarAwareBody: some View {
         if #available(iOS 18.0, *) {
             sizeAppropriateBody
-                .toolbarVisibility(.visible, for: .navigationBar)
+                .toolbarBackgroundVisibility(.visible, for: .navigationBar)
         } else {
             sizeAppropriateBody
         }
@@ -173,9 +173,17 @@ struct ListView<T: Listable, H: View>: View {
     
     @ViewBuilder
     var compactBody: some View {
-        searchableList
-            .animation(.easeInOut(duration: 0.3), value: dataFetcher.loaded)
-            .listRowBackground(Color.clear)
+        let body: some View = {
+            searchableList
+                .animation(.easeInOut(duration: 0.3), value: dataFetcher.loaded)
+                .listRowBackground(Color.clear)
+        }()
+        if #available(iOS 18.0, *) {
+            body
+                .toolbarBackgroundVisibility(.visible, for: .navigationBar)
+        } else {
+            body
+        }
     }
     
     @ViewBuilder
@@ -215,48 +223,56 @@ struct ListView<T: Listable, H: View>: View {
     
     @ViewBuilder
     var list: some View {
-        List(selection: $selected) {
-            listItems
-                .listRowBackground(Color.clear)
-                .padding(.vertical, 4)
-            
-            if let nextPage = dataFetcher.nextPage, nextPage != 0, queryString.isEmpty {
-                LoadingView()
-                    .padding(32)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+        let body: some View = {
+            List(selection: $selected) {
+                listItems
                     .listRowBackground(Color.clear)
-                    .task { [dataFetcher] in
-                        dataFetcher.fetchNextPageIfNeeded()
-                    }
+                    .padding(.vertical, 4)
+                
+                if let nextPage = dataFetcher.nextPage, nextPage != 0, queryString.isEmpty {
+                    LoadingView()
+                        .padding(32)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .listRowBackground(Color.clear)
+                        .task { [dataFetcher] in
+                            dataFetcher.fetchNextPageIfNeeded()
+                        }
+                }
             }
+            .refreshable(action: { [dataFetcher] in
+                dataFetcher.loaded = false
+                dataFetcher.loading = true
+                await dataFetcher.updateIfNeeded(forceReload: true)
+                dataFetcher.loading = false
+                dataFetcher.loaded = true
+            })
+            .listStyle(.plain)
+            .onReceive(dataFetcher.$loaded, perform: { _ in
+                var newSelection: T?
+                switch (
+                    horizontalSize == .regular,
+                    dataFetcher.loaded,
+                    selected == nil
+                ) {
+                case (false, true, false):
+                    newSelection = nil
+                case (true, true, true):
+                    newSelection = dataFetcher.results.first
+                default:
+                    return
+                }
+                
+                try? withAnimation { @MainActor in
+                    self.selected = newSelection
+                }
+            })
+        }()
+        if #available(iOS 18.0, *) {
+            body
+                .toolbarBackgroundVisibility(.visible, for: .navigationBar)
+        } else {
+            body
         }
-        .refreshable(action: { [dataFetcher] in
-            dataFetcher.loaded = false
-            dataFetcher.loading = true
-            await dataFetcher.updateIfNeeded(forceReload: true)
-            dataFetcher.loading = false
-            dataFetcher.loaded = true
-        })
-        .listStyle(.plain)
-        .onReceive(dataFetcher.$loaded, perform: { _ in
-            var newSelection: T?
-            switch (
-                horizontalSize == .regular,
-                dataFetcher.loaded,
-                selected == nil
-            ) {
-            case (false, true, false):
-                newSelection = nil
-            case (true, true, true):
-                newSelection = dataFetcher.results.first
-            default:
-                return
-            }
-            
-            try? withAnimation { @MainActor in
-                self.selected = newSelection
-            }
-        })
     }
     
     @ViewBuilder

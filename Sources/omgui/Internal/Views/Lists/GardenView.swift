@@ -40,7 +40,7 @@ struct GardenItemView: View {
                 Text(model.listTitle)
                     .font(.title3)
                     .bold()
-                    .foregroundColor(.black)
+                    .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
@@ -51,13 +51,14 @@ struct GardenItemView: View {
                 HStack(alignment: .bottom) {
                     Text(subtitle)
                         .font(.subheadline)
+                        .foregroundStyle(.secondary)
                         .fontDesign(.monospaced)
-                        .foregroundColor(.black.opacity(0.8))
                         .bold()
                     Spacer()
                     Text(caption)
                         .foregroundColor(.gray.opacity(0.6))
                         .font(.subheadline)
+                        .foregroundStyle(.secondary)
                         .fontDesign(.rounded)
                 }
             }

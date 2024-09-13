@@ -177,7 +177,7 @@ extension NavigationDestination {
     public var color: Color {
         switch self {
         case .community:
-            return .lolPurple
+            return .lolOrange
         case .directory:
             return .lolBlue
         case .nowGarden:
@@ -192,7 +192,7 @@ extension NavigationDestination {
     public var secondaryColor: Color {
         switch self {
         case .community:
-            return .lolPink
+            return .lolBlue
         case .directory:
             return .lolOrange
         case .nowGarden:

@@ -41,7 +41,7 @@ struct SafetyView: View {
                     .multilineTextAlignment(.leading)
                 ReportButton()
             }
-            .foregroundStyle(.secondary)
+            .foregroundStyle(.primary)
             .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
             Section("blocked") {
                 if sceneModel.addressBook.visibleBlocked.isEmpty {
@@ -62,7 +62,7 @@ struct SafetyView: View {
                     }
                 }
             }
-            .foregroundStyle(.secondary)
+            .foregroundStyle(.primary)
             .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
         }
         .scrollContentBackground(.hidden)

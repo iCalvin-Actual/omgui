@@ -26,7 +26,7 @@ struct ThemedTextView: View {
             .font(font)
             .fontDesign(design)
 //            .foregroundStyle(Color.accentColor)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(.primary)
     }
     
     @ViewBuilder

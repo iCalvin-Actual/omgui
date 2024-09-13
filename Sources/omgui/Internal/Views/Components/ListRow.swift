@@ -71,6 +71,7 @@ struct ListRow<T: Listable>: View {
         appropriateBody
             .fontDesign(.serif)
             .padding(2)
+            .animation(.easeInOut(duration: 0.42), value: selected.wrappedValue)
     }
     
     @ViewBuilder
@@ -130,7 +131,7 @@ struct ListRow<T: Listable>: View {
                 Spacer()
                 Text(model.listTitle)
                     .font(.title3)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.primary)
                     .bold()
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -143,12 +144,12 @@ struct ListRow<T: Listable>: View {
             if hasMoreText {
                 HStack(alignment: .bottom) {
                     Text(subtitle)
+                        .foregroundStyle(.secondary)
                         .font(.headline)
-                        .foregroundColor(.black.opacity(0.8))
                         .bold()
                     Spacer()
                     Text(caption)
-                        .foregroundColor(.gray.opacity(0.6))
+                        .foregroundStyle(.secondary)
                         .font(.subheadline)
                 }
                 .padding(.trailing, trailingPadding)

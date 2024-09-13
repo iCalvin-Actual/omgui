@@ -37,7 +37,7 @@ struct ListsView: View {
                                         Text(address.addressDisplayString)
                                             .font(.caption)
                                             .fontDesign(.serif)
-                                            .foregroundStyle(.secondary)
+                                            .foregroundStyle(.primary)
                                             .multilineTextAlignment(.trailing)
                                             .lineLimit(3)
                                             .foregroundStyle(Color.primary)
@@ -63,7 +63,7 @@ struct ListsView: View {
                     }) {
                         Image(systemName: "pin")
                     }
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.primary)
                     .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
                 }
             }
@@ -81,7 +81,7 @@ struct ListsView: View {
                                     Image(systemName: "person.3")
                                 }
                             }
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.primary)
                             .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
                         }
                     } else {
@@ -90,7 +90,7 @@ struct ListsView: View {
                         }) {
                             Image(systemName: "person.3")
                         }
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary)
                         .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
                     }
                 }
@@ -104,7 +104,7 @@ struct ListsView: View {
                         } label: {
                             item.label
                         }
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary)
                         .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
                     }
                 }

@@ -33,7 +33,8 @@ extension Color {
     static func lolRandomAlternative(_ input: String = .lolRandom.randomElement() ?? "000000") -> Color {
         let colors: [Color] = String.lolRandom.map({ .init(hex: $0) })
         
-        let ogValue = modFromString(input, cnt: colors.count)
+        let ogValue = modFromString(input, cnt: colors.count) + 1
+        
         return colors[ogValue > colors.endIndex ? ogValue : 0]
     }
     
