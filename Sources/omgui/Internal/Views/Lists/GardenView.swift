@@ -14,7 +14,6 @@ struct GardenView: View {
     
     var body: some View {
         ListView<NowListing, EmptyView>(dataFetcher: fetcher)
-            .toolbarRole(.editor)
     }
 }
 

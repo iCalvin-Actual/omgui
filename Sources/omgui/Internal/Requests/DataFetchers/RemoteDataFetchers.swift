@@ -80,5 +80,7 @@ class AddressIconDataFetcher: ModelBackedDataFetcher<AddressIconModel> {
         let response = try await URLSession.shared.data(from: url)
         let model = AddressIconModel(owner: address, data: response.0)
         try await model.write(to: db)
+        
+        try await super.fetchRemote()
     }
 }

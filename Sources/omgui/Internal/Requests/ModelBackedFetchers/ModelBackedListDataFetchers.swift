@@ -19,13 +19,14 @@ class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
         }
         let directory = try await interface.fetchAddressDirectory()
         let listItems = directory.map({ AddressModel(name: $0) })
-//        self.results = listItems
         listItems.forEach({ model in
             let db = db
             Task {
                 try await model.write(to: db)
             }
         })
+        
+        try await super.fetchRemote()
     }
 }
 
@@ -239,6 +240,8 @@ class NowGardenDataFetcher: ModelBackedListDataFetcher<NowListing> {
                 try await model.write(to: db)
             }
         }
+        
+        try await super.fetchRemote()
     }
 }
 
@@ -263,6 +266,8 @@ class AddressPasteBinDataFetcher: ModelBackedListDataFetcher<PasteModel> {
                 try await model.write(to: db)
             }
         })
+        
+        try await super.fetchRemote()
     }
 }
 
@@ -287,6 +292,8 @@ class AddressPURLsDataFetcher: ModelBackedListDataFetcher<PURLModel> {
                 try await model.write(to: db)
             }
         })
+        
+        try await super.fetchRemote()
     }
 }
 
@@ -331,6 +338,8 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
                 }
             })
         }
+        
+        try await super.fetchRemote()
     }
     
     func fetchBacklog() async throws {

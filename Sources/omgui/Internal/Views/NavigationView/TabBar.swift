@@ -9,6 +9,16 @@ import SwiftUI
 
 @available(iOS 18.0, *)
 struct TabBar: View {
+    static func usingRegularTabBar(sizeClass: UserInterfaceSizeClass?, width: CGFloat? = nil) -> Bool {
+        guard UIDevice.current.userInterfaceIdiom != .phone && (sizeClass ?? .regular) != .compact else {
+            return false
+        }
+        if let width {
+            return width > 330
+        }
+        return true
+    }
+    
     @Environment(SceneModel.self)
     var sceneModel: SceneModel
     
@@ -25,7 +35,7 @@ struct TabBar: View {
     }
     
     var body: some View {
-        if UIDevice.current.userInterfaceIdiom == .phone || horizontalSizeClass == .compact {
+        if !Self.usingRegularTabBar(sizeClass: horizontalSizeClass) {
             compactTabBar
                 .onAppear{
                     if selected == nil {
@@ -53,7 +63,7 @@ struct TabBar: View {
                             .navigationTitle("")
                     }
                 }
-                .hidden(UIDevice.current.userInterfaceIdiom != .phone)
+                .hidden(Self.usingRegularTabBar(sizeClass: horizontalSizeClass))
             }
         }
     }

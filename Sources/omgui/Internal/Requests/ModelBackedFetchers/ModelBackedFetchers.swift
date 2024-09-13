@@ -31,6 +31,7 @@ class BackedDataFetcher: Request {
     }
     
     func fetchRemote() async throws {
+        try await fetchModels()
     }
 }
 
@@ -64,20 +65,28 @@ class ModelBackedListDataFetcher<T: ModelBackedListable>: ListFetcher<T> {
             return
         }
         try await fetchRemote()
-        try await fetchModels()
     }
     
     @MainActor
     override func fetchNextPageIfNeeded() {
-        Task { [weak self] in
-            try? await self?.fetchModels()
+        if !loading {
+            Task { [weak self] in
+                try? await self?.fetchModels()
+            }
+        } else if !loaded {
+            Task { [weak self] in
+                await self?.updateIfNeeded(forceReload: true)
+            }
         }
-
     }
     
     // must override
     @MainActor
     func fetchRemote() async throws {
+        if nextPage == nil {
+            nextPage = ListFetcher<NowListing>.isModelBacked ? 0 : nil
+        }
+        try await fetchModels()
     }
     
     @MainActor

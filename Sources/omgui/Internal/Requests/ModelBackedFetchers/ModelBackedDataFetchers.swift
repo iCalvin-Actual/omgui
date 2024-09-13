@@ -31,6 +31,8 @@ class AddressProfileDataFetcher: ModelBackedDataFetcher<AddressProfile> {
         }
         let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
         try await profile?.write(to: db)
+        
+        try await super.fetchRemote()
     }
 }
 
@@ -53,6 +55,8 @@ class AddressNowDataFetcher: ModelBackedDataFetcher<NowModel> {
         }
         let now = try await interface.fetchAddressNow(addressName)
         try await now?.write(to: db)
+        
+        try await super.fetchRemote()
     }
     
     override var noContent: Bool {
@@ -87,6 +91,8 @@ class StatusDataFetcher: ModelBackedDataFetcher<StatusModel> {
     override func fetchRemote() async throws {
         let status = try await interface.fetchAddressStatus(id, from: address)
         try await status?.write(to: db)
+        
+        try await super.fetchRemote()
     }
     
     func fetcher(for url: URL) -> URLContentDataFetcher? {
@@ -139,6 +145,8 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
         }
         let paste = try await interface.fetchPaste(title, from: address, credential: credential)
         try await paste?.write(to: db)
+        
+        try await super.fetchRemote()
     }
     
     func deleteIfPossible() async throws {
@@ -196,6 +204,8 @@ class AddressPURLDataFetcher: ModelBackedDataFetcher<PURLModel> {
         }
         let purl = try await interface.fetchPURL(title, from: address, credential: credential)
         try await purl?.write(to: db)
+        
+        try await super.fetchRemote()
     }
     
     func deleteIfPossible() async throws {

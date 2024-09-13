@@ -21,6 +21,14 @@ struct StatusList: View {
     
     var menuBuilder: ContextMenuBuilder<StatusModel>?
     
+    var usingRegular: Bool {
+        if #available(iOS 18.0, *) {
+            return TabBar.usingRegularTabBar(sizeClass: sizeClass)
+        } else {
+            return sizeClass == .regular && UIDevice.current.userInterfaceIdiom == .pad
+        }
+    }
+    
     var body: some View {
         ListView<StatusModel, EmptyView>(
             filters: .everyone,

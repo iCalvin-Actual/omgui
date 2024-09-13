@@ -42,6 +42,14 @@ struct ListView<T: Listable, H: View>: View {
     
     var menuBuilder: ContextMenuBuilder<T> = .init()
     
+    var usingRegular: Bool {
+        if #available(iOS 18.0, *) {
+            return TabBar.usingRegularTabBar(sizeClass: horizontalSize)
+        } else {
+            return horizontalSize == .regular && UIDevice.current.userInterfaceIdiom == .pad
+        }
+    }
+    
     init(
         filters: [FilterOption] = .everyone,
         allowSearch: Bool = true,
@@ -75,7 +83,11 @@ struct ListView<T: Listable, H: View>: View {
             .task { @MainActor [dataFetcher] in
                 if !dataFetcher.loading {
                     Task {
-                        await dataFetcher.updateIfNeeded()
+                        dataFetcher.loaded = false
+                        dataFetcher.loading = true
+                        await dataFetcher.updateIfNeeded(forceReload: true)
+                        dataFetcher.loaded = true
+                        dataFetcher.loading = false
                     }
                 }
             }
@@ -131,6 +143,7 @@ struct ListView<T: Listable, H: View>: View {
     var toolbarAwareBody: some View {
         if #available(iOS 18.0, *) {
             sizeAppropriateBody
+                .toolbarVisibility(.visible, for: .navigationBar)
         } else {
             sizeAppropriateBody
         }
@@ -142,10 +155,16 @@ struct ListView<T: Listable, H: View>: View {
             compactBody
         } else {
             GeometryReader { proxy in
-                switch proxy.size.width > 330 {
-                case true:
+                let useRegular: Bool = {
+                    if #available(iOS 18.0, *) {
+                        return TabBar.usingRegularTabBar(sizeClass: horizontalSize, width: proxy.size.width)
+                    } else {
+                        return UIDevice.current.userInterfaceIdiom == .phone || horizontalSize == .compact
+                    }
+                }()
+                if useRegular {
                     regularBody
-                default:
+                } else {
                     compactBody
                 }
             }
@@ -201,23 +220,14 @@ struct ListView<T: Listable, H: View>: View {
                 .listRowBackground(Color.clear)
                 .padding(.vertical, 4)
             
-            if dataFetcher.nextPage != nil && queryString.isEmpty {
+            if let nextPage = dataFetcher.nextPage, nextPage != 0, queryString.isEmpty {
                 LoadingView()
                     .padding(32)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .onAppear {
-                        Task { [dataFetcher] in
-                            dataFetcher.fetchNextPageIfNeeded()
-                        }
+                    .task { [dataFetcher] in
+                        dataFetcher.fetchNextPageIfNeeded()
                     }
             }
-        }
-        .task { [dataFetcher] in
-            guard !dataFetcher.loaded else { return }
-            dataFetcher.loading = true
-            await dataFetcher.updateIfNeeded(forceReload: true)
-            dataFetcher.loading = false
-            dataFetcher.loaded = true
         }
         .refreshable(action: { [dataFetcher] in
             dataFetcher.loaded = false
