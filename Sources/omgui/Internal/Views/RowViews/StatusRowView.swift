@@ -106,12 +106,6 @@ struct StatusRowView: View {
                 .environment(\.colorScheme, .light)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .foregroundColor(.black)
-            if let caption = model.listCaption {
-                Text(caption)
-                    .frame(alignment: .trailing)
-                    .font(.caption2)
-                    .foregroundStyle(Color.gray)
-            }
         }
         .lineLimit(context == .column ? 5 : nil)
         .multilineTextAlignment(.leading)
@@ -141,22 +135,26 @@ struct StatusRowView: View {
         HStack(alignment: .bottom) {
             if context == .column {
                 AddressIconView(address: model.address)
+                    .padding(4)
             }
-            HStack(alignment: .lastTextBaseline) {
-                Text(model.displayEmoji)
-                    .font(.system(size: 42))
+            Text(model.displayEmoji)
+                .font(.system(size: 42))
+            if context != .detail {
+                AddressNameView(model.address, font: .title2)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(3)
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
                 Spacer()
-                if context != .detail {
-                    VStack(alignment: .trailing, spacing: 2) {
-                        AddressNameView(model.address, font: .title2)
-                            .multilineTextAlignment(.trailing)
-                            .lineLimit(3)
-                            .foregroundColor(.black)
-                    }
-                }
             }
-            .padding(.horizontal, 2)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            if let caption = model.listCaption {
+                Text(caption)
+                    .multilineTextAlignment(.trailing)
+                    .font(.caption2)
+                    .foregroundStyle(Color.gray)
+                    .truncationMode(.head)
+            }
         }
     }
 }

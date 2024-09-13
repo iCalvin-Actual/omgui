@@ -81,9 +81,8 @@ struct ListView<T: Listable, H: View>: View {
     var body: some View {
         toolbarAwareBody
             .task { @MainActor [dataFetcher] in
-                if !dataFetcher.loading {
+                if !dataFetcher.loading && !dataFetcher.loaded {
                     Task {
-                        dataFetcher.loaded = false
                         dataFetcher.loading = true
                         await dataFetcher.updateIfNeeded(forceReload: true)
                         dataFetcher.loaded = true
@@ -229,12 +228,12 @@ struct ListView<T: Listable, H: View>: View {
                     .listRowBackground(Color.clear)
                     .padding(.vertical, 4)
                 
-                if let nextPage = dataFetcher.nextPage, nextPage != 0, queryString.isEmpty {
+                if queryString.isEmpty && dataFetcher.nextPage != nil {
                     LoadingView()
                         .padding(32)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .listRowBackground(Color.clear)
-                        .task { [dataFetcher] in
+                        .onAppear { [dataFetcher] in
                             dataFetcher.fetchNextPageIfNeeded()
                         }
                 }

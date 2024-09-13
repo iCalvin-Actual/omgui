@@ -207,7 +207,7 @@ struct PURLView: View {
             .padding()
             .background(Material.thin)
             .cornerRadius(10)
-            .padding(4)
+            .padding()
             .background(Color.clear)
         }
     }

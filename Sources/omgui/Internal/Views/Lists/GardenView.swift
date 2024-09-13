@@ -63,7 +63,6 @@ struct GardenItemView: View {
                 }
             }
         }
-        .padding(2)
         .foregroundStyle(Color.black)
         .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
         .fontDesign(.serif)

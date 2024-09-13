@@ -1,6 +1,15 @@
 {
-  "originHash" : "adf7001f0fd1eb94d28902d9514c3e5e6069ffef8a95850966513135fb087407",
+  "originHash" : "0a70230b1445dda0dfa1c1c2ada646829d5e8400060a37928644cc04aa1b1da1",
   "pins" : [
+    {
+      "identity" : "blackbird",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/iCalvin-Actual/Blackbird",
+      "state" : {
+        "branch" : "main",
+        "revision" : "ce45e98a69304040fa5015933e19647aa721f1c3"
+      }
+    },
     {
       "identity" : "ink",
       "kind" : "remoteSourceControl",

@@ -28,6 +28,39 @@ class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
         
         try await super.fetchRemote()
     }
+    
+    @MainActor
+    override func fetchModels() async throws {
+        guard let nextPage, let addressBook else {
+            Task {
+                await fetchFinished()
+            }
+            return
+        }
+        var nextResults = try await AddressModel.read(
+            from: db,
+            matching: filters.asQuery(matchingAgainst: addressBook),
+            orderBy: sort.asClause(),
+            limit: limit,
+            offset: (nextPage * limit)
+        )
+        var oldResults = nextPage == 0 ? [] : results
+        if nextResults.count == limit {
+            self.nextPage = nextPage + 1
+        } else if nextResults.count != 0 || (nextResults + oldResults).count == 0 {
+            self.nextPage = nil
+        }
+        if !oldResults.isEmpty {
+            results.enumerated().forEach { (offset, element) in
+                if let matchingInNext = nextResults.enumerated().first(where: { $0.element == element }) {
+                    oldResults.remove(at: offset)
+                    oldResults.insert(matchingInNext.element, at: offset)
+                    nextResults.remove(at: matchingInNext.offset)
+                }
+            }
+        }
+        results = oldResults + nextResults
+    }
 }
 
 class AccountAddressDataFetcher: DataBackedListDataFetcher<AddressModel> {

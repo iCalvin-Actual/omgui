@@ -84,7 +84,7 @@ struct AddressSummaryView: View {
     @ViewBuilder
     var sizeAppropriateBody: some View {
         VStack(spacing: 0) {
-            AddressSummaryHeader(expandBio: $expandBio, addressSummaryFetcher: addressSummaryFetcher)
+            AddressSummaryHeader(expandBio: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
                 .padding()
             destinationPicker
             if #available(iOS 18.0, *) {
@@ -134,13 +134,17 @@ struct AddressBioLabel: View {
     var body: some View {
         if addressBioFetcher.loading {
             LoadingView(.horizontal)
-        } else if let bio = addressBioFetcher.bio?.bio {
-            contentView(bio)
-                .onTapGesture {
-                    withAnimation {
-                        expanded.toggle()
+        } else if let bio = addressBioFetcher.bio {
+            if let content = bio.bio, !content.isEmpty {
+                contentView(content)
+                    .onTapGesture {
+                        withAnimation {
+                            expanded.toggle()
+                        }
                     }
-                }
+            } else {
+                AddressNameView(addressBioFetcher.address)
+            }
         } else {
             LoadingView()
                 .task { [addressBioFetcher] in
@@ -174,17 +178,17 @@ struct AddressSummaryHeader: View {
     var expandBio: Bool
     
     @ObservedObject
-    var addressSummaryFetcher: AddressSummaryDataFetcher
+    var addressBioFetcher: AddressBioDataFetcher
     
     var body: some View {
-        HStack(alignment: .top) {
+        HStack(alignment: .bottom) {
             Menu {
-                AddressModel(name: addressSummaryFetcher.addressName).contextMenu(in: sceneModel)
+                AddressModel(name: addressBioFetcher.address).contextMenu(in: sceneModel)
             } label: {
-                AddressIconView(address: addressSummaryFetcher.addressName)
+                AddressIconView(address: addressBioFetcher.address)
             }
-            .frame(width: 42)
-            AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
+            
+            AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressBioFetcher)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }

@@ -194,6 +194,7 @@ public struct omgui: View {
                 accountAuthDataFetcher: accountAuthFetcher,
                 db: database
             )
+            .environment(\.colorScheme, .light)
             .environment(\.blackbirdDatabase, database)
             .onChange(of: authKey, { oldValue, newValue in
                 print("Received auth key: \(newValue)")
@@ -220,11 +221,15 @@ public struct omgui: View {
             })
         } else if let addressBook {
             LoadingView()
+                .background(Color("lolBackground", bundle: .main))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .task {
                     self.sceneModel = .init(addressBook: addressBook, interface: dataInterface, database: database)
                 }
         } else {
             LoadingView()
+                .background(Color("lolBackground", bundle: .main))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .task {
                     self.accountAuthFetcher.configure($authKey)
                     self.accountAddressesFetcher.configure(credential: authKey)

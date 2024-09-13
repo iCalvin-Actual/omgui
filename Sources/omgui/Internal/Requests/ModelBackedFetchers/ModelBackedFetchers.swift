@@ -69,13 +69,13 @@ class ModelBackedListDataFetcher<T: ModelBackedListable>: ListFetcher<T> {
     
     @MainActor
     override func fetchNextPageIfNeeded() {
-        if !loading {
-            Task { [weak self] in
-                try? await self?.fetchModels()
-            }
-        } else if !loaded {
+        if !loaded {
             Task { [weak self] in
                 await self?.updateIfNeeded(forceReload: true)
+            }
+        } else if !loading {
+            Task { [weak self] in
+                try? await self?.fetchModels()
             }
         }
     }

@@ -176,10 +176,6 @@ enum NavigationDestination: Codable, Hashable, Identifiable, RawRepresentable {
 extension NavigationDestination {
     public var color: Color {
         switch self {
-        case .community:
-            return .lolOrange
-        case .directory:
-            return .lolBlue
         case .nowGarden:
             return .lolYellow
         case .about:
@@ -191,14 +187,8 @@ extension NavigationDestination {
     
     public var secondaryColor: Color {
         switch self {
-        case .community:
-            return .lolBlue
-        case .directory:
-            return .lolOrange
         case .nowGarden:
             return .lolGreen
-        case .about:
-            return .lolTeal.opacity(0.42)
         default:
             return .lolRandomAlternative(rawValue)
         }

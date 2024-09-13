@@ -32,8 +32,13 @@ struct StatusView: View {
         ScrollView(.vertical) {
             VStack(alignment: .leading) {
                 if viewContext != .profile {
-                    AddressSummaryHeader(expandBio: $expandBio, addressSummaryFetcher: sceneModel.addressSummary(fetcher.address))
-                        .padding(.horizontal)
+                    AddressSummaryHeader(expandBio: $expandBio, addressBioFetcher: sceneModel.addressSummary(fetcher.address).bioFetcher)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(Material.thin)
+                        .cornerRadius(10)
+                        .padding()
+                        .background(Color.clear)
                 }
                 if let model = fetcher.result {
                     StatusRowView(model: model)
@@ -105,7 +110,7 @@ struct StatusView: View {
     @ViewBuilder
     private func linksSection(_ items: [SharePacket]) -> some View {
         Text("links")
-            .font(.title2)
+            .font(.subheadline)
         
         LazyVStack {
             ForEach(items) { item in

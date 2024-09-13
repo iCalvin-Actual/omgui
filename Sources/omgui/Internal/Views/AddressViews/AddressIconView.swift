@@ -45,7 +45,6 @@ struct AddressIconView: View {
             .frame(width: size, height: size)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .frame(width: size)
     }
     
     @ViewBuilder

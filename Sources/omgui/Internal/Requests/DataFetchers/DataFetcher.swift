@@ -50,7 +50,7 @@ class ListFetcher<T: Listable>: Request {
         self.filters = filters
         self.sort = sort
         super.init(interface: interface, automation: automation)
-        self.loaded = items.isEmpty
+        self.loaded = !items.isEmpty
     }
     
     var summaryString: String? {
@@ -85,7 +85,7 @@ class DataBackedListDataFetcher<T: Listable>: ListFetcher<T> {
         super.init(items: items, interface: interface, automation: automation)
         
         self.results = items
-        self.loaded = items.isEmpty
+        self.loaded = !items.isEmpty
     }
     
     override var summaryString: String? {
