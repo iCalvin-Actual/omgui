@@ -284,6 +284,7 @@ struct PasteView: View {
             ScrollView {
                 if let model = fetcher.result {
                     MarkdownContentView(source: model, content: model.content)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.vertical, 4)
                         .padding(.horizontal)
                 } else {

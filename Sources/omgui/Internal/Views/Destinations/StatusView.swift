@@ -24,6 +24,9 @@ struct StatusView: View {
     @State
     var expandBio: Bool = false
     
+    @State
+    var dummyValue: Bool = false
+    
     init(fetcher: StatusDataFetcher) {
         self.fetcher = fetcher
     }
@@ -37,22 +40,26 @@ struct StatusView: View {
                         .padding()
                         .background(Material.thin)
                         .cornerRadius(10)
-                        .padding()
+                        .padding(.horizontal)
                         .background(Color.clear)
                 }
                 if let model = fetcher.result {
                     StatusRowView(model: model)
                         .environment(\.viewContext, ViewContext.detail)
                         .padding(.horizontal)
-                } else if fetcher.loading {
-                    LoadingView()
-                        .padding()
-                } else {
+                } else if !fetcher.loaded {
                     LoadingView()
                         .padding()
                         .task { [fetcher] in
+                            fetcher.loaded = false
+                            fetcher.loading = true
                             await fetcher.updateIfNeeded(forceReload: true)
+                            fetcher.loading = false
+                            fetcher.loaded = true
                         }
+                } else {
+                    LoadingView()
+                        .padding()
                 }
                 if let items = fetcher.result?.imageLinks, !items.isEmpty {
                     imageSection(items)
@@ -64,6 +71,7 @@ struct StatusView: View {
                 }
                 Spacer()
             }
+            .padding(.vertical)
         }
         .navigationTitle("")
         .toolbar {
@@ -75,12 +83,13 @@ struct StatusView: View {
         }
         .onChange(of: fetcher.id, {
             Task { [fetcher] in
+                fetcher.loaded = false
+                fetcher.loading = true
                 await fetcher.updateIfNeeded(forceReload: true)
+                fetcher.loading = false
+                fetcher.loaded = true
             }
         })
-        .task { [fetcher] in
-            await fetcher.updateIfNeeded(forceReload: true)
-        }
         .sheet(item: $presentURL, content: { url in
             SafariView(url: url)
                 .ignoresSafeArea(.container, edges: .all)

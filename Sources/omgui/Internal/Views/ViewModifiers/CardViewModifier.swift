@@ -38,7 +38,7 @@ struct CardViewModifier: ViewModifier {
                 .padding(padding)
                 .background(contrast == .increased ? Material.ultraThick : Material.thin)
                 .cornerRadius(radius)
-                .shadow(color: selected ? .black : .clear, radius:  radius, x: shadowOffset, y: shadowOffset)
+                .shadow(color: selected ? .black : .clear, radius:  4, x: shadowOffset, y: shadowOffset)
         }
         .padding(2)
     }

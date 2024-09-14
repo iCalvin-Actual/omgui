@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AddressSummaryView: View {
-    @SceneStorage("app.lol.address.page")
+    @State
     var selectedPage: AddressContent = .profile
     
     @Environment(\.horizontalSizeClass)
@@ -125,6 +125,9 @@ struct AddressSummaryView: View {
 }
 
 struct AddressBioLabel: View {
+    @Environment(\.viewContext)
+    var context
+    
     @Binding
     var expanded: Bool
     
@@ -142,8 +145,10 @@ struct AddressBioLabel: View {
                             expanded.toggle()
                         }
                     }
-            } else {
+            } else if context != .profile {
                 AddressNameView(addressBioFetcher.address)
+            } else {
+                Spacer()
             }
         } else {
             LoadingView()
@@ -181,7 +186,7 @@ struct AddressSummaryHeader: View {
     var addressBioFetcher: AddressBioDataFetcher
     
     var body: some View {
-        HStack(alignment: .bottom) {
+        HStack(alignment: .top) {
             Menu {
                 AddressModel(name: addressBioFetcher.address).contextMenu(in: sceneModel)
             } label: {
@@ -189,7 +194,8 @@ struct AddressSummaryHeader: View {
             }
             
             AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressBioFetcher)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.trailing)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 }

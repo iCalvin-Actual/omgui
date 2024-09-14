@@ -24,7 +24,6 @@ class BackedDataFetcher: Request {
             return
         }
         try await fetchRemote()
-        try await fetchModels()
     }
     
     func fetchModels() async throws {

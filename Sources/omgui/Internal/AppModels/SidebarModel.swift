@@ -99,7 +99,7 @@ class SidebarModel: ObservableObject {
             return destinations
             
         case .app:
-            return [.appLatest, .appSupport, .safety]
+            return [.appSupport, .safety, .appLatest]
             
         case .more:
             return [.learn]

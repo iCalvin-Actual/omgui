@@ -202,13 +202,13 @@ struct ListView<T: Listable, H: View>: View {
     var regularBody: some View {
         HStack(spacing: 0) {
             compactBody
-                .frame(maxWidth: 330)
+                .frame(maxWidth: 360)
                 .environment(\.viewContext, .column)
             GeometryReader { proxy in
                 regularBodyContent
                     .frame(maxWidth: .infinity)
                     .environment(\.viewContext, context == .profile ? .profile : .detail)
-                    .environment(\.horizontalSizeClass, proxy.size.width > 500 ? .regular : .compact)
+                    .environment(\.horizontalSizeClass, proxy.size.width > 375 ? .regular : .compact)
             }
         }
     }
