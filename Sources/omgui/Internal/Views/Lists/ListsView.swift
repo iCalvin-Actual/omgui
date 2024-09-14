@@ -31,9 +31,9 @@ struct ListsView: View {
                         HStack(alignment: .top, spacing: 8) {
                             ForEach(viewModel.pinned) { address in
                                 NavigationLink(value: NavigationDestination.address(address)) {
-                                    VStack(alignment: .leading) {
+                                    VStack(alignment: .leading, spacing: 0) {
                                         AddressIconView(address: address, size: 55, showMenu: false)
-                                            .padding(4)
+                                            .padding(16)
                                         Text(address.addressDisplayString)
                                             .font(.body)
                                             .fontDesign(.serif)
