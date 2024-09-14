@@ -26,10 +26,10 @@ struct ListRow<T: Listable>: View {
         .lolRandom(model.listTitle)
     }
     var cardPadding: CGFloat {
-        4
+        8
     }
     var cardradius: CGFloat {
-        2
+        16
     }
     var showSelection: Bool {
         selected.wrappedValue == model
@@ -57,9 +57,9 @@ struct ListRow<T: Listable>: View {
         case .minimal:
             return 0
         case .smaller:
-            return 0
+            return 8
         case .standard:
-            return 0
+            return 16
         }
     }
     
@@ -69,7 +69,6 @@ struct ListRow<T: Listable>: View {
     
     var body: some View {
         appropriateBody
-            .fontDesign(.serif)
             .padding(2)
             .animation(.easeInOut(duration: 0.42), value: selected.wrappedValue)
     }
@@ -113,30 +112,12 @@ struct ListRow<T: Listable>: View {
     
     @ViewBuilder
     var standardBody: some View {
-        VStack(alignment: .leading, spacing: verticalPadding) {
-            HStack {
-                if let icon = model.iconURL {
-                    AsyncImage(url: icon) { image in
-                        image.resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Color.lolRandom(model.addressName)
-                    }
-                    .frame(width: 55, height: 55)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                } else if !model.hideIcon {
-                    AddressIconView(address: model.addressName)
-//                        .padding(2)
-                }
-                Spacer()
-                Text(model.listTitle)
-                    .font(.title3)
-                    .foregroundStyle(.primary)
-                    .bold()
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .bottom) {
+                AddressIconView(address: model.addressName, size: 55)
+                AddressNameView(model.listTitle)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.vertical, verticalPadding)
-            .padding(.trailing, trailingPadding)
             
             let subtitle = model.listSubtitle
             let caption = model.listCaption ?? ""
@@ -147,10 +128,12 @@ struct ListRow<T: Listable>: View {
                         .foregroundStyle(.secondary)
                         .font(.headline)
                         .bold()
+                        .fontDesign(.monospaced)
                     Spacer()
                     Text(caption)
                         .foregroundStyle(.secondary)
                         .font(.subheadline)
+                        .fontDesign(.rounded)
                 }
                 .padding(.trailing, trailingPadding)
             }
@@ -159,13 +142,18 @@ struct ListRow<T: Listable>: View {
 }
 
 #Preview {
-    VStack {
-        ListRow(model: AddressModel.sample(with: "calvin"))
-        ListRow(model: StatusModel.sample(with: "calvin"))
-        ListRow(model: PURLModel.sample(with: "calvin"))
-        ListRow(model: PasteModel.sample(with: "calvin"))
-        ListRow(model: NowListing.sample(with: "calvin"))
+    let name: AddressName = "calvin"
+    ScrollView {
+        VStack {
+//            AddressSummaryHeader(expandBio: $expanded, addressBioFetcher: .init(address: name, interface: SampleData()))
+            ListRow(model: AddressModel.sample(with: name))
+            ListRow(model: NowListing.sample(with: name))
+            ListRow(model: StatusModel.sample(with: name))
+            ListRow(model: PURLModel.sample(with: name))
+            ListRow(model: PasteModel.sample(with: name))
+        }
+        .padding(.horizontal)
     }
-    .padding(.horizontal)
     .environment(SceneModel.sample)
+    .background(Color.lolPurple)
 }

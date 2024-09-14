@@ -184,25 +184,24 @@ struct PURLView: View {
     var pathInfo: some View {
         if context != .profile {
             VStack(alignment: .leading) {
-                HStack(alignment: .lastTextBaseline) {
+                HStack(alignment: .bottom) {
                     AddressIconView(address: fetcher.address)
                     Text("/\(fetcher.result?.name ?? fetcher.title)")
                         .font(.title2)
-                        .fontDesign(.monospaced)
+                        .fontDesign(.serif)
                         .foregroundStyle(Color.primary)
                         .multilineTextAlignment(.leading)
-                        .lineLimit(2)
                 }
                 
                 if let destination = fetcher.result?.content, !destination.isEmpty {
                     Text(destination)
                         .textSelection(.enabled)
                         .font(.caption)
-                        .fontDesign(.serif)
-                        .lineLimit(2)
+                        .fontDesign(.rounded)
                         .multilineTextAlignment(.leading)
                 }
             }
+            .lineLimit(3)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
             .background(Material.thin)

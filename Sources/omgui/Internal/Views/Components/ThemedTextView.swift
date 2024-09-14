@@ -25,7 +25,6 @@ struct ThemedTextView: View {
             .truncationMode(.middle)
             .font(font)
             .fontDesign(design)
-//            .foregroundStyle(Color.accentColor)
             .foregroundStyle(.primary)
     }
     

@@ -264,14 +264,14 @@ struct PasteView: View {
     var mainContent: some View {
         VStack(alignment: .leading) {
             if context != .profile {
-                HStack(alignment: .lastTextBaseline) {
+                HStack(alignment: .bottom) {
                     AddressIconView(address: fetcher.address)
                     Text("/\(fetcher.result?.name ?? fetcher.title)")
                         .font(.title2)
-                        .fontDesign(.monospaced)
+                        .fontDesign(.serif)
                         .foregroundStyle(Color.primary)
                         .multilineTextAlignment(.leading)
-                        .lineLimit(2)
+                        .lineLimit(3)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -282,13 +282,19 @@ struct PasteView: View {
             }
             
             ScrollView {
-                Text(fetcher.result?.content ?? "")
-                    .textSelection(.enabled)
-                    .font(.body)
-                    .fontDesign(.monospaced)
-                    .padding(.vertical, 4)
-                    .padding(.horizontal)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                if let model = fetcher.result {
+                    MarkdownContentView(source: model, content: model.content)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal)
+                } else {
+                    Text(fetcher.result?.content ?? "")
+                        .textSelection(.enabled)
+                        .font(.body)
+                        .fontDesign(.rounded)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
             .padding(4)
         }

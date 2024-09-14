@@ -10,6 +10,8 @@ import SwiftUI
 struct CardViewModifier: ViewModifier {
     @Environment(\.colorScheme) 
     var colorScheme
+    @Environment(\.colorSchemeContrast)
+    var contrast
     
     let color: Color
     let background: Color?
@@ -34,8 +36,8 @@ struct CardViewModifier: ViewModifier {
             content
                 .frame(maxWidth: .infinity)
                 .padding(padding)
-                .background(Material.thin)
-                .cornerRadius(4)
+                .background(contrast == .increased ? Material.ultraThick : Material.thin)
+                .cornerRadius(radius)
                 .shadow(color: selected ? .black : .clear, radius:  radius, x: shadowOffset, y: shadowOffset)
         }
         .padding(2)

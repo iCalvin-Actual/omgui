@@ -37,6 +37,7 @@ struct TabBar: View {
     var body: some View {
         if !Self.usingRegularTabBar(sizeClass: horizontalSizeClass) {
             compactTabBar
+                .toolbarColorScheme(.light, for: .tabBar)
                 .onAppear{
                     if selected == nil {
                         selected = .search

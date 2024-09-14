@@ -34,14 +34,11 @@ struct GardenItemView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                AddressIconView(address: model.addressName)
-                Text(model.listTitle)
-                    .font(.title3)
-                    .bold()
-                    .foregroundStyle(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .bottom) {
+                AddressIconView(address: model.addressName, size: 55)
+                AddressNameView(model.addressName)
+                    .lineLimit(3)
             }
             
             let subtitle = model.listSubtitle
@@ -50,21 +47,19 @@ struct GardenItemView: View {
             if hasMoreText {
                 HStack(alignment: .bottom) {
                     Text(subtitle)
-                        .font(.subheadline)
+                        .font(.headline)
                         .foregroundStyle(.secondary)
                         .fontDesign(.monospaced)
                         .bold()
                     Spacer()
                     Text(caption)
-                        .foregroundColor(.gray.opacity(0.6))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .fontDesign(.rounded)
                 }
             }
         }
-        .foregroundStyle(Color.black)
         .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
-        .fontDesign(.serif)
+        .foregroundStyle(Color.black)
     }
 }

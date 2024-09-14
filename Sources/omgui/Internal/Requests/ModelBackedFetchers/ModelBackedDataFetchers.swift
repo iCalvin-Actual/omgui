@@ -98,6 +98,11 @@ class StatusDataFetcher: ModelBackedDataFetcher<StatusModel> {
     func fetcher(for url: URL) -> URLContentDataFetcher? {
         linkFetchers.first(where: { $0.url == url })
     }
+    
+    override func handle(_ incomingError: any Error) {
+        // Check error
+        super.handle(incomingError)
+    }
 }
 
 class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {

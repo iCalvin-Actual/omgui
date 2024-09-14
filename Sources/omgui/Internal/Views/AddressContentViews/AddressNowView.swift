@@ -50,6 +50,7 @@ struct AddressNowView: View {
                         .frame(maxWidth: .infinity)
                 } else {
                     LoadingView()
+                        .padding()
                 }
                 Spacer()
             }

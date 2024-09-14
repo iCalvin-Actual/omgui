@@ -24,10 +24,16 @@ extension Color {
         String.lolRandom.map({ Color(hex: $0) })
     }
     
-    static func lolRandom(_ input: String = .lolRandom.randomElement() ?? "000000") -> Color {
+    static func lolRandom(_ input: String = .lolRandom.randomElement() ?? "000000", not: Color? = nil) -> Color {
         let colors: [Color] = String.lolRandom.map({ .init(hex: $0) })
         
-        return colors[modFromString(input, cnt: colors.count)]
+        if let not, let undesiredIndex = colors.firstIndex(of: not) {
+            let value = modFromString(input, cnt: colors.count - 1)
+            let appliedValue: Int = undesiredIndex <= value ? value + 1 : value
+            return colors[appliedValue]
+        } else {
+            return colors[modFromString(input, cnt: colors.count)]
+        }
     }
     
     static func lolRandomAlternative(_ input: String = .lolRandom.randomElement() ?? "000000") -> Color {

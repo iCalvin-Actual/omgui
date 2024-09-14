@@ -30,35 +30,33 @@ struct PURLRowView: View {
         VStack(alignment: .leading, spacing: 0) {
             if context != .profile {
                 HStack(alignment: .bottom) {
-                    AddressNameView(model.owner, font: .title3)
-                    Spacer()
                     AddressIconView(address: model.owner)
+                    AddressNameView(model.owner)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(2)
             }
             
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text("/\(model.name)")
-                        .font(.title2)
+                        .font(.title3)
                         .bold()
                         .fontDesign(.serif)
-                        .lineLimit(2)
+                        .lineLimit(3)
                     Spacer()
                 }
                 
                 if !model.content.isEmpty {
                     Text(model.content)
-                        .font(.subheadline)
+                        .font(.body)
                         .fontDesign(.monospaced)
                         .lineLimit(5)
                 }
             }
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity)
-            .padding(12)
             .foregroundColor(.black)
-            .cornerRadius(12, antialiased: true)
             .foregroundStyle(Color.black)
             .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
         }

@@ -25,7 +25,7 @@ struct PURLDraftView: View {
         VStack {
             HStack(alignment: .lastTextBaseline) {
                 if context != .profile {
-                    AddressNameView(draftFetcher.address, font: .title3, suffix: ".url.lol")
+                    AddressNameView(draftFetcher.address, suffix: ".url.lol")
                 }
                 Spacer()
                 postButton

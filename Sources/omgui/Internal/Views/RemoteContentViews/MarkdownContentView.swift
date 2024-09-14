@@ -97,3 +97,13 @@ extension StatusModel: MarkdownSourceProvider {
         dateValue
     }
 }
+
+extension PasteModel: MarkdownSourceProvider {
+    var address: String {
+        owner
+    }
+    
+    var updated: Date? {
+        nil
+    }
+}

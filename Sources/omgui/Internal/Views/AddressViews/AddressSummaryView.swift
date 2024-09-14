@@ -162,8 +162,8 @@ struct AddressBioLabel: View {
         } else {
             Text(bio)
                 .lineLimit(3)
-                .font(.caption)
-                .fontDesign(.monospaced)
+                .font(.callout)
+                .fontDesign(.rounded)
         }
     }
 }

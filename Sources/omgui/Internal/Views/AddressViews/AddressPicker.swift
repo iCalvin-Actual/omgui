@@ -99,7 +99,7 @@ struct AddressPicker: View {
                                 actingAddress = address
                             }
                         } label: {
-                            AddressNameView(address, font: .headline)
+                            AddressNameView(address)
                                 .padding(.horizontal)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }

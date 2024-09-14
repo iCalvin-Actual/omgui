@@ -35,12 +35,11 @@ struct ListsView: View {
                                         AddressIconView(address: address, size: 55, showMenu: false)
                                             .padding(4)
                                         Text(address.addressDisplayString)
-                                            .font(.caption)
+                                            .font(.body)
                                             .fontDesign(.serif)
-                                            .foregroundStyle(.primary)
+                                            .foregroundStyle(.secondary)
                                             .multilineTextAlignment(.trailing)
                                             .lineLimit(3)
-                                            .foregroundStyle(Color.primary)
                                     }
                                     .frame(maxWidth: 88)
                                 }
@@ -126,7 +125,6 @@ struct ListsView: View {
                 .buttonStyle(.borderedProminent)
             }
         }
-        .fontDesign(.serif)
         .scrollContentBackground(.hidden)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {

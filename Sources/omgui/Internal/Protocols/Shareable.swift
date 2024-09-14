@@ -199,12 +199,12 @@ extension PURLModel: Sharable {
 }
 
 extension PasteModel: Sharable {
-    private var address: CopyPacket {
+    private var addressCopy: CopyPacket {
         .init(name: "Address", content: owner)
     }
     var primaryCopy: CopyPacket? {
         guard !content.isEmpty else {
-            return address
+            return addressCopy
         }
         return .init(name: "Copy Content", content: content)
     }

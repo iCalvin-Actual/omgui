@@ -173,6 +173,7 @@ public struct omgui: View {
     
     
     public init(client: ClientInfo, interface: DataInterface, dbDestination: String = "") {
+        UITabBar.appearance().unselectedItemTintColor = UIColor.white
         self.clientInfo = client
         self.dataInterface = interface
         let database = try! Blackbird.Database(path: dbDestination)
@@ -221,15 +222,15 @@ public struct omgui: View {
             })
         } else if let addressBook {
             LoadingView()
-                .background(Color("lolBackground", bundle: .main))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.lolOrange)
                 .task {
                     self.sceneModel = .init(addressBook: addressBook, interface: dataInterface, database: database)
                 }
         } else {
             LoadingView()
-                .background(Color("lolBackground", bundle: .main))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.lolPink)
                 .task {
                     self.accountAuthFetcher.configure($authKey)
                     self.accountAddressesFetcher.configure(credential: authKey)

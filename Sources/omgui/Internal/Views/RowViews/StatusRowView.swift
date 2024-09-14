@@ -47,7 +47,7 @@ struct StatusRowView: View {
             rowBody
                 .foregroundStyle(Color.black)
                 .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
-                .padding(.bottom, 2)
+//                .padding(.bottom, 2)
 //        
 //            if let text = model.link?.absoluteString {
 //                Button(action: {
@@ -100,7 +100,6 @@ struct StatusRowView: View {
 //                    + Text(" ").font(.largeTitle) +
              */
             appropriateMarkdown
-                .font(.callout)
                 .fontWeight(.medium)
                 .fontDesign(.rounded)
                 .environment(\.colorScheme, .light)
@@ -137,24 +136,19 @@ struct StatusRowView: View {
                 AddressIconView(address: model.address)
                     .padding(4)
             }
-            Text(model.displayEmoji)
-                .font(.system(size: 42))
-            if context != .detail {
-                AddressNameView(model.address, font: .title2)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(3)
-                    .foregroundColor(.black)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                Spacer()
+            if context != .profile {
+                AddressNameView(model.address)
             }
+            Spacer()
             if let caption = model.listCaption {
                 Text(caption)
                     .multilineTextAlignment(.trailing)
                     .font(.caption2)
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(.secondary)
                     .truncationMode(.head)
             }
+            Text(model.displayEmoji)
+                .font(.system(size: 42))
         }
     }
 }

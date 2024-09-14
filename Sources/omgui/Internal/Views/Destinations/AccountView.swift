@@ -143,7 +143,7 @@ struct AccountView: View {
                     Text("The best way to build your presence on the open web.")
                         .fixedSize(horizontal: false, vertical: true)
                         .font(.headline)
-                        .fontDesign(Font.Design.monospaced)
+                        .fontDesign(.monospaced)
                         .foregroundColor(.black)
                     
                     HStack {
@@ -193,7 +193,7 @@ struct AccountView: View {
                     Text("Follow addresses, find new friends. Take the experience further with plus-plus.")
                         .fixedSize(horizontal: false, vertical: true)
                         .font(.headline)
-                        .fontDesign(Font.Design.monospaced)
+                        .fontDesign(.monospaced)
                         .foregroundColor(.black)
                     
                     HStack {

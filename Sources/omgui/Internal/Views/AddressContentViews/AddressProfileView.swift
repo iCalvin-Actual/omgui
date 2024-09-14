@@ -52,6 +52,7 @@ struct AddressProfileView: View {
                         .padding()
                 } else {
                     LoadingView()
+                        .padding()
                 }
                 Spacer()
             }
