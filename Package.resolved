@@ -1,5 +1,5 @@
 {
-  "originHash" : "0a70230b1445dda0dfa1c1c2ada646829d5e8400060a37928644cc04aa1b1da1",
+  "originHash" : "9c666c5d35c2501f581c48ceb06d4e71c379804e213c5b7ddec0602be5782e9e",
   "pins" : [
     {
       "identity" : "blackbird",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/iCalvin-Actual/Blackbird",
       "state" : {
         "branch" : "main",
-        "revision" : "ce45e98a69304040fa5015933e19647aa721f1c3"
+        "revision" : "7cb648465eb4babf77952d68c855d20517f2b962"
       }
     },
     {
@@ -16,15 +16,6 @@
       "location" : "https://github.com/JohnSundell/Ink",
       "state" : {
         "revision" : "77c3d8953374a9cf5418ef0bd7108524999de85a",
-        "version" : "0.5.1"
-      }
-    },
-    {
-      "identity" : "markupeditor",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/stevengharris/MarkupEditor",
-      "state" : {
-        "revision" : "45300e4d85da8dea56395da0ada8ff88662d54a3",
         "version" : "0.5.1"
       }
     },
