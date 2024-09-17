@@ -55,12 +55,10 @@ class SidebarModel: ObservableObject {
     }
     
     var sectionsForLists: [Section] {
-        [.more, .app]
+        [.app, .more]
     }
     
     let sceneModel: SceneModel
-    
-    var addressBook: AddressBook { sceneModel.addressBook }
     
     @Published
     var pinnedFetcher: PinnedListDataFetcher
@@ -75,11 +73,11 @@ class SidebarModel: ObservableObject {
             
         case .directory:
             var destinations: [NavigationItem] = []
-            if addressBook.signedIn {
+            if sceneModel.addressBook.signedIn {
                 destinations.append(.following(.autoUpdatingAddress))
             }
             destinations.append(
-                contentsOf: addressBook.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
+                contentsOf: sceneModel.addressBook.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
             )
             return destinations
             
@@ -93,7 +91,7 @@ class SidebarModel: ObservableObject {
             var destinations = [
                 NavigationItem.community
             ]
-            if addressBook.signedIn {
+            if sceneModel.addressBook.signedIn {
                 destinations.insert(contentsOf: [.following(.autoUpdatingAddress)], at: 0)
             }
             return destinations

@@ -91,6 +91,7 @@ class AccountAddressDataFetcher: DataBackedListDataFetcher<AddressModel> {
         super.configure(automation)
     }
     
+    @MainActor
     override func throwingRequest() async throws {
         let credential = credential
         guard !credential.isEmpty else {
@@ -349,6 +350,15 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
         }()
         self.addresses = addresses
         super.init(addressBook: addressBook, interface: interface, db: db, filters: addresses.isEmpty ? [] : [.fromOneOf(addresses)])
+    }
+    
+    override func updateIfNeeded(forceReload: Bool = false) async {
+        print("Calling update from \(self)")
+        guard forceReload || !loaded else {
+            print("NOT performing request")
+            return
+        }
+        await perform()
     }
     
     override func fetchRemote() async throws {

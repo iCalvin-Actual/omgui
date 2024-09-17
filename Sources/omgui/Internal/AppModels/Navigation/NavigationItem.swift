@@ -93,7 +93,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         case .community:    return "/statuslog"
         case .nowGarden:    return "/nowGarden"
         case .search:       return "/find"
-        case .lists:        return "/lists"
+        case .lists:        return "/me"
         case .learn:        return "/about"
         case .appLatest:    return "/now"
         case .appSupport:    return "/support"
