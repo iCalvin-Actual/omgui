@@ -46,7 +46,7 @@ final class AccountAuthDataFetcher: NSObject, Sendable {
     }
     
     private func recreateWebSession() {
-        guard let url, webSession == nil else {
+        guard let url else {
             return
         }
         webSession = ASWebAuthenticationSession(

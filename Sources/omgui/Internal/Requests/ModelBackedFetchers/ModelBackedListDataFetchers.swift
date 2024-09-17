@@ -91,6 +91,7 @@ class AccountAddressDataFetcher: DataBackedListDataFetcher<AddressModel> {
         super.configure(automation)
     }
     
+    @MainActor
     override func throwingRequest() async throws {
         let credential = credential
         guard !credential.isEmpty else {

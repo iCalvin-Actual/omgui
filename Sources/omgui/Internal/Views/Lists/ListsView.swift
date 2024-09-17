@@ -28,25 +28,14 @@ struct ListsView: View {
             Section("Pinned") {
                 if viewModel.showPinned {
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(alignment: .top, spacing: 8) {
+                        HStack(alignment: .top, spacing: 0) {
                             ForEach(viewModel.pinned) { address in
                                 NavigationLink(value: NavigationDestination.address(address)) {
-                                    VStack(alignment: .leading, spacing: 0) {
-                                        AddressIconView(address: address, size: 55, showMenu: false)
-                                            .padding(16)
-                                        Text(address.addressDisplayString)
-                                            .font(.body)
-                                            .fontDesign(.serif)
-                                            .foregroundStyle(.secondary)
-                                            .multilineTextAlignment(.trailing)
-                                            .lineLimit(3)
-                                    }
-                                    .frame(maxWidth: 88)
+                                    previewView(for: address)
                                 }
                             }
                         }
                     }
-                    .padding()
                     .background(Material.thin)
                     .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowBackground(Color.clear)
@@ -67,34 +56,6 @@ struct ListsView: View {
                 }
             }
             
-            if sceneModel.addressBook.signedIn {
-                Section("Following") {
-                    if viewModel.showFollowing {
-                        ForEach(viewModel.following) { address in
-                            NavigationLink {
-                                sceneModel.destinationConstructor.destination(.address(address))
-                            } label: {
-                                Label(title: {
-                                    Text(address.addressDisplayString)
-                                }) {
-                                    Image(systemName: "person.3")
-                                }
-                            }
-                            .foregroundStyle(.primary)
-                            .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
-                        }
-                    } else {
-                        Label(title: {
-                            Text("follow addresses")
-                        }) {
-                            Image(systemName: "person.3")
-                        }
-                        .foregroundStyle(.primary)
-                        .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
-                    }
-                }
-            }
-            
             ForEach(viewModel.sidebarModel.sectionsForLists) { section in
                 Section(section.displayName) {
                     ForEach(viewModel.sidebarModel.items(for: section)) { item in
@@ -109,21 +70,6 @@ struct ListsView: View {
                 }
 
             }
-            
-            if sceneModel.addressBook.signedIn {
-                Button {
-                    Task { [accountFetcher] in
-                        accountFetcher.logout()
-                    }
-                } label: {
-                    Label {
-                        Text("Sign out")
-                    } icon: {
-                        Image(systemName: "rectangle.portrait.and.arrow.right")
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-            }
         }
         .scrollContentBackground(.hidden)
         .toolbar {
@@ -136,6 +82,23 @@ struct ListsView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    @ViewBuilder
+    func previewView(for address: AddressName) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            AddressIconView(address: address, size: 55, showMenu: false)
+                .padding(4)
+                .padding(.horizontal, 4)
+            Text(address.addressDisplayString)
+                .font(.body)
+                .fontDesign(.serif)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.trailing)
+                .lineLimit(3)
+        }
+        .frame(maxWidth: 88)
+        .padding(8)
     }
 }
 

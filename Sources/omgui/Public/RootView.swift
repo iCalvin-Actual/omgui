@@ -41,7 +41,7 @@ struct RootView: View {
     
     @ViewBuilder
     var appropriateNavigation: some View {
-        if #available(iOS 18.0, *) {
+        if #available(iOS 18.0, visionOS 2.0, *) {
             TabBar(sceneModel: sceneModel)
         } else {
             SplitView()

@@ -55,7 +55,7 @@ class SidebarModel: ObservableObject {
     }
     
     var sectionsForLists: [Section] {
-        [.more, .app]
+        [.app, .more]
     }
     
     let sceneModel: SceneModel
@@ -75,9 +75,6 @@ class SidebarModel: ObservableObject {
             
         case .directory:
             var destinations: [NavigationItem] = []
-            if addressBook.signedIn {
-                destinations.append(.following(.autoUpdatingAddress))
-            }
             destinations.append(
                 contentsOf: addressBook.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
             )
