@@ -8,9 +8,9 @@
 import Foundation
 
 extension DateFormatter {
-    static let storage: ISO8601DateFormatter = {
-        return ISO8601DateFormatter()
-    }()
+    @MainActor
+    static let storage: ISO8601DateFormatter = ISO8601DateFormatter()
+    
     static let short: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
@@ -18,16 +18,10 @@ extension DateFormatter {
         formatter.locale = .autoupdatingCurrent
         return formatter
     }()
-    static let medium: DateFormatter = {
+    static let shortDate: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter
-    }()
-    
-    static let monthYear: DateFormatter = {
-        var formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("MMM yy")
+        formatter.dateStyle = .short
+        formatter.timeStyle = .none
         return formatter
     }()
 }

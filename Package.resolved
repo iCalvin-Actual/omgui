@@ -1,5 +1,15 @@
 {
+  "originHash" : "0a70230b1445dda0dfa1c1c2ada646829d5e8400060a37928644cc04aa1b1da1",
   "pins" : [
+    {
+      "identity" : "blackbird",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/iCalvin-Actual/Blackbird",
+      "state" : {
+        "branch" : "main",
+        "revision" : "ce45e98a69304040fa5015933e19647aa721f1c3"
+      }
+    },
     {
       "identity" : "ink",
       "kind" : "remoteSourceControl",
@@ -33,9 +43,9 @@
       "location" : "https://github.com/iCalvin-Actual/swift-markdown-ui",
       "state" : {
         "branch" : "main",
-        "revision" : "96438a4413f0cb0ab9a456984c104347e65c540b"
+        "revision" : "bdbd43f80239966be3b451a5dba6c70753705975"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
