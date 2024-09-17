@@ -46,7 +46,7 @@ struct ListView<T: Listable, H: View>: View {
     var menuBuilder: ContextMenuBuilder<T> = .init()
     
     var usingRegular: Bool {
-        if #available(iOS 18.0, *) {
+        if #available(iOS 18.0, visionOS 2.0, *) {
             return TabBar.usingRegularTabBar(sizeClass: horizontalSize)
         } else {
             return horizontalSize == .regular && UIDevice.current.userInterfaceIdiom == .pad
@@ -143,7 +143,7 @@ struct ListView<T: Listable, H: View>: View {
     
     @ViewBuilder
     var toolbarAwareBody: some View {
-        if #available(iOS 18.0, *) {
+        if #available(iOS 18.0, visionOS 2.0,*) {
             sizeAppropriateBody
                 .toolbarBackgroundVisibility(.visible, for: .navigationBar)
         } else {
@@ -158,7 +158,7 @@ struct ListView<T: Listable, H: View>: View {
         } else {
             GeometryReader { proxy in
                 let useRegular: Bool = {
-                    if #available(iOS 18.0, *) {
+                    if #available(iOS 18.0, visionOS 2.0,*) {
                         return TabBar.usingRegularTabBar(sizeClass: horizontalSize, width: proxy.size.width)
                     } else {
                         return UIDevice.current.userInterfaceIdiom == .phone || horizontalSize == .compact
@@ -180,7 +180,7 @@ struct ListView<T: Listable, H: View>: View {
                 .animation(.easeInOut(duration: 0.3), value: dataFetcher.loaded)
                 .listRowBackground(Color.clear)
         }()
-        if #available(iOS 18.0, *) {
+        if #available(iOS 18.0, visionOS 2.0, *) {
             body
                 .toolbarBackgroundVisibility(.visible, for: .navigationBar)
         } else {
@@ -269,7 +269,7 @@ struct ListView<T: Listable, H: View>: View {
                 }
             })
         }()
-        if #available(iOS 18.0, *) {
+        if #available(iOS 18.0, visionOS 2.0, *) {
             body
                 .toolbarBackgroundVisibility(.visible, for: .navigationBar)
         } else {

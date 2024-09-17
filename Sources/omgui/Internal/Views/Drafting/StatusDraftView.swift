@@ -205,18 +205,18 @@ struct StatusDraftView: View {
         EmptyView()
             .padding(.horizontal, 4)
             .background(Color(UIColor.systemBackground))
-            .toolbar {
-                ToolbarItem(placement: .keyboard) {
-                    Button {
-                        withAnimation {
-                            focusedField = nil
-                        }
-                    } label: {
-                        Text("preview")
-                    }
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                }
-            }
+//            .toolbar {
+//                ToolbarItem(placement: .keyboard) {
+//                    Button {
+//                        withAnimation {
+//                            focusedField = nil
+//                        }
+//                    } label: {
+//                        Text("preview")
+//                    }
+//                    .frame(maxWidth: .infinity, alignment: .trailing)
+//                }
+//            }
             .onAppear {
                 withAnimation {
                     focusedField = .title

@@ -172,11 +172,10 @@ public struct omgui: View {
     let globalBlocklistFetcher: AddressBlockListDataFetcher
     
     
-    public init(client: ClientInfo, interface: DataInterface, dbDestination: String = "") {
+    public init(client: ClientInfo, interface: DataInterface, database: Blackbird.Database) {
         UITabBar.appearance().unselectedItemTintColor = UIColor.white
         self.clientInfo = client
         self.dataInterface = interface
-        let database = try! Blackbird.Database(path: dbDestination)
         self._database = StateObject(wrappedValue: database)
         self.accountAuthFetcher = .init(authKey: nil, client: client, interface: interface)
         self.accountAddressesFetcher = .init(credential: "", interface: interface)
@@ -198,15 +197,18 @@ public struct omgui: View {
             .environment(\.colorScheme, .light)
             .environment(\.blackbirdDatabase, database)
             .onChange(of: authKey, { oldValue, newValue in
-                print("Received auth key: \(newValue)")
-                if !oldValue.isEmpty && newValue.isEmpty {
-                    
-                } else if accountAuthFetcher.authKey == nil {
-                    accountAuthFetcher.configure($authKey)
-                }
+                accountAuthFetcher.configure($authKey)
                 accountAddressesFetcher.configure(credential: authKey)
                 Task { [accountAddressesFetcher] in
                     await accountAddressesFetcher.updateIfNeeded(forceReload: true)
+                    self.configureAddressBook()
+                    self.configureScene()
+                }
+            })
+            .onChange(of: actingAddress, { oldValue, newValue in
+                if !oldValue.isEmpty, !newValue.isEmpty, oldValue != newValue {
+                    self.configureAddressBook()
+                    self.configureScene()
                 }
             })
             .onReceive(accountAddressesFetcher.results.publisher, perform: { _ in
@@ -218,14 +220,16 @@ public struct omgui: View {
                 }
                 if actingAddress.isEmpty, let address = accountAddressesFetcher.results.first {
                     actingAddress = address.addressName
+                    configureAddressBook()
+                    configureScene()
                 }
             })
-        } else if let addressBook {
+        } else if addressBook != nil {
             LoadingView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.lolOrange)
                 .task {
-                    self.sceneModel = .init(addressBook: addressBook, interface: dataInterface, database: database)
+                    self.configureScene()
                 }
         } else {
             LoadingView()
@@ -234,17 +238,26 @@ public struct omgui: View {
                 .task {
                     self.accountAuthFetcher.configure($authKey)
                     self.accountAddressesFetcher.configure(credential: authKey)
-                    self.addressBook = .init(
-                        authKey: authKey,
-                        actingAddress: actingAddress,
-                        accountAddressesFetcher: accountAddressesFetcher,
-                        globalBlocklistFetcher: globalBlocklistFetcher,
-                        localBlocklistFetcher: .init(interface: dataInterface),
-                        addressBlocklistFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface),
-                        addressFollowingFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface),
-                        pinnedAddressFetcher: .init(interface: dataInterface)
-                    )
+                    self.configureAddressBook()
                 }
         }
+    }
+    
+    private func configureAddressBook() {
+        self.addressBook = .init(
+            authKey: authKey,
+            actingAddress: actingAddress,
+            accountAddressesFetcher: accountAddressesFetcher,
+            globalBlocklistFetcher: globalBlocklistFetcher,
+            localBlocklistFetcher: .init(interface: dataInterface),
+            addressBlocklistFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface),
+            addressFollowingFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface),
+            pinnedAddressFetcher: .init(interface: dataInterface)
+        )
+    }
+    
+    private func configureScene() {
+        guard let addressBook else { return }
+        self.sceneModel = .init(addressBook: addressBook, interface: dataInterface, database: database)
     }
 }

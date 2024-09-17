@@ -177,7 +177,7 @@ extension NavigationDestination {
     public var color: Color {
         switch self {
         case .community:
-            return .lolGreen
+            return .lolPink
         case .lists:
             return .lolPurple
         case .about:

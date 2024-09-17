@@ -97,7 +97,7 @@ struct TabBar: View {
 }
 
 #Preview {
-    if #available(iOS 18.0, *) {
+    if #available(iOS 18.0, visionOS 2.0, *) {
         let sceneModel = SceneModel.sample
         TabBar(sceneModel: .sample)
             .environment(sceneModel)
