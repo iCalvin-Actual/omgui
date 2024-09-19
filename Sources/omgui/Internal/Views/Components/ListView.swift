@@ -211,6 +211,11 @@ struct ListView<T: Listable, H: View>: View {
                     .environment(\.horizontalSizeClass, proxy.size.width > 375 ? .regular : .compact)
             }
         }
+        .onReceive(dataFetcher.$results) { newResults in
+            if selected == nil, let item = newResults.first {
+                selected = item
+            }
+        }
     }
     
     @ViewBuilder
