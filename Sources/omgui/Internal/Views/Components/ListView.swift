@@ -334,6 +334,7 @@ struct ListView<T: Listable, H: View>: View {
                 self.menuBuilder.contextMenu(for: item, fetcher: dataFetcher, sceneModel: sceneModel)
             }) {
                 ListRow(model: item, selected: .constant(item))
+                    .environment(\.colorScheme, .light)
                     .environment(sceneModel)
                     .environment(authFetcher)
             }

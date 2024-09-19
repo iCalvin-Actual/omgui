@@ -31,7 +31,6 @@ extension RequestProtocol {
     
     func updateIfNeeded(forceReload: Bool = false) {
         guard forceReload else {
-            print("NOT performing request")
             return
         }
         Task {

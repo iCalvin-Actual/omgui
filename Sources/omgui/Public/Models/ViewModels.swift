@@ -476,6 +476,10 @@ public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
     @BlackbirdColumn
     var status: String
     
+    var displayStatus: String {
+        status.replacingOccurrences(of: "(?<!\n)\n(?!\n)", with: "  \n", options: .regularExpression)
+    }
+    
     @BlackbirdColumn
     var emoji: String?
     @BlackbirdColumn

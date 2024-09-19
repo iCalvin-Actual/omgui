@@ -88,11 +88,14 @@ class StatusDataFetcher: ModelBackedDataFetcher<StatusModel> {
         result = try await StatusModel.read(from: db, id: id)
     }
     
+    @MainActor
     override func fetchRemote() async throws {
         let status = try await interface.fetchAddressStatus(id, from: address)
         try await status?.write(to: db)
         
-        try await super.fetchRemote()
+        Task {
+            try await super.fetchRemote()
+        }
     }
     
     func fetcher(for url: URL) -> URLContentDataFetcher? {
@@ -139,11 +142,21 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
 //        }
 //    }
     
+//    override func throwingRequest() async throws {
+//        try await fetchModels()
+//        
+//        guard requestNeeded else {
+//            return
+//        }
+//        try await fetchRemote()
+//    }
+    
     @MainActor
     override func fetchModels() async throws {
         self.result = try await PasteModel.read(from: db, multicolumnPrimaryKey: [address, title])
     }
     
+    @MainActor
     override func fetchRemote() async throws {
         guard !address.isEmpty, !title.isEmpty else {
             return
@@ -151,7 +164,9 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
         let paste = try await interface.fetchPaste(title, from: address, credential: credential)
         try await paste?.write(to: db)
         
-        try await super.fetchRemote()
+        Task {
+            try await super.fetchModels()
+        }
     }
     
     func deleteIfPossible() async throws {

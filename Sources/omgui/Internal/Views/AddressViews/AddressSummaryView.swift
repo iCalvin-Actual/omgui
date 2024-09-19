@@ -187,11 +187,7 @@ struct AddressSummaryHeader: View {
     
     var body: some View {
         HStack(alignment: .top) {
-            Menu {
-                AddressModel(name: addressBioFetcher.address).contextMenu(in: sceneModel)
-            } label: {
-                AddressIconView(address: addressBioFetcher.address)
-            }
+            AddressIconView(address: addressBioFetcher.address)
             
             AddressBioLabel(expanded: $expandBio, addressBioFetcher: addressBioFetcher)
                 .multilineTextAlignment(.trailing)

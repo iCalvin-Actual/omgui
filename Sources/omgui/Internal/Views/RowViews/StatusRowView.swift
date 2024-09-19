@@ -32,7 +32,7 @@ struct StatusRowView: View {
     let cardradius: CGFloat
     let showSelection: Bool
     
-    init(model: StatusModel, cardColor: Color? = nil, cardPadding: CGFloat = 8, cardradius: CGFloat = 4, showSelection: Bool = false) {
+    init(model: StatusModel, cardColor: Color? = nil, cardPadding: CGFloat = 8, cardradius: CGFloat = 16, showSelection: Bool = false) {
         self.model = model
         self.cardColor = cardColor ?? .lolRandom(model.displayEmoji)
         self.cardPadding = cardPadding
@@ -114,9 +114,9 @@ struct StatusRowView: View {
     var appropriateMarkdown: some View {
         switch context {
         case .detail:
-            MarkdownContentView(source: model, content: model.status)
+            MarkdownContentView(source: model, content: model.displayStatus)
         default:
-            Markdown(model.status)
+            Markdown(model.displayStatus)
         }
     }
     

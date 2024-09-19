@@ -11,6 +11,8 @@ struct AddressIconView: View {
     
     let showMenu: Bool
     
+    let menuBuilder = ContextMenuBuilder<AddressModel>()
+    
     init(address: AddressName, size: CGFloat = 42.0, showMenu: Bool = true) {
         self.address = address
         self.size = size
@@ -28,7 +30,7 @@ struct AddressIconView: View {
     @ViewBuilder
     var menu: some View {
         Menu {
-            AddressModel(name: address).contextMenu(in: sceneModel)
+            menuBuilder.contextMenu(for: .init(name: address), sceneModel: sceneModel)
         } label: {
             AsyncImage(url: address.addressIconURL) { image in
                 image.resizable()
