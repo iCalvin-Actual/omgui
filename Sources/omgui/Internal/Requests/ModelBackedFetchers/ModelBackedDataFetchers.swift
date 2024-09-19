@@ -163,10 +163,7 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
         }
         let paste = try await interface.fetchPaste(title, from: address, credential: credential)
         try await paste?.write(to: db)
-        
-        Task {
-            try await super.fetchModels()
-        }
+        try await self.fetchModels()
     }
     
     func deleteIfPossible() async throws {

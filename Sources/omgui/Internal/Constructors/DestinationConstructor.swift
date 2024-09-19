@@ -83,7 +83,7 @@ struct DestinationConstructor {
         case .latest:
             AddressNowView(fetcher: sceneModel.addressSummary("app").nowFetcher)
         case .support:
-            PasteView(fetcher: AddressPasteDataFetcher(name: "app", title: "support", interface: sceneModel.interface, db: sceneModel.database))
+            PasteView(fetcher: sceneModel.supportFetcher)
 //        case .following:
 //            FollowingView(addressBook)
 //        case .followingAddresses:

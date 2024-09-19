@@ -51,11 +51,11 @@ class SidebarModel: ObservableObject {
     }
     
     var sections: [Section] {
-        [.directory, .status, .now, .more, .app]
+        [.directory, .status, .now, .app]
     }
     
     var sectionsForLists: [Section] {
-        [.app, .more]
+        [.app]
     }
     
     let sceneModel: SceneModel
