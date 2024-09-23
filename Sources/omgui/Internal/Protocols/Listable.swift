@@ -30,7 +30,11 @@ extension Listable {
         guard let date = displayDate else {
             return nil
         }
-        return DateFormatter.shortDate.string(from: date)
+        if Date().timeIntervalSince(date) < (60 * 60 * 24 * 7) {
+            return DateFormatter.relative.string(for: date) ?? DateFormatter.shortDate.string(from: date)
+        } else {
+            return DateFormatter.shortDate.string(from: date)
+        }
     }
 }
 
@@ -43,7 +47,7 @@ extension StatusModel: Listable     {
     var listTitle: String     { status }
     var listSubtitle: String  { owner.addressDisplayString }
     var displayDate: Date?    { date }
-    var listCaption: String?  { DateFormatter.short.string(from: date).replacingOccurrences(of: ", ", with: "\n") }
+    var listCaption: String?  { DateFormatter.relative.string(for: date)?.replacingOccurrences(of: ", ", with: "\n") }
 }
 extension PasteModel: Listable     {
     var listTitle: String     { name }
