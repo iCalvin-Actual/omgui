@@ -13,7 +13,7 @@ struct AddressNameView: View {
     let font: Font
     let suffix: String?
     
-    init(_ name: AddressName, font: Font = .title3, suffix: String? = nil) {
+    init(_ name: AddressName, font: Font = .body, suffix: String? = nil) {
         self.name = name
         self.font = font
         self.suffix = suffix

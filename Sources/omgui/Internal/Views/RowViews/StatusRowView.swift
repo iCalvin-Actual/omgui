@@ -136,17 +136,21 @@ struct StatusRowView: View {
                 AddressIconView(address: model.address)
                     .padding(4)
             }
-            if context != .profile {
-                AddressNameView(model.address)
+            if context != .profile || model.listCaption != nil {
+                VStack(alignment: .leading, spacing: 2) {
+                    if context != .profile {
+                        AddressNameView(model.address)
+                    }
+                    if let caption = context != .detail ? DateFormatter.relative.string(for: model.date) ?? model.listCaption : model.listCaption {
+                        Text(caption)
+                            .multilineTextAlignment(.trailing)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .truncationMode(.head)
+                    }
+                }
             }
             Spacer()
-            if let caption = context == .detail ? DateFormatter.relative.string(for: model.date) ?? model.listCaption : model.listCaption {
-                Text(caption)
-                    .multilineTextAlignment(.trailing)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .truncationMode(.head)
-            }
             Text(model.displayEmoji.prefix(1))
                 .font(.system(size: 42))
         }

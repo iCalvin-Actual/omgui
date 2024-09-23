@@ -47,7 +47,7 @@ extension StatusModel: Listable     {
     var listTitle: String     { status }
     var listSubtitle: String  { owner.addressDisplayString }
     var displayDate: Date?    { date }
-    var listCaption: String?  { DateFormatter.relative.string(for: date)?.replacingOccurrences(of: ", ", with: "\n") }
+    var listCaption: String?  { DateFormatter.short.string(for: date) }
 }
 extension PasteModel: Listable     {
     var listTitle: String     { name }
