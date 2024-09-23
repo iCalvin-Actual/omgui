@@ -151,7 +151,7 @@ struct StatusRowView: View {
                 }
             }
             Spacer()
-            Text(model.displayEmoji.prefix(1))
+            Text(model.displayEmoji.count > 1 ? "✨" : model.displayEmoji.prefix(1))
                 .font(.system(size: 42))
         }
     }
