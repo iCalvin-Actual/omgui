@@ -147,7 +147,7 @@ struct StatusRowView: View {
                     .foregroundStyle(.secondary)
                     .truncationMode(.head)
             }
-            Text(model.displayEmoji)
+            Text(model.displayEmoji.prefix(1))
                 .font(.system(size: 42))
         }
     }
