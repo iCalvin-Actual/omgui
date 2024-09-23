@@ -47,25 +47,13 @@ struct DestinationConstructor {
             AddressPastesView(fetcher: sceneModel.addressSummary(address).pasteFetcher)
         case .paste(let address, id: let title):
             PasteView(
-                fetcher: AddressPasteDataFetcher(
-                    name: address,
-                    title: title,
-                    credential: sceneModel.addressBook.credential(for: address),
-                    interface: sceneModel.interface,
-                    db: sceneModel.database
-                )
+                fetcher: sceneModel.addressSummary(address).pasteFetcher(for: title)
             )
         case .purls(let address):
             AddressPURLsView(fetcher: sceneModel.addressSummary(address).purlFetcher)
         case .purl(let address, id: let title):
             PURLView(
-                fetcher: AddressPURLDataFetcher(
-                    name: address,
-                    title: title,
-                    credential: sceneModel.addressBook.credential(for: address),
-                    interface: sceneModel.interface,
-                    db: sceneModel.database
-                )
+                fetcher: sceneModel.addressSummary(address).purlFetcher(for: title)
             )
         case .statusLog(let address):
             StatusList(
@@ -73,7 +61,7 @@ struct DestinationConstructor {
                 filters: [FilterOption.fromOneOf([address])]
             )
         case .status(let address, id: let id):
-            StatusView(fetcher: StatusDataFetcher(id: id, from: address, interface: sceneModel.interface, db: sceneModel.database))
+            StatusView(fetcher: sceneModel.addressSummary(address).statusFetcher(for: id))
         case .account:
             AccountView()
         case .lists:

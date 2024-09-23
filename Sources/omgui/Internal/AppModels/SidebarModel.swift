@@ -75,6 +75,9 @@ class SidebarModel: ObservableObject {
             
         case .directory:
             var destinations: [NavigationItem] = []
+            if #unavailable(iOS 18.0) {
+                destinations.append(.search)
+            }
             destinations.append(
                 contentsOf: addressBook.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
             )

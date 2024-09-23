@@ -25,6 +25,10 @@ class AddressSummaryDataFetcher: DataFetcher {
         addressName.addressIconURL
     }
     
+    var statuses: [String: StatusDataFetcher] = [:]
+    var purls: [String: AddressPURLDataFetcher] = [:]
+    var pastes: [String: AddressPasteDataFetcher] = [:]
+    
     var iconFetcher: AddressIconDataFetcher
     var profileFetcher: AddressProfileDataFetcher
     var nowFetcher: AddressNowDataFetcher
@@ -80,14 +84,14 @@ class AddressSummaryDataFetcher: DataFetcher {
         }
         await super.perform()
         
-        await iconFetcher.updateIfNeeded()
-        await profileFetcher.updateIfNeeded()
-        await nowFetcher.updateIfNeeded()
-        await purlFetcher.updateIfNeeded()
-        await pasteFetcher.updateIfNeeded()
-        await statusFetcher.updateIfNeeded()
-        await bioFetcher.updateIfNeeded()
-        await followingFetcher.updateIfNeeded()
+        await iconFetcher.updateIfNeeded(forceReload: true)
+        await profileFetcher.updateIfNeeded(forceReload: true)
+        await nowFetcher.updateIfNeeded(forceReload: true)
+        await purlFetcher.updateIfNeeded(forceReload: true)
+        await pasteFetcher.updateIfNeeded(forceReload: true)
+        await statusFetcher.updateIfNeeded(forceReload: true)
+        await bioFetcher.updateIfNeeded(forceReload: true)
+        await followingFetcher.updateIfNeeded(forceReload: true)
         
         await fetchFinished()
     }
@@ -103,6 +107,33 @@ class AddressSummaryDataFetcher: DataFetcher {
         self.url = info.url
         
         await self.fetchFinished()
+    }
+    
+    func statusFetcher(for id: String) -> StatusDataFetcher {
+        guard let fetcher = statuses[id] else {
+            let newFetcher = StatusDataFetcher(id: id, from: addressName, interface: interface, db: database)
+            statuses[id] = newFetcher
+            return newFetcher
+        }
+        return fetcher
+    }
+    
+    func purlFetcher(for id: String) -> AddressPURLDataFetcher {
+        guard let fetcher = purls[id] else {
+            let newFetcher = AddressPURLDataFetcher(name: addressName, title: id, credential: addressBook.credential(for: addressName), interface: interface, db: database)
+            purls[id] = newFetcher
+            return newFetcher
+        }
+        return fetcher
+    }
+    
+    func pasteFetcher(for id: String) -> AddressPasteDataFetcher {
+        guard let fetcher = pastes[id] else {
+            let newFetcher = AddressPasteDataFetcher(name: addressName, title: id, credential: addressBook.credential(for: addressName), interface: interface, db: database)
+            pastes[id] = newFetcher
+            return newFetcher
+        }
+        return fetcher
     }
 }
 
