@@ -11,6 +11,10 @@ extension DateFormatter {
     @MainActor
     static let storage: ISO8601DateFormatter = ISO8601DateFormatter()
     
+    static var relative: RelativeDateTimeFormatter {
+        let formatter = RelativeDateTimeFormatter()
+        return formatter
+    }
     static let short: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .short

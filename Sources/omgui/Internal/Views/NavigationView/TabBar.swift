@@ -7,14 +7,13 @@
 
 import SwiftUI
 
-@available(iOS 18.0, *)
 struct TabBar: View {
     static func usingRegularTabBar(sizeClass: UserInterfaceSizeClass?, width: CGFloat? = nil) -> Bool {
         guard UIDevice.current.userInterfaceIdiom != .phone && (sizeClass ?? .regular) != .compact else {
             return false
         }
         if let width {
-            return width > 330
+            return width >= 300
         }
         return true
     }
@@ -35,6 +34,16 @@ struct TabBar: View {
     }
     
     var body: some View {
+        if #available(iOS 18.0, *) {
+            updatedBody
+        } else {
+            SplitView()
+        }
+    }
+    
+    @available(iOS 18.0, *)
+    @ViewBuilder
+    var updatedBody: some View {
         if !Self.usingRegularTabBar(sizeClass: horizontalSizeClass) {
             compactTabBar
                 .toolbarColorScheme(.light, for: .tabBar)
@@ -53,6 +62,7 @@ struct TabBar: View {
         }
     }
     
+    @available(iOS 18.0, *)
     @ViewBuilder
     var compactTabBar: some View {
         TabView(selection: $selected) {
@@ -65,6 +75,7 @@ struct TabBar: View {
         }
     }
     
+    @available(iOS 18.0, *)
     @ViewBuilder
     var regularTabBar: some View {
         TabView(selection: $selected) {

@@ -32,7 +32,7 @@ struct StatusRowView: View {
     let cardradius: CGFloat
     let showSelection: Bool
     
-    init(model: StatusModel, cardColor: Color? = nil, cardPadding: CGFloat = 8, cardradius: CGFloat = 4, showSelection: Bool = false) {
+    init(model: StatusModel, cardColor: Color? = nil, cardPadding: CGFloat = 8, cardradius: CGFloat = 16, showSelection: Bool = false) {
         self.model = model
         self.cardColor = cardColor ?? .lolRandom(model.displayEmoji)
         self.cardPadding = cardPadding
@@ -114,9 +114,9 @@ struct StatusRowView: View {
     var appropriateMarkdown: some View {
         switch context {
         case .detail:
-            MarkdownContentView(source: model, content: model.status)
+            MarkdownContentView(source: model, content: model.displayStatus)
         default:
-            Markdown(model.status)
+            Markdown(model.displayStatus)
         }
     }
     
@@ -136,18 +136,22 @@ struct StatusRowView: View {
                 AddressIconView(address: model.address)
                     .padding(4)
             }
-            if context != .profile {
-                AddressNameView(model.address)
+            if context != .profile || model.listCaption != nil {
+                VStack(alignment: .leading, spacing: 2) {
+                    if context != .profile {
+                        AddressNameView(model.address)
+                    }
+                    if let caption = context != .detail ? DateFormatter.relative.string(for: model.date) ?? model.listCaption : model.listCaption {
+                        Text(caption)
+                            .multilineTextAlignment(.trailing)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .truncationMode(.head)
+                    }
+                }
             }
             Spacer()
-            if let caption = model.listCaption {
-                Text(caption)
-                    .multilineTextAlignment(.trailing)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .truncationMode(.head)
-            }
-            Text(model.displayEmoji)
+            Text(model.displayEmoji.count > 1 ? "✨" : model.displayEmoji.prefix(1))
                 .font(.system(size: 42))
         }
     }

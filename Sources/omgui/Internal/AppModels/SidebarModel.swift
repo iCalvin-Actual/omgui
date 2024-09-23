@@ -51,14 +51,15 @@ class SidebarModel: ObservableObject {
     }
     
     var sections: [Section] {
-        [.directory, .status, .now, .more, .app]
+        [.directory, .status, .now, .app]
     }
     
     var sectionsForLists: [Section] {
-        [.app, .more]
+        [.app]
     }
     
     let sceneModel: SceneModel
+    var addressBook: AddressBook { sceneModel.addressBook }
     
     @Published
     var pinnedFetcher: PinnedListDataFetcher
@@ -73,11 +74,14 @@ class SidebarModel: ObservableObject {
             
         case .directory:
             var destinations: [NavigationItem] = []
+            if #unavailable(iOS 18.0) {
+                destinations.append(.search)
+            }
             if sceneModel.addressBook.signedIn {
                 destinations.append(.following(.autoUpdatingAddress))
             }
             destinations.append(
-                contentsOf: sceneModel.addressBook.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
+                contentsOf: addressBook.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
             )
             return destinations
             
@@ -91,7 +95,7 @@ class SidebarModel: ObservableObject {
             var destinations = [
                 NavigationItem.community
             ]
-            if sceneModel.addressBook.signedIn {
+            if addressBook.signedIn {
                 destinations.insert(contentsOf: [.following(.autoUpdatingAddress)], at: 0)
             }
             return destinations

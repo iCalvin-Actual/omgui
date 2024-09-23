@@ -40,6 +40,7 @@ class SceneModel {
     let directoryFetcher: AddressDirectoryDataFetcher
     let gardenFetcher: NowGardenDataFetcher
     let statusFetcher: StatusLogDataFetcher
+    let supportFetcher: AddressPasteDataFetcher
     
     init(
         addressBook: AddressBook,
@@ -54,6 +55,7 @@ class SceneModel {
         self.directoryFetcher = .init(addressBook: addressBook, interface: interface, db: database)
         self.gardenFetcher = .init(addressBook: addressBook, interface: interface, db: database)
         self.statusFetcher = .init(addressBook: addressBook, interface: interface, db: database)
+        self.supportFetcher = .init(name: "app", title: "support", interface: interface, db: database)
         
         
         let myProfiles = addressBook.myAddresses
@@ -80,6 +82,12 @@ extension SceneModel {
     
     // MARK: Summaries
     
+    func appropriateFetcher(for address: AddressName) -> AddressSummaryDataFetcher {
+        if addressBook.myAddresses.contains(address) {
+            return addressPrivateSummary(address)
+        }
+        return addressSummary(address)
+    }
     func constructFetcher(for address: AddressName) -> AddressSummaryDataFetcher {
         AddressSummaryDataFetcher(name: address, addressBook: addressBook, interface: interface, database: database)
     }

@@ -1,5 +1,5 @@
 {
-  "originHash" : "0a70230b1445dda0dfa1c1c2ada646829d5e8400060a37928644cc04aa1b1da1",
+  "originHash" : "225f4d2b9d56eb402f353c6ca601a0ce2cd11ee4a9aa095e906c2dc53bcfa199",
   "pins" : [
     {
       "identity" : "blackbird",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/iCalvin-Actual/Blackbird",
       "state" : {
         "branch" : "main",
-        "revision" : "ce45e98a69304040fa5015933e19647aa721f1c3"
+        "revision" : "7cb648465eb4babf77952d68c855d20517f2b962"
       }
     },
     {
@@ -35,6 +35,15 @@
       "state" : {
         "revision" : "7aff8d1b31148d32c5933d75557d42f6323ee3d1",
         "version" : "6.0.0"
+      }
+    },
+    {
+      "identity" : "punycodeswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/iCalvin-Actual/PunycodeSwift",
+      "state" : {
+        "branch" : "main",
+        "revision" : "30a462bdb4398ea835a3585472229e0d74b36ba5"
       }
     },
     {

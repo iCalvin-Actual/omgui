@@ -233,10 +233,17 @@ extension StatusModel: Menuable {
 }
 
 struct ReportButton: View {
-    var addressInQuestion: AddressName?
+    let addressInQuestion: AddressName?
+    
+    let overrideAction: (() -> Void)?
+    
+    init(addressInQuestion: AddressName? = nil, overrideAction: (() -> Void)? = nil) {
+        self.addressInQuestion = addressInQuestion
+        self.overrideAction = overrideAction
+    }
     
     var body: some View {
-        Button(action: {
+        Button(action: overrideAction ?? {
             let subject = "app.lol content report"
             let body = "/*\nPlease describe the offending behavior, provide links where appropriate.\nWe will review the offending content as quickly as we can and respond appropriately.\n */ \nOffending address: \(addressInQuestion ?? "unknown")\nmy omg.lol address: \n\n"
             let coded = "mailto:app@omg.lol?subject=\(subject)&body=\(body)"

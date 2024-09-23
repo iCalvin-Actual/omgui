@@ -156,17 +156,23 @@ struct PasteView: View {
         mainContent
             .onChange(of: fetcher.address, {
                 Task { [fetcher] in
+                    fetcher.loaded = false
+                    fetcher.loading = true
                     await fetcher.updateIfNeeded(forceReload: true)
+                    fetcher.loaded = true
+                    fetcher.loading = false
                 }
             })
             .onChange(of: fetcher.title, {
                 Task { [fetcher] in
+                    fetcher.loaded = false
+                    fetcher.loading = true
                     await fetcher.updateIfNeeded(forceReload: true)
+                    fetcher.loaded = true
+                    fetcher.loading = false
+                    
                 }
             })
-            .task { [fetcher] in
-                await fetcher.updateIfNeeded(forceReload: true)
-            }
             .toolbar {
                 if viewContext != .profile {
                     ToolbarItem(placement: .topBarLeading) {
@@ -281,23 +287,36 @@ struct PasteView: View {
                 .background(Color.clear)
             }
             
-            ScrollView {
-                if let model = fetcher.result {
-                    MarkdownContentView(source: model, content: model.content)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, 4)
-                        .padding(.horizontal)
-                } else {
-                    Text(fetcher.result?.content ?? "")
-                        .textSelection(.enabled)
-                        .font(.body)
-                        .fontDesign(.rounded)
-                        .padding(.vertical, 4)
-                        .padding(.horizontal)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+            if fetcher.loaded {
+                ScrollView {
+                    if let model = fetcher.result {
+                        MarkdownContentView(source: model, content: model.content)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 4)
+                            .padding(.horizontal)
+                    } else {
+                        Text(fetcher.result?.content ?? "")
+                            .textSelection(.enabled)
+                            .font(.body)
+                            .fontDesign(.rounded)
+                            .padding(.vertical, 4)
+                            .padding(.horizontal)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
+                .padding(4)
+            } else {
+                LoadingView()
+                    .padding()
+                    .task { @MainActor [fetcher] in
+                        fetcher.loaded = false
+                        fetcher.loading = true
+                        await fetcher.updateIfNeeded(forceReload: true)
+                        fetcher.loaded = true
+                        fetcher.loading = false
+                    }
+                Spacer()
             }
-            .padding(4)
         }
         .frame(maxWidth: .infinity)
     }

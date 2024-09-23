@@ -47,33 +47,21 @@ struct DestinationConstructor {
             AddressPastesView(fetcher: sceneModel.addressSummary(address).pasteFetcher)
         case .paste(let address, id: let title):
             PasteView(
-                fetcher: AddressPasteDataFetcher(
-                    name: address,
-                    title: title,
-                    credential: sceneModel.addressBook.credential(for: address),
-                    interface: sceneModel.interface,
-                    db: sceneModel.database
-                )
+        fetcher: sceneModel.appropriateFetcher(for: address).pasteFetcher(for: title)
             )
         case .purls(let address):
             AddressPURLsView(fetcher: sceneModel.addressSummary(address).purlFetcher)
         case .purl(let address, id: let title):
             PURLView(
-                fetcher: AddressPURLDataFetcher(
-                    name: address,
-                    title: title,
-                    credential: sceneModel.addressBook.credential(for: address),
-                    interface: sceneModel.interface,
-                    db: sceneModel.database
-                )
+                fetcher: sceneModel.appropriateFetcher(for: address).purlFetcher(for: title)
             )
         case .statusLog(let address):
             StatusList(
-                fetcher: sceneModel.addressSummary(address).statusFetcher,
+                fetcher: sceneModel.appropriateFetcher(for: address).statusFetcher,
                 filters: [FilterOption.fromOneOf([address])]
             )
         case .status(let address, id: let id):
-            StatusView(fetcher: StatusDataFetcher(id: id, from: address, interface: sceneModel.interface, db: sceneModel.database))
+            StatusView(fetcher: sceneModel.appropriateFetcher(for: address).statusFetcher(for: id))
         case .account:
             AccountView()
         case .lists:
@@ -83,7 +71,7 @@ struct DestinationConstructor {
         case .latest:
             AddressNowView(fetcher: sceneModel.addressSummary("app").nowFetcher)
         case .support:
-            PasteView(fetcher: AddressPasteDataFetcher(name: "app", title: "support", interface: sceneModel.interface, db: sceneModel.database))
+            PasteView(fetcher: sceneModel.supportFetcher)
 //        case .following:
 //            FollowingView(addressBook)
 //        case .followingAddresses:

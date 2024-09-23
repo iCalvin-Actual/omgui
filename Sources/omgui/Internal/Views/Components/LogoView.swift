@@ -5,10 +5,16 @@ struct LogoView: View {
     @Environment(\.colorScheme)
     var colorScheme
     
+    let size: CGFloat
+    
+    init(_ size: CGFloat = 33.0) {
+        self.size = size
+    }
+    
     var body: some View {
         coreIcon
             .aspectRatio(1, contentMode: .fit)
-            .frame(width: 33, height: 33)
+            .frame(width: size, height: size)
     }
     
     @ViewBuilder
