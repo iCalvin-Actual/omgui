@@ -38,7 +38,7 @@ struct Sidebar: View {
         NavigationStack {
             List(selection: $selected) {
                 ForEach(sidebarModel.sections) { section in
-                    let items = sidebarModel.items(for: section)
+                    let items = sidebarModel.items(for: section, sizeClass: horizontalSize, context: .column)
                     if !items.isEmpty {
                         Section {
                             ForEach(items) { item in
@@ -49,13 +49,11 @@ struct Sidebar: View {
                                     })
                             }
                         } header: {
-                            HStack {
-                                Text(section.displayName)
-                                    .fontDesign(.monospaced)
-                                    .font(.subheadline)
-                                    .bold()
-                                Spacer()
-                            }
+                            Text(section.displayName)
+                                .fontDesign(.monospaced)
+                                .font(.subheadline)
+                                .bold()
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
                 }

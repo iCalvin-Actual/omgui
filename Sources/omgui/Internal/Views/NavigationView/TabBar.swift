@@ -85,11 +85,10 @@ struct TabBar: View {
 
             ForEach(tabModel.sections) { section in
                 TabSection(section.displayName) {
-                    ForEach(tabModel.items(for: section)) { item in
-                        Tab(item.displayString, systemImage: item.iconName, value: item, role: item == .search ? .search : nil) {
+                    ForEach(tabModel.items(for: section, sizeClass: .regular, context: .column)) { item in
+                        Tab(item.displayString, systemImage: item.iconName, value: item) {
                             tabContent(item.destination)
                         }
-                        
                     }
                 }
             }

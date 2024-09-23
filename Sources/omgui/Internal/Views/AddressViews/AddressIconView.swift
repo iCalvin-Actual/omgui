@@ -32,38 +32,25 @@ struct AddressIconView: View {
         Menu {
             menuBuilder.contextMenu(for: .init(name: address), sceneModel: sceneModel)
         } label: {
-            AsyncImage(url: address.addressIconURL) { image in
-                image.resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                if let data = sceneModel.addressSummary(address).iconFetcher.result?.data, let uiImage = UIImage(data: data) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else {
-                    Color.lolRandom(address)
-                }
-            }
-            .frame(width: size, height: size)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            iconView
         }
     }
     
     @ViewBuilder
     var iconView: some View {
-        AsyncImage(url: address.addressIconURL) { image in
-            image.resizable()
-                .aspectRatio(contentMode: .fill)
-        } placeholder: {
-            if let data = sceneModel.addressSummary(address).iconFetcher.result?.data, let uiImage = UIImage(data: data) {
-                Image(uiImage: uiImage)
-                    .resizable()
+        if let data = sceneModel.appropriateFetcher(for: address).iconFetcher.result?.data, let dataImage = UIImage(data: data) {
+            Image(uiImage: dataImage)
+                .frame(width: size, height: size)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else {
+            AsyncImage(url: address.addressIconURL) { image in
+                image.resizable()
                     .aspectRatio(contentMode: .fill)
-            } else {
+            } placeholder: {
                 Color.lolRandom(address)
             }
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .frame(width: size, height: size)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

@@ -84,7 +84,11 @@ extension SceneModel {
     
     func appropriateFetcher(for address: AddressName) -> AddressSummaryDataFetcher {
         if addressBook.myAddresses.contains(address) {
-            return addressPrivateSummary(address)
+            do {
+                return try addressPrivateSummary(address)
+            } catch {
+                return addressSummary(address)
+            }
         }
         return addressSummary(address)
     }

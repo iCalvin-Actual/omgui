@@ -26,6 +26,8 @@ struct ListsView: View {
     var sceneModel
     @Environment(AccountAuthDataFetcher.self)
     var accountFetcher
+    @Environment(\.horizontalSizeClass)
+    var sizeClass
     
     init(sceneModel: SceneModel) {
         viewModel = .init(sceneModel: sceneModel)
@@ -96,7 +98,7 @@ struct ListsView: View {
             
             ForEach(viewModel.sidebarModel.sectionsForLists) { section in
                 Section(section.displayName) {
-                    ForEach(viewModel.sidebarModel.items(for: section)) { item in
+                    ForEach(viewModel.sidebarModel.items(for: section, sizeClass: sizeClass, context: .detail)) { item in
                         NavigationLink {
                             sceneModel.destinationConstructor.destination(item.destination)
                         } label: {

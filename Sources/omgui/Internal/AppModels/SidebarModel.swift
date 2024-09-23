@@ -69,7 +69,7 @@ class SidebarModel: ObservableObject {
         self.pinnedFetcher = sceneModel.addressBook.pinnedAddressFetcher
     }
     
-    func items(for section: Section) -> [NavigationItem] {
+    func items(for section: Section, sizeClass: UserInterfaceSizeClass?, context: ViewContext) -> [NavigationItem] {
         switch section {
             
         case .directory:
@@ -101,7 +101,19 @@ class SidebarModel: ObservableObject {
             return destinations
             
         case .app:
-            return [.appSupport, .safety, .appLatest]
+            if context == .detail {
+                return [.safety]
+            } else {
+                var destinations: [NavigationItem] = [.appSupport, .appLatest]
+                if #available(iOS 18.0, *) {
+                    if TabBar.usingRegularTabBar(sizeClass: sizeClass) {
+                        destinations.insert(.account, at: 0)
+                    }
+                } else {
+                    destinations.insert(.account, at: 0)
+                }
+                return destinations
+            }
             
         case .more:
             return [.learn]

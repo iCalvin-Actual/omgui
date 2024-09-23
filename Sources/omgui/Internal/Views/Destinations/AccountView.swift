@@ -31,6 +31,11 @@ struct AccountView: View {
     }
     
     var body: some View {
+        ListsView(sceneModel: sceneModel)
+    }
+    
+    @ViewBuilder
+    var oldAccountBody: some View {
         appropriateBody
             .onChange(of: actingAddress, { oldValue, newValue in
                 forceUpdateState.toggle()
