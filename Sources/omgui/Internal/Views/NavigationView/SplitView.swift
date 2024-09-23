@@ -32,10 +32,11 @@ struct SplitView: View {
             Sidebar(selected: $selected, model: .init(sceneModel: sceneModel))
                 .environment(\.viewContext, .column)
         } detail: {
-            let item: NavigationItem = selected ?? (sceneModel.addressBook.signedIn ? .newStatus : .account)
+            let item: NavigationItem = selected ?? (sceneModel.addressBook.signedIn ? .newStatus : .community)
             let destination = item.destination
             NavigationStack {
                 destinationView(destination)
+                    .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
             }
             .environment(\.viewContext, sizeClass == .regular ? .detail : .column)
         }
@@ -44,6 +45,5 @@ struct SplitView: View {
     @ViewBuilder
     func destinationView(_ destination: NavigationDestination? = .webpage("app")) -> some View {
         sceneModel.destinationConstructor.destination(destination)
-            .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
     }
 }

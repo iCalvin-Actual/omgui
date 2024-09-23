@@ -140,7 +140,7 @@ struct StatusRowView: View {
                 AddressNameView(model.address)
             }
             Spacer()
-            if let caption = model.listCaption {
+            if let caption = context == .detail ? DateFormatter.relative.string(for: model.date) ?? model.listCaption : model.listCaption {
                 Text(caption)
                     .multilineTextAlignment(.trailing)
                     .font(.caption2)

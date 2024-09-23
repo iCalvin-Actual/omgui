@@ -29,13 +29,9 @@ struct Sidebar: View {
         sceneModel.addressBook.myAddresses
     }
     
-    @ObservedObject
-    var pinnedFetcher: PinnedListDataFetcher
-    
     init(selected: Binding<NavigationItem?>, model: SidebarModel) {
         self._selected = selected
         self.sidebarModel = model
-        self.pinnedFetcher = model.sceneModel.addressBook.pinnedAddressFetcher
     }
     
     var body: some View {
@@ -67,7 +63,6 @@ struct Sidebar: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .environment(\.viewContext, ViewContext.column)
-        .navigationDestination(for: NavigationDestination.self, destination: destinationView(_:))
 //        .safeAreaInset(edge: .bottom) {
 //            AddressPicker()
 //        }
@@ -155,6 +150,5 @@ struct Sidebar: View {
     @ViewBuilder
     func destinationView(_ destination: NavigationDestination? = .webpage("app")) -> some View {
         sceneModel.destinationConstructor.destination(destination)
-            .navigationDestination(for: NavigationDestination.self, destination: sceneModel.destinationConstructor.destination(_:))
     }
 }

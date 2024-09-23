@@ -45,12 +45,8 @@ struct ListView<T: Listable, H: View>: View {
     
     var menuBuilder: ContextMenuBuilder<T> = .init()
     
-    var usingRegular: Bool {
-        if #available(iOS 18.0, visionOS 2.0, *) {
-            return TabBar.usingRegularTabBar(sizeClass: horizontalSize)
-        } else {
-            return horizontalSize == .regular && UIDevice.current.userInterfaceIdiom == .pad
-        }
+    func usingRegular(_ width: CGFloat) -> Bool {
+        TabBar.usingRegularTabBar(sizeClass: horizontalSize, width: width)
     }
     
     init(
@@ -153,30 +149,24 @@ struct ListView<T: Listable, H: View>: View {
     
     @ViewBuilder
     var sizeAppropriateBody: some View {
-        if horizontalSize == .compact {
-            compactBody
-        } else {
-            GeometryReader { proxy in
-                let useRegular: Bool = {
-                    if #available(iOS 18.0, visionOS 2.0,*) {
-                        return TabBar.usingRegularTabBar(sizeClass: horizontalSize, width: proxy.size.width)
-                    } else {
-                        return UIDevice.current.userInterfaceIdiom == .phone || horizontalSize == .compact
-                    }
-                }()
-                if useRegular {
-                    regularBody
+        GeometryReader { proxy in
+            if horizontalSize == .compact {
+                compactBody(width: proxy.size.width)
+            } else {
+                if usingRegular(proxy.size.width) {
+                    regularBody(actingWidth: proxy.size.width)
                 } else {
-                    compactBody
+                    compactBody(width: proxy.size.width)
+                        .environment(\.horizontalSizeClass, .compact)
                 }
             }
         }
     }
     
     @ViewBuilder
-    var compactBody: some View {
+    func compactBody(width: CGFloat) -> some View {
         let body: some View = {
-            searchableList
+            searchableList(width: width)
                 .animation(.easeInOut(duration: 0.3), value: dataFetcher.loaded)
                 .listRowBackground(Color.clear)
         }()
@@ -189,27 +179,25 @@ struct ListView<T: Listable, H: View>: View {
     }
     
     @ViewBuilder
-    var searchableList: some View {
+    func searchableList(width: CGFloat) ->  some View {
         if allowSearch {
-            list
+            list(width: width)
                 .searchable(text: $queryString, placement: .automatic)
         } else {
-            list
+            list(width: width)
         }
     }
     
     @ViewBuilder
-    var regularBody: some View {
+    func regularBody(actingWidth: CGFloat) -> some View {
         HStack(spacing: 0) {
-            compactBody
-                .frame(maxWidth: 360)
+            compactBody(width: 300)
+                .frame(maxWidth: 300)
                 .environment(\.viewContext, .column)
-            GeometryReader { proxy in
-                regularBodyContent
-                    .frame(maxWidth: .infinity)
-                    .environment(\.viewContext, context == .profile ? .profile : .detail)
-                    .environment(\.horizontalSizeClass, proxy.size.width > 375 ? .regular : .compact)
-            }
+            regularBodyContent(actingWidth)
+                .frame(maxWidth: .infinity)
+                .environment(\.viewContext, context == .profile ? .profile : .detail)
+                .environment(\.horizontalSizeClass, actingWidth > 300 ? .regular : .compact)
         }
         .onReceive(dataFetcher.$results) { newResults in
             if selected == nil, let item = newResults.first {
@@ -219,7 +207,7 @@ struct ListView<T: Listable, H: View>: View {
     }
     
     @ViewBuilder
-    var regularBodyContent: some View {
+    func regularBodyContent(_ actingWidth: CGFloat) -> some View {
         if let selected = selected {
             sceneModel.destinationConstructor.destination(destination(for: selected))
         } else {
@@ -229,10 +217,10 @@ struct ListView<T: Listable, H: View>: View {
     }
     
     @ViewBuilder
-    var list: some View {
+    func list(width: CGFloat) -> some View {
         let body: some View = {
             List(selection: $selected) {
-                listItems
+                listItems(width: width)
                     .listRowBackground(Color.clear)
                     .padding(.vertical, 4)
                 
@@ -283,28 +271,28 @@ struct ListView<T: Listable, H: View>: View {
     }
     
     @ViewBuilder
-    var listItems: some View {
+    func listItems(width: CGFloat) -> some View {
         if let headerBuilder = headerBuilder {
             Section {
                 headerBuilder()
                     .listRowSeparator(.hidden)
             }
             Section(dataFetcher.title) {
-                listContent
+                listContent(width: width)
                     .padding(.horizontal)
             }
         } else {
-            listContent
+            listContent(width: width)
                 .padding(.horizontal)
         }
     }
     
     @ViewBuilder
-    var listContent: some View {
+    func listContent(width: CGFloat) -> some View {
         if dataFetcher.noContent {
             emptyRowView()
         } else if !items.isEmpty {
-            ForEach(items, content: rowView(_:) )
+            ForEach(items, content: { rowView($0, width: width) })
         } else {
             EmptyView()
         }
@@ -325,8 +313,8 @@ struct ListView<T: Listable, H: View>: View {
     }
     
     @ViewBuilder
-    func rowView(_ item: T) -> some View {
-        rowBody(item)
+    func rowView(_ item: T, width: CGFloat) -> some View {
+        rowBody(item, width: width)
             .tag(item)
             .listRowSeparator(.hidden, edges: .all)
             .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -341,9 +329,9 @@ struct ListView<T: Listable, H: View>: View {
     }
     
     @ViewBuilder
-    func rowBody(_ item: T) -> some View {
-        switch horizontalSize {
-        case .compact:
+    func rowBody(_ item: T, width: CGFloat) -> some View {
+        switch TabBar.usingRegularTabBar(sizeClass: horizontalSize, width: width) {
+        case false:
             ZStack(alignment: .leading) {
                 if let destination = destination(for: item) {
                     NavigationLink(value: destination) {

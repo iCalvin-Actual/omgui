@@ -87,14 +87,8 @@ struct AddressSummaryView: View {
             AddressSummaryHeader(expandBio: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
                 .padding()
             destinationPicker
-            if #available(iOS 18.0, *) {
-                destination(selectedPage)
-                    .frame(maxHeight: expandBio ? 0 : .infinity)
-//                    .toolbarBackgroundVisibility(.hidden, for: .tabBar)
-            } else {
-                destination(selectedPage)
-                    .frame(maxHeight: expandBio ? 0 : .infinity)
-            }
+            destination(selectedPage)
+                .frame(maxHeight: expandBio ? 0 : .infinity)
         }
     }
     

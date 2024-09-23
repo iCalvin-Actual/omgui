@@ -26,7 +26,7 @@ struct RootView: View {
     }
     
     var body: some View {
-        appropriateNavigation
+        TabBar(sceneModel: sceneModel)
             .tint(Color.black)
             .task { @MainActor [statusFetcher = sceneModel.statusFetcher, addressBook] in
                 await addressBook.autoFetch()
@@ -37,15 +37,6 @@ struct RootView: View {
             }
             .environment(accountAuthDataFetcher)
             .environment(sceneModel)
-    }
-    
-    @ViewBuilder
-    var appropriateNavigation: some View {
-        if #available(iOS 18.0, visionOS 2.0, *) {
-            TabBar(sceneModel: sceneModel)
-        } else {
-            SplitView()
-        }
     }
 }
 
