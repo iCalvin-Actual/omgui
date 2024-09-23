@@ -20,15 +20,8 @@ struct SplitView: View {
     @State
     var visibility: NavigationSplitViewVisibility = .all
     
-    var preferredColumn: NavigationSplitViewColumn {
-        guard selected != nil else {
-            return .sidebar
-        }
-        return .detail
-    }
-    
     var body: some View {
-        NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(preferredColumn)) {
+        NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(.detail)) {
             Sidebar(selected: $selected, model: .init(sceneModel: sceneModel))
                 .environment(\.viewContext, .column)
         } detail: {
