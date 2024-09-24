@@ -14,6 +14,7 @@ struct CardViewModifier: ViewModifier {
     var contrast
     
     let color: Color
+    let material: Material
     let background: Color?
     let padding: CGFloat
     let radius: CGFloat
@@ -23,8 +24,9 @@ struct CardViewModifier: ViewModifier {
         selected ? 8 : 2
     }
     
-    init(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat, radius: CGFloat, selected: Bool) {
+    init(color: Color = .lolRandom(), material: Material = .thin, backgroundColor: Color? = nil, padding: CGFloat, radius: CGFloat, selected: Bool) {
         self.color = color
+        self.material = material
         self.background = backgroundColor
         self.padding = padding
         self.radius = radius
@@ -36,7 +38,7 @@ struct CardViewModifier: ViewModifier {
             content
                 .frame(maxWidth: .infinity)
                 .padding(padding)
-                .background(contrast == .increased ? Material.ultraThick : Material.thin)
+                .background(contrast == .increased ? Material.ultraThick : material)
                 .cornerRadius(radius)
                 .shadow(color: selected ? .black : .clear, radius:  4, x: shadowOffset, y: shadowOffset)
         }
@@ -45,17 +47,17 @@ struct CardViewModifier: ViewModifier {
 }
 
 extension HStack {
-    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
+    func asCard(color: Color = .lolRandom(), material: Material = .thin, backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
         self.modifier(CardViewModifier(color: color, backgroundColor: backgroundColor, padding: padding, radius: radius, selected: selected))
     }
 }
 extension VStack {
-    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
+    func asCard(color: Color = .lolRandom(), material: Material = .thin, backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
         self.modifier(CardViewModifier(color: color, backgroundColor: backgroundColor, padding: padding, radius: radius, selected: selected))
     }
 }
 extension View {
-    func asCard(color: Color = .lolRandom(), backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
+    func asCard(color: Color = .lolRandom(), material: Material = .thin, backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
         HStack {
             self
             Spacer(minLength: 0)

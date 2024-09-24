@@ -28,38 +28,43 @@ struct PURLRowView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if context != .profile {
-                HStack(alignment: .bottom) {
+            HStack(alignment: .bottom) {
+                if context != .profile {
                     AddressIconView(address: model.owner)
                     AddressNameView(model.owner)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(2)
+                if let caption = model.listCaption {
+                    Text(caption)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fontDesign(.rounded)
+                }
             }
+            .padding(4)
+            .padding(.horizontal, 4)
+            .padding(.top, 4)
             
             VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("/\(model.name)")
-                        .font(.title3)
-                        .bold()
-                        .fontDesign(.serif)
-                        .lineLimit(3)
-                    Spacer()
-                }
-                
+                Text("/\(model.name)")
+                    .font(.headline)
+                    .bold()
+                    .fontDesign(.serif)
+                    .lineLimit(3)
                 if !model.content.isEmpty {
                     Text(model.content)
                         .font(.body)
                         .fontDesign(.monospaced)
                         .lineLimit(5)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundStyle(.secondary)
                 }
             }
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity)
-            .foregroundColor(.black)
-            .foregroundStyle(Color.black)
-            .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
+            .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius, selected: showSelection)
         }
+        .asCard(color: cardColor, padding: 0, radius: cardradius, selected: showSelection)
         .frame(maxWidth: .infinity)
     }
 }

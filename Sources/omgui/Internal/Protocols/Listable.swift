@@ -52,12 +52,12 @@ extension StatusModel: Listable     {
 extension PasteModel: Listable     {
     var listTitle: String     { name }
     var listSubtitle: String  { String(content.prefix(42)) }
-    var listCaption: String?  { owner.addressDisplayString }
+    var listCaption: String?  { DateFormatter.relative.string(for: date) ?? DateFormatter.short.string(for: date) }
 }
 extension PURLModel: Listable     {
     var listTitle: String     { name }
     var listSubtitle: String  { content }
-    var listCaption: String?  { owner.addressDisplayString }
+    var listCaption: String?  { DateFormatter.relative.string(for: date) ?? DateFormatter.short.string(for: date) }
 }
 extension NowListing: Listable     {
     var listTitle: String     { owner.addressDisplayString }

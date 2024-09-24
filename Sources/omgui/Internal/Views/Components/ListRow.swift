@@ -147,10 +147,43 @@ struct ListRow<T: Listable>: View {
         VStack {
 //            AddressSummaryHeader(expandBio: $expanded, addressBioFetcher: .init(address: name, interface: SampleData()))
             ListRow(model: AddressModel.sample(with: name))
+                .environment(\.viewContext, .column)
+            ListRow(model: AddressModel.sample(with: name))
+                .environment(\.viewContext, .profile)
+            ListRow(model: AddressModel.sample(with: name))
+                .environment(\.viewContext, .detail)
+            
+            
             ListRow(model: NowListing.sample(with: name))
+                .environment(\.viewContext, .column)
+            ListRow(model: NowListing.sample(with: name))
+                .environment(\.viewContext, .profile)
+            ListRow(model: NowListing.sample(with: name))
+                .environment(\.viewContext, .detail)
+            
+            
             ListRow(model: StatusModel.sample(with: name))
+                .environment(\.viewContext, .column)
+            ListRow(model: StatusModel.sample(with: name))
+                .environment(\.viewContext, .profile)
+            ListRow(model: StatusModel.sample(with: name))
+                .environment(\.viewContext, .detail)
+            
+            
             ListRow(model: PURLModel.sample(with: name))
+                .environment(\.viewContext, .column)
+            ListRow(model: PURLModel.sample(with: name))
+                .environment(\.viewContext, .profile)
+            ListRow(model: PURLModel.sample(with: name))
+                .environment(\.viewContext, .detail)
+            
+            
             ListRow(model: PasteModel.sample(with: name))
+                .environment(\.viewContext, .column)
+            ListRow(model: PasteModel.sample(with: name))
+                .environment(\.viewContext, .profile)
+            ListRow(model: PasteModel.sample(with: name))
+                .environment(\.viewContext, .detail)
         }
         .padding(.horizontal)
     }

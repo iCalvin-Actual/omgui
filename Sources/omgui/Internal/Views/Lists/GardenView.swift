@@ -47,18 +47,19 @@ struct GardenItemView: View {
                 }
             }
             .padding(4)
+            .padding(.horizontal, 4)
             .padding(.top, 4)
             HStack(alignment: .bottom) {
                 AddressIconView(address: model.addressName, size: 55)
                 
                 Text(model.listSubtitle)
                     .font(.headline)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.secondary)
                     .fontDesign(.monospaced)
                     .bold()
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
+            .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius, selected: showSelection)
         }
         .asCard(color: cardColor, padding: 0, radius: cardradius, selected: showSelection)
     }
