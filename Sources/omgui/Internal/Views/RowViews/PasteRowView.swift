@@ -29,15 +29,23 @@ struct PasteRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .top, spacing: 0) {
-                if context != .profile {
-                    HStack(alignment: .bottom, spacing: 0) {
+                HStack(alignment: .bottom, spacing: 0) {
+                    if context != .profile {
                         AddressIconView(address: model.owner)
                             .padding(.horizontal, 4)
-                        AddressNameView(model.owner)
-                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                } else {
-                    Spacer()
+                    VStack(alignment: .leading, spacing: 0) {
+                        if context != .profile {
+                            AddressNameView(model.owner)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        Text("/\(model.name)")
+                            .font(.headline)
+                            .fontDesign(.serif)
+                            .bold()
+                            .lineLimit(3)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 if let caption = model.listCaption {
                     Text(caption)
@@ -52,11 +60,6 @@ struct PasteRowView: View {
             .padding(.horizontal, 4)
             
             VStack(alignment: .leading, spacing: 8) {
-                Text("/\(model.name)")
-                    .font(.title3)
-                    .fontDesign(.serif)
-                    .bold()
-                    .lineLimit(3)
                 
                 if !model.content.isEmpty {
                     Text(model.content)
