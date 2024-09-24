@@ -28,22 +28,28 @@ struct PURLRowView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .bottom) {
+            HStack(alignment: .top, spacing: 0) {
                 if context != .profile {
-                    AddressIconView(address: model.owner)
-                    AddressNameView(model.owner)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack(alignment: .bottom, spacing: 0) {
+                        AddressIconView(address: model.owner)
+                            .padding(.horizontal, 4)
+                        AddressNameView(model.owner)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                } else {
+                    Spacer()
                 }
                 if let caption = model.listCaption {
                     Text(caption)
-                        .font(.subheadline)
+                        .multilineTextAlignment(.trailing)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
-                        .fontDesign(.rounded)
+                        .truncationMode(.head)
                 }
             }
+            .padding(.top, 6)
             .padding(4)
             .padding(.horizontal, 4)
-            .padding(.top, 4)
             
             VStack(alignment: .leading, spacing: 8) {
                 Text("/\(model.name)")

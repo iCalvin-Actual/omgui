@@ -43,20 +43,15 @@ struct StatusRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             buttonIfNeeded
+                .padding(4)
+                .padding(.horizontal, 4)
+                .padding(.top, 6)
             
             rowBody
                 .foregroundStyle(Color.black)
-                .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
-//                .padding(.bottom, 2)
-//        
-//            if let text = model.link?.absoluteString {
-//                Button(action: {
-//                    print("Show Link")
-//                }, label: {
-//                    Label(text, systemImage: "link")
-//                })
-//            }
+                .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius, selected: showSelection)
         }
+        .asCard(color: cardColor, padding: 0, radius: cardradius, selected: showSelection)
         .sheet(item: $destination, content: { destination in
             NavigationStack {
                 sceneModel.destinationConstructor.destination(destination)
@@ -131,28 +126,26 @@ struct StatusRowView: View {
     
     @ViewBuilder
     var headerContent: some View {
-        HStack(alignment: .bottom) {
-            if context == .column {
-                AddressIconView(address: model.address)
-                    .padding(4)
-            }
-            if context != .profile || model.listCaption != nil {
-                VStack(alignment: .leading, spacing: 2) {
-                    if context != .profile {
-                        AddressNameView(model.address)
-                    }
-                    if let caption = context != .detail ? DateFormatter.relative.string(for: model.date) ?? model.listCaption : model.listCaption {
-                        Text(caption)
-                            .multilineTextAlignment(.trailing)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .truncationMode(.head)
-                    }
+        HStack(alignment: .top, spacing: 0) {
+            HStack(alignment: .bottom, spacing: 0) {
+                if context != .profile {
+                    AddressIconView(address: model.address)
+                        .padding(.horizontal, 4)
                 }
+                Text(model.displayEmoji.count > 1 ? "✨" : model.displayEmoji.prefix(1))
+                    .font(.system(size: 35))
+                if context != .detail {
+                    AddressNameView(model.address)
+                }
+                Spacer()
             }
-            Spacer()
-            Text(model.displayEmoji.count > 1 ? "✨" : model.displayEmoji.prefix(1))
-                .font(.system(size: 42))
+            if let caption = context != .detail ? DateFormatter.relative.string(for: model.date) ?? model.listCaption : model.listCaption {
+                Text(caption)
+                    .multilineTextAlignment(.trailing)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .truncationMode(.head)
+            }
         }
     }
 }

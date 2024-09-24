@@ -35,15 +35,17 @@ struct GardenItemView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .lastTextBaseline) {
+            HStack(alignment: .top) {
                 AddressNameView(model.addressName)
                     .lineLimit(3)
                 Spacer()
                 if let caption = model.listCaption, !caption.isEmpty {
                     Text(caption)
-                        .font(.subheadline)
+                        .multilineTextAlignment(.trailing)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
-                        .fontDesign(.rounded)
+                        .truncationMode(.head)
+                        .frame(alignment: .top)
                 }
             }
             .padding(4)
