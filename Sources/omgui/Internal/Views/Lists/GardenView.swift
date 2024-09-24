@@ -34,32 +34,32 @@ struct GardenItemView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .bottom) {
-                AddressIconView(address: model.addressName, size: 55)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .lastTextBaseline) {
                 AddressNameView(model.addressName)
                     .lineLimit(3)
-            }
-            
-            let subtitle = model.listSubtitle
-            let caption = model.listCaption ?? ""
-            let hasMoreText: Bool = !subtitle.isEmpty || !caption.isEmpty
-            if hasMoreText {
-                HStack(alignment: .bottom) {
-                    Text(subtitle)
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                        .fontDesign(.monospaced)
-                        .bold()
-                    Spacer()
+                Spacer()
+                if let caption = model.listCaption, !caption.isEmpty {
                     Text(caption)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .fontDesign(.rounded)
                 }
             }
+            .padding(4)
+            .padding(.top, 4)
+            HStack(alignment: .bottom) {
+                AddressIconView(address: model.addressName, size: 55)
+                
+                Text(model.listSubtitle)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                    .fontDesign(.monospaced)
+                    .bold()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
         }
-        .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
-        .foregroundStyle(Color.black)
+        .asCard(color: cardColor, padding: 0, radius: cardradius, selected: showSelection)
     }
 }
