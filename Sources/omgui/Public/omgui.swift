@@ -116,7 +116,7 @@ public struct omgui: View {
     private func configureAddressBook() {
         self.addressBook = .init(
             authKey: authKey,
-            actingAddress: actingAddress,
+            actingAddress: $actingAddress,
             accountAddressesFetcher: accountAddressesFetcher,
             globalBlocklistFetcher: globalBlocklistFetcher,
             localBlocklistFetcher: .init(interface: dataInterface),

@@ -9,8 +9,7 @@ import SwiftUI
 
 struct Sidebar: View {
     
-    @SceneStorage("app.lol.address")
-    var actingAddress: AddressName = ""
+    let actingAddress: AddressName
     
     @Environment(\.horizontalSizeClass)
     var horizontalSize
@@ -29,7 +28,8 @@ struct Sidebar: View {
         sceneModel.addressBook.myAddresses
     }
     
-    init(selected: Binding<NavigationItem?>, model: SidebarModel) {
+    init(selected: Binding<NavigationItem?>, model: SidebarModel, acting: AddressName) {
+        self.actingAddress = acting
         self._selected = selected
         self.sidebarModel = model
     }
@@ -124,7 +124,7 @@ struct Sidebar: View {
                 ForEach(myAddresses) { address in
                     Button {
                         Task {
-                            actingAddress = address
+                            sceneModel.addressBook.actingAddress.wrappedValue = address
                         }
                     } label: {
                         addressOption(address)

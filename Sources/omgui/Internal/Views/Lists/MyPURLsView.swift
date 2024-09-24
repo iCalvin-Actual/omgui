@@ -15,7 +15,7 @@ struct MyPURLsView: View {
     
     init(singleAddress: Bool, injectedScene: SceneModel) {
         singleAddressMode = singleAddress
-        addressFetcher = AddressPURLsDataFetcher(name: injectedScene.addressBook.actingAddress, credential: injectedScene.addressBook.credential(for: injectedScene.addressBook.actingAddress), addressBook: injectedScene.addressBook, interface: injectedScene.interface, db: injectedScene.database)
+        addressFetcher = AddressPURLsDataFetcher(name: injectedScene.addressBook.actingAddress.wrappedValue, credential: injectedScene.addressBook.credential(for: injectedScene.addressBook.actingAddress.wrappedValue), addressBook: injectedScene.addressBook, interface: injectedScene.interface, db: injectedScene.database)
     }
     
     var body: some View {
@@ -38,7 +38,7 @@ struct MyPURLsView: View {
                         .mask(Circle())
                     }
                     Spacer()
-                    NavigationLink(value: NavigationDestination.purl(scene.addressBook.actingAddress, id: "")) {
+                    NavigationLink(value: NavigationDestination.purl(scene.addressBook.actingAddress.wrappedValue, id: "")) {
                         Image(systemName: "pencil.and.scribble")
                             .bold()
                             .foregroundStyle(Color.white)

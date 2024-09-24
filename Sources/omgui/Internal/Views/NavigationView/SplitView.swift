@@ -29,7 +29,7 @@ struct SplitView: View {
     
     var body: some View {
         NavigationSplitView(columnVisibility: $visibility, preferredCompactColumn: .constant(.detail)) {
-            Sidebar(selected: $selected, model: .init(sceneModel: sceneModel))
+            Sidebar(selected: $selected, model: .init(sceneModel: sceneModel), acting: sceneModel.addressBook.actingAddress.wrappedValue)
                 .environment(\.viewContext, .column)
         } detail: {
             let item: NavigationItem = selected ?? (sceneModel.addressBook.signedIn ? .newStatus : .community)

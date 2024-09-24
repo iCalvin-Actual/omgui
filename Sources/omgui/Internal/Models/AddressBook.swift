@@ -5,13 +5,15 @@
 //  Created by Calvin Chestnut on 9/18/24.
 //
 
+import SwiftUI
 import Foundation
 
 @Observable
 final class AddressBook {
     
     let apiKey: APICredential
-    let actingAddress: AddressName
+    
+    var actingAddress: Binding<AddressName>
     
     let accountAddressesFetcher: AccountAddressDataFetcher
     
@@ -27,7 +29,7 @@ final class AddressBook {
         accountAddressesFetcher.results.map({ $0.addressName })
     }
     var myOtherAddresses: [AddressName] {
-        myAddresses.filter({ $0 != actingAddress })
+        myAddresses.filter({ $0 != actingAddress.wrappedValue })
     }
     var globalBlocked: [AddressName] {
         globalBlocklistFetcher.results.map({ $0.addressName })
@@ -53,7 +55,7 @@ final class AddressBook {
     
     init(
         authKey: APICredential,
-        actingAddress: AddressName,
+        actingAddress: Binding<AddressName>,
         accountAddressesFetcher: AccountAddressDataFetcher,
         globalBlocklistFetcher: AddressBlockListDataFetcher,
         localBlocklistFetcher: LocalBlockListDataFetcher,
@@ -91,6 +93,14 @@ final class AddressBook {
         !apiKey.isEmpty
     }
     
+    @MainActor
+    func updateActiveFetchers() {
+        Task { [addressBlocklistFetcher, addressFollowingFetcher] in
+            await addressBlocklistFetcher.updateIfNeeded(forceReload: true)
+            await addressFollowingFetcher.updateIfNeeded(forceReload: true)
+        }
+    }
+    
     func pin(_ address: AddressName) async {
         await pinnedAddressFetcher.pin(address)
     }
@@ -99,20 +109,20 @@ final class AddressBook {
     }
     
     func block(_ address: AddressName) async {
-        if let credential = credential(for: actingAddress) {
+        if let credential = credential(for: actingAddress.wrappedValue) {
             await addressBlocklistFetcher.block(address, credential: credential)
         }
         await localBlocklistFetcher.insert(address)
     }
     func unblock(_ address: AddressName) async {
-        if let credential = credential(for: actingAddress) {
+        if let credential = credential(for: actingAddress.wrappedValue) {
             await addressBlocklistFetcher.unBlock(address, credential: credential)
         }
         await localBlocklistFetcher.remove(address)
     }
     
     func follow(_ address: AddressName) async {
-        guard let credential = credential(for: actingAddress) else {
+        guard let credential = credential(for: actingAddress.wrappedValue) else {
             return
         }
         await addressFollowingFetcher.follow(address, credential: credential)

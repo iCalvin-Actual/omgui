@@ -35,7 +35,7 @@ struct AddressSummaryView: View {
     var body: some View {
         sizeAppropriateBody
             .environment(\.viewContext, .profile)
-            .onChange(of: sceneModel.addressBook.actingAddress) { oldValue, newValue in
+            .onChange(of: sceneModel.addressBook.actingAddress.wrappedValue) { oldValue, newValue in
                 if addressSummaryFetcher.addressName.isEmpty {
                     addressSummaryFetcher.configure(name: newValue)
                 }

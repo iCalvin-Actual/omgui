@@ -16,7 +16,7 @@ struct MyStatusesView: View {
     
     init(singleAddress: Bool, injectedScene: SceneModel) {
         singleAddressMode = singleAddress
-        addressFetcher = StatusLogDataFetcher(addresses: [injectedScene.addressBook.actingAddress], addressBook: injectedScene.addressBook, interface: injectedScene.interface, db: injectedScene.database)
+        addressFetcher = StatusLogDataFetcher(addresses: [injectedScene.addressBook.actingAddress.wrappedValue], addressBook: injectedScene.addressBook, interface: injectedScene.interface, db: injectedScene.database)
     }
     
     var body: some View {
@@ -39,7 +39,7 @@ struct MyStatusesView: View {
                         .mask(Circle())
                     }
                     Spacer()
-                    NavigationLink(value: NavigationDestination.editStatus(scene.addressBook.actingAddress, id: "")) {
+                    NavigationLink(value: NavigationDestination.editStatus(scene.addressBook.actingAddress.wrappedValue, id: "")) {
                         Image(systemName: "pencil.and.scribble")
                             .bold()
                             .foregroundStyle(Color.white)

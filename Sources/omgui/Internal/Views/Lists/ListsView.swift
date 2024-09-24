@@ -12,15 +12,14 @@ struct ListsView: View {
     var viewModel: ListsViewModel
     @ObservedObject
     var addressesFetcher: AccountAddressDataFetcher
+    @ObservedObject
+    var addressFollowingFetcher: AddressFollowingDataFetcher
     
     @State
     var selected: NavigationItem?
     
     @State
     var confirmLogout: Bool = false
-    
-    @SceneStorage("app.lol.address")
-    var actingAddress: AddressName = ""
     
     @Environment(SceneModel.self)
     var sceneModel
@@ -32,6 +31,7 @@ struct ListsView: View {
     init(sceneModel: SceneModel) {
         viewModel = .init(sceneModel: sceneModel)
         addressesFetcher = sceneModel.addressBook.accountAddressesFetcher
+        addressFollowingFetcher = sceneModel.addressBook.addressFollowingFetcher
     }
     
     var body: some View {
@@ -42,7 +42,7 @@ struct ListsView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(viewModel.mine) { address in
-                                    if address == sceneModel.addressBook.actingAddress {
+                                    if address == sceneModel.addressBook.actingAddress.wrappedValue {
                                         NavigationLink(value: NavigationDestination.address(address)) {
                                             previewView(for: address)
                                                 .cornerRadius(10)
@@ -50,7 +50,7 @@ struct ListsView: View {
                                     } else {
                                         Button {
                                             withAnimation {
-                                                actingAddress = address
+                                                sceneModel.addressBook.actingAddress.wrappedValue = address
                                             }
                                         } label: {
                                             previewView(for: address)
@@ -66,39 +66,6 @@ struct ListsView: View {
                             Text("mine")
                         } icon: {
                             Image(systemName: "person")
-                        }
-                        .foregroundStyle(.secondary)
-                        .font(.callout)
-                        .padding(.horizontal, 10)
-                        .padding(.top, 8)
-                        .padding(.bottom, 4)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .listRowSeparator(.hidden)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .background(Material.ultraThin)
-                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .listRowBackground(Color.clear)
-                }
-                if !viewModel.following.isEmpty {
-                    Section {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(alignment: .top, spacing: 0) {
-                                ForEach(viewModel.following) { address in
-                                    NavigationLink(value: NavigationDestination.address(address)) {
-                                        previewView(for: address)
-                                            .cornerRadius(10)
-                                    }
-                                }
-                            }
-                        }
-                        .background(Material.regular)
-                        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 12, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 12, style: .continuous))
-                    } header: {
-                        Label {
-                            Text("following")
-                        } icon: {
-                            Image(systemName: "at")
                         }
                         .foregroundStyle(.secondary)
                         .font(.callout)
@@ -154,6 +121,39 @@ struct ListsView: View {
                     .foregroundStyle(.primary)
                     .listRowBackground(Color(UIColor.systemBackground).opacity(0.82))
                 }
+                if !viewModel.following.isEmpty {
+                    Section {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(alignment: .top, spacing: 0) {
+                                ForEach(viewModel.following) { address in
+                                    NavigationLink(value: NavigationDestination.address(address)) {
+                                        previewView(for: address)
+                                            .cornerRadius(10)
+                                    }
+                                }
+                            }
+                        }
+                        .background(Material.regular)
+                        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 12, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 12, style: .continuous))
+                    } header: {
+                        Label {
+                            Text("following")
+                        } icon: {
+                            Image(systemName: "at")
+                        }
+                        .foregroundStyle(.secondary)
+                        .font(.callout)
+                        .padding(.horizontal, 10)
+                        .padding(.top, 8)
+                        .padding(.bottom, 4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .listRowSeparator(.hidden)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .background(Material.ultraThin)
+                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowBackground(Color.clear)
+                }
             }
             
             ForEach(viewModel.sidebarModel.sectionsForLists) { section in
@@ -193,6 +193,9 @@ struct ListsView: View {
             }
         }
         .environment(\.defaultMinListRowHeight, 0)
+        .onChange(of: sceneModel.addressBook.actingAddress.wrappedValue, {
+            sceneModel.addressBook.updateActiveFetchers()
+        })
         .alert("log out?", isPresented: $confirmLogout, actions: {
             Button("cancel", role: .cancel) { }
             Button(

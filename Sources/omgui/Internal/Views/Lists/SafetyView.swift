@@ -75,7 +75,7 @@ struct SafetyView: View {
     
     @ViewBuilder
     var visibleBlockedList: some View {
-        ListView<AddressModel, EmptyView>(filters: .none, dataFetcher: sceneModel.privateSummary(for: sceneModel.addressBook.actingAddress)?.blockedFetcher ?? sceneModel.addressBook.localBlocklistFetcher)
+        ListView<AddressModel, EmptyView>(filters: .none, dataFetcher: sceneModel.privateSummary(for: sceneModel.addressBook.actingAddress.wrappedValue)?.blockedFetcher ?? sceneModel.addressBook.localBlocklistFetcher)
             .scrollContentBackground(.hidden)
         // Add toolbar item to insert new
     }

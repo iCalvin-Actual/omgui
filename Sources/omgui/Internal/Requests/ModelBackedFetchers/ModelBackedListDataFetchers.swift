@@ -132,6 +132,7 @@ class AddressFollowingDataFetcher: DataBackedListDataFetcher<AddressModel> {
         super.configure(automation)
     }
     
+    @MainActor
     override func throwingRequest() async throws {
         guard !address.isEmpty else {
             await fetchFinished()

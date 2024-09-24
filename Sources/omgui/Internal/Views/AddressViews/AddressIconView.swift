@@ -40,6 +40,8 @@ struct AddressIconView: View {
     var iconView: some View {
         if let data = sceneModel.appropriateFetcher(for: address).iconFetcher.result?.data, let dataImage = UIImage(data: data) {
             Image(uiImage: dataImage)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
                 .frame(width: size, height: size)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         } else {

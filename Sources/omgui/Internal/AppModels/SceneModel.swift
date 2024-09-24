@@ -131,7 +131,7 @@ extension SceneModel {
         let actingAddress = ""
         let book = AddressBook(
             authKey: credential,
-            actingAddress: actingAddress,
+            actingAddress: .constant(actingAddress),
             accountAddressesFetcher: .init(credential: credential, interface: interface),
             globalBlocklistFetcher: .init(address: "app", credential: credential, interface: interface),
             localBlocklistFetcher: .init(interface: interface),

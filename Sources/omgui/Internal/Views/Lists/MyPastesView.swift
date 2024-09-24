@@ -18,7 +18,7 @@ struct MyPastesView: View {
         injectedScene: SceneModel
     ) {
         singleAddressMode = singleAddress
-        addressFetcher = .init(name: injectedScene.addressBook.actingAddress, credential: injectedScene.addressBook.apiKey, addressBook: injectedScene.addressBook, interface: injectedScene.interface, db: injectedScene.database)
+        addressFetcher = .init(name: injectedScene.addressBook.actingAddress.wrappedValue, credential: injectedScene.addressBook.apiKey, addressBook: injectedScene.addressBook, interface: injectedScene.interface, db: injectedScene.database)
     }
     
     var body: some View {

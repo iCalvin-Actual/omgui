@@ -52,7 +52,7 @@ struct AccountView: View {
         if !(authFetcher.authKey?.wrappedValue ?? "").isEmpty {
             AddressSummaryView(
                 selectedPage: .profile,
-                addressSummaryFetcher: sceneModel.addressSummary(sceneModel.addressBook.actingAddress)
+                addressSummaryFetcher: sceneModel.addressSummary(sceneModel.addressBook.actingAddress.wrappedValue)
             )
         } else {
             ScrollView {
