@@ -42,7 +42,7 @@ struct SafetyView: View {
                 ReportButton()
             }
             .foregroundStyle(.primary)
-            .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
+            .listRowBackground(Color(UIColor.systemBackground).opacity(0.82))
             Section("blocked") {
                 if sceneModel.addressBook.visibleBlocked.isEmpty {
                     Text("If you wan't to stop seeing content from an address, Long Press the address or avatar and select Safety > Block")
@@ -63,7 +63,7 @@ struct SafetyView: View {
                 }
             }
             .foregroundStyle(.primary)
-            .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
+            .listRowBackground(Color(UIColor.systemBackground).opacity(0.82))
         }
         .scrollContentBackground(.hidden)
         .toolbar {

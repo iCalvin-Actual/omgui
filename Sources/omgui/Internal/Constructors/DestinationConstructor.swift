@@ -47,7 +47,7 @@ struct DestinationConstructor {
             AddressPastesView(fetcher: sceneModel.addressSummary(address).pasteFetcher)
         case .paste(let address, id: let title):
             PasteView(
-        fetcher: sceneModel.appropriateFetcher(for: address).pasteFetcher(for: title)
+                fetcher: sceneModel.appropriateFetcher(for: address).pasteFetcher(for: title)
             )
         case .purls(let address):
             AddressPURLsView(fetcher: sceneModel.addressSummary(address).purlFetcher)

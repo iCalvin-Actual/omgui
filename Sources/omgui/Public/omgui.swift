@@ -61,7 +61,6 @@ public struct omgui: View {
                 accountAuthDataFetcher: accountAuthFetcher,
                 db: database
             )
-            .environment(\.colorScheme, .light)
             .environment(\.blackbirdDatabase, database)
             .onChange(of: authKey, { oldValue, newValue in
                 accountAuthFetcher.configure($authKey)

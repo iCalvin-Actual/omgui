@@ -36,26 +36,115 @@ struct ListsView: View {
     
     var body: some View {
         List(selection: $selected) {
-            Section("Pinned") {
-                if viewModel.showPinned {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(alignment: .top, spacing: 0) {
-                            ForEach(viewModel.pinned) { address in
-                                NavigationLink(value: NavigationDestination.address(address)) {
-                                    previewView(for: address)
+            Section("Lists") {
+                if !viewModel.mine.isEmpty {
+                    Section {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(alignment: .top, spacing: 0) {
+                                ForEach(viewModel.mine) { address in
+                                    if address == sceneModel.addressBook.actingAddress {
+                                        NavigationLink(value: NavigationDestination.address(address)) {
+                                            previewView(for: address)
+                                                .cornerRadius(10)
+                                        }
+                                    } else {
+                                        Button {
+                                            withAnimation {
+                                                actingAddress = address
+                                            }
+                                        } label: {
+                                            previewView(for: address)
+                                        }
+                                    }
                                 }
                             }
                         }
+                        .background(Material.regular)
+                        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 12, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 12, style: .continuous))
+                    } header: {
+                        Label {
+                            Text("mine")
+                        } icon: {
+                            Image(systemName: "person")
+                        }
+                        .foregroundStyle(.secondary)
+                        .font(.callout)
+                        .padding(.horizontal, 10)
+                        .padding(.top, 8)
+                        .padding(.bottom, 4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .listRowSeparator(.hidden)
                     }
-                    .background(Material.thin)
+                    .frame(maxWidth: .infinity)
+                    .background(Material.ultraThin)
                     .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowBackground(Color.clear)
-                    .overlay(alignment: .topLeading, content: {
-                        Image(systemName: "pin.square.fill")
-                            .font(.subheadline)
-                            .foregroundStyle(Color.lolAccent)
-                            .padding(6)
-                    })
+                }
+                if !viewModel.following.isEmpty {
+                    Section {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(alignment: .top, spacing: 0) {
+                                ForEach(viewModel.following) { address in
+                                    NavigationLink(value: NavigationDestination.address(address)) {
+                                        previewView(for: address)
+                                            .cornerRadius(10)
+                                    }
+                                }
+                            }
+                        }
+                        .background(Material.regular)
+                        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 12, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 12, style: .continuous))
+                    } header: {
+                        Label {
+                            Text("following")
+                        } icon: {
+                            Image(systemName: "at")
+                        }
+                        .foregroundStyle(.secondary)
+                        .font(.callout)
+                        .padding(.horizontal, 10)
+                        .padding(.top, 8)
+                        .padding(.bottom, 4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .listRowSeparator(.hidden)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .background(Material.ultraThin)
+                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowBackground(Color.clear)
+                }
+                if viewModel.showPinned {
+                    Section {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(alignment: .top, spacing: 0) {
+                                ForEach(viewModel.pinned) { address in
+                                    NavigationLink(value: NavigationDestination.address(address)) {
+                                        previewView(for: address)
+                                    }
+                                }
+                                Spacer()
+                            }
+                        }
+                        .background(Material.regular)
+                        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 12, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 12, style: .continuous))
+                    } header: {
+                        Label {
+                            Text("pinned")
+                        } icon: {
+                            Image(systemName: "pin")
+                        }
+                        .foregroundStyle(.secondary)
+                        .font(.callout)
+                        .padding(.horizontal, 10)
+                        .padding(.top, 8)
+                        .padding(.bottom, 4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .listRowSeparator(.hidden)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .background(Material.ultraThin)
+                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowBackground(Color.clear)
                 } else {
                     Label(title: {
                         Text("pin addresses here for later")
@@ -63,36 +152,7 @@ struct ListsView: View {
                         Image(systemName: "pin")
                     }
                     .foregroundStyle(.primary)
-                    .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
-                }
-            }
-            
-            if !viewModel.mine.isEmpty {
-                Section("my addresses") {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(alignment: .top, spacing: 0) {
-                            ForEach(viewModel.mine) { address in
-                                if address == sceneModel.addressBook.actingAddress {
-                                    NavigationLink(value: NavigationDestination.address(address)) {
-                                        previewView(for: address)
-                                            .background(Material.thick)
-                                            .cornerRadius(10)
-                                    }
-                                } else {
-                                    Button {
-                                        withAnimation {
-                                            actingAddress = address
-                                        }
-                                    } label: {
-                                        previewView(for: address)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .background(Material.thin)
-                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .listRowBackground(Color.clear)
+                    .listRowBackground(Color(UIColor.systemBackground).opacity(0.82))
                 }
             }
             
@@ -105,7 +165,7 @@ struct ListsView: View {
                             item.label
                         }
                         .foregroundStyle(.primary)
-                        .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
+                        .listRowBackground(Color(UIColor.systemBackground).opacity(0.82))
                     }
                 }
 
@@ -129,9 +189,10 @@ struct ListsView: View {
                     }
                 )
                 .buttonStyle(.plain)
-                .listRowBackground(Color(UIColor.systemBackground).opacity(0.42))
+                .listRowBackground(Color(UIColor.systemBackground).opacity(0.82))
             }
         }
+        .environment(\.defaultMinListRowHeight, 0)
         .alert("log out?", isPresented: $confirmLogout, actions: {
             Button("cancel", role: .cancel) { }
             Button(
@@ -185,7 +246,7 @@ struct ListsView: View {
             Text(address.addressDisplayString)
                 .font(.body)
                 .fontDesign(.serif)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color(uiColor: UIColor.label))
                 .multilineTextAlignment(.trailing)
                 .lineLimit(3)
         }
