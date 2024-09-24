@@ -113,7 +113,7 @@ struct AddressIconModel: BlackbirdListable {
     
     init (from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(AddressName.self, forKey: .id)
+        id = try container.decode(AddressName.self, forKey: .id).punified
         date = try container.decode(Date.self, forKey: .data)
         if let data = try container.decodeIfPresent(Data.self, forKey: .data) {
             self.data = data
@@ -121,7 +121,7 @@ struct AddressIconModel: BlackbirdListable {
     }
     
     init(owner: AddressName, data: Data? = nil, date: Date = .now) {
-        self.id = owner
+        self.id = owner.punified
         self.data = data
         self.date = date
     }
@@ -141,7 +141,7 @@ public struct AddressProfile: BlackbirdModel, Sendable {
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self._id = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .id)
+        id = try container.decode(AddressName.self, forKey: .id).punified
         self._content = try container.decode(BlackbirdColumn<String>.self, forKey: .content)
     }
     
@@ -150,7 +150,7 @@ public struct AddressProfile: BlackbirdModel, Sendable {
     }
     
     public init(owner: AddressName, content: String) {
-        self.id = owner
+        self.id = owner.punified
         self.content = content
     }
 }
@@ -183,7 +183,7 @@ public struct NowModel: BlackbirdModel, Sendable {
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(AddressName.self, forKey: .id)
+        self.id = try container.decode(AddressName.self, forKey: .id).punified
         self.content = try container.decodeIfPresent(String.self, forKey: .content)
         self.html = try container.decodeIfPresent(String.self, forKey: .html)
         self.date = try container.decode(Date.self, forKey: .date)
@@ -207,7 +207,7 @@ public struct NowModel: BlackbirdModel, Sendable {
         date: Date = .now,
         listed: Bool? = nil
     ) {
-        self.id = owner
+        self.id = owner.punified
         self.content = content
         self.html = html
         self.date = date
@@ -252,7 +252,7 @@ public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Cod
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        owner = try container.decode(AddressName.self, forKey: .owner)
+        owner = try container.decode(AddressName.self, forKey: .owner).punified
         name = try container.decode(String.self, forKey: .name)
         content = try container.decode(String.self, forKey: .content)
         date = try container.decode(Date.self, forKey: .date)
@@ -274,7 +274,7 @@ public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Cod
         guard split.count > 1 else {
             return nil
         }
-        self.owner = String(split[0])
+        self.owner = String(split[0]).punified
         self.name = String(split[1])
         self.content = ""
         self.date = .init(timeIntervalSince1970: 0)
@@ -282,7 +282,7 @@ public struct PasteModel: BlackbirdListable, Identifiable, RawRepresentable, Cod
     }
     
     public init(id: String? = nil, owner: AddressName, name: String, content: String? = nil, date: Date = .now, listed: Bool = true) {
-        self.owner = owner
+        self.owner = owner.punified
         self.name = name
         self.content = content ?? ""
         self.date = date
@@ -331,7 +331,7 @@ public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Coda
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        owner = try container.decode(AddressName.self, forKey: .owner)
+        owner = try container.decode(AddressName.self, forKey: .owner).punified
         name = try container.decode(String.self, forKey: .name)
         content = try container.decode(String.self, forKey: .content)
         date = try container.decode(Date.self, forKey: .date)
@@ -353,7 +353,7 @@ public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Coda
         guard split.count > 1 else {
             return nil
         }
-        self.owner = String(split[0])
+        self.owner = String(split[0]).punified
         self.name = String(split[1])
         self.content = ""
         self.date = .init(timeIntervalSince1970: 0)
@@ -361,7 +361,7 @@ public struct PURLModel: BlackbirdListable, Identifiable, RawRepresentable, Coda
     }
     
     public init(id: String? = nil, owner: AddressName, name: String, content: String? = nil, date: Date = .now, listed: Bool = true) {
-        self.owner = owner
+        self.owner = owner.punified
         self.name = name
         self.content = content ?? ""
         self.date = date
@@ -391,7 +391,7 @@ public struct NowListing: BlackbirdListable, Identifiable, Sendable {
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self._id = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .id)
+        self.id = try container.decode(AddressName.self, forKey: .id).punified
         self._url = try container.decode(BlackbirdColumn<String>.self, forKey: .url)
         self._date = try container.decode(BlackbirdColumn<Date>.self, forKey: .date)
     }
@@ -401,7 +401,7 @@ public struct NowListing: BlackbirdListable, Identifiable, Sendable {
     }
     
     public init(owner: AddressName, url: String, date: Date) {
-        self.id = owner
+        self.id = owner.punified
         self.url = url
         self.date = date
     }
@@ -434,7 +434,7 @@ public struct AddressModel: BlackbirdListable, Identifiable, RawRepresentable, C
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        owner = try container.decode(AddressName.self, forKey: .owner)
+        owner = try container.decode(AddressName.self, forKey: .owner).punified
         url = try container.decodeIfPresent(URL.self, forKey: .url)
         date = try container.decode(Date.self, forKey: .date)
     }
@@ -448,7 +448,7 @@ public struct AddressModel: BlackbirdListable, Identifiable, RawRepresentable, C
     }
     
     public init(name: AddressName, url: URL? = nil, date: Date = .now) {
-        self.owner = name
+        self.owner = name.punified
         self.url = url
         self.date = date
     }
@@ -500,7 +500,7 @@ public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self._id = try container.decode(BlackbirdColumn<String>.self, forKey: .id)
-        self._owner = try container.decode(BlackbirdColumn<AddressName>.self, forKey: .owner)
+        self.owner = try container.decode(AddressName.self, forKey: .owner).punified
         self._date = try container.decode(BlackbirdColumn<Date>.self, forKey: .date)
         self._status = try container.decode(BlackbirdColumn<String>.self, forKey: .status)
         self._emoji = try container.decode(BlackbirdColumn<String?>.self, forKey: .emoji)
@@ -522,7 +522,7 @@ public struct StatusModel: BlackbirdListable, Identifiable, Sendable {
     
     public init(id: String, owner: AddressName, date: Date, status: String, emoji: String? = nil, linkText: String? = nil, link: URL? = nil) {
         self.id = id
-        self.owner = owner
+        self.owner = owner.punified
         self.date = date
         self.status = status
         self.emoji = emoji
@@ -634,7 +634,7 @@ public struct AddressBioModel: Sendable {
     let bio: String?
     
     public init(address: AddressName, bio: String?) {
-        self.address = address
+        self.address = address.punified
         self.bio = bio
     }
 }

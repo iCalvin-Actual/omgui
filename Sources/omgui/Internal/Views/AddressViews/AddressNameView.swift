@@ -25,12 +25,17 @@ struct AddressNameView: View {
 }
 
 extension AddressName {
-    var addressDisplayString: String {
+    var punified: String {
         guard self.prefix(1) != "@" else { return self }
         if let upperIndex = self.range(of: "xn--")?.upperBound {
-            return String(suffix(from: upperIndex)).punycodeDecoded?.addressDisplayString ?? "@\(self)"
+            return String(suffix(from: upperIndex)).punycodeDecoded ?? self
         }
+        return self
+    }
+    
+    var addressDisplayString: String {
+        guard self.prefix(1) != "@" else { return self }
         
-        return "@\(self)"
+        return "@\(self.punified)"
     }
 }
