@@ -28,7 +28,7 @@ struct PasteRowView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top, spacing: 0) {
+            ZStack(alignment: .topLeading) {
                 HStack(alignment: .bottom, spacing: 0) {
                     if context != .profile {
                         AddressIconView(address: model.owner)
@@ -60,7 +60,6 @@ struct PasteRowView: View {
             .padding(.horizontal, 4)
             
             VStack(alignment: .leading, spacing: 8) {
-                
                 if !model.content.isEmpty {
                     Text(model.content)
                         .font(.body)
@@ -72,7 +71,7 @@ struct PasteRowView: View {
             }
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity)
-            .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius, selected: showSelection)
+            .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius)
         }
         .asCard(color: cardColor, padding: 0, radius: cardradius, selected: showSelection)
         .frame(maxWidth: .infinity)

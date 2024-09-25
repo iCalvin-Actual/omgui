@@ -49,7 +49,7 @@ struct StatusRowView: View {
             
             rowBody
                 .foregroundStyle(Color.black)
-                .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius, selected: showSelection)
+                .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius)
         }
         .asCard(color: cardColor, padding: 0, radius: cardradius, selected: showSelection)
         .sheet(item: $destination, content: { destination in
@@ -126,7 +126,7 @@ struct StatusRowView: View {
     
     @ViewBuilder
     var headerContent: some View {
-        HStack(alignment: .top, spacing: 0) {
+        ZStack(alignment: .topTrailing) {
             HStack(alignment: .bottom, spacing: 0) {
                 if context != .profile {
                     AddressIconView(address: model.address)
@@ -136,8 +136,10 @@ struct StatusRowView: View {
                     .font(.system(size: 35))
                 if context != .detail {
                     AddressNameView(model.address)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    Spacer()
                 }
-                Spacer()
             }
             if let caption = context != .detail ? DateFormatter.relative.string(for: model.date) ?? model.listCaption : model.listCaption {
                 Text(caption)

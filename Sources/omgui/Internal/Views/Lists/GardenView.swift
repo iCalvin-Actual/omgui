@@ -35,7 +35,7 @@ struct GardenItemView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top) {
+            ZStack(alignment: .topLeading) {
                 AddressNameView(model.addressName)
                     .lineLimit(3)
                 Spacer()
@@ -61,7 +61,7 @@ struct GardenItemView: View {
                     .bold()
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius, selected: showSelection)
+            .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius)
         }
         .asCard(color: cardColor, padding: 0, radius: cardradius, selected: showSelection)
     }

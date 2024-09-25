@@ -28,7 +28,7 @@ struct PURLRowView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top, spacing: 0) {
+            ZStack(alignment: .topTrailing) {
                 HStack(alignment: .bottom, spacing: 0) {
                     if context != .profile {
                         AddressIconView(address: model.owner)
@@ -46,7 +46,7 @@ struct PURLRowView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                if let caption = model.listCaption {
+                if let caption = context != .detail ? DateFormatter.relative.string(for: model.date) ?? model.listCaption : model.listCaption {
                     Text(caption)
                         .multilineTextAlignment(.trailing)
                         .font(.caption2)
@@ -70,7 +70,7 @@ struct PURLRowView: View {
             }
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity)
-            .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius, selected: showSelection)
+            .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius)
         }
         .asCard(color: cardColor, padding: 0, radius: cardradius, selected: showSelection)
         .frame(maxWidth: .infinity)
