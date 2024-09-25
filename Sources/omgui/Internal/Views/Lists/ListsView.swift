@@ -207,26 +207,24 @@ struct ListsView: View {
         }, message: {
             Text("are you sure you want to sign out of omg.lol?")
         })
-//        .safeAreaInset(edge: .bottom, content: {
-//            if !sceneModel.addressBook.signedIn {
-//                Button {
-//                    accountFetcher.perform()
-//                } label: {
-//                    Text("sign in with omg.lol")
-//                        .bold()
-//                        .font(.callout)
-//                        .fontDesign(.serif)
-//                        .frame(maxWidth: .infinity)
-//                        .padding(3)
-//                }
-//                .buttonStyle(.borderedProminent)
-//                .accentColor(.lolPink)
-//                //            .background(Color.lolPink)
-//                //            .foregroundStyle(Color.lolPink)
-//                .buttonBorderShape(.roundedRectangle(radius: 6))
-//                .padding(32)
-//            }
-//        })
+        .safeAreaInset(edge: .bottom, content: {
+            if !sceneModel.addressBook.signedIn {
+                Button {
+                    accountFetcher.perform()
+                } label: {
+                    Text("sign in with omg.lol")
+                        .bold()
+                        .font(.callout)
+                        .fontDesign(.serif)
+                        .frame(maxWidth: .infinity)
+                        .padding(3)
+                }
+                .buttonStyle(.borderedProminent)
+                .accentColor(.lolPink)
+                .buttonBorderShape(.roundedRectangle(radius: 6))
+                .padding(32)
+            }
+        })
         .scrollContentBackground(.hidden)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {

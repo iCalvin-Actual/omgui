@@ -266,7 +266,7 @@ extension PURLRowView {
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity)
                 .padding(12)
-                .foregroundColor(.black)
+                foregroundStyle(Color.black)
                 .background(Color.lolRandom(draftPoster.draft.name))
                 .cornerRadius(12, antialiased: true)
                 .padding(.vertical, 4)
@@ -362,7 +362,7 @@ extension StatusRowView {
                     .padding(.vertical, 4)
             } else {
                 Markdown(draftPoster.draft.content)
-                    .foregroundColor(.black)
+                    foregroundStyle(Color.black)
             }
         }
         

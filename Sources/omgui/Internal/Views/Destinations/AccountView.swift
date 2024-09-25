@@ -62,7 +62,7 @@ struct AccountView: View {
                     Text("Start here")
                         .font(.caption2)
                         .fontDesign(.monospaced)
-                        .foregroundColor(.lolPurple)
+                        .foregroundStyle(Color.lolPurple)
                         .brightness(-0.5)
                     TextField("Search Address", text: $searchAddress, prompt: Text("Type your name"))
                         .padding(6)
@@ -70,7 +70,7 @@ struct AccountView: View {
                         .cornerRadius(8)
                     Text(availabilityText)
                         .font(.caption)
-                        .foregroundColor(.lolPurple)
+                        .foregroundStyle(Color.lolPurple)
                         .brightness(-0.5)
                 }
                 .frame(maxWidth: .infinity)
@@ -91,7 +91,7 @@ struct AccountView: View {
                         .multilineTextAlignment(.leading)
                         .font(.title2)
                         .fontDesign(.serif)
-                        .foregroundColor(.black)
+                        foregroundStyle(Color.black)
                         
                         Spacer()
                     }
@@ -123,23 +123,23 @@ struct AccountView: View {
                     HStack {
                         Group {
                             Text("Learn more about ")
-                                .foregroundColor(.black)
+                                .foregroundColor(Color.primary)
                             +
                             Text("omg.lol")
-                                .foregroundColor(.lolPink)
+                                .foregroundColor(Color.lolPink)
                         }
                         .bold()
                         .multilineTextAlignment(.leading)
                         .font(.title2)
                         .fontDesign(.serif)
-                        .foregroundColor(.black)
+                        foregroundStyle(Color.black)
                         
                         Spacer()
                         
                         Image(systemName: "tree.fill")
                             .resizable()
                             .frame(width: 88, height: 88)
-                            .foregroundColor(.lolGreen)
+                            foregroundStyle(Color.lolGreen)
                             .brightness(-0.5)
                             .padding([.top, .trailing], 4)
                     }
@@ -149,7 +149,7 @@ struct AccountView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .font(.headline)
                         .fontDesign(.monospaced)
-                        .foregroundColor(.black)
+                        foregroundStyle(Color.black)
                     
                     HStack {
                         Link(destination: URL(string: "https://home.omg.lol/referred-by/app")!) {
@@ -176,20 +176,20 @@ struct AccountView: View {
                             Text("The complete experience, on-the-go, with ")
                             +
                             Text("app.lol++")
-                                .foregroundColor(.lolPink)
+                                foregroundStyle(Color.lolPink)
                         }
                         .bold()
                         .multilineTextAlignment(.leading)
                         .font(.title2)
                         .fontDesign(.serif)
-                        .foregroundColor(.black)
+                        foregroundStyle(Color.black)
                         
                         Spacer()
                         
                         Image(systemName: "app.badge.fill")
                             .resizable()
                             .frame(width: 88, height: 88)
-                            .foregroundColor(.lolOrange)
+                            foregroundStyle(Color.lolOrange)
                             .brightness(-0.5)
                             .padding([.top, .trailing], 4)
                     }
@@ -199,7 +199,7 @@ struct AccountView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .font(.headline)
                         .fontDesign(.monospaced)
-                        .foregroundColor(.black)
+                        foregroundStyle(Color.black)
                     
                     HStack {
                         Button {
@@ -245,19 +245,19 @@ struct AccountView: View {
             
             HStack {
                 Text("Web Page")
-                    .foregroundColor(.lolPink)
+                    foregroundStyle(Color.lolPink)
                 Spacer()
                 Text("Email Address")
-                    .foregroundColor(.lolGreen)
+                    foregroundStyle(Color.lolGreen)
                 Spacer()
                 Text("PasteBin")
-                    .foregroundColor(.lolTeal)
+                    foregroundStyle(Color.lolTeal)
                 Spacer()
                 Text("PURLs")
-                    .foregroundColor(.lolBlue)
+                    foregroundStyle(Color.lolBlue)
                 Spacer()
                 Text("StatusLog")
-                    .foregroundColor(.lolPurple)
+                    foregroundStyle(Color.lolPurple)
             }
             .bold()
             .dynamicTypeSize(.xSmall ... .xLarge)

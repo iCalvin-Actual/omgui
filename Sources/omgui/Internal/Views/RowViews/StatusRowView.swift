@@ -99,7 +99,6 @@ struct StatusRowView: View {
                 .fontDesign(.rounded)
                 .environment(\.colorScheme, .light)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .foregroundColor(.black)
         }
         .lineLimit(context == .column ? 5 : nil)
         .multilineTextAlignment(.leading)
@@ -110,8 +109,10 @@ struct StatusRowView: View {
         switch context {
         case .detail:
             MarkdownContentView(source: model, content: model.displayStatus)
+                .foregroundStyle(.primary)
         default:
             Markdown(model.displayStatus)
+                .foregroundStyle(.primary)
         }
     }
     

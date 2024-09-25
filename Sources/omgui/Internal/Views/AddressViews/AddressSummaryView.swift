@@ -76,7 +76,6 @@ struct AddressSummaryView: View {
                 .background(page == selectedPage ? Color(UIColor.systemBackground).opacity(0.42) : Color.clear)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding(6)
-                .foregroundColor(page == selectedPage ? .black : .white)
                 .bold(page == selectedPage)
         }
     }

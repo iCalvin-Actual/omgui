@@ -177,7 +177,7 @@ struct StatusView: View {
                     }
                 }
             }
-            .foregroundColor(.primary)
+            foregroundStyle(Color.primary)
             .padding(4)
             .background(Material.thin)
             .mask {

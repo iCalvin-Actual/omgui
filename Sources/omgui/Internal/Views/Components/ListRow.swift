@@ -85,7 +85,7 @@ struct ListRow<T: Listable>: View {
             pasteView(pasteModel)
         } else {
             standardBody
-                .foregroundStyle(Color.black)
+                .foregroundStyle(Color.primary)
                 .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
         }
     }

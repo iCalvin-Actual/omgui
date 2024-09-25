@@ -77,9 +77,6 @@ class SidebarModel: ObservableObject {
             if #unavailable(iOS 18.0) {
                 destinations.append(.search)
             }
-            if sceneModel.addressBook.signedIn {
-                destinations.append(.following(.autoUpdatingAddress))
-            }
             destinations.append(
                 contentsOf: addressBook.pinnedAddresses.sorted().map({ .pinnedAddress($0) })
             )
@@ -95,9 +92,6 @@ class SidebarModel: ObservableObject {
             var destinations = [
                 NavigationItem.community
             ]
-            if addressBook.signedIn {
-                destinations.insert(contentsOf: [.following(.autoUpdatingAddress)], at: 0)
-            }
             return destinations
             
         case .app:

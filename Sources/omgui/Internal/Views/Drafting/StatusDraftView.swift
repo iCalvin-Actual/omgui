@@ -226,7 +226,7 @@ struct StatusDraftView: View {
             .overlay(alignment: .topLeading) {
                 placeholder
                     .padding(8)
-                    .foregroundColor(.gray)
+                    foregroundStyle(Color.gray)
             }
             .background(Material.regular)
             .clipShape(RoundedRectangle(cornerRadius: 16))

@@ -37,7 +37,7 @@ struct PURLDraftView: View {
 //                URLField(text: $draftFetcher.namedDraft.content)
             }
             .padding(12)
-            .foregroundColor(.black)
+            foregroundStyle(Color.black)
             .background(Color.lolRandom(draftFetcher.draft.name))
             .cornerRadius(12, antialiased: true)
             .padding(.vertical, 4)
