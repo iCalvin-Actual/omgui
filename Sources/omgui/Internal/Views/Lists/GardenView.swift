@@ -56,7 +56,7 @@ struct GardenItemView: View {
                 
                 Text(model.listSubtitle)
                     .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.primary)
                     .fontDesign(.monospaced)
                     .bold()
                     .frame(maxWidth: .infinity, alignment: .leading)

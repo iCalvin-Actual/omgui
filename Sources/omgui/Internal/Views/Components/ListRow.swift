@@ -116,6 +116,7 @@ struct ListRow<T: Listable>: View {
             HStack(alignment: .bottom) {
                 AddressIconView(address: model.addressName, size: 55)
                 AddressNameView(model.listTitle)
+                    .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
@@ -125,7 +126,7 @@ struct ListRow<T: Listable>: View {
             if hasMoreText {
                 HStack(alignment: .bottom) {
                     Text(subtitle)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary)
                         .font(.headline)
                         .bold()
                         .fontDesign(.monospaced)

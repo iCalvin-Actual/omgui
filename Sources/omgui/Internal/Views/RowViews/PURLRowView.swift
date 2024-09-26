@@ -50,7 +50,7 @@ struct PURLRowView: View {
                     Text(caption)
                         .multilineTextAlignment(.trailing)
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary)
                         .truncationMode(.head)
                 }
             }

@@ -52,6 +52,9 @@ extension AddressManagable where Self: Menuable {
         let isPinned = book.isPinned(name)
         let canFollow = book.canFollow(name)
         let canUnfollow = book.canUnFollow(name)
+        NavigationLink(value: NavigationDestination.address(name)) {
+            Label("view profile", systemImage: "person.fill")
+        }
         if !isBlocked {
             if canFollow {
                 Button(action: {
@@ -60,7 +63,7 @@ extension AddressManagable where Self: Menuable {
                         await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
-                    Label("Follow \(name.addressDisplayString)", systemImage: "plus.circle")
+                    Label("follow \(name.addressDisplayString)", systemImage: "plus.circle")
                 })
             } else if canUnfollow {
                 Button(action: {
@@ -69,7 +72,7 @@ extension AddressManagable where Self: Menuable {
                         await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
-                    Label("Un-follow \(name.addressDisplayString)", systemImage: "minus.circle")
+                    Label("un-follow \(name.addressDisplayString)", systemImage: "minus.circle")
                 })
             }
             
@@ -80,7 +83,7 @@ extension AddressManagable where Self: Menuable {
                         await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
-                    Label("Un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
+                    Label("un-Pin \(name.addressDisplayString)", systemImage: "pin.slash")
                 })
             } else {
                 Button(action: {
@@ -89,7 +92,7 @@ extension AddressManagable where Self: Menuable {
                         await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
-                    Label("Pin \(name.addressDisplayString)", systemImage: "pin")
+                    Label("pin \(name.addressDisplayString)", systemImage: "pin")
                 })
             }
             
@@ -102,12 +105,12 @@ extension AddressManagable where Self: Menuable {
                         await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
-                    Label("Block", systemImage: "eye.slash.circle")
+                    Label("block", systemImage: "eye.slash.circle")
                 })
                 
                 ReportButton(addressInQuestion: name)
             } label: {
-                Label("Safety", systemImage: "hand.raised")
+                Label("safety", systemImage: "hand.raised")
             }
         } else {
             if book.canUnblock(name) {
@@ -138,14 +141,14 @@ extension Sharable where Self: Menuable {
                     shareLink(option)
                 }
             } label: {
-                Label("Share", systemImage: "square.and.arrow.up")
+                Label("share", systemImage: "square.and.arrow.up")
             }
         }
         if let option = primaryCopy {
             Button {
                 UIPasteboard.general.string = option.content
             } label: {
-                Label("Copy \(option.name)", systemImage: "doc.on.clipboard")
+                Label("copy \(option.name)", systemImage: "doc.on.clipboard")
             }
         }
         if !copyText.isEmpty {
@@ -156,7 +159,7 @@ extension Sharable where Self: Menuable {
                     }
                 }
             } label: {
-                Label("Copy", systemImage: "doc.on.clipboard")
+                Label("copy", systemImage: "doc.on.clipboard")
             }
         }
         Divider()
@@ -165,7 +168,7 @@ extension Sharable where Self: Menuable {
     @ViewBuilder
     private func shareLink(_ option: SharePacket) -> some View {
         ShareLink(item: option.content) {
-            Label("Share \(option.name)", systemImage: "square.and.arrow.up")
+            Label("share \(option.name)", systemImage: "square.and.arrow.up")
         }
     }
 }
@@ -256,7 +259,7 @@ struct ReportButton: View {
                 }
             }
         }, label: {
-            Label("Report", systemImage: "exclamationmark.bubble")
+            Label("report", systemImage: "exclamationmark.bubble")
         })
     }
 }

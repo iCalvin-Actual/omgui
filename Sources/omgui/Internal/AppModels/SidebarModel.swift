@@ -89,7 +89,7 @@ class SidebarModel: ObservableObject {
             return destinations
             
         case .status:
-            var destinations = [
+            let destinations = [
                 NavigationItem.community
             ]
             return destinations

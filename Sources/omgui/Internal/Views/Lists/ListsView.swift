@@ -28,6 +28,8 @@ struct ListsView: View {
     @Environment(\.horizontalSizeClass)
     var sizeClass
     
+    let menuBuilder = ContextMenuBuilder<AddressModel>()
+    
     init(sceneModel: SceneModel) {
         viewModel = .init(sceneModel: sceneModel)
         addressesFetcher = sceneModel.addressBook.accountAddressesFetcher
@@ -46,6 +48,7 @@ struct ListsView: View {
                                         NavigationLink(value: NavigationDestination.address(address)) {
                                             previewView(for: address)
                                                 .cornerRadius(10)
+                                                .background(Color(uiColor: .systemBackground))
                                         }
                                     } else {
                                         Button {
@@ -85,8 +88,11 @@ struct ListsView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(viewModel.pinned) { address in
-                                    NavigationLink(value: NavigationDestination.address(address)) {
+                                    Menu {
+                                        menuBuilder.contextMenu(for: .init(name: address), sceneModel: sceneModel)
+                                    } label: {
                                         previewView(for: address)
+                                            .cornerRadius(10)
                                     }
                                 }
                                 Spacer()
@@ -126,7 +132,9 @@ struct ListsView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(viewModel.following) { address in
-                                    NavigationLink(value: NavigationDestination.address(address)) {
+                                    Menu {
+                                        menuBuilder.contextMenu(for: .init(name: address), sceneModel: sceneModel)
+                                    } label: {
                                         previewView(for: address)
                                             .cornerRadius(10)
                                     }

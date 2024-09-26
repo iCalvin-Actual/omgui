@@ -268,57 +268,36 @@ struct PasteView: View {
     
     @ViewBuilder
     var mainContent: some View {
-        VStack(alignment: .leading) {
-            if context != .profile {
-                HStack(alignment: .bottom) {
-                    AddressIconView(address: fetcher.address)
-                    Text("/\(fetcher.result?.name ?? fetcher.title)")
-                        .font(.title2)
-                        .fontDesign(.serif)
-                        .foregroundStyle(Color.primary)
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(3)
+        if fetcher.loaded {
+            ScrollView {
+                if let model = fetcher.result {
+                    PasteRowView(model: model, cardColor: .lolRandom(model.listTitle), cardPadding: 8, cardradius: 16, showSelection: true)
+                        .environment(\.viewContext, .detail)
+                        .padding()
+                } else {
+                    Text(fetcher.result?.content ?? "")
+                        .textSelection(.enabled)
+                        .font(.body)
+                        .fontDesign(.rounded)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-                .background(Material.thin)
-                .cornerRadius(10)
-                .padding()
-                .background(Color.clear)
             }
-            
-            if fetcher.loaded {
-                ScrollView {
-                    if let model = fetcher.result {
-                        MarkdownContentView(source: model, content: model.content)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.vertical, 4)
-                            .padding(.horizontal)
-                    } else {
-                        Text(fetcher.result?.content ?? "")
-                            .textSelection(.enabled)
-                            .font(.body)
-                            .fontDesign(.rounded)
-                            .padding(.vertical, 4)
-                            .padding(.horizontal)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+            .padding(4)
+            .frame(maxWidth: .infinity)
+        } else {
+            LoadingView()
+                .padding()
+                .task { @MainActor [fetcher] in
+                    fetcher.loaded = false
+                    fetcher.loading = true
+                    await fetcher.updateIfNeeded(forceReload: true)
+                    fetcher.loaded = true
+                    fetcher.loading = false
                 }
-                .padding(4)
-            } else {
-                LoadingView()
-                    .padding()
-                    .task { @MainActor [fetcher] in
-                        fetcher.loaded = false
-                        fetcher.loading = true
-                        await fetcher.updateIfNeeded(forceReload: true)
-                        fetcher.loaded = true
-                        fetcher.loading = false
-                    }
-                Spacer()
-            }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity)
     }
     
     @ViewBuilder

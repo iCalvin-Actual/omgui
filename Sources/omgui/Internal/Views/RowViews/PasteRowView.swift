@@ -28,7 +28,7 @@ struct PasteRowView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ZStack(alignment: .topLeading) {
+            ZStack(alignment: .topTrailing) {
                 HStack(alignment: .bottom, spacing: 0) {
                     if context != .profile {
                         AddressIconView(address: model.owner)
@@ -43,7 +43,7 @@ struct PasteRowView: View {
                             .font(.headline)
                             .fontDesign(.serif)
                             .bold()
-                            .lineLimit(3)
+                            .lineLimit(context != .detail ? 3 : nil)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -64,7 +64,7 @@ struct PasteRowView: View {
                     Text(model.content)
                         .font(.body)
                         .fontDesign(.rounded)
-                        .lineLimit(5)
+                        .lineLimit(context != .detail ? 5 : nil)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .foregroundStyle(.secondary)
                 }
