@@ -111,7 +111,7 @@ class ModelBackedListDataFetcher<T: ModelBackedListable>: ListFetcher<T> {
         var oldResults = nextPage == 0 ? [] : results
         if nextResults.count == limit {
             self.nextPage = nextPage + 1
-        } else if nextResults.count != 0 || (nextResults + oldResults).count == 0 {
+        } else if nextResults.count != 0 || (loaded != nil && (nextResults + oldResults).count == 0) {
             self.nextPage = nil
         }
         if !oldResults.isEmpty {

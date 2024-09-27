@@ -54,7 +54,7 @@ struct GardenItemView: View {
                 AddressIconView(address: model.addressName, size: 55)
                 
                 Text(model.listSubtitle)
-                    .font(.headline)
+                    .font(.callout)
                     .foregroundStyle(.primary)
                     .fontDesign(.monospaced)
                     .bold()

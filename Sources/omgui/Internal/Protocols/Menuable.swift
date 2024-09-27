@@ -97,7 +97,6 @@ extension AddressManagable where Self: Menuable {
             }
             
             Divider()
-            
             Menu {
                 Button(role: .destructive, action: {
                     Task {
@@ -112,6 +111,7 @@ extension AddressManagable where Self: Menuable {
             } label: {
                 Label("safety", systemImage: "hand.raised")
             }
+            Divider()
         } else {
             if book.canUnblock(name) {
                 Button(action: {
@@ -120,7 +120,7 @@ extension AddressManagable where Self: Menuable {
                         await fetcher?.updateIfNeeded(forceReload: true)
                     }
                 }, label: {
-                    Label("Un-block", systemImage: "eye.circle")
+                    Label("un-block", systemImage: "eye.circle")
                 })
             }
             

@@ -69,6 +69,7 @@ struct ListRow<T: Listable>: View {
     
     var body: some View {
         appropriateBody
+            .foregroundStyle(Color.primary)
             .padding(2)
             .animation(.easeInOut(duration: 0.42), value: selected.wrappedValue)
     }
@@ -85,7 +86,6 @@ struct ListRow<T: Listable>: View {
             pasteView(pasteModel)
         } else {
             standardBody
-                .foregroundStyle(Color.primary)
                 .asCard(color: cardColor, padding: cardPadding, radius: cardradius, selected: showSelection)
         }
     }

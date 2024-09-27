@@ -18,7 +18,7 @@ public final class SampleData: DataInterface {
 
     public func fetchServiceInfo() async throws -> ServiceInfoModel {
         try await Task.sleep(nanoseconds: artificalDelay)
-        return .init(members: 500, addresses: 400, profiles: 300)
+        return .init(members: 500, addresses: 400, profiles: 318)
     }
 
     public func fetchThemes() async throws -> [ThemeModel] {

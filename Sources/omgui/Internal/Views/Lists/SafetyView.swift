@@ -54,11 +54,7 @@ struct SafetyView: View {
                             .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
                             .contextMenu(menuItems: {
                                 self.menuBuilder.contextMenu(for: item, fetcher: nil, sceneModel: sceneModel)
-                            }) {
-                                ListRow(model: item, selected: .constant(item))
-                                    .environment(sceneModel)
-                                    .environment(authFetcher)
-                            }
+                            })
                     }
                 }
             }

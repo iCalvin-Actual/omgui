@@ -79,9 +79,15 @@ struct ListView<T: Listable, H: View>: View {
     
     var body: some View {
         toolbarAwareBody
+            .task { @MainActor [dataFetcher] in
+                dataFetcher.fetchNextPageIfNeeded()
+            }
             .onAppear {
-                Task { @MainActor [dataFetcher] in
-                    await dataFetcher.updateIfNeeded()
+                guard horizontalSize == .compact, selected != nil else {
+                    return
+                }
+                withAnimation {
+                    selected = nil
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -312,8 +318,7 @@ struct ListView<T: Listable, H: View>: View {
             .contextMenu(menuItems: {
                 self.menuBuilder.contextMenu(for: item, fetcher: dataFetcher, sceneModel: sceneModel)
             }) {
-                ListRow(model: item, selected: .constant(item))
-                    .environment(\.colorScheme, .light)
+                AddressCard(item.addressName)
                     .environment(sceneModel)
                     .environment(authFetcher)
             }

@@ -52,7 +52,6 @@ struct StatusView: View {
                         .padding()
                 } else {
                     LoadingView()
-                        .background(Color.orange)
                         .padding()
                         .task { @MainActor [fetcher] in
                             await fetcher.updateIfNeeded()

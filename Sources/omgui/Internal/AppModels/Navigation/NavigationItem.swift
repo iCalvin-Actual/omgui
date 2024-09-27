@@ -92,7 +92,7 @@ enum NavigationItem: Codable, Hashable, Identifiable, RawRepresentable {
         case .safety:       return "/safety"
         case .community:    return "/statuslog"
         case .nowGarden:    return "/nowGarden"
-        case .search:       return "/find"
+        case .search:       return "/directory"
         case .lists:        return "/me"
         case .learn:        return "/about"
         case .appLatest:    return "/now"
