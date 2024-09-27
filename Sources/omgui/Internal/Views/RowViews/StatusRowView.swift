@@ -51,7 +51,7 @@ struct StatusRowView: View {
                 .foregroundStyle(Color.black)
                 .asCard(color: cardColor, material: .regular, padding: cardPadding, radius: cardradius)
         }
-        .asCard(color: cardColor, padding: 0, radius: cardradius, selected: showSelection)
+        .asCard(color: cardColor, padding: 0, radius: cardradius, selected: showSelection || context == .detail)
         .sheet(item: $destination, content: { destination in
             NavigationStack {
                 sceneModel.destinationConstructor.destination(destination)
@@ -128,7 +128,7 @@ struct StatusRowView: View {
     @ViewBuilder
     var headerContent: some View {
         ZStack(alignment: .topTrailing) {
-            HStack(alignment: .bottom, spacing: 0) {
+            HStack(alignment: .center, spacing: 0) {
                 if context != .profile {
                     AddressIconView(address: model.address)
                         .padding(.horizontal, 4)
@@ -136,7 +136,7 @@ struct StatusRowView: View {
                 Text(model.displayEmoji.count > 1 ? "✨" : model.displayEmoji.prefix(1))
                     .font(.system(size: 35))
                 if context != .detail {
-                    AddressNameView(model.address)
+                    AddressNameView(model.address, font: .headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
                     Spacer()

@@ -67,9 +67,13 @@ struct OnboardingView: View {
             
             if !preview {
                 Spacer()
-                    .task {
-                        try? await Task.sleep(nanoseconds: 1_250_000_000)
-                        appear = true
+                    .onAppear {
+                        Task {
+                            try? await Task.sleep(nanoseconds: 1_250_000_000)
+                            Task { @MainActor in
+                                appear = true
+                            }
+                        }
                     }
                 ThemedTextView(text: "welcome to the omg.lol community", font: .title2)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -247,9 +251,13 @@ struct OnboardingView: View {
         .animation(.smooth(duration: 0.25), value: appear)
         .animation(.smooth(duration: 0.25), value: safety)
         .animation(.easeInOut(duration: 0.25), value: blocked)
-        .task {
-            try? await Task.sleep(nanoseconds: 1_750_000_000)
-            preview = false
+        .onAppear {
+            Task {
+                try? await Task.sleep(nanoseconds: 1_750_000_000)
+                Task { @MainActor in
+                    preview = false
+                }
+            }
         }
     }
     

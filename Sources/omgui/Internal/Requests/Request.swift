@@ -8,114 +8,11 @@
 import Combine
 import Foundation
 
-protocol RequestProtocol: Observable, Sendable {
-    var interface: DataInterface { get }
-    
-    func startLoading()
-    func finishedLoading()
-    func resetLoadingState()
-    
-    func updateIfNeeded(forceReload: Bool) async
-    func perform() async
-    func throwingRequest() async throws
-    func fetchFinished()
-}
-
-extension RequestProtocol {
-    func configure(_ automation: AutomationPreferences = .init()) {
-        resetLoadingState()
-        if automation.autoLoad {
-            updateIfNeeded(forceReload: true)
-        }
-    }
-    
-    func updateIfNeeded(forceReload: Bool = false) {
-        guard forceReload else {
-            return
-        }
-        Task {
-            await perform()
-        }
-    }
-    
-    func perform() async {
-        startLoading()
-        do {
-            try await throwingRequest()
-        } catch {
-            await handle(error)
-        }
-    }
-    
-    func throwingRequest() async throws {
-        await fetchFinished()
-    }
-    
-    func fetchFinished() async {
-        finishedLoading()
-    }
-    
-    func handle(_ incomingError: Error) async {
-        finishedLoading()
-    }
-}
-
-//actor FinalRequest {
-//    
-//    let interface: DataInterface
-//    
-//    var loaded: Bool = false
-//    var loading: Bool = false
-//    
-//    var error: Error?
-//    
-//    var requests: [AnyCancellable] = []
-//    
-//    var noContent: Bool {
-//        !loading
-//    }
-//    
-//    init(interface: DataInterface, automation: AutomationPreferences = .init()) {
-//        self.interface = interface
-//        
-////        self.configure(automation)
-//    }
-//    
-//    var requestNeeded: Bool { !loaded && noContent }
-//    
-//    func updateIfNeeded(forceReload: Bool) async {
-//        guard forceReload || (loading && requestNeeded) else {
-//            print("NOT performing request")
-//            return
-//        }
-//        Task {
-//            await perform()
-//        }
-//    }
-//    
-//    nonisolated
-//    func startLoading() {
-//        Task {
-//            loaded = true
-//        }
-//    }
-//    
-//    func finishedLoading() async {
-//        loaded = true
-//        loading = false
-//    }
-//    
-//    func resetLoadingState() async {
-//        loaded = false
-//        loading = false
-//    }
-//}
-
 struct AutomationPreferences {
     var autoLoad: Bool
     var reloadDuration: TimeInterval?
     
-    init(_ autoLoad: Bool = true, reloadDuration: TimeInterval? = nil) {
+    init(_ autoLoad: Bool = true, reloadDuration: TimeInterval? = 60) {
         self.reloadDuration = reloadDuration
         self.autoLoad = autoLoad
     }
@@ -124,9 +21,10 @@ struct AutomationPreferences {
 class Request: ObservableObject {
     
     let interface: DataInterface
+    let automation: AutomationPreferences
     
     @Published
-    var loaded: Bool = false
+    var loaded: Date? = nil
     @Published
     var loading: Bool = false
     
@@ -135,57 +33,65 @@ class Request: ObservableObject {
     
     var requests: [AnyCancellable] = []
     
-    var noContent: Bool {
-        !loading
+    var requestNeeded: Bool {
+        guard let loaded else {
+            return true
+        }
+        guard let duration = automation.reloadDuration else {
+            return false
+        }
+        return Date().timeIntervalSince(loaded) < duration
     }
     
     init(interface: DataInterface, automation: AutomationPreferences = .init()) {
         self.interface = interface
-        
-        self.configure(automation)
+        self.automation = automation
     }
     
     func configure(_ automation: AutomationPreferences = .init()) {
-        self.loaded = false
+        self.loaded = nil
         self.loading = false
-//        if automation.autoLoad {
-//            Task {
-//                updateIfNeeded(forceReload: true)
-//            }
-//        }
     }
     
-    var requestNeeded: Bool { !loaded }
-    
+    @MainActor
     func updateIfNeeded(forceReload: Bool = false) async {
-        guard forceReload || (loading && requestNeeded) else {
+        guard !loading else {
             return
         }
+        loading = true
+        guard forceReload || requestNeeded else {
+            print("Not performing on \(self)")
+            return
+        }
+        print("Performing on \(self)")
         await perform()
     }
     
+    @MainActor
     func perform() async {
         do {
             try await throwingRequest()
+            await fetchFinished()
         } catch {
             print("🚨🚨🚨 Caught error: \(error) in \(self)")
-            await handle(error)
+            handle(error)
         }
     }
     
+    @MainActor
     func throwingRequest() async throws {
-        await fetchFinished()
+        
     }
     
     @MainActor
     func fetchFinished() async {
-        loaded = true
+        loaded = .init()
         loading = false
     }
     
     @MainActor
     func handle(_ incomingError: Error) {
-        loaded = false
+        loaded = .init()
         loading = false
         error = incomingError
     }

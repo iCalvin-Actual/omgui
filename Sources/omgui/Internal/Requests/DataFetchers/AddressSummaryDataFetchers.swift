@@ -39,6 +39,10 @@ class AddressSummaryDataFetcher: DataFetcher {
     
     var followingFetcher: AddressFollowingDataFetcher
     
+    override var requestNeeded: Bool {
+        loaded == nil && registered == nil
+    }
+    
     init(
         name: AddressName,
         addressBook: AddressBook,
@@ -78,35 +82,27 @@ class AddressSummaryDataFetcher: DataFetcher {
         super.configure(automation)
     }
     
-    override func perform() async {
-        guard !addressName.isEmpty else {
-            return
-        }
-        await super.perform()
-        
-        await iconFetcher.updateIfNeeded(forceReload: true)
-        await profileFetcher.updateIfNeeded(forceReload: true)
-        await nowFetcher.updateIfNeeded(forceReload: true)
-        await purlFetcher.updateIfNeeded(forceReload: true)
-        await pasteFetcher.updateIfNeeded(forceReload: true)
-        await statusFetcher.updateIfNeeded(forceReload: true)
-        await bioFetcher.updateIfNeeded(forceReload: true)
-        await followingFetcher.updateIfNeeded(forceReload: true)
-        
-        await fetchFinished()
-    }
-    
     override func throwingRequest() async throws {
+        
         guard !addressName.isEmpty else {
             return
         }
-        url = URL(string: "https://\(addressName).omg.lol")
+        
+        Task { @MainActor [iconFetcher, profileFetcher, nowFetcher, purlFetcher, pasteFetcher, statusFetcher, bioFetcher, followingFetcher] in
+            await iconFetcher.updateIfNeeded()
+            await bioFetcher.updateIfNeeded()
+            await profileFetcher.updateIfNeeded()
+            await nowFetcher.updateIfNeeded()
+            await purlFetcher.updateIfNeeded()
+            await pasteFetcher.updateIfNeeded()
+            await statusFetcher.updateIfNeeded()
+            await followingFetcher.updateIfNeeded()
+        }
+        
         let info = try await interface.fetchAddressInfo(addressName)
         self.verified = false
         self.registered = info.date
         self.url = info.url
-        
-        await self.fetchFinished()
     }
     
     func statusFetcher(for id: String) -> StatusDataFetcher {

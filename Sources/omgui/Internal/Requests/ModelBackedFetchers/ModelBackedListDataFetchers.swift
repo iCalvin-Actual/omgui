@@ -14,9 +14,6 @@ class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
     override var title: String { "omg.lol/" }
     
     override func fetchRemote() async throws {
-        guard results.isEmpty else {
-            return
-        }
         let directory = try await interface.fetchAddressDirectory()
         let listItems = directory.map({ AddressModel(name: $0) })
         listItems.forEach({ model in
@@ -25,16 +22,14 @@ class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
                 try await model.write(to: db)
             }
         })
-        
-        try await super.fetchRemote()
+        guard results.isEmpty else {
+            return
+        }
     }
     
     @MainActor
     override func fetchModels() async throws {
         guard let nextPage, let addressBook else {
-            Task {
-                await fetchFinished()
-            }
             return
         }
         var nextResults = try await AddressModel.read(
@@ -93,18 +88,17 @@ class AccountAddressDataFetcher: DataBackedListDataFetcher<AddressModel> {
     
     @MainActor
     override func throwingRequest() async throws {
+        
         let credential = credential
         guard !credential.isEmpty else {
             results = []
             localAddressesCache = ""
-            await fetchFinished()
             return
         }
         let results = try await interface.fetchAccountAddresses(credential).map({ AddressModel(name: $0) })
         
         self.results = results
         localAddressesCache = Array(Set(results.map({ $0.addressName }))).joined(separator: "&&&")
-        await fetchFinished()
     }
     
     func clear() {
@@ -134,8 +128,8 @@ class AddressFollowingDataFetcher: DataBackedListDataFetcher<AddressModel> {
     
     @MainActor
     override func throwingRequest() async throws {
+        
         guard !address.isEmpty else {
-            await fetchFinished()
             return
         }
         let address = address
@@ -148,7 +142,6 @@ class AddressFollowingDataFetcher: DataBackedListDataFetcher<AddressModel> {
 //            }
 //        })
         guard let following = pastes.first(where: { $0.name == "app.lol.following" }) else {
-            await self.fetchFinished()
             return
         }
         self.results = following.content.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) })
@@ -156,7 +149,6 @@ class AddressFollowingDataFetcher: DataBackedListDataFetcher<AddressModel> {
     
     private func handleItems(_ addresses: [AddressName]) async {
         self.results = addresses.map({ AddressModel(name: $0) })
-        await self.fetchFinished()
     }
     
     func follow(_ toFollow: AddressName, credential: APICredential) async {
@@ -211,22 +203,21 @@ class AddressBlockListDataFetcher: DataBackedListDataFetcher<AddressModel> {
     }
     
     override func throwingRequest() async throws {
+        
         guard !address.isEmpty else {
-            await fetchFinished()
             return
         }
         let address = address
         let credential = credential
         let pastes = try await interface.fetchAddressPastes(address, credential: credential)
         guard let blocked = pastes.first(where: { $0.name == "app.lol.blocked" }) else {
-            await fetchFinished()
             return
         }
         self.results = blocked.content.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) })
-        await fetchFinished()
     }
     
     func block(_ toBlock: AddressName, credential: APICredential) async {
+        loading = true
         let newValue = Array(Set(self.results.map({ $0.addressName }) + [toBlock]))
         let newContent = newValue.joined(separator: "\n")
         let draft = PasteModel.Draft(
@@ -243,6 +234,7 @@ class AddressBlockListDataFetcher: DataBackedListDataFetcher<AddressModel> {
     }
     
     func unBlock(_ toUnblock: AddressName, credential: APICredential) async {
+        loading = true
         let newValue = results.map({ $0.addressName }).filter({ $0 != toUnblock })
         let newContent = newValue.joined(separator: "\n")
         let draft = PasteModel.Draft(
@@ -259,6 +251,7 @@ class AddressBlockListDataFetcher: DataBackedListDataFetcher<AddressModel> {
     
     private func handleItems(_ addresses: [AddressName]) async {
         self.results = addresses.map({ AddressModel(name: $0) })
+        loaded = .init()
         await fetchFinished()
     }
 }
@@ -275,8 +268,6 @@ class NowGardenDataFetcher: ModelBackedListDataFetcher<NowListing> {
                 try await model.write(to: db)
             }
         }
-        
-        try await super.fetchRemote()
     }
 }
 
@@ -301,8 +292,6 @@ class AddressPasteBinDataFetcher: ModelBackedListDataFetcher<PasteModel> {
                 try await model.write(to: db)
             }
         })
-        
-        try await super.fetchRemote()
     }
 }
 
@@ -327,8 +316,6 @@ class AddressPURLsDataFetcher: ModelBackedListDataFetcher<PURLModel> {
                 try await model.write(to: db)
             }
         })
-        
-        try await super.fetchRemote()
     }
 }
 
@@ -353,19 +340,11 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
         super.init(addressBook: addressBook, interface: interface, db: db, filters: addresses.isEmpty ? [] : [.fromOneOf(addresses)])
     }
     
-    override func updateIfNeeded(forceReload: Bool = false) async {
-        print("Calling update from \(self)")
-        guard forceReload || !loaded else {
-            print("NOT performing request")
-            return
-        }
-        await perform()
-    }
-    
     override func fetchRemote() async throws {
         defer {
             nextPage = 0
         }
+        try await super.fetchRemote()
         let db = db
         if addresses.isEmpty {
             let statuses = try await interface.fetchStatusLog()
@@ -382,10 +361,9 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
                 }
             })
         }
-        
-        try await super.fetchRemote()
     }
     
+    @MainActor
     func fetchBacklog() async throws {
         let db = db
         let generalStatuses = try await self.interface.fetchCompleteStatusLog()
@@ -394,6 +372,8 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
                 try await model.write(to: db)
             }
         })
-        await self.fetchFinished()
+        self.loading = true
+        self.loaded = .init()
+        self.loading = false
     }
 }

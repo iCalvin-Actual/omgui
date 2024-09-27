@@ -89,7 +89,6 @@ final class AccountAuthDataFetcher: NSObject, Sendable {
     }
     
     func perform() {
-        loading = true
         recreateWebSession()
         webSession?.start()
     }

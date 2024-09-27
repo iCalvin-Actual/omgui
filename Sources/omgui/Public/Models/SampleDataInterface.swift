@@ -67,10 +67,10 @@ public final class SampleData: DataInterface {
         return .sample(with: name)
     }
 
-    public func fetchAddressBio(_ name: AddressName) async throws -> AddressBioModel {
+    public func fetchAddressBio(_ name: AddressName) async throws -> AddressSummaryModel {
         try await Task.sleep(nanoseconds: artificalDelay)
         let content = String.minimalLorum
-        return .init(address: name, bio: content)
+        return .init(address: name, bio: content, date: nil)
     }
 
     public func fetchAddressProfile(_ name: AddressName, credential: APICredential?) async throws -> AddressProfile? {

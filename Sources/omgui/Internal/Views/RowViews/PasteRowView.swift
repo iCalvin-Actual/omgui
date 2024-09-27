@@ -40,7 +40,7 @@ struct PasteRowView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         Text("/\(model.name)")
-                            .font(.headline)
+                            .font(.title2)
                             .fontDesign(.serif)
                             .bold()
                             .lineLimit(context != .detail ? 3 : nil)
@@ -66,7 +66,7 @@ struct PasteRowView: View {
                         .fontDesign(.rounded)
                         .lineLimit(context != .detail ? 5 : nil)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary)
                 }
             }
             .multilineTextAlignment(.leading)

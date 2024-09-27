@@ -21,6 +21,9 @@ class ListFetcher<T: Listable>: Request {
     static var isModelBacked: Bool {
         T.self is any BlackbirdListable.Type
     }
+    static var nextPage: Int? {
+        Self.isModelBacked ? 0 : nil
+    }
     
     @Published
     var results: [T] = []
@@ -29,18 +32,18 @@ class ListFetcher<T: Listable>: Request {
     var title: String { "" }
     
     let limit: Int
-    var nextPage: Int? = ListFetcher<T>.isModelBacked ? 0 : nil
+    var nextPage: Int? = ListFetcher<T>.nextPage
     
     var filters: [FilterOption] {
         didSet {
             results = []
-            nextPage = ListFetcher<T>.isModelBacked ? 0 : nil
+            nextPage = Self.nextPage
         }
     }
     var sort: Sort {
         didSet {
             results = []
-            nextPage = ListFetcher<T>.isModelBacked ? 0 : nil
+            nextPage = Self.nextPage
         }
     }
     
@@ -50,7 +53,7 @@ class ListFetcher<T: Listable>: Request {
         self.filters = filters
         self.sort = sort
         super.init(interface: interface, automation: automation)
-        self.loaded = !items.isEmpty
+        self.loaded = items.isEmpty ? nil : .init()
     }
     
     var summaryString: String? {
@@ -58,10 +61,15 @@ class ListFetcher<T: Listable>: Request {
     }
     
     override func updateIfNeeded(forceReload: Bool = false) async {
-        guard forceReload || (loading && requestNeeded) else {
+        guard !loading else {
             return
         }
-        nextPage = Self.isModelBacked ? 0 : nil
+        guard forceReload || requestNeeded else {
+            print("Not performing on \(self)")
+            return
+        }
+        print("Performing on \(self)")
+        nextPage = Self.nextPage
         await perform()
     }
     
@@ -69,8 +77,11 @@ class ListFetcher<T: Listable>: Request {
         !results.isEmpty
     }
     
-    override var noContent: Bool {
-        loaded && results.isEmpty && nextPage == nil
+    var noContent: Bool {
+        guard !loading else {
+            return false
+        }
+        return loaded != nil && results.isEmpty
     }
     
     @MainActor
@@ -85,7 +96,7 @@ class DataBackedListDataFetcher<T: Listable>: ListFetcher<T> {
         super.init(items: items, interface: interface, automation: automation)
         
         self.results = items
-        self.loaded = !items.isEmpty
+        self.loaded = items.isEmpty ? nil : .init()
     }
     
     override var summaryString: String? {
@@ -103,9 +114,11 @@ class AccountInfoDataFetcher: DataFetcher {
     
     @Published
     var accountName: String?
+    @Published
+    var accountCreated: Date?
     
     override var requestNeeded: Bool {
-        accountName == nil
+        accountName == nil && super.requestNeeded
     }
     
     init(address: AddressName, interface: DataInterface, credential: APICredential) {
@@ -121,15 +134,19 @@ class AccountInfoDataFetcher: DataFetcher {
     }
     
     override func throwingRequest() async throws {
+        
         let address = name
         let credential = credential
         let info = try await interface.fetchAccountInfo(address, credential: credential)
         self.accountName = info?.name
-        await self.fetchFinished()
+        self.accountCreated = info?.created
     }
     
-    override var noContent: Bool {
-        !loading && name.isEmpty
+    var noContent: Bool {
+        guard !loading else {
+            return false
+        }
+        return loaded != nil && name.isEmpty
     }
 }
 
@@ -156,8 +173,11 @@ class NamedItemDataFetcher<N: NamedDraftable>: DataFetcher {
         super.init(interface: interface)
     }
     
-    override var noContent: Bool {
-        !loading && model == nil
+    var noContent: Bool {
+        guard !loading else {
+            return false
+        }
+        return loaded != nil && model == nil
     }
     
     private func handlePosted(_ model: N) {

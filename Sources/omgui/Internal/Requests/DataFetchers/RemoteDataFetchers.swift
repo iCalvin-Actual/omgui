@@ -22,13 +22,12 @@ class URLContentDataFetcher: DataFetcher {
     }
     
     override func throwingRequest() async throws {
+        
         guard url.scheme?.contains("http") ?? false else {
-            await self.fetchFinished()
             return
         }
         let (data, _) = try await URLSession.shared.data(from: url)
         self.html = String(data: data, encoding: .utf8)
-        await self.fetchFinished()
     }
 }
 
@@ -51,9 +50,9 @@ class AddressAvailabilityDataFetcher: DataFetcher {
     }
     
     override func throwingRequest() async throws {
+        
         let address = address
         guard !address.isEmpty else {
-            await fetchFinished()
             return
         }
         let result = try await interface.fetchAddressAvailability(address)
@@ -80,7 +79,5 @@ class AddressIconDataFetcher: ModelBackedDataFetcher<AddressIconModel> {
         let response = try await URLSession.shared.data(from: url)
         let model = AddressIconModel(owner: address, data: response.0)
         try await model.write(to: db)
-        
-        try await super.fetchRemote()
     }
 }

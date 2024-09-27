@@ -19,8 +19,10 @@ struct AddressProfileView: View {
                     await fetcher.updateIfNeeded(forceReload: true)
                 }
             }
-            .task { [fetcher] in
-                await fetcher.perform()
+            .onAppear {
+                Task { @MainActor [fetcher] in
+                    await fetcher.updateIfNeeded(forceReload: true)
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -47,11 +49,11 @@ struct AddressProfileView: View {
             }
         } else {
             VStack {
-                if fetcher.error?.localizedDescription.lowercased().contains("not found") ?? false {
-                    ThemedTextView(text: "no profile")
-                        .padding()
-                } else {
+                if fetcher.loading {
                     LoadingView()
+                        .padding()
+                } else if fetcher.error?.localizedDescription.lowercased().contains("not found") ?? false {
+                    ThemedTextView(text: "no profile")
                         .padding()
                 }
                 Spacer()

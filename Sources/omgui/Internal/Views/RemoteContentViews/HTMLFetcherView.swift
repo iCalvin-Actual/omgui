@@ -11,7 +11,8 @@ struct HTMLFetcherView: View {
     @Environment(\.horizontalSizeClass)
     var sizeClass
     
-    let fetcher: Request
+    @ObservedObject
+    var fetcher: Request
     
     let activeAddress: AddressName?
     let htmlContent: String?
@@ -45,7 +46,7 @@ struct HTMLFetcherView: View {
             }
         }
         .overlay(content: {
-            if fetcher.loading {
+            if fetcher.loaded == nil {
                 LoadingView()
                     .padding(24)
                     .background(Material.regular)

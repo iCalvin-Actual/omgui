@@ -44,7 +44,7 @@ public protocol DataInterface: Sendable {
     func fetchAddressBio(
         _ name: AddressName
     )
-    async throws -> AddressBioModel
+    async throws -> AddressSummaryModel
     
     func fetchAddressProfile(
         _ name: AddressName,

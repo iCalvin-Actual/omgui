@@ -184,9 +184,9 @@ extension AddressModel: Menuable {
     @MainActor
     func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
         Group {
-            self.shareSection()
-            self.editingSection(in: scene)
             self.manageSection(scene, fetcher: fetcher)
+            self.editingSection(in: scene)
+            self.shareSection()
         }
     }
 }
@@ -195,9 +195,9 @@ extension NowListing: Menuable {
     @ViewBuilder
     func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
         Group {
-            self.shareSection()
-            self.editingSection(in: scene)
             self.manageSection(scene, fetcher: fetcher)
+            self.editingSection(in: scene)
+            self.shareSection()
         }
     }
 }
@@ -206,9 +206,9 @@ extension PURLModel: Menuable {
     @ViewBuilder
     func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
         Group {
-            self.shareSection()
-            self.editingSection(in: scene)
             self.manageSection(scene, fetcher: fetcher)
+            self.editingSection(in: scene)
+            self.shareSection()
         }
     }
 }
@@ -217,9 +217,9 @@ extension PasteModel: Menuable {
     @ViewBuilder
     func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
         Group {
-            self.shareSection()
-            self.editingSection(in: scene)
             self.manageSection(scene, fetcher: fetcher)
+            self.editingSection(in: scene)
+            self.shareSection()
         }
     }
 }
@@ -228,9 +228,9 @@ extension StatusModel: Menuable {
     @ViewBuilder
     func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
         Group {
-            self.shareSection()
-            self.editingSection(in: scene)
             self.manageSection(scene, fetcher: fetcher)
+            self.editingSection(in: scene)
+            self.shareSection()
         }
     }
 }

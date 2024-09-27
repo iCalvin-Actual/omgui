@@ -31,8 +31,6 @@ class AddressProfileDataFetcher: ModelBackedDataFetcher<AddressProfile> {
         }
         let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
         try await profile?.write(to: db)
-        
-        try await super.fetchRemote()
     }
 }
 
@@ -55,12 +53,13 @@ class AddressNowDataFetcher: ModelBackedDataFetcher<NowModel> {
         }
         let now = try await interface.fetchAddressNow(addressName)
         try await now?.write(to: db)
-        
-        try await super.fetchRemote()
     }
     
     override var noContent: Bool {
-        !loading && (error?.localizedDescription.contains("omgapi.APIError error 3") ?? false)
+        guard !loading else {
+            return false
+        }
+        return loaded != nil && (error?.localizedDescription.contains("omgapi.APIError error 3") ?? false)
     }
 }
 
@@ -85,15 +84,16 @@ class StatusDataFetcher: ModelBackedDataFetcher<StatusModel> {
     
     @MainActor
     override func fetchModels() async throws {
+        print("Fetching status")
         result = try await StatusModel.read(from: db, id: id)
     }
     
     @MainActor
     override func fetchRemote() async throws {
         let status = try await interface.fetchAddressStatus(id, from: address)
-        try await status?.write(to: db)
-        
-        try await fetchModels()
+        Task { [db] in
+            try await status?.write(to: db)
+        }
     }
     
     func fetcher(for url: URL) -> URLContentDataFetcher? {
@@ -152,7 +152,6 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
         }
         let paste = try await interface.fetchPaste(title, from: address, credential: credential)
         try await paste?.write(to: db)
-        try await fetchModels()
     }
     
     func deleteIfPossible() async throws {
@@ -161,7 +160,6 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
         }
         let _ = try await interface.deletePaste(title, from: address, credential: credential)
         try await result?.delete(from: db)
-        await fetchFinished()
     }
 }
 
@@ -210,8 +208,6 @@ class AddressPURLDataFetcher: ModelBackedDataFetcher<PURLModel> {
         }
         let purl = try await interface.fetchPURL(title, from: address, credential: credential)
         try await purl?.write(to: db)
-        
-        try await super.fetchRemote()
     }
     
     func deleteIfPossible() async throws {
@@ -221,6 +217,5 @@ class AddressPURLDataFetcher: ModelBackedDataFetcher<PURLModel> {
         let _ = try await interface.deletePURL(title, from: address, credential: credential)
         try await result?.delete(from: db)
         result = nil
-        await fetchFinished()
     }
 }

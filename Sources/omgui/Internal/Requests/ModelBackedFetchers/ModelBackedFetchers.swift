@@ -9,8 +9,7 @@ import Blackbird
 import Combine
 
 class BackedDataFetcher: Request {
-    @Published
-    var db: Blackbird.Database
+    let db: Blackbird.Database
     
     init(interface: DataInterface, db: Blackbird.Database, automation: AutomationPreferences = .init()) {
         self.db = db
@@ -18,19 +17,22 @@ class BackedDataFetcher: Request {
     }
     
     override func throwingRequest() async throws {
+        
         try await fetchModels()
         
+        try await fetchRemote()
         guard requestNeeded else {
             return
         }
-        try await fetchRemote()
+        try await fetchModels()
     }
     
+    @MainActor
     func fetchModels() async throws {
     }
     
+    @MainActor
     func fetchRemote() async throws {
-        try await fetchModels()
     }
 }
 
@@ -38,8 +40,15 @@ class ModelBackedDataFetcher<M: BlackbirdModel>: BackedDataFetcher {
     @Published
     var result: M?
     
-    override var noContent: Bool {
-        !loading && result != nil
+    override var requestNeeded: Bool {
+        result == nil && super.requestNeeded
+    }
+    
+    var noContent: Bool {
+        guard !loading else {
+            return false
+        }
+        return loaded != nil && result == nil
     }
 }
 
@@ -59,18 +68,18 @@ class ModelBackedListDataFetcher<T: ModelBackedListable>: ListFetcher<T> {
     @MainActor
     override func throwingRequest() async throws {
         try await fetchModels()
-        
+        try await fetchRemote()
         guard requestNeeded else {
             return
         }
-        try await fetchRemote()
+        try await fetchModels()
     }
     
     @MainActor
     override func fetchNextPageIfNeeded() {
-        if !loaded {
+        if loaded == nil {
             Task { [weak self] in
-                await self?.updateIfNeeded(forceReload: true)
+                await self?.updateIfNeeded()
             }
         } else if !loading {
             Task { [weak self] in
@@ -83,17 +92,13 @@ class ModelBackedListDataFetcher<T: ModelBackedListable>: ListFetcher<T> {
     @MainActor
     func fetchRemote() async throws {
         if nextPage == nil {
-            nextPage = ListFetcher<NowListing>.isModelBacked ? 0 : nil
+            nextPage = Self.nextPage
         }
-        try await fetchModels()
     }
     
     @MainActor
     func fetchModels() async throws {
         guard let nextPage, let addressBook else {
-            Task {
-                await fetchFinished()
-            }
             return
         }
         var nextResults = try await T.read(

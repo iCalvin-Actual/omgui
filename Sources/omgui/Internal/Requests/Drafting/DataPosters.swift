@@ -108,7 +108,7 @@ class ProfileDraftPoster: MDDraftPoster<AddressProfile> {
     }
     
     override func throwingRequest() async throws {
-        loading = true
+        
         let draftedAddress = address
         let _ = try await interface.saveAddressProfile(
             draftedAddress,
@@ -116,7 +116,6 @@ class ProfileDraftPoster: MDDraftPoster<AddressProfile> {
             credential: credential
         )
         originalDraft = draft
-        await fetchFinished()
     }
 }
 
@@ -133,7 +132,6 @@ class NowDraftPoster: MDDraftPoster<NowModel> {
             credential: credential
         )
         originalDraft = draft
-        await fetchFinished()
     }
 }
 
@@ -154,7 +152,6 @@ class PasteDraftPoster: NamedDraftPoster<PasteModel> {
             self.result = result
             onPost(result)
         }
-        await fetchFinished()
     }
 }
 
@@ -174,7 +171,6 @@ class PURLDraftPoster: NamedDraftPoster<PURLModel> {
             self.result = result
             onPost(result)
         }
-        await fetchFinished()
     }
     
     var destination: String
@@ -232,8 +228,6 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
                 draft = .init(address: address, content: "", emoji: "")
             }
         }
-        
-        await fetchFinished()
     }
     
     func fetchCurrentValue() async {
@@ -247,7 +241,6 @@ class StatusDraftPoster: DraftPoster<StatusModel> {
             draft.content = status.status
             draft.externalUrl = status.link?.absoluteString
             loading = false
-            await fetchFinished()
         } else {
             loading = false
         }

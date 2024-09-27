@@ -629,12 +629,39 @@ public struct GroupStatusLogModel: Sendable {
     let statuses: [StatusModel]
 }
 
-public struct AddressBioModel: Sendable {
-    let address: AddressName
-    let bio: String?
+public struct AddressSummaryModel: BlackbirdModel, Sendable {
     
-    public init(address: AddressName, bio: String?) {
-        self.address = address.punified
+    @BlackbirdColumn
+    public var id: AddressName
+    @BlackbirdColumn
+    public var date: Date?
+    @BlackbirdColumn
+    public var bio: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case date
+        case bio
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self._id = try container.decode(BlackbirdColumn<String>.self, forKey: .id)
+        self._date = try container.decode(BlackbirdColumn<Date?>.self, forKey: .date)
+        self._bio = try container.decode(BlackbirdColumn<String?>.self, forKey: .bio)
+    }
+    
+    public init(_ row: Blackbird.ModelRow<AddressSummaryModel>) {
+        self.init(
+            address: row[\.$id],
+            bio: row[\.$bio],
+            date: row[\.$date]
+        )
+    }
+    
+    public init(address: AddressName, bio: String?, date: Date?) {
+        self.id = address.punified
+        self.date = date
         self.bio = bio
     }
 }

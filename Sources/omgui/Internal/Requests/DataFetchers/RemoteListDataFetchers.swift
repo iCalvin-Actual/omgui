@@ -5,6 +5,7 @@
 //  Created by Calvin Chestnut on 7/29/24.
 //
 
+import Blackbird
 import Foundation
 
 class AddressBioDataFetcher: DataFetcher {
@@ -12,7 +13,7 @@ class AddressBioDataFetcher: DataFetcher {
     var address: AddressName
     
     @Published
-    var bio: AddressBioModel?
+    var bio: AddressSummaryModel?
     
     init(address: AddressName, interface: DataInterface) {
         self.address = address
@@ -22,7 +23,6 @@ class AddressBioDataFetcher: DataFetcher {
     @MainActor
     override func throwingRequest() async throws {
         self.bio = try await interface.fetchAddressBio(address)
-        await self.fetchFinished()
     }
 }
 

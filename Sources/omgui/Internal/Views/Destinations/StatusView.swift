@@ -33,7 +33,7 @@ struct StatusView: View {
     
     var body: some View {
         ScrollView(.vertical) {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 32) {
                 if viewContext != .profile {
                     AddressSummaryHeader(expandBio: $expandBio, addressBioFetcher: sceneModel.addressSummary(fetcher.address).bioFetcher)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -47,19 +47,16 @@ struct StatusView: View {
                     StatusRowView(model: model)
                         .environment(\.viewContext, ViewContext.detail)
                         .padding(.horizontal)
-                } else if !fetcher.loaded {
+                } else if fetcher.loading {
                     LoadingView()
                         .padding()
-                        .task { [fetcher] in
-                            fetcher.loaded = false
-                            fetcher.loading = true
-                            await fetcher.updateIfNeeded(forceReload: true)
-                            fetcher.loading = false
-                            fetcher.loaded = true
-                        }
                 } else {
                     LoadingView()
+                        .background(Color.orange)
                         .padding()
+                        .task { @MainActor [fetcher] in
+                            await fetcher.updateIfNeeded()
+                        }
                 }
                 if let items = fetcher.result?.imageLinks, !items.isEmpty {
                     imageSection(items)
@@ -83,11 +80,7 @@ struct StatusView: View {
         }
         .onChange(of: fetcher.id, {
             Task { [fetcher] in
-                fetcher.loaded = false
-                fetcher.loading = true
                 await fetcher.updateIfNeeded(forceReload: true)
-                fetcher.loading = false
-                fetcher.loaded = true
             }
         })
         .sheet(item: $presentURL, content: { url in
@@ -177,7 +170,7 @@ struct StatusView: View {
                     }
                 }
             }
-            foregroundStyle(Color.primary)
+            .foregroundStyle(Color.primary)
             .padding(4)
             .background(Material.thin)
             .mask {

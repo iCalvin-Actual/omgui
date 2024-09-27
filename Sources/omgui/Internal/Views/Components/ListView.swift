@@ -79,14 +79,9 @@ struct ListView<T: Listable, H: View>: View {
     
     var body: some View {
         toolbarAwareBody
-            .task { @MainActor [dataFetcher] in
-                if !dataFetcher.loading && !dataFetcher.loaded {
-                    Task {
-                        dataFetcher.loading = true
-                        await dataFetcher.updateIfNeeded(forceReload: true)
-                        dataFetcher.loaded = true
-                        dataFetcher.loading = false
-                    }
+            .onAppear {
+                Task { @MainActor [dataFetcher] in
+                    await dataFetcher.updateIfNeeded()
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -235,18 +230,14 @@ struct ListView<T: Listable, H: View>: View {
                 }
             }
             .refreshable(action: { [dataFetcher] in
-                dataFetcher.loaded = false
-                dataFetcher.loading = true
                 await dataFetcher.updateIfNeeded(forceReload: true)
-                dataFetcher.loading = false
-                dataFetcher.loaded = true
             })
             .listStyle(.plain)
             .onReceive(dataFetcher.$loaded, perform: { _ in
                 var newSelection: T?
                 switch (
                     horizontalSize == .regular,
-                    dataFetcher.loaded,
+                    dataFetcher.loaded != nil,
                     selected == nil
                 ) {
                 case (false, true, false):

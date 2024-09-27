@@ -18,8 +18,10 @@ struct AddressNowView: View {
                     await fetcher.updateIfNeeded(forceReload: true)
                 }
             })
-            .task { [fetcher] in
-                await fetcher.perform()
+            .onAppear {
+                Task { @MainActor [fetcher] in
+                    await fetcher.updateIfNeeded()
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -44,7 +46,10 @@ struct AddressNowView: View {
             )
         } else {
             VStack {
-                if fetcher.noContent {
+                if fetcher.loading {
+                    LoadingView()
+                        .padding()
+                } else if fetcher.noContent {
                     ThemedTextView(text: "no /now page")
                         .padding()
                         .frame(maxWidth: .infinity)

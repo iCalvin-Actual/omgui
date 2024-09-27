@@ -102,7 +102,7 @@ struct NamedItemView<N: NamedDraftable, M: View, D: View>: View {
                 detent = .draftDrawer
                 showDraft = true
                 Task { [fetcher] in
-                    await fetcher.perform()
+                    await fetcher.updateIfNeeded(forceReload: true)
                 }
             })
             .sheet(
@@ -156,20 +156,12 @@ struct PasteView: View {
         mainContent
             .onChange(of: fetcher.address, {
                 Task { [fetcher] in
-                    fetcher.loaded = false
-                    fetcher.loading = true
                     await fetcher.updateIfNeeded(forceReload: true)
-                    fetcher.loaded = true
-                    fetcher.loading = false
                 }
             })
             .onChange(of: fetcher.title, {
                 Task { [fetcher] in
-                    fetcher.loaded = false
-                    fetcher.loading = true
                     await fetcher.updateIfNeeded(forceReload: true)
-                    fetcher.loaded = true
-                    fetcher.loading = false
                     
                 }
             })
@@ -268,7 +260,7 @@ struct PasteView: View {
     
     @ViewBuilder
     var mainContent: some View {
-        if fetcher.loaded {
+        if fetcher.loaded != nil {
             ScrollView {
                 if let model = fetcher.result {
                     PasteRowView(model: model, cardColor: .lolRandom(model.listTitle), cardPadding: 8, cardradius: 16, showSelection: true)
@@ -289,12 +281,10 @@ struct PasteView: View {
         } else {
             LoadingView()
                 .padding()
-                .task { @MainActor [fetcher] in
-                    fetcher.loaded = false
-                    fetcher.loading = true
-                    await fetcher.updateIfNeeded(forceReload: true)
-                    fetcher.loaded = true
-                    fetcher.loading = false
+                .onAppear {
+                    Task { @MainActor [fetcher] in
+                        await fetcher.updateIfNeeded(forceReload: true)
+                    }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }

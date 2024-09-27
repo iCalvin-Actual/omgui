@@ -40,8 +40,8 @@ struct AddressSummaryView: View {
                     addressSummaryFetcher.configure(name: newValue)
                 }
             }
-            .task { [addressSummaryFetcher] in
-                await addressSummaryFetcher.perform()
+            .task { @MainActor [addressSummaryFetcher] in
+                await addressSummaryFetcher.updateIfNeeded()
             }
     }
     
@@ -85,6 +85,11 @@ struct AddressSummaryView: View {
         VStack(spacing: 0) {
             AddressSummaryHeader(expandBio: $expandBio, addressBioFetcher: addressSummaryFetcher.bioFetcher)
                 .padding()
+                .onAppear {
+                    Task { @MainActor [addressSummaryFetcher] in
+                        await addressSummaryFetcher.updateIfNeeded()
+                    }
+                }
             destinationPicker
             destination(selectedPage)
                 .frame(maxHeight: expandBio ? 0 : .infinity)
@@ -128,26 +133,26 @@ struct AddressBioLabel: View {
     var addressBioFetcher: AddressBioDataFetcher
     
     var body: some View {
-        if addressBioFetcher.loading {
-            LoadingView(.horizontal)
-        } else if let bio = addressBioFetcher.bio {
-            if let content = bio.bio, !content.isEmpty {
-                contentView(content)
-                    .onTapGesture {
-                        withAnimation {
-                            expanded.toggle()
-                        }
-                    }
-            } else if context != .profile {
-                AddressNameView(addressBioFetcher.address)
-            } else {
-                Spacer()
-            }
-        } else {
+        if addressBioFetcher.loaded == nil {
             LoadingView()
-                .task { [addressBioFetcher] in
-                    await addressBioFetcher.perform()
+                .task { @MainActor [addressBioFetcher] in
+                    if addressBioFetcher.loaded == nil {
+                        await addressBioFetcher.updateIfNeeded()
+                    }
                 }
+        } else if addressBioFetcher.loading {
+            LoadingView()
+        } else if let content = addressBioFetcher.bio?.bio, !content.isEmpty {
+            contentView(content)
+                .onTapGesture {
+                    withAnimation {
+                        expanded.toggle()
+                    }
+                }
+        } else if context != .profile {
+            AddressNameView(addressBioFetcher.address)
+        } else {
+            Spacer()
         }
     }
     

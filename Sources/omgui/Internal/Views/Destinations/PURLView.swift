@@ -45,7 +45,7 @@ struct PURLView: View {
             })
             .onAppear {
                 Task { [fetcher] in
-                    await fetcher.updateIfNeeded(forceReload: true)
+                    await fetcher.updateIfNeeded()
                 }
             }
             .toolbar {
@@ -167,7 +167,10 @@ struct PURLView: View {
     var content: some View {
         preview
             .safeAreaInset(edge: .top) {
-                pathInfo
+                if let model = fetcher.result {
+                    PURLRowView(model: model, cardColor: .lolRandom(model.listTitle), cardPadding: 8, cardradius: 16, showSelection: true)
+                        .padding()
+                }
             }
     }
     

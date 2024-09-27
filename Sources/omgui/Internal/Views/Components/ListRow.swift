@@ -115,7 +115,7 @@ struct ListRow<T: Listable>: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .bottom) {
                 AddressIconView(address: model.addressName, size: 55)
-                AddressNameView(model.listTitle)
+                AddressNameView(model.listTitle, font: .headline)
                     .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }

@@ -39,7 +39,7 @@ struct PURLRowView: View {
                             AddressNameView(model.owner)
                         }
                         Text("/\(model.name)")
-                            .font(.headline)
+                            .font(.title2)
                             .bold()
                             .fontDesign(.serif)
                             .lineLimit(3)

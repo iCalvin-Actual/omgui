@@ -73,13 +73,14 @@ final class AddressBook {
         self.pinnedAddressFetcher = pinnedAddressFetcher
     }
     
+    @MainActor
     func autoFetch() async {
-        await accountAddressesFetcher.updateIfNeeded(forceReload: true)
-        await globalBlocklistFetcher.updateIfNeeded(forceReload: true)
-        await localBlocklistFetcher.updateIfNeeded(forceReload: true)
-        await addressBlocklistFetcher.updateIfNeeded(forceReload: true)
-        await addressFollowingFetcher.updateIfNeeded(forceReload: true)
-        await pinnedAddressFetcher.updateIfNeeded(forceReload: true)
+        await accountAddressesFetcher.updateIfNeeded()
+        await globalBlocklistFetcher.updateIfNeeded()
+        await localBlocklistFetcher.updateIfNeeded()
+        await addressBlocklistFetcher.updateIfNeeded()
+        await addressFollowingFetcher.updateIfNeeded()
+        await pinnedAddressFetcher.updateIfNeeded()
     }
     
     func credential(for address: AddressName) -> APICredential? {
