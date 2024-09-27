@@ -106,14 +106,7 @@ struct StatusRowView: View {
     
     @ViewBuilder
     var appropriateMarkdown: some View {
-        switch context {
-        case .detail:
-            MarkdownContentView(source: model, content: model.displayStatus)
-                .foregroundStyle(.primary)
-        default:
-            Markdown(model.displayStatus)
-                .foregroundStyle(.primary)
-        }
+        Markdown(model.displayStatus)
     }
     
     @ViewBuilder
@@ -128,14 +121,14 @@ struct StatusRowView: View {
     @ViewBuilder
     var headerContent: some View {
         ZStack(alignment: .topTrailing) {
-            HStack(alignment: .center, spacing: 0) {
+            HStack(alignment: .bottom, spacing: 0) {
                 if context != .profile {
                     AddressIconView(address: model.address)
                         .padding(.horizontal, 4)
                 }
                 Text(model.displayEmoji.count > 1 ? "✨" : model.displayEmoji.prefix(1))
                     .font(.system(size: 35))
-                if context != .detail {
+                if context != .profile {
                     AddressNameView(model.address, font: .headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 } else {

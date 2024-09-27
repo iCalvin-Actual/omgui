@@ -46,8 +46,7 @@ struct ListsView: View {
                                 ForEach(viewModel.mine) { address in
                                     if address == sceneModel.addressBook.actingAddress.wrappedValue {
                                         NavigationLink(value: NavigationDestination.address(address)) {
-                                            previewView(for: address)
-                                                .cornerRadius(10)
+                                            AddressCard(address)
                                                 .background(Color(uiColor: .systemBackground))
                                         }
                                     } else {
@@ -56,10 +55,11 @@ struct ListsView: View {
                                                 sceneModel.addressBook.actingAddress.wrappedValue = address
                                             }
                                         } label: {
-                                            previewView(for: address)
+                                            AddressCard(address)
                                         }
                                     }
                                 }
+                                Spacer()
                             }
                         }
                         .background(Material.regular)
@@ -88,12 +88,8 @@ struct ListsView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(viewModel.pinned) { address in
-                                    Menu {
-                                        menuBuilder.contextMenu(for: .init(name: address), sceneModel: sceneModel)
-                                    } label: {
-                                        previewView(for: address)
-                                            .cornerRadius(10)
-                                    }
+                                    AddressCard(address, embedInMenu: true)
+                                        .frame(maxWidth: 132)
                                 }
                                 Spacer()
                             }
@@ -132,13 +128,13 @@ struct ListsView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(viewModel.following) { address in
-                                    Menu {
-                                        menuBuilder.contextMenu(for: .init(name: address), sceneModel: sceneModel)
-                                    } label: {
-                                        previewView(for: address)
-                                            .cornerRadius(10)
-                                    }
+                                    AddressCard(address)
+                                        .frame(maxWidth: 132)
+                                        .contextMenu {
+                                            menuBuilder.contextMenu(for: .init(name: address), sceneModel: sceneModel)
+                                        }
                                 }
+                                Spacer()
                             }
                         }
                         .background(Material.regular)
@@ -245,11 +241,20 @@ struct ListsView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
     }
+}
+
+struct AddressCard: View {
+    let address: AddressName
+    let embedInMenu: Bool
     
-    @ViewBuilder
-    func previewView(for address: AddressName) -> some View {
+    init(_ address: AddressName, embedInMenu: Bool = false) {
+        self.address = address
+        self.embedInMenu = embedInMenu
+    }
+    
+    var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            AddressIconView(address: address, size: 55, showMenu: false)
+            AddressIconView(address: address, size: 55, showMenu: embedInMenu)
                 .padding(4)
                 .padding(.horizontal, 4)
             Text(address.addressDisplayString)
@@ -259,8 +264,8 @@ struct ListsView: View {
                 .multilineTextAlignment(.trailing)
                 .lineLimit(3)
         }
-        .frame(maxWidth: 88)
         .padding(8)
+        .cornerRadius(10)
     }
 }
 

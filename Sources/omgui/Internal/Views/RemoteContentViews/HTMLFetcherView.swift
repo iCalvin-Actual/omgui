@@ -45,13 +45,13 @@ struct HTMLFetcherView: View {
                 .background(Color.clear)
             }
         }
-        .overlay(content: {
-            if fetcher.loaded == nil {
+        .safeAreaInset(edge: .bottom) {
+            if fetcher.loading {
                 LoadingView()
                     .padding(24)
                     .background(Material.regular)
             }
-        })
+        }
         .sheet(item: $presentedURL, content: { url in
             SafariView(url: url)
                 .ignoresSafeArea(.container, edges: .all)

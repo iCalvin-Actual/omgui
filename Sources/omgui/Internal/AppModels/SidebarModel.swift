@@ -96,7 +96,16 @@ class SidebarModel: ObservableObject {
             
         case .app:
             if context == .detail {
-                return [.safety]
+                var destinations: [NavigationItem] = [.safety]
+                if #available(iOS 18.0, *) {
+                    if !TabBar.usingRegularTabBar(sizeClass: sizeClass) {
+                        destinations.insert(.appSupport, at: 0)
+                        destinations.append(.appLatest)
+                    }
+                } else {
+                    destinations.insert(.account, at: 0)
+                }
+                return destinations
             } else {
                 var destinations: [NavigationItem] = [.appSupport, .appLatest]
                 if #available(iOS 18.0, *) {

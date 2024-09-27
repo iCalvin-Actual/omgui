@@ -34,28 +34,29 @@ struct CardViewModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        Group {
-            content
-                .frame(maxWidth: .infinity)
-                .padding(padding)
-                .background(contrast == .increased ? Material.ultraThick : material)
-                .cornerRadius(radius)
-                .shadow(color: selected ? .black : .clear, radius:  4, x: shadowOffset, y: shadowOffset)
-        }
-        .padding(2)
+        content
+            .frame(maxWidth: .infinity)
+            .padding(padding)
+            .background(contrast == .increased ? Material.ultraThick : material)
+            .cornerRadius(radius)
+            .shadow(color: selected ? .black : .clear, radius:  4, x: shadowOffset, y: shadowOffset)
+            .padding(2)
     }
 }
 
+@MainActor
 extension HStack {
     func asCard(color: Color = .lolRandom(), material: Material = .thin, backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
         self.modifier(CardViewModifier(color: color, backgroundColor: backgroundColor, padding: padding, radius: radius, selected: selected))
     }
 }
+@MainActor
 extension VStack {
     func asCard(color: Color = .lolRandom(), material: Material = .thin, backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
         self.modifier(CardViewModifier(color: color, backgroundColor: backgroundColor, padding: padding, radius: radius, selected: selected))
     }
 }
+@MainActor
 extension View {
     func asCard(color: Color = .lolRandom(), material: Material = .thin, backgroundColor: Color? = nil, padding: CGFloat = 4, radius: CGFloat = 2, selected: Bool = false) -> some View {
         HStack {

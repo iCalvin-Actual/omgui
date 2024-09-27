@@ -56,11 +56,10 @@ extension Sharable {
 
 extension AddressModel: Sharable {
     var primaryCopy: CopyPacket? {
-        .init(name: "Name", content: addressName)
+        .init(name: "address", content: addressName)
     }
     var copyText: [CopyPacket] {
         [
-            .init(name: "Webpage", content: "https://\(addressName).omg.lol")
         ]
     }
     
@@ -68,7 +67,7 @@ extension AddressModel: Sharable {
         guard !addressName.isEmpty, let urlSafeAddress = addressName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
             return nil
         }
-        return .init(name: "Webpage", content: URL(string: "https://\(urlSafeAddress).omg.lol")!)
+        return .init(name: "web url", content: URL(string: "https://\(urlSafeAddress).omg.lol")!)
     }
     
     var shareURLs: [SharePacket] {
@@ -79,11 +78,10 @@ extension AddressModel: Sharable {
 
 extension AddressProfile: Sharable {
     var primaryCopy: CopyPacket? {
-        .init(name: "Name", content: owner)
+        .init(name: "name", content: owner)
     }
     var copyText: [CopyPacket] {
         [
-            .init(name: "Webpage", content: "https://\(owner).omg.lol")
         ]
     }
     
@@ -91,7 +89,7 @@ extension AddressProfile: Sharable {
         guard !owner.isEmpty, let urlSafeAddress = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
             return nil
         }
-        return .init(name: "Webpage", content: URL(string: "https://\(urlSafeAddress).omg.lol")!)
+        return .init(name: "web url", content: URL(string: "https://\(urlSafeAddress).omg.lol")!)
     }
     
     var shareURLs: [SharePacket] {
@@ -102,7 +100,7 @@ extension AddressProfile: Sharable {
 
 extension NowModel: Sharable {
     var primaryCopy: CopyPacket? {
-        .init(name: "/Now URL", content: "https://\(owner).omg.lol/now")
+        .init(name: "/now url", content: "https://\(owner).omg.lol/now")
     }
     var copyText: [CopyPacket] {
         [
@@ -113,7 +111,7 @@ extension NowModel: Sharable {
         guard !owner.isEmpty, let urlSafeAddress = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
             return nil
         }
-        return .init(name: "/Now page", content: URL(string: "https://\(urlSafeAddress).omg.lol/now")!)
+        return .init(name: "/now page", content: URL(string: "https://\(urlSafeAddress).omg.lol/now")!)
     }
     var shareURLs: [SharePacket] {
         [primaryURL].compactMap({ $0 })
@@ -142,24 +140,24 @@ extension NowListing: Sharable {
 
 extension StatusModel: Sharable {
     var primaryCopy: CopyPacket? {
-        .init(name: "Status text", content: status)
+        .init(name: "status text", content: status)
     }
     var copyText: [CopyPacket] {
         [
-            .init(name: "Emoji", content: displayEmoji),
-            .init(name: "URL", content: urlString),
-            .init(name: "Address", content: owner)
+            .init(name: "emoji", content: displayEmoji),
+            .init(name: "url", content: urlString),
+            .init(name: "address", content: owner)
         ]
     }
     
     var primaryURL: SharePacket? {
-        return .init(name: "URL", content: URL(string: urlString)!)
+        return .init(name: "status link", content: URL(string: urlString)!)
     }
     var shareURLs: [SharePacket] {
         [
-            .init(name: "StatusLog", content: URL(string: "https://\(owner).status.lol")!),
-            .init(name: "Profile", content: URL(string: "https://\(owner).omg.lol")!),
-            .init(name: "Now Page", content: URL(string: "https://\(owner).omg.lol/now")!)
+            .init(name: "\(owner.addressDisplayString) statuslog", content: URL(string: "https://\(owner).status.lol")!),
+            .init(name: "profile url", content: URL(string: "https://\(owner).omg.lol")!),
+            .init(name: "/now url", content: URL(string: "https://\(owner).omg.lol/now")!)
         ]
     }
 }
