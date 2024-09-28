@@ -98,25 +98,19 @@ class AddressFollowingDataFetcher: DataBackedListDataFetcher<AddressModel> {
     
     @MainActor
     override func throwingRequest() async throws {
-        
         guard !address.isEmpty else {
             return
         }
         let address = address
         let credential = credential
         let pastes = try await interface.fetchAddressPastes(address, credential: credential)
-        
-//        pastes.forEach({ model in
-//            Task { @MainActor in
-//                try await model.write(to: db)
-//            }
-//        })
         guard let following = pastes.first(where: { $0.name == "app.lol.following" }) else {
             return
         }
         self.results = following.content.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) })
     }
     
+    @MainActor
     private func handleItems(_ addresses: [AddressName]) async {
         self.results = addresses.map({ AddressModel(name: $0) })
     }

@@ -124,6 +124,9 @@ public struct omgui: View {
             addressFollowingFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface),
             pinnedAddressFetcher: .init(interface: dataInterface)
         )
+        Task { @MainActor [addressBook] in
+            await addressBook?.autoFetch()
+        }
     }
     
     private func configureScene() {

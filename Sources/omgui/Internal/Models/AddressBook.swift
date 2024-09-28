@@ -75,12 +75,12 @@ final class AddressBook {
     
     @MainActor
     func autoFetch() async {
-        await accountAddressesFetcher.updateIfNeeded()
-        await globalBlocklistFetcher.updateIfNeeded()
-        await localBlocklistFetcher.updateIfNeeded()
-        await addressBlocklistFetcher.updateIfNeeded()
-        await addressFollowingFetcher.updateIfNeeded()
-        await pinnedAddressFetcher.updateIfNeeded()
+        await accountAddressesFetcher.updateIfNeeded(forceReload: true)
+        await globalBlocklistFetcher.updateIfNeeded(forceReload: true)
+        await localBlocklistFetcher.updateIfNeeded(forceReload: true)
+        await addressBlocklistFetcher.updateIfNeeded(forceReload: true)
+        await addressFollowingFetcher.updateIfNeeded(forceReload: true)
+        await pinnedAddressFetcher.updateIfNeeded(forceReload: true)
     }
     
     func credential(for address: AddressName) -> APICredential? {
@@ -129,7 +129,7 @@ final class AddressBook {
         await addressFollowingFetcher.follow(address, credential: credential)
     }
     func unFollow(_ address: AddressName) async {
-        guard let credential = credential(for: address) else {
+        guard let credential = credential(for: actingAddress.wrappedValue) else {
             return
         }
         await addressFollowingFetcher.unFollow(address, credential: credential)

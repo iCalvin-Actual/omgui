@@ -102,7 +102,7 @@ extension SceneModel {
         return AddressPrivateSummaryDataFetcher(name: address, addressBook: addressBook, interface: interface, database: database)
     }
     func addressSummary(_ address: AddressName) -> AddressSummaryDataFetcher {
-        if let model = publicProfileCache[address] {
+        if let model = publicProfileCache[address] ?? (addressBook.myAddresses.contains(where: { $0.lowercased() == address.lowercased() }) ? privateProfileCache[address] : nil) {
             return model
         } else {
             let model = constructFetcher(for: address)

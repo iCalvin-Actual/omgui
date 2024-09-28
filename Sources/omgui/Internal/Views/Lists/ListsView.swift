@@ -89,7 +89,7 @@ struct ListsView: View {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(viewModel.pinned) { address in
                                     AddressCard(address, embedInMenu: true)
-                                        .frame(maxWidth: 132)
+                                        .frame(maxWidth: 88)
                                 }
                                 Spacer()
                             }
@@ -128,11 +128,8 @@ struct ListsView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(viewModel.following) { address in
-                                    AddressCard(address)
-                                        .frame(maxWidth: 132)
-                                        .contextMenu {
-                                            menuBuilder.contextMenu(for: .init(name: address), sceneModel: sceneModel)
-                                        }
+                                    AddressCard(address, embedInMenu: true)
+                                        .frame(maxWidth: 88)
                                 }
                                 Spacer()
                             }
@@ -196,6 +193,10 @@ struct ListsView: View {
                 .listRowBackground(Color(UIColor.systemBackground).opacity(0.82))
             }
         }
+        .animation(.default, value: sceneModel.addressBook.signedIn)
+        .animation(.default, value: viewModel.following)
+        .animation(.default, value: viewModel.pinned)
+        .animation(.default, value: viewModel.mine)
         .environment(\.defaultMinListRowHeight, 0)
         .onChange(of: sceneModel.addressBook.actingAddress.wrappedValue, {
             sceneModel.addressBook.updateActiveFetchers()
@@ -258,7 +259,7 @@ struct AddressCard: View {
                 .padding(4)
                 .padding(.horizontal, 4)
             Text(address.addressDisplayString)
-                .font(.body)
+                .font(.caption)
                 .fontDesign(.serif)
                 .foregroundStyle(Color(uiColor: UIColor.label))
                 .multilineTextAlignment(.trailing)
