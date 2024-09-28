@@ -50,7 +50,7 @@ struct ListView<T: Listable, H: View>: View {
     }
     
     init(
-        filters: [FilterOption] = .everyone,
+        filters: [FilterOption] = T.defaultFilter,
         allowSearch: Bool = true,
         allowFilter: Bool = true,
         dataFetcher: ListFetcher<T>,
@@ -123,10 +123,9 @@ struct ListView<T: Listable, H: View>: View {
                 filters = newFilters
             })
             .toolbar {
-                let sortOptions = T.sortOptions
-                if sortOptions.count > 1, dataFetcher.results.count > 1, allowFilter {
+                if (T.sortOptions.count > 1 || T.filterOptions.count > 1), allowFilter {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        SortOrderMenu(sort: $sort, options: T.sortOptions)
+                        SortOrderMenu(sort: $sort, filters: $filters, sortOptions: T.sortOptions, filterOptions: T.filterOptions)
                     }
                 }
                 

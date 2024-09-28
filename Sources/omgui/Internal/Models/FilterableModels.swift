@@ -9,6 +9,16 @@ import Foundation
 
 
 extension AddressModel: QueryFilterable {
+    static var defaultFilter: [FilterOption] {
+        .everyone
+    }
+    static var filterOptions: [FilterOption] {
+        [
+            .mine,
+            .following
+        ]
+    }
+    
     var queryCheckStrings: [String] {
         [addressName]
     }
@@ -23,6 +33,15 @@ extension AddressModel: QueryFilterable {
 }
 
 extension NowListing: QueryFilterable {
+    static var defaultFilter: [FilterOption] {
+        .everyone
+    }
+    static var filterOptions: [FilterOption] {
+        [
+            .mine,
+            .following
+        ]
+    }
     var queryCheckStrings: [String] {
         [addressName]
     }
@@ -37,6 +56,15 @@ extension NowListing: QueryFilterable {
 }
 
 extension PasteModel: QueryFilterable {
+    static var defaultFilter: [FilterOption] {
+        .everyone
+    }
+    static var filterOptions: [FilterOption] {
+        [
+            .mine,
+            .following
+        ]
+    }
     var queryCheckStrings: [String] {
         [addressName, name, content]
             .compactMap({ $0 })
@@ -52,6 +80,15 @@ extension PasteModel: QueryFilterable {
 }
 
 extension PURLModel: QueryFilterable {
+    static var defaultFilter: [FilterOption] {
+        .everyone
+    }
+    static var filterOptions: [FilterOption] {
+        [
+            .mine,
+            .following
+        ]
+    }
     var queryCheckStrings: [String] {
         [addressName, name, content]
             .compactMap({ $0 })
@@ -67,6 +104,15 @@ extension PURLModel: QueryFilterable {
 }
 
 extension StatusModel: QueryFilterable {
+    static var defaultFilter: [FilterOption] {
+        .everyone
+    }
+    static var filterOptions: [FilterOption] {
+        [
+            .mine,
+            .following
+        ]
+    }
     var queryCheckStrings: [String] {
         [addressName, emoji, status]
             .compactMap({ $0 })

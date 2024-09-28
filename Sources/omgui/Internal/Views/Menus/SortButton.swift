@@ -11,7 +11,12 @@ struct SortOrderMenu: View {
     @Binding
     var sort: Sort
     
-    var options: [Sort]
+    @Binding
+    var filters: [FilterOption]
+    
+    var sortOptions: [Sort]
+    
+    var filterOptions: [FilterOption]
     
     private func button(_ sort: Sort) -> some View {
         Button {
@@ -27,13 +32,39 @@ struct SortOrderMenu: View {
         }
     }
     
-    var body: some View {
-        Menu {
-            ForEach(options) { sort in
-                button(sort)
+    private func button(_ filter: FilterOption) -> some View {
+        Button {
+            withAnimation {
+                if filters.contains(filter) {
+                    filters.removeAll(where: { filter.rawValue == $0.rawValue })
+                } else {
+                    filters.append(filter)
+                }
             }
         } label: {
-            Label("Sort", systemImage: "arrow.up.arrow.down.square")
+            if filters.contains(filter) {
+                Label(filter.displayString, systemImage: "checkmark")
+            } else {
+                Text(filter.displayString)
+            }
+        }
+    }
+    
+    var body: some View {
+        Menu {
+            if sortOptions.count > 1 {
+                ForEach(sortOptions) { sort in
+                    button(sort)
+                }
+                if !filterOptions.isEmpty {
+                    Divider()
+                }
+            }
+            ForEach(filterOptions) { filter in
+                button(filter)
+            }
+        } label: {
+            Label("sort", systemImage: "arrow.up.arrow.down.square")
         }
     }
 }
