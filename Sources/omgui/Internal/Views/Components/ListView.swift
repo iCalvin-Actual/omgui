@@ -77,6 +77,10 @@ struct ListView<T: Listable, H: View>: View {
         }
     }
     
+    var applicableFilters: [FilterOption] {
+        sceneModel.addressBook.signedIn ? T.filterOptions : []
+    }
+    
     var body: some View {
         toolbarAwareBody
             .task { @MainActor [dataFetcher] in
@@ -123,9 +127,9 @@ struct ListView<T: Listable, H: View>: View {
                 filters = newFilters
             })
             .toolbar {
-                if (T.sortOptions.count > 1 || T.filterOptions.count > 1), allowFilter {
+                if (T.sortOptions.count > 1 || applicableFilters.count > 1), allowFilter {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        SortOrderMenu(sort: $sort, filters: $filters, sortOptions: T.sortOptions, filterOptions: T.filterOptions)
+                        SortOrderMenu(sort: $sort, filters: $filters, sortOptions: T.sortOptions, filterOptions: applicableFilters)
                     }
                 }
                 
