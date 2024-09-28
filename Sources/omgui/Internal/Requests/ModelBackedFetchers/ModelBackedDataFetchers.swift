@@ -48,7 +48,7 @@ class AddressNowDataFetcher: ModelBackedDataFetcher<NowModel> {
     }
     
     override func fetchRemote() async throws {
-        guard !addressName.isEmpty, requestNeeded else {
+        guard !addressName.isEmpty else {
             return
         }
         let now = try await interface.fetchAddressNow(addressName)

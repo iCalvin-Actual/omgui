@@ -78,10 +78,10 @@ class ListFetcher<T: Listable>: Request {
     }
     
     var noContent: Bool {
-        guard !loading else {
+        guard !loading, loaded != nil else {
             return false
         }
-        return loaded != nil && results.isEmpty
+        return results.isEmpty
     }
     
     @MainActor

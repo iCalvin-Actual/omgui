@@ -45,8 +45,8 @@ struct HTMLFetcherView: View {
                 .background(Color.clear)
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            if fetcher.loading {
+        .safeAreaInset(edge: .top) {
+            if fetcher.loading && fetcher.loaded == nil {
                 LoadingView()
                     .padding(24)
                     .background(Material.regular)
