@@ -9,7 +9,12 @@ import Combine
 import SwiftUI
 
 
-class DraftPoster<D: SomeDraftable>: Request {
+class DraftPoster<D: SomeDraftable>: Request, Identifiable {
+    
+    var id: D.Draft.ID {
+        draft.id
+    }
+    
     var address: AddressName
     let credential: APICredential
     
@@ -52,7 +57,7 @@ class MDDraftPoster<D: MDDraftable>: DraftPoster<D> {
         }
     }
     
-    init?(_ address: AddressName, draftItem: D.MDDraftItem, interface: DataInterface, credential: APICredential) {
+    init(_ address: AddressName, draftItem: D.MDDraftItem, interface: DataInterface, credential: APICredential) {
         self.mdDraft = draftItem
         super.init(address, draft: draftItem as! D.Draft, interface: interface, credential: credential)
     }

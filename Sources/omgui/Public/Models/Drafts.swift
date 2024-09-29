@@ -16,10 +16,12 @@ protocol SomeDraftable: Sendable {
 protocol NamedDraftable: SomeDraftable, Equatable {
     associatedtype NamedDraftItem: NamedDraft
     
-    var asDraft: Draft? { get }
+    var asDraft: Draft { get }
 }
 protocol MDDraftable: SomeDraftable {
     associatedtype MDDraftItem: MDDraft
+    
+    var asDraft: Draft { get }
 }
 
 protocol DraftItem: Sendable, Identifiable {
@@ -64,6 +66,10 @@ extension AddressProfile: MDDraftable {
         
         var publishable: Bool { true }
     }
+    
+    var asDraft: Draft {
+        .init(address: owner, content: content, publish: true)
+    }
 }
 
 extension NowModel: MDDraftable {
@@ -83,9 +89,17 @@ extension NowModel: MDDraftable {
         
         var publishable: Bool { true }
     }
+    
+    var asDraft: Draft {
+        .init(address: owner, content: content ?? "", listed: true)
+    }
 }
 
 extension StatusModel: MDDraftable {
+    var asDraft: Draft {
+        .init(model: self)
+    }
+    
     typealias MDDraftItem = Draft
     
     public struct Draft: MDDraft {
@@ -179,7 +193,7 @@ extension PasteModel: NamedDraftable {
         }
     }
     
-    var asDraft: Draft? {
+    var asDraft: Draft {
         .init(address: addressName, name: name, content: content, listed: listed)
     }
 }
@@ -218,7 +232,7 @@ extension PURLModel: NamedDraftable {
         }
     }
     
-    var asDraft: Draft? {
+    var asDraft: Draft {
         .init(address: addressName, name: self.name, content: content, listed: listed)
     }
 }
