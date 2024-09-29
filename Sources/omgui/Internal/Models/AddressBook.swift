@@ -22,6 +22,7 @@ final class AddressBook {
     let addressBlocklistFetcher: AddressBlockListDataFetcher
     
     let addressFollowingFetcher: AddressFollowingDataFetcher
+    let addressFollowersFetcher: AddressFollowersDataFetcher
     
     let pinnedAddressFetcher: PinnedListDataFetcher
     
@@ -43,6 +44,9 @@ final class AddressBook {
     var following: [AddressName] {
         addressFollowingFetcher.results.map({ $0.addressName })
     }
+    var followers: [AddressName] {
+        addressFollowersFetcher.results.map({ $0.addressName })
+    }
     var pinnedAddresses: [AddressName] {
         pinnedAddressFetcher.pinnedAddresses
     }
@@ -61,6 +65,7 @@ final class AddressBook {
         localBlocklistFetcher: LocalBlockListDataFetcher,
         addressBlocklistFetcher: AddressBlockListDataFetcher,
         addressFollowingFetcher: AddressFollowingDataFetcher,
+        addressFollowersFetcher: AddressFollowersDataFetcher,
         pinnedAddressFetcher: PinnedListDataFetcher
     ) {
         self.apiKey = authKey
@@ -70,6 +75,7 @@ final class AddressBook {
         self.localBlocklistFetcher = localBlocklistFetcher
         self.addressBlocklistFetcher = addressBlocklistFetcher
         self.addressFollowingFetcher = addressFollowingFetcher
+        self.addressFollowersFetcher = addressFollowersFetcher
         self.pinnedAddressFetcher = pinnedAddressFetcher
     }
     
@@ -80,6 +86,7 @@ final class AddressBook {
         await localBlocklistFetcher.updateIfNeeded(forceReload: true)
         await addressBlocklistFetcher.updateIfNeeded(forceReload: true)
         await addressFollowingFetcher.updateIfNeeded(forceReload: true)
+        await addressFollowersFetcher.updateIfNeeded(forceReload: true)
         await pinnedAddressFetcher.updateIfNeeded(forceReload: true)
     }
     
@@ -99,6 +106,7 @@ final class AddressBook {
         Task { [addressBlocklistFetcher, addressFollowingFetcher] in
             await addressBlocklistFetcher.updateIfNeeded(forceReload: true)
             await addressFollowingFetcher.updateIfNeeded(forceReload: true)
+            await addressFollowersFetcher.updateIfNeeded(forceReload: true)
         }
     }
     

@@ -137,6 +137,7 @@ extension SceneModel {
             localBlocklistFetcher: .init(interface: interface),
             addressBlocklistFetcher: .init(address: actingAddress, credential: credential, interface: interface),
             addressFollowingFetcher: .init(address: actingAddress, credential: credential, interface: interface),
+            addressFollowersFetcher: .init(address: actingAddress, credential: credential, interface: interface),
             pinnedAddressFetcher: .init(interface: interface)
         )
         

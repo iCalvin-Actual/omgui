@@ -40,6 +40,8 @@ public struct omgui: View {
     @StateObject
     var addressFollowingFetcher: AddressFollowingDataFetcher
     @StateObject
+    var addressFollowersFetcher: AddressFollowersDataFetcher
+    @StateObject
     var addressBlockedFetcher: AddressBlockListDataFetcher
     
     
@@ -54,6 +56,7 @@ public struct omgui: View {
         self._localBlocklistFetcher = StateObject(wrappedValue: .init(interface: interface))
         self._pinnedFetcher = StateObject(wrappedValue: .init(interface: interface))
         self._addressFollowingFetcher = StateObject(wrappedValue: .init(address: "", credential: nil, interface: interface))
+        self._addressFollowersFetcher = StateObject(wrappedValue: .init(address: "", credential: nil, interface: interface))
         self._addressBlockedFetcher = StateObject(wrappedValue: .init(address: "", credential: nil, interface: interface))
     }
     
@@ -131,6 +134,7 @@ public struct omgui: View {
     
     private func configureAddressBook() {
         self.addressFollowingFetcher.configure(address: actingAddress, credential: authKey)
+        self.addressFollowersFetcher.configure(address: actingAddress, credential: authKey)
         self.addressBlockedFetcher.configure(address: actingAddress, credential: authKey)
         self.addressBook = .init(
             authKey: authKey,
@@ -140,6 +144,7 @@ public struct omgui: View {
             localBlocklistFetcher: localBlocklistFetcher,
             addressBlocklistFetcher: addressBlockedFetcher,
             addressFollowingFetcher: addressFollowingFetcher,
+            addressFollowersFetcher: addressFollowersFetcher,
             pinnedAddressFetcher: pinnedFetcher
         )
         Task { @MainActor [addressBook] in

@@ -156,7 +156,9 @@ class AddressFollowersDataFetcher: DataBackedListDataFetcher<AddressModel> {
             return
         }
         
-        self.results = try await interface.fetchAddressFollowers(address).map({ AddressModel(name: $0) })
+        let results = try await interface.fetchAddressFollowers(address).map({ AddressModel(name: $0) })
+        
+        self.results = results
     }
 }
 
