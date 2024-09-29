@@ -196,6 +196,8 @@ struct ListsView: View {
                 .listRowBackground(Color(UIColor.systemBackground).opacity(0.82))
             }
         }
+        .frame(maxWidth: 800)
+        .frame(maxWidth: .infinity)
         .environment(\.defaultMinListRowHeight, 0)
         .onChange(of: sceneModel.addressBook.actingAddress.wrappedValue, {
             sceneModel.addressBook.updateActiveFetchers()
