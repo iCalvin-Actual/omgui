@@ -46,6 +46,30 @@ public protocol DataInterface: Sendable {
     )
     async throws -> AddressSummaryModel
     
+    func fetchAddressFollowers(
+        _ name: AddressName
+    )
+    async throws -> [AddressName]
+    
+    func fetchAddressFollowing(
+        _ name: AddressName
+    )
+    async throws -> [AddressName]
+    
+    func followAddress(
+        _ target: AddressName,
+        from: AddressName,
+        credential: APICredential
+    )
+    async throws
+    
+    func unfollowAddress(
+        _ target: AddressName,
+        from: AddressName,
+        credential: APICredential
+    )
+    async throws
+    
     func fetchAddressProfile(
         _ name: AddressName,
         credential: APICredential?

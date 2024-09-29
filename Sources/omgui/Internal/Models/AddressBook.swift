@@ -122,12 +122,14 @@ final class AddressBook {
         await localBlocklistFetcher.remove(address)
     }
     
+    @MainActor
     func follow(_ address: AddressName) async {
         guard let credential = credential(for: actingAddress.wrappedValue) else {
             return
         }
         await addressFollowingFetcher.follow(address, credential: credential)
     }
+    @MainActor
     func unFollow(_ address: AddressName) async {
         guard let credential = credential(for: actingAddress.wrappedValue) else {
             return

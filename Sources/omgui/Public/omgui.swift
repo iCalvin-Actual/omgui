@@ -25,10 +25,22 @@ public struct omgui: View {
     @State
     var showOnboarding: Bool = false
     
-    let accountAuthFetcher: AccountAuthDataFetcher
+    @State
+    var accountAuthFetcher: AccountAuthDataFetcher
     
-    let accountAddressesFetcher: AccountAddressDataFetcher
-    let globalBlocklistFetcher: AddressBlockListDataFetcher
+    @StateObject
+    var accountAddressesFetcher: AccountAddressDataFetcher
+    @StateObject
+    var globalBlocklistFetcher: AddressBlockListDataFetcher
+    @StateObject
+    var localBlocklistFetcher: LocalBlockListDataFetcher
+    @StateObject
+    var pinnedFetcher: PinnedListDataFetcher
+    
+    @StateObject
+    var addressFollowingFetcher: AddressFollowingDataFetcher
+    @StateObject
+    var addressBlockedFetcher: AddressBlockListDataFetcher
     
     
     public init(client: ClientInfo, interface: DataInterface, database: Blackbird.Database) {
@@ -37,8 +49,12 @@ public struct omgui: View {
         self.dataInterface = interface
         self._database = StateObject(wrappedValue: database)
         self.accountAuthFetcher = .init(authKey: nil, client: client, interface: interface)
-        self.accountAddressesFetcher = .init(credential: "", interface: interface)
-        self.globalBlocklistFetcher = .init(address: "app", credential: nil, interface: interface)
+        self._accountAddressesFetcher = StateObject(wrappedValue: AccountAddressDataFetcher(credential: "", interface: interface))
+        self._globalBlocklistFetcher = StateObject(wrappedValue: .init(address: "app", credential: nil, interface: interface))
+        self._localBlocklistFetcher = StateObject(wrappedValue: .init(interface: interface))
+        self._pinnedFetcher = StateObject(wrappedValue: .init(interface: interface))
+        self._addressFollowingFetcher = StateObject(wrappedValue: .init(address: "", credential: nil, interface: interface))
+        self._addressBlockedFetcher = StateObject(wrappedValue: .init(address: "", credential: nil, interface: interface))
     }
     
     @State
@@ -114,15 +130,17 @@ public struct omgui: View {
     }
     
     private func configureAddressBook() {
+        self.addressFollowingFetcher.configure(address: actingAddress, credential: authKey)
+        self.addressBlockedFetcher.configure(address: actingAddress, credential: authKey)
         self.addressBook = .init(
             authKey: authKey,
             actingAddress: $actingAddress,
             accountAddressesFetcher: accountAddressesFetcher,
             globalBlocklistFetcher: globalBlocklistFetcher,
-            localBlocklistFetcher: .init(interface: dataInterface),
-            addressBlocklistFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface),
-            addressFollowingFetcher: .init(address: actingAddress, credential: authKey, interface: dataInterface),
-            pinnedAddressFetcher: .init(interface: dataInterface)
+            localBlocklistFetcher: localBlocklistFetcher,
+            addressBlocklistFetcher: addressBlockedFetcher,
+            addressFollowingFetcher: addressFollowingFetcher,
+            pinnedAddressFetcher: pinnedFetcher
         )
         Task { @MainActor [addressBook] in
             await addressBook?.autoFetch()

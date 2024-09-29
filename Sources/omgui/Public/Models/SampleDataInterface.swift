@@ -72,6 +72,20 @@ public final class SampleData: DataInterface {
         let content = String.minimalLorum
         return .init(address: name, bio: content, date: nil)
     }
+    
+    public func fetchAddressFollowers(_ name: AddressName) async throws -> [AddressName] {
+        return ["app", "calvin"]
+    }
+    
+    public func fetchAddressFollowing(_ name: AddressName) async throws -> [AddressName] {
+        return ["app", "calvin"]
+    }
+    
+    public func followAddress(_ target: AddressName, from: AddressName, credential: APICredential) async throws {
+    }
+    
+    public func unfollowAddress(_ target: AddressName, from: AddressName, credential: APICredential) async throws {
+    }
 
     public func fetchAddressProfile(_ name: AddressName, credential: APICredential?) async throws -> AddressProfile? {
         try await Task.sleep(nanoseconds: artificalDelay)

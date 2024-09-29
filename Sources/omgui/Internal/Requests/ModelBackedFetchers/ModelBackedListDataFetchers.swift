@@ -8,6 +8,7 @@
 import Blackbird
 import Foundation
 import SwiftUI
+import omgapi
 
 
 class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
@@ -101,48 +102,61 @@ class AddressFollowingDataFetcher: DataBackedListDataFetcher<AddressModel> {
         guard !address.isEmpty else {
             return
         }
-        let address = address
-        let credential = credential
-        let pastes = try await interface.fetchAddressPastes(address, credential: credential)
-        guard let following = pastes.first(where: { $0.name == "app.lol.following" }) else {
-            return
-        }
-        self.results = following.content.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) })
+        self.results = try await interface.fetchAddressFollowing(address).map({ AddressModel(name: $0) })
     }
     
     @MainActor
-    private func handleItems(_ addresses: [AddressName]) async {
-        self.results = addresses.map({ AddressModel(name: $0) })
-    }
-    
     func follow(_ toFollow: AddressName, credential: APICredential) async {
-        let newValue = Array(Set(self.results.map({ $0.addressName }) + [toFollow]))
-        let newContent = newValue.joined(separator: "\n")
-        let draft = PasteModel.Draft(
-            address: address,
-            name: "app.lol.following",
-            content: newContent,
-            listed: true
-        )
-        let address = address
-        let credential = credential
-        let _ = try? await interface.savePaste(draft, to: address, credential: credential)
-        await handleItems(newValue)
+        do {
+            try await interface.followAddress(toFollow, from: address, credential: credential)
+            self.results.append(.init(name: toFollow))
+        } catch {
+            if case let .unhandled(_, message) = (error as? APIError), message?.contains("You're already following") ?? false, !self.results.contains(where: { $0.addressName == toFollow }) {
+                self.results.append(.init(name: toFollow))
+            }
+        }
     }
     
+    @MainActor
     func unFollow(_ toRemove: AddressName, credential: APICredential) async {
-        let newValue = results.map({ $0.addressName }).filter({ $0 != toRemove })
-        let newContent = newValue.joined(separator: "\n")
-        let draft = PasteModel.Draft(
-            address: address,
-            name: "app.lol.following",
-            content: newContent,
-            listed: true
-        )
-        let address = address
-        let credential = credential
-        let _ = try? await interface.savePaste(draft, to: address, credential: credential)
-        await handleItems(newValue)
+        do {
+            try await interface.unfollowAddress(toRemove, from: address, credential: credential)
+            self.results.removeAll(where: { $0.addressName == toRemove })
+        } catch {
+            if case let .unhandled(_, message) = (error as? APIError), message?.contains("You're not following") ?? false, self.results.contains(where: { $0.addressName == toRemove }) {
+                self.results.removeAll(where: { $0.addressName == toRemove })
+            }
+        }
+    }
+}
+
+class AddressFollowersDataFetcher: DataBackedListDataFetcher<AddressModel> {
+    var address: AddressName
+    var credential: APICredential?
+    
+    override var title: String {
+        "following"
+    }
+    
+    init(address: AddressName, credential: APICredential?, interface: DataInterface) {
+        self.address = address
+        self.credential = credential
+        super.init(interface: interface)
+    }
+    
+    func configure(address: AddressName, credential: APICredential?, _ automation: AutomationPreferences = .init()) {
+        self.address = address
+        self.credential = credential
+        super.configure(automation)
+    }
+    
+    @MainActor
+    override func throwingRequest() async throws {
+        guard !address.isEmpty else {
+            return
+        }
+        
+        self.results = try await interface.fetchAddressFollowers(address).map({ AddressModel(name: $0) })
     }
 }
 

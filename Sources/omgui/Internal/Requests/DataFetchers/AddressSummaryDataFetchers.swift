@@ -38,6 +38,7 @@ class AddressSummaryDataFetcher: DataFetcher {
     var bioFetcher: AddressBioDataFetcher
     
     var followingFetcher: AddressFollowingDataFetcher
+    var followersFetcher: AddressFollowersDataFetcher
     
     override var requestNeeded: Bool {
         loaded == nil && registered == nil
@@ -62,6 +63,7 @@ class AddressSummaryDataFetcher: DataFetcher {
         self.statusFetcher = .init(addresses: [name], addressBook: addressBook, interface: interface, db: database)
         self.bioFetcher = .init(address: name, interface: interface)
         self.followingFetcher = .init(address: name, credential: credential, interface: interface)
+        self.followersFetcher = .init(address: name, credential: credential, interface: interface)
         
         super.init(interface: interface)
     }
@@ -78,6 +80,7 @@ class AddressSummaryDataFetcher: DataFetcher {
         self.statusFetcher = .init(addresses: [name], addressBook: addressBook, interface: interface, db: database)
         self.bioFetcher = .init(address: name, interface: interface)
         self.followingFetcher = .init(address: name, credential: credential, interface: interface)
+        self.followersFetcher = .init(address: name, credential: credential, interface: interface)
         
         super.configure(automation)
     }
@@ -97,6 +100,7 @@ class AddressSummaryDataFetcher: DataFetcher {
             await pasteFetcher.updateIfNeeded()
             await statusFetcher.updateIfNeeded()
             await followingFetcher.updateIfNeeded()
+            await followersFetcher.updateIfNeeded()
         }
         
         let info = try await interface.fetchAddressInfo(addressName)
