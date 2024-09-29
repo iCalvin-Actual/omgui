@@ -242,6 +242,7 @@ struct ListView<T: Listable, H: View>: View {
                 await dataFetcher.updateIfNeeded(forceReload: true)
             })
             .listStyle(.plain)
+            .listRowSpacing(0)
             .onReceive(dataFetcher.$loaded, perform: { _ in
                 var newSelection: T?
                 switch (
@@ -279,11 +280,11 @@ struct ListView<T: Listable, H: View>: View {
             }
             Section(dataFetcher.title) {
                 listContent(width: width)
-                    .padding(.horizontal)
+                    .padding(.horizontal, 4)
             }
         } else {
             listContent(width: width)
-                .padding(.horizontal)
+                .padding(.horizontal, 4)
         }
     }
     

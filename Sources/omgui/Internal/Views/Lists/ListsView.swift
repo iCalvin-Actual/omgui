@@ -230,6 +230,8 @@ struct ListsView: View {
         .animation(.default, value: viewModel.followers)
         .animation(.default, value: viewModel.pinned)
         .animation(.default, value: viewModel.mine)
+        .frame(maxWidth: 800)
+        .frame(maxWidth: .infinity)
         .environment(\.defaultMinListRowHeight, 0)
         .onChange(of: sceneModel.addressBook.actingAddress.wrappedValue, {
             sceneModel.addressBook.updateActiveFetchers()
