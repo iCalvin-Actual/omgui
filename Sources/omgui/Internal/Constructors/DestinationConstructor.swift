@@ -36,7 +36,7 @@ struct DestinationConstructor {
         case .address(let name):
             AddressSummaryView(addressSummaryFetcher: sceneModel.addressSummary(name))
         case .webpage(let name):
-            AddressProfileView(fetcher: sceneModel.addressSummary(name).profileFetcher)
+            AddressProfileView(fetcher: sceneModel.addressSummary(name).profileFetcher, mdFetcher: sceneModel.addressSummary(name).markdownFetcher, draftFetcher: sceneModel.profileDrafts)
         case .now(let name):
             AddressNowView(fetcher: sceneModel.addressSummary(name).nowFetcher)
         case .safety:

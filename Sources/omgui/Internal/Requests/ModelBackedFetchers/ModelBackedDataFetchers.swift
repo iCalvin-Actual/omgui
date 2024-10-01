@@ -9,7 +9,7 @@ import Blackbird
 import Foundation
 
 
-class AddressProfileDataFetcher: ModelBackedDataFetcher<AddressProfile> {
+class AddressProfileHTMLDataFetcher: ModelBackedDataFetcher<AddressProfilePage> {
     
     let addressName: AddressName
     let credential: APICredential?
@@ -22,15 +22,39 @@ class AddressProfileDataFetcher: ModelBackedDataFetcher<AddressProfile> {
     
     @MainActor
     override func fetchModels() async throws {
-        self.result = try await AddressProfile.read(from: db, id: addressName)
+        self.result = try await AddressProfilePage.read(from: db, id: addressName)
     }
     
     override func fetchRemote() async throws {
         guard !addressName.isEmpty else {
             return
         }
-        let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
+        let profile = try await interface.fetchAddressProfile(addressName)
         try await profile?.write(to: db)
+    }
+}
+class ProfileMarkdownDataFetcher: ModelBackedDataFetcher<ProfileMarkdown> {
+    
+    let addressName: AddressName
+    let credential: APICredential
+    
+    init(name: AddressName, credential: APICredential, interface: DataInterface, db: Blackbird.Database) {
+        self.addressName = name
+        self.credential = credential
+        super.init(interface: interface, db: db)
+    }
+    
+    @MainActor
+    override func fetchModels() async throws {
+        self.result = try await ProfileMarkdown.read(from: db, id: addressName)
+    }
+    
+    override func fetchRemote() async throws {
+        guard !addressName.isEmpty else {
+            return
+        }
+        let markdown = try await interface.fetchAddressProfile(addressName, credential: credential)
+        try await markdown.write(to: db)
     }
 }
 
@@ -117,28 +141,6 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
         self.credential = credential
         super.init(interface: interface, db: db)
     }
-    
-//    var draftPoster: PasteDraftPoster? {
-//        guard let credential else {
-//            return super.draftPoster as? PasteDraftPoster
-//        }
-//        if let model {
-//            return .init(
-//                addressName,
-//                title: model.name,
-//                content: model.content ?? "",
-//                interface: interface,
-//                credential: credential
-//            )
-//        } else {
-//            return .init(
-//                addressName,
-//                title: "",
-//                interface: interface,
-//                credential: credential
-//            )
-//        }
-//    }
     
     @MainActor
     override func fetchModels() async throws {

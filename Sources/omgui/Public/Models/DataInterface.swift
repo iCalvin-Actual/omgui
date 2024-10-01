@@ -71,10 +71,15 @@ public protocol DataInterface: Sendable {
     async throws
     
     func fetchAddressProfile(
-        _ name: AddressName,
-        credential: APICredential?
+        _ name: AddressName
     )
-    async throws -> AddressProfile?
+    async throws -> AddressProfilePage?
+    
+    func fetchAddressProfile(
+        _ name: AddressName,
+        credential: APICredential
+    )
+    async throws -> ProfileMarkdown
     
     func fetchAddressNow(
         _ name: AddressName
@@ -166,12 +171,12 @@ public protocol DataInterface: Sendable {
     )
     async throws
     
-    func deleteAddressStatus(
-        _ draft: StatusModel.Draft,
-        from address: AddressName,
-        credential: APICredential
-    )
-    async throws -> StatusModel?
+//    func deleteAddressStatus(
+//        _ draft: StatusModel.Draft,
+//        from address: AddressName,
+//        credential: APICredential
+//    )
+//    async throws -> StatusModel?
     
     // MARK: Posting
     
@@ -180,7 +185,7 @@ public protocol DataInterface: Sendable {
         content: String,
         credential: APICredential
     )
-    async throws -> AddressProfile?
+    async throws -> ProfileMarkdown?
     
     func saveAddressNow(
         _ name: AddressName,
@@ -189,25 +194,25 @@ public protocol DataInterface: Sendable {
     )
     async throws -> NowModel?
     
-    func savePURL(
-        _ draft: PURLModel.Draft,
-        to address: AddressName,
-        credential: APICredential
-    )
-    async throws -> PURLModel?
-    
+//    func savePURL(
+//        _ draft: PURLModel.Draft,
+//        to address: AddressName,
+//        credential: APICredential
+//    )
+//    async throws -> PURLModel?
+//    
     func savePaste(
         _ draft: PasteModel.Draft,
         to address: AddressName,
         credential: APICredential
     )
     async throws -> PasteModel?
-    
-    func saveStatusDraft(
-        _ draft: StatusModel.Draft,
-        to address: AddressName,
-        credential: APICredential
-    )
-    async throws -> StatusModel?
+//    
+//    func saveStatusDraft(
+//        _ draft: StatusModel.Draft,
+//        to address: AddressName,
+//        credential: APICredential
+//    )
+//    async throws -> StatusModel?
     
 }

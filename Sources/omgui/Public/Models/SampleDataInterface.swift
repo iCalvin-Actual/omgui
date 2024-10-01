@@ -86,8 +86,14 @@ public final class SampleData: DataInterface {
     
     public func unfollowAddress(_ target: AddressName, from: AddressName, credential: APICredential) async throws {
     }
-
-    public func fetchAddressProfile(_ name: AddressName, credential: APICredential?) async throws -> AddressProfile? {
+    
+    public func fetchAddressProfile(_ name: AddressName) async throws -> AddressProfilePage? {
+        try await Task.sleep(nanoseconds: artificalDelay)
+        let content = String.htmlContent
+        return .init(owner: name, content: content)
+    }
+    
+    public func fetchAddressProfile(_ name: AddressName, credential: APICredential) async throws -> ProfileMarkdown {
         try await Task.sleep(nanoseconds: artificalDelay)
         let content = String.htmlContent
         return .init(owner: name, content: content)
@@ -190,17 +196,17 @@ public final class SampleData: DataInterface {
         // Implementation here
     }
 
-    public func deleteAddressStatus(_ draft: StatusModel.Draft, from address: AddressName, credential: APICredential) async throws -> StatusModel? {
-        guard let id = draft.id else {
-            return nil
-        }
-        try await Task.sleep(nanoseconds: artificalDelay)
-        return StatusModel.sample(with: address, id: id)
-    }
+//    public func deleteAddressStatus(_ draft: StatusModel.Draft, from address: AddressName, credential: APICredential) async throws -> StatusModel? {
+//        guard let id = draft.id else {
+//            return nil
+//        }
+//        try await Task.sleep(nanoseconds: artificalDelay)
+//        return StatusModel.sample(with: address, id: id)
+//    }
 
     // MARK: Posting
 
-    public func saveAddressProfile(_ name: AddressName, content: String, credential: APICredential) async throws -> AddressProfile? {
+    public func saveAddressProfile(_ name: AddressName, content: String, credential: APICredential) async throws -> ProfileMarkdown? {
         try await fetchAddressProfile(name, credential: credential)
     }
 
@@ -208,19 +214,19 @@ public final class SampleData: DataInterface {
         return .sample(with: name)
     }
 
-    public func savePURL(_ draft: PURLModel.Draft, to address: AddressName, credential: APICredential) async throws -> PURLModel? {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        return PURLModel(owner: address, name: draft.name, content: draft.content, listed: true)
-    }
-
+//    public func savePURL(_ draft: PURLModel.Draft, to address: AddressName, credential: APICredential) async throws -> PURLModel? {
+//        try await Task.sleep(nanoseconds: artificalDelay)
+//        return PURLModel(owner: address, name: draft.name, content: draft.content, listed: true)
+//    }
+//
     public func savePaste(_ draft: PasteModel.Draft, to address: AddressName, credential: APICredential) async throws -> PasteModel? {
         try await fetchPaste(draft.name, from: address, credential: credential)
     }
-
-    public func saveStatusDraft(_ draft: StatusModel.Draft, to address: AddressName, credential: APICredential) async throws -> StatusModel? {
-        try await Task.sleep(nanoseconds: artificalDelay)
-        return try await fetchAddressStatus(draft.id ?? UUID().uuidString, from: address)
-    }
+//
+//    public func saveStatusDraft(_ draft: StatusModel.Draft, to address: AddressName, credential: APICredential) async throws -> StatusModel? {
+//        try await Task.sleep(nanoseconds: artificalDelay)
+//        return try await fetchAddressStatus(draft.id ?? UUID().uuidString, from: address)
+//    }
 }
 
 fileprivate extension Double {

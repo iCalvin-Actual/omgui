@@ -14,10 +14,9 @@ struct PasteDraftView: View {
     @FocusState
     private var focusedField: FocusField?
     
-    let draftFetcher: PasteDraftPoster
+//    let draftFetcher: PasteDraftPoster
     
-    init(focusedField: FocusField? = nil, draftFetcher: PasteDraftPoster) {
-        self.draftFetcher = draftFetcher
+    init(focusedField: FocusField? = nil/*, draftFetcher: PasteDraftPoster*/) {
         self.focusedField = focusedField
     }
     

@@ -8,7 +8,7 @@
 import Blackbird
 import Foundation
 
-protocol BlackbirdListable: BlackbirdModel {
+protocol BlackbirdListable: BlackbirdModel, Listable {
     static var sortingKey: BlackbirdColumnKeyPath { get }
     static var ownerKey: BlackbirdColumnKeyPath { get }
     static var dateKey: BlackbirdColumnKeyPath { get }
@@ -89,7 +89,7 @@ public struct ThemeModel: Codable, Sendable {
     }
 }
 
-struct AddressIconModel: BlackbirdListable {
+struct AddressIconModel: BlackbirdModel {
     static var sortingKey: BlackbirdColumnKeyPath { \.$id }
     static var ownerKey: BlackbirdColumnKeyPath { \.$id }
     static var dateKey: BlackbirdColumnKeyPath { \.$date }
@@ -127,7 +127,7 @@ struct AddressIconModel: BlackbirdListable {
     }
 }
 
-public struct AddressProfile: BlackbirdModel, Sendable {
+public struct AddressProfilePage: BlackbirdModel, Sendable {
     var owner: AddressName { id }
     @BlackbirdColumn
     public var id: AddressName
@@ -145,7 +145,35 @@ public struct AddressProfile: BlackbirdModel, Sendable {
         self._content = try container.decode(BlackbirdColumn<String>.self, forKey: .content)
     }
     
-    public init(_ row: Blackbird.ModelRow<AddressProfile>) {
+    public init(_ row: Blackbird.ModelRow<AddressProfilePage>) {
+        self.init(owner: row[\.$id], content: row[\.$content])
+    }
+    
+    public init(owner: AddressName, content: String) {
+        self.id = owner.punified
+        self.content = content
+    }
+}
+
+public struct ProfileMarkdown: BlackbirdModel, Sendable {
+    var owner: AddressName { id }
+    @BlackbirdColumn
+    public var id: AddressName
+    @BlackbirdColumn
+    var content: String
+    
+    enum CodingKeys: String, BlackbirdCodingKey {
+        case id
+        case content
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(AddressName.self, forKey: .id).punified
+        self._content = try container.decode(BlackbirdColumn<String>.self, forKey: .content)
+    }
+    
+    public init(_ row: Blackbird.ModelRow<ProfileMarkdown>) {
         self.init(owner: row[\.$id], content: row[\.$content])
     }
     

@@ -179,6 +179,16 @@ extension Listable where Self: Menuable {
     }
 }
 
+extension ProfileMarkdown.Draft: Menuable {
+    @ViewBuilder
+    @MainActor
+    func contextMenu(in scene: SceneModel, fetcher: Request?) -> some View {
+        Group {
+            self.editingSection(in: scene)
+        }
+    }
+}
+
 extension AddressModel: Menuable {
     @ViewBuilder
     @MainActor

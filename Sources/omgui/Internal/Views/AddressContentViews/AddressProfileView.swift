@@ -17,17 +17,22 @@ struct AddressProfileView: View {
     @State
     var showDrafts: Bool = false
     
-    
     @ObservedObject
-    var fetcher: AddressProfileDataFetcher
+    var fetcher: AddressProfileHTMLDataFetcher
+    @ObservedObject
+    var mdFetcher: ProfileMarkdownDataFetcher
+    @ObservedObject
+    var draftFetcher: DraftFetcher<ProfileMarkdown>
     
     @State
-    var draftPoster: MDDraftPoster<AddressProfile>?
+    var draftPoster: MDDraftPoster<ProfileMarkdown>?
     @State
-    var selectedDraft: AddressProfile.Draft?
+    var selectedDraft: ProfileMarkdown.Draft?
     
-    init(fetcher: AddressProfileDataFetcher) {
+    init(fetcher: AddressProfileHTMLDataFetcher, mdFetcher: ProfileMarkdownDataFetcher, draftFetcher: DraftFetcher<ProfileMarkdown>) {
         self.fetcher = fetcher
+        self.mdFetcher = mdFetcher
+        self.draftFetcher = draftFetcher
     }
     
     var body: some View {
@@ -35,11 +40,13 @@ struct AddressProfileView: View {
             .onChange(of: fetcher.addressName) {
                 Task { [fetcher] in
                     await fetcher.updateIfNeeded(forceReload: true)
+                    await draftFetcher.updateIfNeeded(forceReload: true)
                 }
             }
             .onAppear {
                 Task { @MainActor [fetcher] in
                     await fetcher.updateIfNeeded(forceReload: true)
+                    await draftFetcher.updateIfNeeded(forceReload: true)
                 }
             }
             .toolbar {
@@ -59,16 +66,45 @@ struct AddressProfileView: View {
                 baseURL: nil
             )
             .toolbar {
-                if sceneModel.addressBook.myAddresses.contains(fetcher.addressName) {
+                if let markdown = mdFetcher.result, sceneModel.addressBook.myAddresses.contains(fetcher.addressName) {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            draftPoster = .init(result.owner, draftItem: result.asDraft, interface: fetcher.interface, credential: fetcher.credential ?? "")
-                        } label: {
-                            Label(title: {
-                                Text("edit")
-                            }, icon: {
-                                Image(systemName: "pencil")
-                            })
+                        if draftFetcher.items > 0 {
+                            Menu {
+                                Button {
+                                    createPoster(markdown.asDraft)
+                                } label: {
+                                    Label(title: {
+                                        Text("edit")
+                                    }, icon: {
+                                        Image(systemName: "pencil")
+                                    })
+                                }
+                                Button {
+                                    showDrafts = true
+                                } label: {
+                                    Label(title: {
+                                        Text("drafts")
+                                    }, icon: {
+                                        Image(systemName: "arrow.up.bin.fill")
+                                    })
+                                }
+                            } label: {
+                                Label(title: {
+                                    Text("edit")
+                                }, icon: {
+                                    Image(systemName: "pencil")
+                                })
+                            }
+                            } else {
+                            Button {
+                                createPoster(markdown.asDraft)
+                            } label: {
+                                Label(title: {
+                                    Text("edit")
+                                }, icon: {
+                                    Image(systemName: "pencil")
+                                })
+                            }
                         }
                     }
                 }
@@ -78,30 +114,17 @@ struct AddressProfileView: View {
                     }
                 }
             }
-            .sheet(item: $draftPoster) {
-                print("Save as draft")
-            } content: { poster in
+            .sheet(item: $draftPoster) { poster in
                 NavigationStack {
                     AddressProfileEditorView(poster, basedOn: $selectedDraft)
-                        .toolbar {
-                            ToolbarItem(placement: .topBarLeading) {
-                                Button {
-                                    showDrafts = true
-                                } label: {
-                                    Label(title: {
-                                        Text("drafts")
-                                    }, icon: {
-                                        Image(systemName: "list.dash")
-                                    })
-                                }
-                            }
-                        }
                 }
-                .sheet(isPresented: $showDrafts, content: {
-                    Text("Drafts lists")
-                })
                 .presentationDetents([.medium, .large])
             }
+            .sheet(isPresented: $showDrafts, content: {
+                draftsView(draftFetcher)
+                    .presentationDetents([.medium])
+                    .environment(\.horizontalSizeClass, .compact)
+            })
 
         } else {
             VStack {
@@ -116,19 +139,76 @@ struct AddressProfileView: View {
             }
         }
     }
+    
+    func createPoster(_ item: ProfileMarkdown.Draft) {
+        showDrafts = false
+        draftPoster = .init(fetcher.addressName, draftItem: item, interface: fetcher.interface, credential: mdFetcher.credential, addressBook: sceneModel.addressBook, db: sceneModel.database)
+    }
+    
+    @ViewBuilder
+    func draftsView(_ fetcher: DraftFetcher<ProfileMarkdown>) -> some View {
+        ListView<ProfileMarkdown.Draft, EmptyView>(dataFetcher: fetcher, selectionOverride: { selected in
+            createPoster(selected)
+        })
+    }
 }
 
 struct AddressProfileEditorView: View {
     @StateObject
-    var draftPoster: MDDraftPoster<AddressProfile>
+    var draftPoster: MDDraftPoster<ProfileMarkdown>
     
-    var selectedDraft: Binding<AddressProfile.Draft?>
+    var selectedDraft: Binding<ProfileMarkdown.Draft?>
     
-    init(_ draftPoster: MDDraftPoster<AddressProfile>, basedOn: Binding<AddressProfile.Draft?>) {
+    @State
+    var content: String = ""
+    
+    var hasChanges: Bool {
+        draftPoster.originalDraft?.content != content
+    }
+    
+    init(_ draftPoster: MDDraftPoster<ProfileMarkdown>, basedOn: Binding<ProfileMarkdown.Draft?>) {
         self._draftPoster = .init(wrappedValue: draftPoster)
         self.selectedDraft = basedOn
+        self._content = .init(initialValue: draftPoster.originalDraft?.content ?? "")
     }
     var body: some View {
-        TextEditor(text: $draftPoster.draft.content)
+        TextEditor(text: $content)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        applyContent()
+                        Task { @MainActor in
+                            try? await draftPoster.saveDraft()
+                        }
+                    } label: {
+                        Label(title: {
+                            Text("save draft")
+                        }) {
+                            Image(systemName: "arrow.down.to.line")
+                        }
+                    }
+                    .disabled(!hasChanges)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        print("Reset")
+                    } label: {
+                        Label(title: {
+                            Text("reset")
+                        }) {
+                            Image(systemName: "xmark.bin")
+                        }
+                    }
+                    .disabled(!hasChanges)
+                }
+            }
+    }
+    
+    func applyContent() {
+        self.draftPoster.draft.content = content
+    }
+    
+    func resetContent() {
+        content = draftPoster.originalDraft?.content ?? ""
     }
 }

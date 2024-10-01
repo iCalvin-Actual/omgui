@@ -42,6 +42,8 @@ class SceneModel {
     let statusFetcher: StatusLogDataFetcher
     let supportFetcher: AddressPasteDataFetcher
     
+    let profileDrafts: DraftFetcher<ProfileMarkdown>
+    
     init(
         addressBook: AddressBook,
         interface: DataInterface,
@@ -57,6 +59,7 @@ class SceneModel {
         self.statusFetcher = .init(addressBook: addressBook, interface: interface, db: database)
         self.supportFetcher = .init(name: "app", title: "support", interface: interface, db: database)
         
+        self.profileDrafts = .init(addressBook.actingAddress.wrappedValue, interface: interface, addressBook: addressBook, db: database)
         
         let myProfiles = addressBook.myAddresses
         let publicProfiles = (addressBook.pinnedAddresses + addressBook.following).filter({ !myProfiles.contains($0) })

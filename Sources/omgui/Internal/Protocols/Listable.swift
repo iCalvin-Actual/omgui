@@ -38,30 +38,41 @@ extension Listable {
     }
 }
 
-extension AddressModel: Listable {
+extension AddressModel {
     var listTitle: String { addressName.addressDisplayString }
     var listSubtitle: String { url?.absoluteString ?? "" }
     var iconURL: URL? { addressName.addressIconURL }
 }
-extension StatusModel: Listable     {
+extension StatusModel     {
     var listTitle: String     { status }
     var listSubtitle: String  { owner.addressDisplayString }
     var displayDate: Date?    { date }
     var listCaption: String?  { DateFormatter.short.string(for: date) }
 }
-extension PasteModel: Listable     {
+extension PasteModel     {
     var listTitle: String     { name }
     var listSubtitle: String  { String(content.prefix(42)) }
     var listCaption: String?  { DateFormatter.relative.string(for: date) ?? DateFormatter.short.string(for: date) }
 }
-extension PURLModel: Listable     {
+extension PURLModel     {
     var listTitle: String     { name }
     var listSubtitle: String  { content }
     var listCaption: String?  { DateFormatter.relative.string(for: date) ?? DateFormatter.short.string(for: date) }
 }
-extension NowListing: Listable     {
+extension NowListing     {
     var listTitle: String     { owner.addressDisplayString }
     var listSubtitle: String  { url.replacingOccurrences(of: "https://", with: "") }
     var displayDate: Date?    { date }
+    var hideIcon: Bool { false }
+}
+
+extension AddressIconModel {
+    var listTitle: String { "" }
+    var listSubtitle: String {
+        ""
+    }
+    var displayDate: Date? {
+        nil
+    }
     var hideIcon: Bool { false }
 }

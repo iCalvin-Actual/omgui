@@ -130,6 +130,7 @@ struct ListRow<T: Listable>: View {
                         .font(.headline)
                         .bold()
                         .fontDesign(.monospaced)
+                        .lineLimit(5)
                     Spacer()
                     Text(caption)
                         .foregroundStyle(.secondary)
