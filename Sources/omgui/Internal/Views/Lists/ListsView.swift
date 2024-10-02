@@ -128,8 +128,9 @@ struct ListsView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(viewModel.following) { address in
-                                    AddressCard(address, embedInMenu: true)
-                                        .frame(maxWidth: 88)
+                                    NavigationLink(value: NavigationDestination.address(address)) {
+                                        AddressCard(address)
+                                    }
                                 }
                                 Spacer()
                             }
@@ -160,8 +161,9 @@ struct ListsView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(viewModel.followers) { address in
-                                    AddressCard(address, embedInMenu: true)
-                                        .frame(maxWidth: 88)
+                                    NavigationLink(value: NavigationDestination.address(address)) {
+                                        AddressCard(address)
+                                    }
                                 }
                                 Spacer()
                             }

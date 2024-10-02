@@ -68,7 +68,7 @@ struct AddressProfileView: View {
             .toolbar {
                 if let markdown = mdFetcher.result, sceneModel.addressBook.myAddresses.contains(fetcher.addressName) {
                     ToolbarItem(placement: .topBarTrailing) {
-                        if draftFetcher.items > 0 {
+                        if let draft = draftFetcher.results.first {
                             Menu {
                                 Button {
                                     createPoster(markdown.asDraft)
@@ -80,10 +80,10 @@ struct AddressProfileView: View {
                                     })
                                 }
                                 Button {
-                                    showDrafts = true
+                                    createPoster(draft)
                                 } label: {
                                     Label(title: {
-                                        Text("drafts")
+                                        Text("resume draft")
                                     }, icon: {
                                         Image(systemName: "arrow.up.bin.fill")
                                     })
@@ -95,7 +95,7 @@ struct AddressProfileView: View {
                                     Image(systemName: "pencil")
                                 })
                             }
-                            } else {
+                        } else {
                             Button {
                                 createPoster(markdown.asDraft)
                             } label: {
@@ -116,7 +116,7 @@ struct AddressProfileView: View {
             }
             .sheet(item: $draftPoster) { poster in
                 NavigationStack {
-                    AddressProfileEditorView(poster, basedOn: $selectedDraft)
+                    AddressProfileEditorView(poster, basedOn: selectedDraft)
                 }
                 .presentationDetents([.medium, .large])
             }
@@ -154,25 +154,37 @@ struct AddressProfileView: View {
 }
 
 struct AddressProfileEditorView: View {
+    @Environment(\.dismiss)
+    var dismiss
+    
     @StateObject
     var draftPoster: MDDraftPoster<ProfileMarkdown>
     
-    var selectedDraft: Binding<ProfileMarkdown.Draft?>
+    var selectedDraft: ProfileMarkdown.Draft?
     
     @State
     var content: String = ""
+    
+    @State
+    var confirmReset: Bool = false
     
     var hasChanges: Bool {
         draftPoster.originalDraft?.content != content
     }
     
-    init(_ draftPoster: MDDraftPoster<ProfileMarkdown>, basedOn: Binding<ProfileMarkdown.Draft?>) {
+    init(_ draftPoster: MDDraftPoster<ProfileMarkdown>, basedOn: ProfileMarkdown.Draft? = nil) {
         self._draftPoster = .init(wrappedValue: draftPoster)
         self.selectedDraft = basedOn
         self._content = .init(initialValue: draftPoster.originalDraft?.content ?? "")
     }
+    
     var body: some View {
         TextEditor(text: $content)
+            .background(Color(uiColor: .systemBackground))
+            .cornerRadius(12)
+            .padding([.top, .horizontal])
+            .background(NavigationDestination.editWebpage(draftPoster.address).gradient)
+            .interactiveDismissDisabled()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -182,24 +194,50 @@ struct AddressProfileEditorView: View {
                         }
                     } label: {
                         Label(title: {
-                            Text("save draft")
+                            Text("stash")
                         }) {
-                            Image(systemName: "arrow.down.to.line")
+                            Image(systemName: hasChanges ? "arrow.up.bin.fill" : "arrow.up.bin" )
                         }
                     }
                     .disabled(!hasChanges)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        print("Reset")
+                        if hasChanges {
+                            confirmReset = true
+                        } else {
+                            dismiss()
+                        }
                     } label: {
                         Label(title: {
-                            Text("reset")
+                            Text("close")
                         }) {
-                            Image(systemName: "xmark.bin")
+                            Image(systemName: "xmark")
                         }
                     }
-                    .disabled(!hasChanges)
+                }
+            }
+            .confirmationDialog("do you want to save your changes as a draft?", isPresented: $confirmReset) {
+                
+                Button(role: .destructive) {
+                    dismiss()
+                } label: {
+                    Text("discard changes")
+                }
+                
+                Button {
+                    applyContent()
+                    Task { @MainActor in
+                        try? await draftPoster.saveDraft()
+                    }
+                } label: {
+                    Text("save draft")
+                }
+                
+                Button(role: .cancel) {
+                    confirmReset = false
+                } label: {
+                    Text("nevermind")
                 }
             }
     }

@@ -53,6 +53,7 @@ class DraftPoster<D: SomeDraftable>: Request, Identifiable {
     
     @MainActor
     func saveDraft() async throws {
+        originalDraft = draft
         try await draft.write(to: db)
     }
     
