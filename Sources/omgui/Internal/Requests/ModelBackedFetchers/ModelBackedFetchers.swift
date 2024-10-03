@@ -11,19 +11,20 @@ import Combine
 class BackedDataFetcher: Request {
     let db: Blackbird.Database
     
+    var lastHash: Int?
+    
     init(interface: DataInterface, db: Blackbird.Database, automation: AutomationPreferences = .init()) {
         self.db = db
         super.init(interface: interface, automation: automation)
     }
     
     override func throwingRequest() async throws {
-        
         try await fetchModels()
-        
-        try await fetchRemote()
-        guard requestNeeded else {
+        let nextHash = try await fetchRemote()
+        guard nextHash != lastHash else {
             return
         }
+        lastHash = nextHash
         try await fetchModels()
     }
     
@@ -32,7 +33,8 @@ class BackedDataFetcher: Request {
     }
     
     @MainActor
-    func fetchRemote() async throws {
+    func fetchRemote() async throws -> Int {
+        0
     }
 }
 
@@ -59,6 +61,8 @@ class ModelBackedListDataFetcher<T: ModelBackedListable>: ListFetcher<T> {
     let addressBook: AddressBook?
     let db: Blackbird.Database
     
+    var lastHash: Int?
+    
     init(addressBook: AddressBook?, interface: DataInterface, db: Blackbird.Database, limit: Int = 42, filters: [FilterOption] = .everyone, sort: Sort = T.defaultSort, automation: AutomationPreferences = .init()) {
         self.addressBook = addressBook
         self.db = db
@@ -68,10 +72,12 @@ class ModelBackedListDataFetcher<T: ModelBackedListable>: ListFetcher<T> {
     @MainActor
     override func throwingRequest() async throws {
         try await fetchModels()
-        try await fetchRemote()
-        guard requestNeeded else {
+        let nextHash = try await fetchRemote()
+        
+        guard lastHash != nextHash else {
             return
         }
+        lastHash = nextHash
         try await fetchModels()
     }
     
@@ -88,12 +94,10 @@ class ModelBackedListDataFetcher<T: ModelBackedListable>: ListFetcher<T> {
         }
     }
     
-    // must override
+    // must override and return hash value
     @MainActor
-    func fetchRemote() async throws {
-        if nextPage == nil {
-            nextPage = Self.nextPage
-        }
+    func fetchRemote() async throws -> Int {
+        return items.hashValue
     }
     
     @MainActor

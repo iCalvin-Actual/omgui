@@ -14,7 +14,7 @@ import omgapi
 class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
     override var title: String { "omg.lol/" }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         let directory = try await interface.fetchAddressDirectory()
         let listItems = directory.map({ AddressModel(name: $0) })
         listItems.forEach({ model in
@@ -23,9 +23,7 @@ class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
                 try await model.write(to: db)
             }
         })
-        guard results.isEmpty else {
-            return
-        }
+        return listItems.hashValue
     }
 }
 
@@ -241,13 +239,14 @@ class NowGardenDataFetcher: ModelBackedListDataFetcher<NowListing> {
         "now.garden🌷"
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         let garden = try await interface.fetchNowGarden()
         garden.forEach { model in
             Task { [db] in
                 try await model.write(to: db)
             }
         }
+        return garden.hashValue
     }
 }
 
@@ -261,9 +260,9 @@ class AddressPasteBinDataFetcher: ModelBackedListDataFetcher<PasteModel> {
         super.init(addressBook: addressBook, interface: interface, db: db, filters: [.from(name)])
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         guard !addressName.isEmpty else {
-            return
+            return 0
         }
         let pastes = try await interface.fetchAddressPastes(addressName, credential: credential)
         let db = db
@@ -272,6 +271,7 @@ class AddressPasteBinDataFetcher: ModelBackedListDataFetcher<PasteModel> {
                 try await model.write(to: db)
             }
         })
+        return pastes.hashValue
     }
 }
 
@@ -285,9 +285,9 @@ class AddressPURLsDataFetcher: ModelBackedListDataFetcher<PURLModel> {
         super.init(addressBook: addressBook, interface: interface, db: db, filters: [.from(name)])
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         guard !addressName.isEmpty else {
-            return
+            return 0
         }
         let purls = try await interface.fetchAddressPURLs(addressName, credential: credential)
         let db = db
@@ -296,6 +296,7 @@ class AddressPURLsDataFetcher: ModelBackedListDataFetcher<PURLModel> {
                 try await model.write(to: db)
             }
         })
+        return purls.hashValue
     }
 }
 
@@ -320,12 +321,10 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
         super.init(addressBook: addressBook, interface: interface, db: db, filters: addresses.isEmpty ? [] : [.fromOneOf(addresses)])
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         defer {
             nextPage = 0
         }
-        try await super.fetchRemote()
-        let db = db
         if addresses.isEmpty {
             let statuses = try await interface.fetchStatusLog()
             statuses.forEach({ model in
@@ -333,6 +332,7 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
                     try await model.write(to: db)
                 }
             })
+            return statuses.hashValue
         } else {
             let statuses = try await interface.fetchAddressStatuses(addresses: addresses)
             statuses.forEach({ model in
@@ -340,6 +340,7 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
                     try await model.write(to: db)
                 }
             })
+            return statuses.hashValue
         }
     }
     
