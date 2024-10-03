@@ -58,7 +58,28 @@ class DraftPoster<D: SomeDraftable>: Request, Identifiable {
     }
     
     @MainActor
+    func deleteLatestDraft() async throws {
+        try await draft.delete(from: db)
+    }
+    
+    @MainActor
+    func undo() async throws {
+        if let originalDraft {
+            draft = originalDraft
+            try await throwingRequest()
+        }
+        
+    }
+    
+    @MainActor
     override func throwingRequest() async throws {
+        try await saveDraft()
+        try await publish()
+        try await deleteLatestDraft()
+    }
+    
+    @MainActor
+    func publish() async throws {
         // Send to api
     }
     
@@ -137,20 +158,18 @@ class MDDraftPoster<D: MDDraftable>: DraftPoster<D> {
 //    }
 //}
 
-class ProfileDraftPoster: MDDraftPoster<ProfileMarkdown> {
+class ProfileMarkdownDraftPoster: MDDraftPoster<ProfileMarkdown> {
     override var navigationTitle: String {
         "webpage"
     }
     
-    override func throwingRequest() async throws {
-        
+    override func publish() async throws {
         let draftedAddress = address
         let _ = try await interface.saveAddressProfile(
             draftedAddress,
             content: draft.content,
             credential: credential
         )
-        originalDraft = draft
     }
 }
 

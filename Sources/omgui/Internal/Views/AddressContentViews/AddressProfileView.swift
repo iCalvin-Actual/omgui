@@ -25,7 +25,7 @@ struct AddressProfileView: View {
     var draftFetcher: DraftFetcher<ProfileMarkdown>
     
     @State
-    var draftPoster: MDDraftPoster<ProfileMarkdown>?
+    var draftPoster: ProfileMarkdownDraftPoster?
     @State
     var selectedDraft: ProfileMarkdown.Draft?
     
@@ -114,12 +114,16 @@ struct AddressProfileView: View {
                     }
                 }
             }
-            .sheet(item: $draftPoster) { poster in
+            .sheet(item: $draftPoster, onDismiss: {
+                Task { @MainActor [fetcher] in
+                    await fetcher.updateIfNeeded(forceReload: true)
+                }
+            }, content: { poster in
                 NavigationStack {
                     AddressProfileEditorView(poster, basedOn: selectedDraft)
                 }
                 .presentationDetents([.medium, .large])
-            }
+            })
             .sheet(isPresented: $showDrafts, content: {
                 draftsView(draftFetcher)
                     .presentationDetents([.medium])
@@ -158,7 +162,7 @@ struct AddressProfileEditorView: View {
     var dismiss
     
     @StateObject
-    var draftPoster: MDDraftPoster<ProfileMarkdown>
+    var draftPoster: ProfileMarkdownDraftPoster
     
     var selectedDraft: ProfileMarkdown.Draft?
     
@@ -172,7 +176,7 @@ struct AddressProfileEditorView: View {
         draftPoster.originalDraft?.content != content
     }
     
-    init(_ draftPoster: MDDraftPoster<ProfileMarkdown>, basedOn: ProfileMarkdown.Draft? = nil) {
+    init(_ draftPoster: ProfileMarkdownDraftPoster, basedOn: ProfileMarkdown.Draft? = nil) {
         self._draftPoster = .init(wrappedValue: draftPoster)
         self.selectedDraft = basedOn
         self._content = .init(initialValue: draftPoster.originalDraft?.content ?? "")
@@ -186,6 +190,21 @@ struct AddressProfileEditorView: View {
             .background(NavigationDestination.editWebpage(draftPoster.address).gradient)
             .interactiveDismissDisabled()
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        if hasChanges {
+                            confirmReset = true
+                        } else {
+                            dismiss()
+                        }
+                    } label: {
+                        Label(title: {
+                            Text("close")
+                        }) {
+                            Image(systemName: "xmark")
+                        }
+                    }
+                }
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         applyContent()
@@ -203,16 +222,15 @@ struct AddressProfileEditorView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        if hasChanges {
-                            confirmReset = true
-                        } else {
-                            dismiss()
+                        applyContent()
+                        Task { @MainActor in
+                            await draftPoster.perform()
                         }
                     } label: {
                         Label(title: {
-                            Text("close")
+                            Text("submit")
                         }) {
-                            Image(systemName: "xmark")
+                            Image(systemName: "arrow.up.forward.app.fill")
                         }
                     }
                 }
