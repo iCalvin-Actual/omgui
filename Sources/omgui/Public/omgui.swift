@@ -14,7 +14,7 @@ public struct omgui: View {
     @AppStorage("app.lol.terms")
     var acceptedTerms: TimeInterval = 0
     
-    let termsUpdated: Date = .init(timeIntervalSince1970: 1726665286)
+    let termsUpdated: Date = .init(timeIntervalSince1970: 1727921377)
     
     @AppStorage("app.lol.auth")
     var authKey: String = ""

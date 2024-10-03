@@ -164,7 +164,7 @@ struct OnboardingView: View {
                         
                             VStack(alignment: .leading, spacing: 16) {
                                 
-                                Text("**Last updated**: Sep 18, 2024")
+                                Text("**Last updated**: Oct 02, 2024")
                                     .font(.subheadline)
                                 
                                 ThemedTextView(text: "Welcome to app.lol!", font: .headline)
