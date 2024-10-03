@@ -117,6 +117,7 @@ struct AddressProfileView: View {
             .sheet(item: $draftPoster, onDismiss: {
                 Task { @MainActor [fetcher] in
                     await fetcher.updateIfNeeded(forceReload: true)
+                    await draftPoster?.updateIfNeeded(forceReload: true)
                 }
             }, content: { poster in
                 NavigationStack {

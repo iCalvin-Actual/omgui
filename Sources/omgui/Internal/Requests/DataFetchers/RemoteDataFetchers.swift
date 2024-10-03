@@ -72,12 +72,13 @@ class AddressIconDataFetcher: ModelBackedDataFetcher<AddressIconModel> {
         result = try await AddressIconModel.read(from: db, id: address)
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         guard let url = address.addressIconURL else {
-            return
+            return 0
         }
         let response = try await URLSession.shared.data(from: url)
         let model = AddressIconModel(owner: address, data: response.0)
         try await model.write(to: db)
+        return model.hashValue
     }
 }
