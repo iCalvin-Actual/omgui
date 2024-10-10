@@ -22,6 +22,7 @@ final class AddressBook {
     let addressBlocklistFetcher: AddressBlockListDataFetcher
     
     let addressFollowingFetcher: AddressFollowingDataFetcher
+    let addressFollowersFetcher: AddressFollowersDataFetcher
     
     let pinnedAddressFetcher: PinnedListDataFetcher
     
@@ -43,6 +44,9 @@ final class AddressBook {
     var following: [AddressName] {
         addressFollowingFetcher.results.map({ $0.addressName })
     }
+    var followers: [AddressName] {
+        addressFollowersFetcher.results.map({ $0.addressName })
+    }
     var pinnedAddresses: [AddressName] {
         pinnedAddressFetcher.pinnedAddresses
     }
@@ -61,6 +65,7 @@ final class AddressBook {
         localBlocklistFetcher: LocalBlockListDataFetcher,
         addressBlocklistFetcher: AddressBlockListDataFetcher,
         addressFollowingFetcher: AddressFollowingDataFetcher,
+        addressFollowersFetcher: AddressFollowersDataFetcher,
         pinnedAddressFetcher: PinnedListDataFetcher
     ) {
         self.apiKey = authKey
@@ -70,17 +75,19 @@ final class AddressBook {
         self.localBlocklistFetcher = localBlocklistFetcher
         self.addressBlocklistFetcher = addressBlocklistFetcher
         self.addressFollowingFetcher = addressFollowingFetcher
+        self.addressFollowersFetcher = addressFollowersFetcher
         self.pinnedAddressFetcher = pinnedAddressFetcher
     }
     
     @MainActor
     func autoFetch() async {
-        await accountAddressesFetcher.updateIfNeeded()
-        await globalBlocklistFetcher.updateIfNeeded()
-        await localBlocklistFetcher.updateIfNeeded()
-        await addressBlocklistFetcher.updateIfNeeded()
-        await addressFollowingFetcher.updateIfNeeded()
-        await pinnedAddressFetcher.updateIfNeeded()
+        await accountAddressesFetcher.updateIfNeeded(forceReload: true)
+        await globalBlocklistFetcher.updateIfNeeded(forceReload: true)
+        await localBlocklistFetcher.updateIfNeeded(forceReload: true)
+        await addressBlocklistFetcher.updateIfNeeded(forceReload: true)
+        await addressFollowingFetcher.updateIfNeeded(forceReload: true)
+        await addressFollowersFetcher.updateIfNeeded(forceReload: true)
+        await pinnedAddressFetcher.updateIfNeeded(forceReload: true)
     }
     
     func credential(for address: AddressName) -> APICredential? {
@@ -99,6 +106,7 @@ final class AddressBook {
         Task { [addressBlocklistFetcher, addressFollowingFetcher] in
             await addressBlocklistFetcher.updateIfNeeded(forceReload: true)
             await addressFollowingFetcher.updateIfNeeded(forceReload: true)
+            await addressFollowersFetcher.updateIfNeeded(forceReload: true)
         }
     }
     
@@ -122,14 +130,16 @@ final class AddressBook {
         await localBlocklistFetcher.remove(address)
     }
     
+    @MainActor
     func follow(_ address: AddressName) async {
         guard let credential = credential(for: actingAddress.wrappedValue) else {
             return
         }
         await addressFollowingFetcher.follow(address, credential: credential)
     }
+    @MainActor
     func unFollow(_ address: AddressName) async {
-        guard let credential = credential(for: address) else {
+        guard let credential = credential(for: actingAddress.wrappedValue) else {
             return
         }
         await addressFollowingFetcher.unFollow(address, credential: credential)

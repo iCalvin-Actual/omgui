@@ -89,7 +89,7 @@ struct ListsView: View {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(viewModel.pinned) { address in
                                     AddressCard(address, embedInMenu: true)
-                                        .frame(maxWidth: 132)
+                                        .frame(maxWidth: 88)
                                 }
                                 Spacer()
                             }
@@ -128,11 +128,9 @@ struct ListsView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(viewModel.following) { address in
-                                    AddressCard(address)
-                                        .frame(maxWidth: 132)
-                                        .contextMenu {
-                                            menuBuilder.contextMenu(for: .init(name: address), sceneModel: sceneModel)
-                                        }
+                                    NavigationLink(value: NavigationDestination.address(address)) {
+                                        AddressCard(address)
+                                    }
                                 }
                                 Spacer()
                             }
@@ -142,6 +140,39 @@ struct ListsView: View {
                     } header: {
                         Label {
                             Text("following")
+                        } icon: {
+                            Image(systemName: "at")
+                        }
+                        .foregroundStyle(.secondary)
+                        .font(.callout)
+                        .padding(.horizontal, 10)
+                        .padding(.top, 8)
+                        .padding(.bottom, 4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .listRowSeparator(.hidden)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .background(Material.ultraThin)
+                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowBackground(Color.clear)
+                }
+                if !viewModel.followers.isEmpty {
+                    Section {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(alignment: .top, spacing: 0) {
+                                ForEach(viewModel.followers) { address in
+                                    NavigationLink(value: NavigationDestination.address(address)) {
+                                        AddressCard(address)
+                                    }
+                                }
+                                Spacer()
+                            }
+                        }
+                        .background(Material.regular)
+                        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 12, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 12, style: .continuous))
+                    } header: {
+                        Label {
+                            Text("followers")
                         } icon: {
                             Image(systemName: "at")
                         }
@@ -196,6 +227,11 @@ struct ListsView: View {
                 .listRowBackground(Color(UIColor.systemBackground).opacity(0.82))
             }
         }
+        .animation(.default, value: sceneModel.addressBook.signedIn)
+        .animation(.default, value: viewModel.following)
+        .animation(.default, value: viewModel.followers)
+        .animation(.default, value: viewModel.pinned)
+        .animation(.default, value: viewModel.mine)
         .frame(maxWidth: 800)
         .frame(maxWidth: .infinity)
         .environment(\.defaultMinListRowHeight, 0)
@@ -213,24 +249,24 @@ struct ListsView: View {
         }, message: {
             Text("are you sure you want to sign out of omg.lol?")
         })
-//        .safeAreaInset(edge: .bottom, content: {
-//            if !sceneModel.addressBook.signedIn {
-//                Button {
-//                    accountFetcher.perform()
-//                } label: {
-//                    Text("sign in with omg.lol")
-//                        .bold()
-//                        .font(.callout)
-//                        .fontDesign(.serif)
-//                        .frame(maxWidth: .infinity)
-//                        .padding(3)
-//                }
-//                .buttonStyle(.borderedProminent)
-//                .accentColor(.lolPink)
-//                .buttonBorderShape(.roundedRectangle(radius: 6))
-//                .padding(32)
-//            }
-//        })
+        .safeAreaInset(edge: .bottom, content: {
+            if !sceneModel.addressBook.signedIn {
+                Button {
+                    accountFetcher.perform()
+                } label: {
+                    Text("sign in with omg.lol")
+                        .bold()
+                        .font(.callout)
+                        .fontDesign(.serif)
+                        .frame(maxWidth: .infinity)
+                        .padding(3)
+                }
+                .buttonStyle(.borderedProminent)
+                .accentColor(.lolPink)
+                .buttonBorderShape(.roundedRectangle(radius: 6))
+                .padding(32)
+            }
+        })
         .scrollContentBackground(.hidden)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -260,7 +296,7 @@ struct AddressCard: View {
                 .padding(4)
                 .padding(.horizontal, 4)
             Text(address.addressDisplayString)
-                .font(.body)
+                .font(.caption)
                 .fontDesign(.serif)
                 .foregroundStyle(Color(uiColor: UIColor.label))
                 .multilineTextAlignment(.trailing)
@@ -277,6 +313,7 @@ class ListsViewModel: ObservableObject {
     
     var showPinned: Bool { !pinned.isEmpty }
     var showFollowing: Bool { !following.isEmpty }
+    var showFollowers: Bool { !followers.isEmpty }
     var showBlocked: Bool { !blocked.isEmpty }
     
     init(sceneModel: SceneModel) {
@@ -296,6 +333,9 @@ class ListsViewModel: ObservableObject {
     
     var following: [AddressName] {
         sceneModel.addressBook.following
+    }
+    var followers: [AddressName] {
+        sceneModel.addressBook.followers
     }
     
     var blocked: [AddressName] {

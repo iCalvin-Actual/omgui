@@ -44,23 +44,26 @@ struct ListView<T: Listable, H: View>: View {
     var dataFetcher: ListFetcher<T>
     
     var menuBuilder: ContextMenuBuilder<T> = .init()
+    let selectionOverride: ((T) -> Void)?
     
     func usingRegular(_ width: CGFloat) -> Bool {
         TabBar.usingRegularTabBar(sizeClass: horizontalSize, width: width)
     }
     
     init(
-        filters: [FilterOption] = .everyone,
+        filters: [FilterOption] = T.defaultFilter,
         allowSearch: Bool = true,
         allowFilter: Bool = true,
         dataFetcher: ListFetcher<T>,
-        headerBuilder: (() -> H)? = nil
+        headerBuilder: (() -> H)? = nil,
+        selectionOverride: ((T) -> Void)? = nil
     ) {
         self.filters = filters
         self.allowSearch = allowSearch
         self.dataFetcher = dataFetcher
         self.allowFilter = allowFilter
         self.headerBuilder = headerBuilder
+        self.selectionOverride = selectionOverride
     }
     
     var items: [T] {
@@ -75,6 +78,10 @@ struct ListView<T: Listable, H: View>: View {
                 .applyFilters(to: dataFetcher.results, in: sceneModel)
                 .sorted(with: sort)
         }
+    }
+    
+    var applicableFilters: [FilterOption] {
+        sceneModel.addressBook.signedIn ? T.filterOptions : []
     }
     
     var body: some View {
@@ -123,10 +130,9 @@ struct ListView<T: Listable, H: View>: View {
                 filters = newFilters
             })
             .toolbar {
-                let sortOptions = T.sortOptions
-                if sortOptions.count > 1, dataFetcher.results.count > 1, allowFilter {
+                if (T.sortOptions.count > 1 || applicableFilters.count > 1), allowFilter {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        SortOrderMenu(sort: $sort, options: T.sortOptions)
+                        SortOrderMenu(sort: $sort, filters: $filters, sortOptions: T.sortOptions, filterOptions: applicableFilters)
                     }
                 }
                 
@@ -327,8 +333,13 @@ struct ListView<T: Listable, H: View>: View {
     
     @ViewBuilder
     func rowBody(_ item: T, width: CGFloat) -> some View {
-        switch TabBar.usingRegularTabBar(sizeClass: horizontalSize, width: width) {
-        case false:
+        switch (selectionOverride == nil, TabBar.usingRegularTabBar(sizeClass: horizontalSize, width: width)) {
+        case (false, _):
+            buildRow(item)
+                .onTapGesture {
+                    selectionOverride?(item)
+                }
+        case (_, false):
             ZStack(alignment: .leading) {
                 if let destination = destination(for: item) {
                     NavigationLink(value: destination) {

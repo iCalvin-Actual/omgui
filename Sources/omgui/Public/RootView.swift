@@ -28,13 +28,6 @@ struct RootView: View {
     var body: some View {
         TabBar(sceneModel: sceneModel)
             .tint(Color.black)
-            .task { @MainActor [statusFetcher = sceneModel.statusFetcher, addressBook] in
-                await addressBook.autoFetch()
-                try? await statusFetcher.fetchRemote()
-                Task { [statusFetcher] in
-                    try? await statusFetcher.fetchBacklog()
-                }
-            }
             .environment(accountAuthDataFetcher)
             .environment(sceneModel)
     }

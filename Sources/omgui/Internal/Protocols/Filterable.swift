@@ -8,7 +8,9 @@
 import Blackbird
 import Foundation
 
-enum FilterOption: Equatable, RawRepresentable {
+enum FilterOption: Equatable, RawRepresentable, Identifiable {
+    var id: String { rawValue }
+    
     var rawValue: String {
         switch self {
         case .recent(let interval):
@@ -86,6 +88,26 @@ enum FilterOption: Equatable, RawRepresentable {
     case fromOneOf([AddressName])
     case recent(TimeInterval)
     case query(String)
+    
+    var displayString: String {
+        switch self {
+        case .recent:
+            return "recent"
+        case .notBlocked:
+            return "everyone"
+        case .query:
+            return "search"
+        default:
+            return self.rawValue
+        }
+    }
+    
+    static var filterOptions: [FilterOption] {
+        [
+            .mine,
+            .following
+        ]
+    }
 }
 
 extension Array<FilterOption> {
@@ -100,6 +122,9 @@ extension Array<FilterOption> {
 }
 
 protocol Filterable {
+    static var filterOptions: [FilterOption] { get }
+    static var defaultFilter: [FilterOption] { get }
+    
     var addressName: AddressName { get }
     var filterDate: Date? { get }
     
@@ -189,7 +214,25 @@ extension Array<FilterOption> {
 
 extension Array<FilterOption> {
     func asQuery<M: ModelBackedListable>(matchingAgainst addressBook: AddressBook) -> BlackbirdModelColumnExpression<M>? {
-        let filters: [BlackbirdModelColumnExpression<M>] = compactMap({ $0.asQuery(addressBook) })
+        var addressSet: Set<AddressName> = []
+        var filters: [BlackbirdModelColumnExpression<M>] = reduce([]) { result, next in
+            switch next {
+            case .fromOneOf(let addresses):
+                addressSet.formUnion(Set(addresses))
+                return result
+            case .mine:
+                addressSet.formUnion(Set(addressBook.myAddresses))
+                return result
+            case .following:
+                addressSet.formUnion(Set(addressBook.following))
+                return result
+            default:
+                return result + [next.asQuery(addressBook)].compactMap({ $0 })
+            }
+        }
+        if !addressSet.isEmpty, let joined: BlackbirdModelColumnExpression<M> = FilterOption.fromOneOf(Array<AddressName>(addressSet)).asQuery(addressBook) {
+            filters.append(joined)
+        }
         if filters.count > 1 {
             return .combining(filters)
         } else {

@@ -8,12 +8,13 @@
 import Blackbird
 import Foundation
 import SwiftUI
+import omgapi
 
 
 class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
     override var title: String { "omg.lol/" }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         let directory = try await interface.fetchAddressDirectory()
         let listItems = directory.map({ AddressModel(name: $0) })
         listItems.forEach({ model in
@@ -22,9 +23,7 @@ class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
                 try await model.write(to: db)
             }
         })
-        guard results.isEmpty else {
-            return
-        }
+        return listItems.hashValue
     }
 }
 
@@ -98,57 +97,66 @@ class AddressFollowingDataFetcher: DataBackedListDataFetcher<AddressModel> {
     
     @MainActor
     override func throwingRequest() async throws {
-        
         guard !address.isEmpty else {
             return
         }
-        let address = address
-        let credential = credential
-        let pastes = try await interface.fetchAddressPastes(address, credential: credential)
-        
-//        pastes.forEach({ model in
-//            Task { @MainActor in
-//                try await model.write(to: db)
-//            }
-//        })
-        guard let following = pastes.first(where: { $0.name == "app.lol.following" }) else {
+        self.results = try await interface.fetchAddressFollowing(address).map({ AddressModel(name: $0) })
+    }
+    
+    @MainActor
+    func follow(_ toFollow: AddressName, credential: APICredential) async {
+        do {
+            try await interface.followAddress(toFollow, from: address, credential: credential)
+            self.results.append(.init(name: toFollow))
+        } catch {
+            if case let .unhandled(_, message) = (error as? APIError), message?.contains("You're already following") ?? false, !self.results.contains(where: { $0.addressName == toFollow }) {
+                self.results.append(.init(name: toFollow))
+            }
+        }
+    }
+    
+    @MainActor
+    func unFollow(_ toRemove: AddressName, credential: APICredential) async {
+        do {
+            try await interface.unfollowAddress(toRemove, from: address, credential: credential)
+            self.results.removeAll(where: { $0.addressName == toRemove })
+        } catch {
+            if case let .unhandled(_, message) = (error as? APIError), message?.contains("You're not following") ?? false, self.results.contains(where: { $0.addressName == toRemove }) {
+                self.results.removeAll(where: { $0.addressName == toRemove })
+            }
+        }
+    }
+}
+
+class AddressFollowersDataFetcher: DataBackedListDataFetcher<AddressModel> {
+    var address: AddressName
+    var credential: APICredential?
+    
+    override var title: String {
+        "following"
+    }
+    
+    init(address: AddressName, credential: APICredential?, interface: DataInterface) {
+        self.address = address
+        self.credential = credential
+        super.init(interface: interface)
+    }
+    
+    func configure(address: AddressName, credential: APICredential?, _ automation: AutomationPreferences = .init()) {
+        self.address = address
+        self.credential = credential
+        super.configure(automation)
+    }
+    
+    @MainActor
+    override func throwingRequest() async throws {
+        guard !address.isEmpty else {
             return
         }
-        self.results = following.content.components(separatedBy: .newlines).map({ String($0) }).filter({ !$0.isEmpty }).map({ AddressModel(name: $0) })
-    }
-    
-    private func handleItems(_ addresses: [AddressName]) async {
-        self.results = addresses.map({ AddressModel(name: $0) })
-    }
-    
-    func follow(_ toFollow: AddressName, credential: APICredential) async {
-        let newValue = Array(Set(self.results.map({ $0.addressName }) + [toFollow]))
-        let newContent = newValue.joined(separator: "\n")
-        let draft = PasteModel.Draft(
-            address: address,
-            name: "app.lol.following",
-            content: newContent,
-            listed: true
-        )
-        let address = address
-        let credential = credential
-        let _ = try? await interface.savePaste(draft, to: address, credential: credential)
-        await handleItems(newValue)
-    }
-    
-    func unFollow(_ toRemove: AddressName, credential: APICredential) async {
-        let newValue = results.map({ $0.addressName }).filter({ $0 != toRemove })
-        let newContent = newValue.joined(separator: "\n")
-        let draft = PasteModel.Draft(
-            address: address,
-            name: "app.lol.following",
-            content: newContent,
-            listed: true
-        )
-        let address = address
-        let credential = credential
-        let _ = try? await interface.savePaste(draft, to: address, credential: credential)
-        await handleItems(newValue)
+        
+        let results = try await interface.fetchAddressFollowers(address).map({ AddressModel(name: $0) })
+        
+        self.results = results
     }
 }
 
@@ -231,13 +239,14 @@ class NowGardenDataFetcher: ModelBackedListDataFetcher<NowListing> {
         "now.garden🌷"
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         let garden = try await interface.fetchNowGarden()
         garden.forEach { model in
             Task { [db] in
                 try await model.write(to: db)
             }
         }
+        return garden.hashValue
     }
 }
 
@@ -251,9 +260,9 @@ class AddressPasteBinDataFetcher: ModelBackedListDataFetcher<PasteModel> {
         super.init(addressBook: addressBook, interface: interface, db: db, filters: [.from(name)])
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         guard !addressName.isEmpty else {
-            return
+            return 0
         }
         let pastes = try await interface.fetchAddressPastes(addressName, credential: credential)
         let db = db
@@ -262,6 +271,7 @@ class AddressPasteBinDataFetcher: ModelBackedListDataFetcher<PasteModel> {
                 try await model.write(to: db)
             }
         })
+        return pastes.hashValue
     }
 }
 
@@ -275,9 +285,9 @@ class AddressPURLsDataFetcher: ModelBackedListDataFetcher<PURLModel> {
         super.init(addressBook: addressBook, interface: interface, db: db, filters: [.from(name)])
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         guard !addressName.isEmpty else {
-            return
+            return 0
         }
         let purls = try await interface.fetchAddressPURLs(addressName, credential: credential)
         let db = db
@@ -286,6 +296,7 @@ class AddressPURLsDataFetcher: ModelBackedListDataFetcher<PURLModel> {
                 try await model.write(to: db)
             }
         })
+        return purls.hashValue
     }
 }
 
@@ -310,12 +321,10 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
         super.init(addressBook: addressBook, interface: interface, db: db, filters: addresses.isEmpty ? [] : [.fromOneOf(addresses)])
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         defer {
             nextPage = 0
         }
-        try await super.fetchRemote()
-        let db = db
         if addresses.isEmpty {
             let statuses = try await interface.fetchStatusLog()
             statuses.forEach({ model in
@@ -323,6 +332,7 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
                     try await model.write(to: db)
                 }
             })
+            return statuses.hashValue
         } else {
             let statuses = try await interface.fetchAddressStatuses(addresses: addresses)
             statuses.forEach({ model in
@@ -330,6 +340,7 @@ class StatusLogDataFetcher: ModelBackedListDataFetcher<StatusModel> {
                     try await model.write(to: db)
                 }
             })
+            return statuses.hashValue
         }
     }
     

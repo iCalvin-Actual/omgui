@@ -42,6 +42,8 @@ class SceneModel {
     let statusFetcher: StatusLogDataFetcher
     let supportFetcher: AddressPasteDataFetcher
     
+    let profileDrafts: DraftFetcher<ProfileMarkdown>
+    
     init(
         addressBook: AddressBook,
         interface: DataInterface,
@@ -57,6 +59,7 @@ class SceneModel {
         self.statusFetcher = .init(addressBook: addressBook, interface: interface, db: database)
         self.supportFetcher = .init(name: "app", title: "support", interface: interface, db: database)
         
+        self.profileDrafts = .init(addressBook.actingAddress.wrappedValue, interface: interface, addressBook: addressBook, db: database)
         
         let myProfiles = addressBook.myAddresses
         let publicProfiles = (addressBook.pinnedAddresses + addressBook.following).filter({ !myProfiles.contains($0) })
@@ -102,7 +105,7 @@ extension SceneModel {
         return AddressPrivateSummaryDataFetcher(name: address, addressBook: addressBook, interface: interface, database: database)
     }
     func addressSummary(_ address: AddressName) -> AddressSummaryDataFetcher {
-        if let model = publicProfileCache[address] {
+        if let model = publicProfileCache[address] ?? (addressBook.myAddresses.contains(where: { $0.lowercased() == address.lowercased() }) ? privateProfileCache[address] : nil) {
             return model
         } else {
             let model = constructFetcher(for: address)
@@ -137,6 +140,7 @@ extension SceneModel {
             localBlocklistFetcher: .init(interface: interface),
             addressBlocklistFetcher: .init(address: actingAddress, credential: credential, interface: interface),
             addressFollowingFetcher: .init(address: actingAddress, credential: credential, interface: interface),
+            addressFollowersFetcher: .init(address: actingAddress, credential: credential, interface: interface),
             pinnedAddressFetcher: .init(interface: interface)
         )
         

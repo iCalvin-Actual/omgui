@@ -30,14 +30,16 @@ class AddressSummaryDataFetcher: DataFetcher {
     var pastes: [String: AddressPasteDataFetcher] = [:]
     
     var iconFetcher: AddressIconDataFetcher
-    var profileFetcher: AddressProfileDataFetcher
+    var profileFetcher: AddressProfileHTMLDataFetcher
     var nowFetcher: AddressNowDataFetcher
     var purlFetcher: AddressPURLsDataFetcher
     var pasteFetcher: AddressPasteBinDataFetcher
     var statusFetcher: StatusLogDataFetcher
     var bioFetcher: AddressBioDataFetcher
+    var markdownFetcher: ProfileMarkdownDataFetcher
     
     var followingFetcher: AddressFollowingDataFetcher
+    var followersFetcher: AddressFollowersDataFetcher
     
     override var requestNeeded: Bool {
         loaded == nil && registered == nil
@@ -62,6 +64,8 @@ class AddressSummaryDataFetcher: DataFetcher {
         self.statusFetcher = .init(addresses: [name], addressBook: addressBook, interface: interface, db: database)
         self.bioFetcher = .init(address: name, interface: interface)
         self.followingFetcher = .init(address: name, credential: credential, interface: interface)
+        self.followersFetcher = .init(address: name, credential: credential, interface: interface)
+        self.markdownFetcher = .init(name: name, credential: addressBook.apiKey, interface: interface, db: database)
         
         super.init(interface: interface)
     }
@@ -78,6 +82,8 @@ class AddressSummaryDataFetcher: DataFetcher {
         self.statusFetcher = .init(addresses: [name], addressBook: addressBook, interface: interface, db: database)
         self.bioFetcher = .init(address: name, interface: interface)
         self.followingFetcher = .init(address: name, credential: credential, interface: interface)
+        self.followersFetcher = .init(address: name, credential: credential, interface: interface)
+        self.markdownFetcher = .init(name: name, credential: addressBook.apiKey, interface: interface, db: database)
         
         super.configure(automation)
     }
@@ -92,11 +98,13 @@ class AddressSummaryDataFetcher: DataFetcher {
             await iconFetcher.updateIfNeeded()
             await bioFetcher.updateIfNeeded()
             await profileFetcher.updateIfNeeded()
+            await markdownFetcher.updateIfNeeded()
             await nowFetcher.updateIfNeeded()
             await purlFetcher.updateIfNeeded()
             await pasteFetcher.updateIfNeeded()
             await statusFetcher.updateIfNeeded()
             await followingFetcher.updateIfNeeded()
+            await followersFetcher.updateIfNeeded()
         }
         
         let info = try await interface.fetchAddressInfo(addressName)
@@ -134,12 +142,8 @@ class AddressSummaryDataFetcher: DataFetcher {
 }
 
 class AddressPrivateSummaryDataFetcher: AddressSummaryDataFetcher {
-    let blockedFetcher: AddressBlockListDataFetcher
     
-//    @ObservedObject
-//    var profilePoster: ProfileDraftPoster
-//    @ObservedObject
-//    var nowPoster: NowDraftPoster
+    var blockedFetcher: AddressBlockListDataFetcher
     
     override init(
         name: AddressName,

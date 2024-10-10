@@ -49,7 +49,7 @@ struct TabBar: View {
                 .toolbarColorScheme(.light, for: .tabBar)
                 .onAppear{
                     if selected == nil {
-                        selected = .search
+                        selected = .community
                     }
                 }
         } else {

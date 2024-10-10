@@ -9,7 +9,7 @@ import Blackbird
 import Foundation
 
 
-class AddressProfileDataFetcher: ModelBackedDataFetcher<AddressProfile> {
+class AddressProfileHTMLDataFetcher: ModelBackedDataFetcher<AddressProfilePage> {
     
     let addressName: AddressName
     let credential: APICredential?
@@ -22,15 +22,41 @@ class AddressProfileDataFetcher: ModelBackedDataFetcher<AddressProfile> {
     
     @MainActor
     override func fetchModels() async throws {
-        self.result = try await AddressProfile.read(from: db, id: addressName)
+        self.result = try await AddressProfilePage.read(from: db, id: addressName)
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         guard !addressName.isEmpty else {
-            return
+            return 0
         }
-        let profile = try await interface.fetchAddressProfile(addressName, credential: credential)
+        let profile = try await interface.fetchAddressProfile(addressName)
         try await profile?.write(to: db)
+        return profile?.content.hashValue ?? 0
+    }
+}
+class ProfileMarkdownDataFetcher: ModelBackedDataFetcher<ProfileMarkdown> {
+    
+    let addressName: AddressName
+    let credential: APICredential
+    
+    init(name: AddressName, credential: APICredential, interface: DataInterface, db: Blackbird.Database) {
+        self.addressName = name
+        self.credential = credential
+        super.init(interface: interface, db: db)
+    }
+    
+    @MainActor
+    override func fetchModels() async throws {
+        self.result = try await ProfileMarkdown.read(from: db, id: addressName)
+    }
+    
+    override func fetchRemote() async throws -> Int {
+        guard !addressName.isEmpty else {
+            return 0
+        }
+        let markdown = try await interface.fetchAddressProfile(addressName, credential: credential)
+        try await markdown.write(to: db)
+        return markdown.hashValue
     }
 }
 
@@ -47,12 +73,13 @@ class AddressNowDataFetcher: ModelBackedDataFetcher<NowModel> {
         self.result = try await NowModel.read(from: db, id: addressName)
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         guard !addressName.isEmpty else {
-            return
+            return 0
         }
         let now = try await interface.fetchAddressNow(addressName)
         try await now?.write(to: db)
+        return now?.hashValue ?? 0
     }
     
     override var noContent: Bool {
@@ -89,11 +116,11 @@ class StatusDataFetcher: ModelBackedDataFetcher<StatusModel> {
     }
     
     @MainActor
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         let status = try await interface.fetchAddressStatus(id, from: address)
-        Task { [db] in
-            try await status?.write(to: db)
-        }
+        try await status?.write(to: db)
+        return status?.hashValue ?? 0
+        
     }
     
     func fetcher(for url: URL) -> URLContentDataFetcher? {
@@ -118,40 +145,19 @@ class AddressPasteDataFetcher: ModelBackedDataFetcher<PasteModel> {
         super.init(interface: interface, db: db)
     }
     
-//    var draftPoster: PasteDraftPoster? {
-//        guard let credential else {
-//            return super.draftPoster as? PasteDraftPoster
-//        }
-//        if let model {
-//            return .init(
-//                addressName,
-//                title: model.name,
-//                content: model.content ?? "",
-//                interface: interface,
-//                credential: credential
-//            )
-//        } else {
-//            return .init(
-//                addressName,
-//                title: "",
-//                interface: interface,
-//                credential: credential
-//            )
-//        }
-//    }
-    
     @MainActor
     override func fetchModels() async throws {
         self.result = try await PasteModel.read(from: db, multicolumnPrimaryKey: [address, title])
     }
     
     @MainActor
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         guard !address.isEmpty, !title.isEmpty else {
-            return
+            return 0
         }
         let paste = try await interface.fetchPaste(title, from: address, credential: credential)
         try await paste?.write(to: db)
+        return paste?.hashValue ?? 0
     }
     
     func deleteIfPossible() async throws {
@@ -202,12 +208,13 @@ class AddressPURLDataFetcher: ModelBackedDataFetcher<PURLModel> {
         self.result = try await PURLModel.read(from: db, multicolumnPrimaryKey: [address, title])
     }
     
-    override func fetchRemote() async throws {
+    override func fetchRemote() async throws -> Int {
         guard !address.isEmpty, !title.isEmpty else {
-            return
+            return 0
         }
         let purl = try await interface.fetchPURL(title, from: address, credential: credential)
         try await purl?.write(to: db)
+        return purl?.hashValue ?? 0
     }
     
     func deleteIfPossible() async throws {

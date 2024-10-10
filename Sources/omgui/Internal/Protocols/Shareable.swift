@@ -76,7 +76,7 @@ extension AddressModel: Sharable {
     }
 }
 
-extension AddressProfile: Sharable {
+extension AddressProfilePage: Sharable {
     var primaryCopy: CopyPacket? {
         .init(name: "name", content: owner)
     }
