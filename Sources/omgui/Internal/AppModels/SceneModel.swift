@@ -22,8 +22,8 @@ class SceneModel {
     
     // MARK: Caches
     
-    var publicProfileCache: [AddressName: AddressSummaryDataFetcher] = [:]
-    var privateProfileCache: [AddressName: AddressPrivateSummaryDataFetcher] = [:]
+    var profileCache: NSCache<NSString, AddressSummaryDataFetcher> = .init()
+    var privateCache: NSCache<NSString, AddressPrivateSummaryDataFetcher> = .init()
     
     // MARK: Properties
     
@@ -105,22 +105,22 @@ extension SceneModel {
         return AddressPrivateSummaryDataFetcher(name: address, addressBook: addressBook, interface: interface, database: database)
     }
     func addressSummary(_ address: AddressName) -> AddressSummaryDataFetcher {
-        if let model = publicProfileCache[address] ?? (addressBook.myAddresses.contains(where: { $0.lowercased() == address.lowercased() }) ? privateProfileCache[address] : nil) {
+        if let model = profileCache.object(forKey: NSString(string: address)) ?? (addressBook.myAddresses.contains(where: { $0.lowercased() == address.lowercased() }) ? privateCache.object(forKey: NSString(string: address)) : nil) {
             return model
         } else {
             let model = constructFetcher(for: address)
-            publicProfileCache[address] = model
+            profileCache.setObject(model, forKey: NSString(string: address))
             return model
         }
     }
     func addressPrivateSummary(_ address: AddressName) throws -> AddressPrivateSummaryDataFetcher {
-        if let model = privateProfileCache[address] {
+        if let model = privateCache.object(forKey: NSString(string: address)) {
             return model
         } else {
             guard let model = privateSummary(for: address) else {
                 throw AddressBookError.notYourAddress
             }
-            privateProfileCache[address] = model
+            privateCache.setObject(model, forKey: NSString(string: address))
             return model
         }
     }
