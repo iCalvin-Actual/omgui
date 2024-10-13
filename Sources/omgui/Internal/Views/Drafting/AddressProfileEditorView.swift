@@ -122,7 +122,7 @@ public struct AddressProfileEditorView: View {
     @ViewBuilder
     var appropriateEditor: some View {
         if #available (iOS 18, *) {
-            MarkdownEditorView<StandardToolbar>(text: $content, selection: $selection)
+            MarkdownEditor<StandardToolbar>(text: $content, selection: $selection)
         } else {
             TextEditor(text: $content)
         }
