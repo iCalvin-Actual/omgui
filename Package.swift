@@ -33,10 +33,6 @@ let package = Package(
         .package(
             url: "https://github.com/iCalvin-Actual/MarkdownEditor.git", 
             branch: "main"
-        ),
-        .package(
-            url: "https://github.com/JohnSundell/Ink", 
-            exact: "0.5.1"
         )
     ],
     targets: [
