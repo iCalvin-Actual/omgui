@@ -120,10 +120,12 @@ struct AddressProfileView: View {
                     await draftPoster?.updateIfNeeded(forceReload: true)
                 }
             }, content: { poster in
-                NavigationStack {
-                    AddressProfileEditorView(poster, basedOn: selectedDraft)
+                if #available(iOS 18.0, *) {
+                    NavigationStack {
+                        AddressProfileEditorView(poster, basedOn: selectedDraft)
+                    }
+                    .presentationDetents([.medium, .large])
                 }
-                .presentationDetents([.medium, .large])
             })
             .sheet(isPresented: $showDrafts, content: {
                 draftsView(draftFetcher)

@@ -6,8 +6,9 @@
 //
 
 import SwiftUI
-import MarkupEditor
+import MarkdownEditor
 
+@available(iOS 18.0, *)
 public struct AddressProfileEditorView: View {
     @Environment(\.dismiss)
     var dismiss
@@ -20,8 +21,14 @@ public struct AddressProfileEditorView: View {
     @State
     var content: String = ""
     
+    @available(iOS 18.0, *)
+    @State
+    var selection: TextSelection? = nil
+    
     @State
     var confirmReset: Bool = false
+    @State
+    var showFormatting: Bool = false
     
     var hasChanges: Bool {
         draftPoster.originalDraft?.content != content
@@ -34,10 +41,11 @@ public struct AddressProfileEditorView: View {
     }
     
     public var body: some View {
-        TextEditor(text: $content)
+        appropriateEditor
+            .padding(4)
             .background(Color(uiColor: .systemBackground))
-            .cornerRadius(12)
-            .padding([.top, .horizontal])
+            .cornerRadius(24)
+            .padding()
             .background(NavigationDestination.editWebpage(draftPoster.address).gradient)
             .interactiveDismissDisabled()
             .toolbar {
@@ -111,6 +119,15 @@ public struct AddressProfileEditorView: View {
             }
     }
     
+    @ViewBuilder
+    var appropriateEditor: some View {
+        if #available (iOS 18, *) {
+            MarkdownEditorView<StandardToolbar>(text: $content, selection: $selection)
+        } else {
+            TextEditor(text: $content)
+        }
+    }
+
     func applyContent() {
         self.draftPoster.draft.content = content
     }
@@ -119,4 +136,3 @@ public struct AddressProfileEditorView: View {
         content = draftPoster.originalDraft?.content ?? ""
     }
 }
-
