@@ -42,6 +42,7 @@ public struct AddressProfileEditorView: View {
     
     public var body: some View {
         appropriateEditor
+            .tint(Color.primary)
             .padding(4)
             .background(Color(uiColor: .systemBackground))
             .cornerRadius(24)
