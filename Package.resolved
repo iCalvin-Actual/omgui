@@ -1,5 +1,5 @@
 {
-  "originHash" : "116987538a0d79316f22dc6ca9c26272f10ec9a4be678b632f31b13e3478b96c",
+  "originHash" : "063431f879d5d09e1721306908b98bdc6b3c787ce03fc947dc28f2624ceb12d6",
   "pins" : [
     {
       "identity" : "blackbird",
@@ -16,7 +16,7 @@
       "location" : "https://github.com/iCalvin-Actual/MarkdownEditor.git",
       "state" : {
         "branch" : "main",
-        "revision" : "0681d73398b4202a7c3308e6bbcee921117c101d"
+        "revision" : "4f40e85a59fa2906fe5da30c5615b1ba3f4f7df6"
       }
     },
     {
