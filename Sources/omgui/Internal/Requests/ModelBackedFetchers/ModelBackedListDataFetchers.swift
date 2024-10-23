@@ -109,7 +109,7 @@ class AddressFollowingDataFetcher: DataBackedListDataFetcher<AddressModel> {
             try await interface.followAddress(toFollow, from: address, credential: credential)
             self.results.append(.init(name: toFollow))
         } catch {
-            if case let .unhandled(_, message) = (error as? APIError), message?.contains("You're already following") ?? false, !self.results.contains(where: { $0.addressName == toFollow }) {
+            if error.localizedDescription.contains("You're already following"), !self.results.contains(where: { $0.addressName == toFollow }) {
                 self.results.append(.init(name: toFollow))
             }
         }
@@ -121,7 +121,7 @@ class AddressFollowingDataFetcher: DataBackedListDataFetcher<AddressModel> {
             try await interface.unfollowAddress(toRemove, from: address, credential: credential)
             self.results.removeAll(where: { $0.addressName == toRemove })
         } catch {
-            if case let .unhandled(_, message) = (error as? APIError), message?.contains("You're not following") ?? false, self.results.contains(where: { $0.addressName == toRemove }) {
+            if error.localizedDescription.contains("You're not following"), self.results.contains(where: { $0.addressName == toRemove }) {
                 self.results.removeAll(where: { $0.addressName == toRemove })
             }
         }

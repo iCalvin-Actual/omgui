@@ -7,7 +7,6 @@
 
 import MarkdownUI
 import SwiftUI
-import Ink
 
 struct StatusRowView: View {
     @Environment(SceneModel.self)
