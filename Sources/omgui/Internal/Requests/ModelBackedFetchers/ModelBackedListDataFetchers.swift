@@ -8,6 +8,7 @@
 import Blackbird
 import Foundation
 import SwiftUI
+import omgapi
 
 
 class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
