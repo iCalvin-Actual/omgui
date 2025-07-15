@@ -111,8 +111,11 @@ class StatusDataFetcher: ModelBackedDataFetcher<StatusModel> {
     
     @MainActor
     override func fetchModels() async throws {
-        print("Fetching status")
-        result = try await StatusModel.read(from: db, id: id)
+        do {
+            result = try await StatusModel.read(from: db, id: id)
+        } catch {
+            throw(error)
+        }
     }
     
     @MainActor
