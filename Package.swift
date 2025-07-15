@@ -23,17 +23,17 @@ let package = Package(
             branch: "main"
         ),
         .package(
-            url: "https://github.com/iCalvin-Actual/PunycodeSwift", 
-            branch: "main"
-        ),
-        .package(
             url: "https://github.com/iCalvin-Actual/Blackbird", 
             branch: "main"
         ),
         .package(
             url: "https://github.com/iCalvin-Actual/MarkdownEditor.git", 
             branch: "main"
-        )
+        ),
+        .package(
+            url: "https://github.com/iCalvin-Actual/PunycodeSwift",
+            branch: "main"
+        ),
     ],
     targets: [
         .target(

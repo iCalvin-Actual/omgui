@@ -8,7 +8,6 @@
 import Blackbird
 import Foundation
 import SwiftUI
-import omgapi
 
 
 class AddressDirectoryDataFetcher: ModelBackedListDataFetcher<AddressModel> {
@@ -264,7 +263,10 @@ class AddressPasteBinDataFetcher: ModelBackedListDataFetcher<PasteModel> {
         guard !addressName.isEmpty else {
             return 0
         }
-        let pastes = try await interface.fetchAddressPastes(addressName, credential: credential)
+        var pastes = try await interface.fetchAddressPastes(addressName, credential: credential)
+        if addressName == "app" {
+            pastes = pastes.filter({ $0.name != "app.lol.blocked" })
+        }
         let db = db
         pastes.forEach({ model in
             Task {
@@ -290,6 +292,7 @@ class AddressPURLsDataFetcher: ModelBackedListDataFetcher<PURLModel> {
             return 0
         }
         let purls = try await interface.fetchAddressPURLs(addressName, credential: credential)
+        
         let db = db
         purls.forEach({ model in
             Task {

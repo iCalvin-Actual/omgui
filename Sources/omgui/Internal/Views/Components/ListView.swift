@@ -261,7 +261,7 @@ struct ListView<T: Listable, H: View>: View {
                     return
                 }
                 
-                try? withAnimation { @MainActor in
+                withAnimation { @MainActor in
                     self.selected = newSelection
                 }
             })
