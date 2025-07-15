@@ -114,7 +114,6 @@ class StatusDataFetcher: ModelBackedDataFetcher<StatusModel> {
         do {
             result = try await StatusModel.read(from: db, id: id)
         } catch {
-            print("Error")
             throw(error)
         }
     }
